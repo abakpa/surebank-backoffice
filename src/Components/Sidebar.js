@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from 'react-router-dom';
+
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const handleMenuClick = (menu) => {
@@ -30,9 +32,51 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         </li>
         <li
           className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={() => handleMenuClick("Profile")}
+          onClick={() => handleMenuClick("branches")}
         >
-          Profile
+            <Link to="/branches">
+          Branches
+          </Link>
+        </li>
+        <li
+          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          onClick={() => handleMenuClick("branches")}
+        >
+            <Link to="/createbranch">
+          Create Branch
+          </Link>
+        </li>
+        <li
+          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          onClick={() => handleMenuClick("branches")}
+        >
+            <Link to="/staff">
+          View Staff
+          </Link>
+        </li>
+        <li
+          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          onClick={() => handleMenuClick("branches")}
+        >
+            <Link to="/createstaff">
+          Create Staff
+          </Link>
+        </li>
+        <li
+          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          onClick={() => handleMenuClick("branches")}
+        >
+            <Link to="/customers">
+          View Customer
+          </Link>
+        </li>
+        <li
+          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          onClick={() => handleMenuClick("branches")}
+        >
+            <Link to="/createcustomer">
+          Create Customer
+          </Link>
         </li>
         <li
           className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
