@@ -30,54 +30,55 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         >
           Dashboard
         </li>
+        <Link to="/branches">
         <li
           className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={() => handleMenuClick("branches")}
+          onClick={toggleSidebar}
         >
-            <Link to="/branches">
           Branches
-          </Link>
         </li>
+        </Link>
+        <Link to="/createbranch">
         <li
           className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={() => handleMenuClick("branches")}
+          onClick={toggleSidebar}
         >
-            <Link to="/createbranch">
           Create Branch
-          </Link>
         </li>
+        </Link>
+        <Link to="/staff">
         <li
           className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={() => handleMenuClick("branches")}
+          onClick={toggleSidebar}
         >
-            <Link to="/staff">
           View Staff
-          </Link>
         </li>
+        </Link>
+        <Link to="/createstaff">
         <li
           className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={() => handleMenuClick("branches")}
+          onClick={toggleSidebar}
         >
-            <Link to="/createstaff">
           Create Staff
-          </Link>
         </li>
+        </Link>
+        <Link to="/customers">
         <li
           className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={() => handleMenuClick("branches")}
+          onClick={toggleSidebar}
         >
-            <Link to="/customers">
           View Customer
-          </Link>
         </li>
+        </Link>
+        <Link to="/createcustomer">
         <li
           className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={() => handleMenuClick("branches")}
+          onClick={toggleSidebar}
         >
-            <Link to="/createcustomer">
           Create Customer
-          </Link>
         </li>
+        </Link>
+
         <li
           className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
           onClick={() => handleMenuClick("Settings")}

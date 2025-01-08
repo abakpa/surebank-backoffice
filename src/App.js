@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import React from "react";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import Sidebar from "./Components/Sidebar";
 import Topbar from "./Components/Topbar";
 import Content from "./Components/Content";
@@ -8,36 +9,36 @@ import Createbranch from "./Components/Createbranch";
 import ViewStaff from "./Components/Viewstaff";
 import CreateStaff from "./Components/Createstaff";
 import ViewCustomer from "./Components/Viewcustomer";
+import CreateCustomer from "./Components/Createcustomer";
+import Login from "./Components/Stafflogin";
 import Footer from "./Components/Footer";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login state
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Track sidebar state
+  const isLoggedIn = useSelector((state) => state.login.token);
+  const token = isLoggedIn || localStorage.getItem("authToken");
+
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false); // Track sidebar state
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-    setIsSidebarOpen(false); // Close sidebar (just in case)
-  };
-
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    setIsSidebarOpen(false); // Close sidebar
+    // Logout logic: Clear token and close sidebar
+    localStorage.removeItem("authToken");
+    setIsSidebarOpen(false);
   };
 
   return (
     <Router>
       <div className="relative flex h-screen">
         {/* Render Sidebar only when logged in */}
-        {isLoggedIn && (
+        {token && (
           <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         )}
 
         {/* Overlay for small screens */}
-        {isSidebarOpen && isLoggedIn && (
+        {isSidebarOpen && token && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden"
             onClick={toggleSidebar}
@@ -48,26 +49,33 @@ function App() {
         <div className="flex flex-col flex-1 pt-20">
           {/* Topbar */}
           <Topbar
-            isLoggedIn={isLoggedIn}
-            onLogin={handleLogin}
+            isLoggedIn={!!token}
             onLogout={handleLogout}
             toggleSidebar={toggleSidebar}
           />
 
           {/* Page Content */}
           <div className="flex-1 bg-gray-100 overflow-y-auto">
-            {isLoggedIn ? (
-              <Routes>
-                <Route path="/" element={<Content />} />
-                <Route path="/branches" element={<Viewbranches />} />
-                <Route path="/createbranch" element={<Createbranch />} />
-                <Route path="/staff" element={<ViewStaff />} />
-                <Route path="/createstaff" element={<CreateStaff />} />
-                <Route path="/customers" element={<ViewCustomer />} />
-              </Routes>
-            ) : (
-              <Content />
-            )}
+            <Routes>
+              {/* Protected Routes */}
+              {token ? (
+                <>
+                  <Route path="/" element={<Content />} />
+                  <Route path="/branches" element={<Viewbranches />} />
+                  <Route path="/createbranch" element={<Createbranch />} />
+                  <Route path="/staff" element={<ViewStaff />} />
+                  <Route path="/createstaff" element={<CreateStaff />} />
+                  <Route path="/customers" element={<ViewCustomer />} />
+                  <Route path="/createcustomer" element={<CreateCustomer />} />
+                  <Route path="/content" element={<Content />} />
+                </>
+              ) : (
+                // Redirect unauthenticated users to Login
+                <Route path="*" element={<Navigate to="/login" />} />
+              )}
+              {/* Login Route */}
+              <Route path="/login" element={<Login />} />
+            </Routes>
           </div>
 
           {/* Footer */}

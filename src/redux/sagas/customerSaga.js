@@ -4,10 +4,8 @@ import {fetchCustomerRequest,fetchCustomerSuccess,fetchCustomerFailure,createCus
 import { url } from './url'
 
  function* fetchCustomerSaga(){
-    console.log(">>>><<<<")
     try {
         const response = yield call(axios.get, `${url}/api/customer`)
-        console.log("branches>>>>>>",response)
         yield put(fetchCustomerSuccess(response.data))
     } catch (error) {
         yield put(fetchCustomerFailure(error.response.data.message))
@@ -18,7 +16,7 @@ function* createCustomerSaga(action){
     try {
         const response = yield call(axios.post,`${url}/api/customer`, details);
         yield put(createCustomerSuccess(response.data))
-        navigate('/customer')
+        navigate('/customers')
     } catch (error) {
         yield put(createCustomerFailure(error.message))
     }

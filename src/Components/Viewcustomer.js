@@ -35,7 +35,7 @@ const Viewcustomer = () => {
                           className="opacity-75"
                       />
                   </svg>
-                  <p className="text-blue-500 ml-4">Loading vehicles...</p>
+                  <p className="text-blue-500 ml-4">Loading customers...</p>
               </div>
           );
       }

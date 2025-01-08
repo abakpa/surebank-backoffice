@@ -1,14 +1,13 @@
 import React, {useState,useEffect} from "react";
 import {useDispatch,useSelector} from 'react-redux'
 import {useNavigate} from 'react-router-dom'
-import { createStaffRequest } from '../redux/slices/staffSlice'
+import { createCustomerRequest } from '../redux/slices/customerSlice'
 import {fetchBranchRequest} from '../redux/slices/branchSlice'
 
-const CreateStaff = () => {
+const CreateCustomer = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
-    const roles = ["Manager","Agent","Admin"]
     const {error,loading} = useSelector((state)=>state.staff)
     const {branches} = useSelector((state)=>state.branch)
 
@@ -16,7 +15,7 @@ const CreateStaff = () => {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("");
+  const [password, setPassword] = useState("");
   const [branch, setBranch] = useState("");
 
   useEffect(()=>{
@@ -25,14 +24,14 @@ const CreateStaff = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const details = { name, address, phone, email, role, branch }
+    const details = { name, address, phone, email, password, branch }
     const data ={details,navigate}
-    dispatch(createStaffRequest(data))
+    dispatch(createCustomerRequest(data))
       setName("");
       setAddress("");
       setPhone("");
       setEmail("");
-      setRole("");
+      setPassword("");
       setBranch("");
   };
   if(error)return <p>{error}</p>
@@ -95,25 +94,18 @@ const CreateStaff = () => {
             required
           />
         </div>
-
         <div className="mb-4">
-          <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-            Role
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            Password
           </label>
-          <select
-            id="role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
             required
-          >
-            <option value="">Select a role</option>
-            {roles.map((role, index) => (
-              <option key={index} value={role}>
-                {role}
-              </option>
-            ))}
-          </select>
+          />
         </div>
 
         <div className="mb-4">
@@ -167,7 +159,7 @@ const CreateStaff = () => {
           type="submit"
           className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
         >
-          Create Staff
+          Create Customer
         </button>
                     )}
         </div>
@@ -176,4 +168,4 @@ const CreateStaff = () => {
   );
 };
 
-export default CreateStaff;
+export default CreateCustomer;

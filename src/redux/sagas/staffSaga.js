@@ -4,10 +4,8 @@ import {fetchStaffRequest,fetchStaffSuccess,fetchStaffFailure,createStaffRequest
 import { url } from './url'
 
  function* fetchStaffSaga(){
-    console.log(">>>><<<<")
     try {
         const response = yield call(axios.get, `${url}/api/staff`)
-        console.log("branches>>>>>>",response)
         yield put(fetchStaffSuccess(response.data))
     } catch (error) {
         yield put(fetchStaffFailure(error.response.data.message))
