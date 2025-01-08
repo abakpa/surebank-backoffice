@@ -14,7 +14,7 @@ const Topbar = ({  onLogin, onLogout, toggleSidebar }) => {
   const isLoggedIn = useSelector((state) => state.login.token);
 const token = isLoggedIn || localStorage.getItem("authToken");
   return (
-    <div className="fixed top-0 left-0 w-full bg-gray-900 text-white p-4 shadow-lg z-50">
+    <div className="fixed top-0 left-0 w-full bg-gray-900 text-white p-6 shadow-lg z-50">
       <div className="flex items-center justify-between">
         {/* Sidebar Toggle Button (small screens) */}
         {token && (
@@ -27,8 +27,9 @@ const token = isLoggedIn || localStorage.getItem("authToken");
         )}
 
         {/* System Name */}
+        <Link to="/content">        
         <h1 className="lg:text-xl text-sm font-bold">Sure Bank</h1>
-
+        </Link>
         {/* Buttons */}
         <div className="flex items-center space-x-4">
           {token ? (

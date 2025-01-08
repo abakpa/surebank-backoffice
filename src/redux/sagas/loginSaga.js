@@ -17,6 +17,8 @@ function* loginSaga(action){
         localStorage.setItem('authToken', token);
         localStorage.setItem('staffId', staff.id);
         localStorage.setItem('staffEmail', staff.email);
+        localStorage.setItem('staffRole', staff.role);
+        localStorage.setItem('staffBranch', staff.branch);
         yield put(loginSuccess(response.data))
         navigate('/content')
     } catch (error) {
@@ -30,6 +32,8 @@ function* logoutSaga(action){
         localStorage.removeItem('authToken');
         localStorage.removeItem('staffId');
         localStorage.removeItem('staffEmail');
+        localStorage.removeItem('staffRole');
+        localStorage.removeItem('staffBranch');
         navigate('/content');
 
         // Dispatch logout success action

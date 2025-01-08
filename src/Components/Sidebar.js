@@ -1,8 +1,12 @@
 import React from "react";
 import { Link } from 'react-router-dom';
+import { useSelector } from "react-redux";
+
 
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
+  const isLoggedIn = useSelector((state) => state.login.staff?.role);
+  const loggedInStaffRole = isLoggedIn || localStorage.getItem("staffRole");
   const handleMenuClick = (menu) => {
     console.log(`Navigating to: ${menu}`);
     // Perform navigation or other actions here
@@ -11,7 +15,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
   return (
     <div
-      className={`fixed inset-y-0 left-0 w-64 bg-gray-800 text-white p-4 transform ${
+      className={`fixed inset-y-0 left-0 w-64 bg-gray-800 text-white p-4 mt-4 transform ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       } transition-transform lg:translate-x-0 lg:relative lg:block z-20`}
     >
@@ -54,6 +58,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           View Staff
         </li>
         </Link>
+        {isLoggedIn !== "Agent" &&(
         <Link to="/createstaff">
         <li
           className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
@@ -62,6 +67,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           Create Staff
         </li>
         </Link>
+        )}
         <Link to="/customers">
         <li
           className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
