@@ -58,7 +58,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           View Staff
         </li>
         </Link>
-        {isLoggedIn !== "Agent" &&(
+        {loggedInStaffRole !== "Agent" &&(
         <Link to="/createstaff">
         <li
           className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"

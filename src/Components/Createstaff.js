@@ -3,12 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createStaffRequest } from "../redux/slices/staffSlice";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
+import Select from "./Select";
 
 const CreateStaff = () => {
   const isLoggedIn = useSelector((state) => state.login.staff?.role);
   const loggedInStaffRole = isLoggedIn || localStorage.getItem("staffRole");
   const isLoggedInBranch = useSelector((state) => state.login.staff?.branch);
   const loggedInStaffBranch = isLoggedInBranch || localStorage.getItem("staffBranch");
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -20,8 +22,8 @@ const CreateStaff = () => {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState(loggedInStaffRole === "Manager" ? "Agent" : ""); // Default to "Agent" for Managers
-  const [branch, setBranch] = useState(loggedInStaffRole === "Manager" ?loggedInStaffBranch:"" );
+  const [role, setRole] = useState(loggedInStaffRole === "Manager" ? "Agent" : "");
+  const [branch, setBranch] = useState(loggedInStaffRole === "Manager" ? loggedInStaffBranch : "");
 
   useEffect(() => {
     dispatch(fetchBranchRequest());
@@ -37,17 +39,13 @@ const CreateStaff = () => {
     setPhone("");
     setEmail("");
     setRole(loggedInStaffRole === "Manager" ? "Agent" : "");
-    setBranch(loggedInStaffRole === "Manager" ?loggedInStaffBranch:"" );
+    setBranch(loggedInStaffRole === "Manager" ? loggedInStaffBranch : "");
   };
 
   return (
     <div className="p-6 bg-white rounded shadow-md max-w-lg mx-auto mb-6">
       <h2 className="text-xl font-bold mb-4">Create New Staff</h2>
-      {error && (
-        <p className="text-red-600 mb-4 text-sm">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-red-600 mb-4 text-sm">{error}</p>}
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -105,7 +103,6 @@ const CreateStaff = () => {
           />
         </div>
 
-        {/* Conditionally render the role field */}
         {loggedInStaffRole === "Manager" ? (
           <div className="mb-4">
             <label htmlFor="role" className="block text-sm font-medium text-gray-700">
@@ -120,60 +117,34 @@ const CreateStaff = () => {
             />
           </div>
         ) : loggedInStaffRole === "Admin" ? (
-          <div className="mb-4">
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-              Role
-            </label>
-            <select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
-              required
-            >
-              <option value="">Select a role</option>
-              {roles.map((roleOption, index) => (
-                <option key={index} value={roleOption}>
-                  {roleOption}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Select
+            label="Role"
+            options={roles}
+            value={role}
+            onChange={setRole}
+          />
         ) : null}
 
-{loggedInStaffRole === "Manager" ? (
+        {loggedInStaffRole === "Manager" ? (
           <div className="mb-4">
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
               Branch
             </label>
             <input
-              id="role"
+              id="branch"
               type="text"
               value={loggedInStaffBranch}
               readOnly
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded bg-gray-100 focus:outline-none"
             />
           </div>
-           ) : loggedInStaffRole === "Admin" ? (
-        <div className="mb-4">
-          <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
-            Branch
-          </label>
-          <select
-            id="branch"
+        ) : loggedInStaffRole === "Admin" ? (
+          <Select
+            label="Branch"
+            options={branches.map((branch) => branch.name)}
             value={branch}
-            onChange={(e) => setBranch(e.target.value)}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
-            required
-          >
-            <option value="">Select a branch</option>
-            {branches.map((branch, index) => (
-              <option key={index} value={branch.name}>
-                {branch.name}
-              </option>
-            ))}
-          </select>
-        </div>
+            onChange={setBranch}
+          />
         ) : null}
 
         <div>
