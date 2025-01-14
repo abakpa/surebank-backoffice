@@ -34,6 +34,22 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         >
           Dashboard
         </li>
+        <Link to="/viewcustomeraccount">
+        <li
+          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          onClick={toggleSidebar}
+        >
+          View Customer Account
+        </li>
+        </Link>
+        <Link to="/customeraccountdashboard">
+        <li
+          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          onClick={toggleSidebar}
+        >
+          Customer Dashboard
+        </li>
+        </Link>
         <Link to="/createaccount">
         <li
           className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"

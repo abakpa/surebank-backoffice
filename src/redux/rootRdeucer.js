@@ -5,6 +5,7 @@ import customerReducer from './slices/customerSlice'
 import loginReducer from './slices/loginSlice'
 import depositReducer from './slices/depositSlice'
 import customerAccountReducer from './slices/createAccountSlice'
+import customerAccountDetailReducer from './slices/customerAccountDetailSlice'
 
 
 const rootReducer = combineReducers({
@@ -13,7 +14,8 @@ const rootReducer = combineReducers({
     customer:customerReducer,
     login:loginReducer,
     deposit:depositReducer,
-    customerAccount:customerAccountReducer
+    customerAccount:customerAccountReducer,
+    customerAccountDetail:customerAccountDetailReducer
 });
 
 export default rootReducer;

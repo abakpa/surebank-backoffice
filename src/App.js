@@ -12,6 +12,8 @@ import ViewCustomer from "./Components/Viewcustomer";
 import CreateCustomer from "./Components/Createcustomer";
 import Deposit from "./Components/Deposit";
 import CreateAccount from "./Components/CreateAccount";
+import ViewCustomerAccount from "./Components/ViewCustomerAccount";
+import CustomerAccountDashboard from "./Components/CustomerAccountDashboard";
 import Login from "./Components/Stafflogin";
 import Footer from "./Components/Footer";
 
@@ -72,6 +74,8 @@ function App() {
                   <Route path="/content" element={<Content />} />
                   <Route path="/deposit" element={<Deposit />} />
                   <Route path="/createaccount" element={<CreateAccount />} />
+                  <Route path="/viewcustomeraccount" element={<ViewCustomerAccount />} />
+                  <Route path="/customeraccountdashboard" element={<CustomerAccountDashboard />} />
                 </>
               ) : (
                 // Redirect unauthenticated users to Login
