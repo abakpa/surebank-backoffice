@@ -1,6 +1,8 @@
 import React,{useEffect} from "react";
 import {useDispatch,useSelector} from 'react-redux'
 import {fetchStaffRequest} from '../redux/slices/staffSlice'
+import Tablehead from "./Table/StaffTableHead";
+import Tablebody from "./Table/StaffTableBody";
 
 const Viewstaff = () => {
 
@@ -41,32 +43,12 @@ const Viewstaff = () => {
       }
       if(error)return <p>Error: {error}</p>
   return (
-    <div className="p-6 bg-white rounded shadow-md max-w-4xl mx-auto mb-6">
-      <h2 className="text-xl font-bold mb-4">Staff List</h2>
-      <table className="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border border-gray-300 p-2">Name</th>
-            <th className="border border-gray-300 p-2">Address</th>
-            <th className="border border-gray-300 p-2">Phone</th>
-            <th className="border border-gray-300 p-2">Email</th>
-            <th className="border border-gray-300 p-2">Role</th>
-            <th className="border border-gray-300 p-2">Branch</th>
-          </tr>
-        </thead>
-        <tbody>
-          {staffs.map((staff, index) => (
-            <tr key={index} className="text-center">
-              <td className="border border-gray-300 p-2">{staff.name}</td>
-              <td className="border border-gray-300 p-2">{staff.address}</td>
-              <td className="border border-gray-300 p-2">{staff.phone}</td>
-              <td className="border border-gray-300 p-2">{staff.email}</td>
-              <td className="border border-gray-300 p-2">{staff.role}</td>
-              <td className="border border-gray-300 p-2">{staff.branch}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="flex flex-col p-6 bg-gray-100">
+      <h2 className=" text-xl font-bold mb-4 text-center">Staff List</h2>
+      <table className="w-full min-w-[700px] border-collapse border border-gray-300">
+          <Tablehead />
+          <Tablebody staffs={staffs} />
+        </table>
     </div>
   );
 };

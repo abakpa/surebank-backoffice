@@ -1,6 +1,8 @@
 import React,{useEffect} from "react";
 import {useDispatch,useSelector} from 'react-redux'
 import {fetchBranchRequest} from '../redux/slices/branchSlice'
+import Tablehead from "./Table/BranchTableHead";
+import Tablebody from "./Table/BranchTableBody";
 
 const Viewbranches = () => {
     const dispatch = useDispatch()
@@ -40,33 +42,12 @@ const Viewbranches = () => {
   }
   if(error)return <p>Error: {error}</p>
   return (
-    <div className="p-6 bg-white rounded shadow-md">
-      <h2 className="text-xl font-bold mb-4">Branches</h2>
-      <table className="w-full table-auto">
-        <thead>
-          <tr>
-            <th className="px-4 py-2 text-left">Branch Name</th>
-            <th className="px-4 py-2 text-left">Location</th>
-            <th className="px-4 py-2 text-left">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {branches.map((branch, index) => (
-            <tr key={index} className="border-b">
-              <td className="px-4 py-2">{branch.name}</td>
-              <td className="px-4 py-2">{branch.address}</td>
-              <td className="px-4 py-2">
-                <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                  Edit
-                </button>
-                <button className="bg-red-500 text-white px-4 py-2 lg:ml-2 mt-2 rounded hover:bg-red-600">
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="flex flex-col p-6 bg-gray-100">
+      <h2 className=" text-xl font-bold mb-4 text-center">Branches</h2>
+      <table className="w-full min-w-[700px] border-collapse border border-gray-300">
+          <Tablehead />
+          <Tablebody branches={branches} />
+        </table>
     </div>
   );
 };

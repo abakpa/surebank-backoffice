@@ -10,6 +10,8 @@ import ViewStaff from "./Components/Viewstaff";
 import CreateStaff from "./Components/Createstaff";
 import ViewCustomer from "./Components/Viewcustomer";
 import CreateCustomer from "./Components/Createcustomer";
+import Deposit from "./Components/Deposit";
+import CreateAccount from "./Components/CreateAccount";
 import Login from "./Components/Stafflogin";
 import Footer from "./Components/Footer";
 
@@ -31,7 +33,7 @@ function App() {
 
   return (
     <Router>
-      <div className="relative flex h-screen">
+      <div className="container mx-auto relative flex  h-screen ">
         {/* Render Sidebar only when logged in */}
         {token && (
           <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
@@ -55,7 +57,7 @@ function App() {
           />
 
           {/* Page Content */}
-          <div className="flex-1 bg-gray-100 overflow-y-auto">
+          <div className="content flex-1 bg-gray-100 overflow-y-auto">
             <Routes>
               {/* Protected Routes */}
               {token ? (
@@ -68,6 +70,8 @@ function App() {
                   <Route path="/customers" element={<ViewCustomer />} />
                   <Route path="/createcustomer" element={<CreateCustomer />} />
                   <Route path="/content" element={<Content />} />
+                  <Route path="/deposit" element={<Deposit />} />
+                  <Route path="/createaccount" element={<CreateAccount />} />
                 </>
               ) : (
                 // Redirect unauthenticated users to Login

@@ -34,6 +34,22 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         >
           Dashboard
         </li>
+        <Link to="/createaccount">
+        <li
+          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          onClick={toggleSidebar}
+        >
+          Create Account
+        </li>
+        </Link>
+        <Link to="/deposit">
+        <li
+          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          onClick={toggleSidebar}
+        >
+          Deposit
+        </li>
+        </Link>
         <Link to="/branches">
         <li
           className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
