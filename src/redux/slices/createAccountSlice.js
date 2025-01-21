@@ -10,6 +10,26 @@ const customerAccountSlice = createSlice({
     name:'customerAccount',
     initialState,
     reducers:{
+        fetchAllCustomerAccountRequest:(state)=>{
+            state.loading = true
+        },
+        fetchAllCustomerAccountSuccess:(state,action)=>{
+            state.customerAccount= action.payload;
+            state.loading=false
+        },
+        fetchAllCustomerAccountFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchAccountTransactionRequest:(state)=>{
+            state.loading = true
+        },
+        fetchAccountTransactionSuccess:(state,action)=>{
+            state.customerAccount= action.payload;
+            state.loading=false
+        },
+        fetchAccountTransactionFailure:(state,action)=>{
+            state.error = action.payload
+        },
         fetchCustomerAccountRequest:(state)=>{
             state.loading = true
         },
@@ -18,6 +38,16 @@ const customerAccountSlice = createSlice({
             state.loading=false
         },
         fetchCustomerAccountFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchCustomerSubAccountRequest:(state)=>{
+            state.loading = true
+        },
+        fetchCustomerSubAccountSuccess:(state,action)=>{
+            state.customerAccount= action.payload;
+            state.loading=false
+        },
+        fetchCustomerSubAccountFailure:(state,action)=>{
             state.error = action.payload
         },
         createCustomerAccountRequest:(state)=>{
@@ -34,6 +64,22 @@ const customerAccountSlice = createSlice({
     }
 })
 
-export const {fetchCustomerAccountRequest,fetchCustomerAccountSuccess,fetchCustomerAccountFailure,createCustomerAccountRequest,createCustomerAccountSuccess,createCustomerAccountFailure} = customerAccountSlice.actions
+export const {
+    fetchAllCustomerAccountRequest,
+    fetchAllCustomerAccountSuccess,
+    fetchAllCustomerAccountFailure,
+    fetchAccountTransactionRequest,
+    fetchAccountTransactionSuccess,
+    fetchAccountTransactionFailure,
+    fetchCustomerAccountRequest,
+    fetchCustomerAccountSuccess,
+    fetchCustomerAccountFailure,
+    fetchCustomerSubAccountRequest,
+    fetchCustomerSubAccountSuccess,
+    fetchCustomerSubAccountFailure,
+    createCustomerAccountRequest,
+    createCustomerAccountSuccess,
+    createCustomerAccountFailure
+} = customerAccountSlice.actions
 
 export default customerAccountSlice.reducer

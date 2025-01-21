@@ -29,88 +29,88 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       <h2 className="text-xl font-bold mb-6">Sidebar</h2>
       <ul>
         <li
-          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          className=" hover:bg-gray-700 p-2 rounded cursor-pointer text-xs"
           onClick={() => handleMenuClick("Dashboard")}
         >
           Dashboard
         </li>
-        <Link to="/viewcustomeraccount">
+        {/* <Link to="/viewcustomeraccount" className="text-xs">
         <li
-          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
           onClick={toggleSidebar}
         >
           View Customer Account
         </li>
-        </Link>
-        <Link to="/customeraccountdashboard">
+        </Link> */}
+        {/* <Link to="/customeraccountdashboard" className="text-xs">
         <li
-          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
           onClick={toggleSidebar}
         >
           Customer Dashboard
         </li>
-        </Link>
-        <Link to="/createaccount">
+        </Link> */}
+        {/* <Link to="/createaccount" className="text-xs">
         <li
-          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
           onClick={toggleSidebar}
         >
           Create Account
         </li>
-        </Link>
-        <Link to="/deposit">
+        </Link> */}
+        {/* <Link to="/deposit" className="text-xs">
         <li
-          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
           onClick={toggleSidebar}
         >
           Deposit
         </li>
-        </Link>
-        <Link to="/branches">
+        </Link> */}
+        <Link to="/branches" className="text-xs">
         <li
-          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
           onClick={toggleSidebar}
         >
           Branches
         </li>
         </Link>
-        <Link to="/createbranch">
+        <Link to="/createbranch" className="text-xs">
         <li
-          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
           onClick={toggleSidebar}
         >
           Create Branch
         </li>
         </Link>
-        <Link to="/staff">
+        <Link to="/staff" className="text-xs">
         <li
-          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
           onClick={toggleSidebar}
         >
           View Staff
         </li>
         </Link>
         {loggedInStaffRole !== "Agent" &&(
-        <Link to="/createstaff">
+        <Link to="/createstaff" className="text-xs">
         <li
-          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
           onClick={toggleSidebar}
         >
           Create Staff
         </li>
         </Link>
         )}
-        <Link to="/customers">
+        <Link to="/customers" className="text-xs">
         <li
-          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
           onClick={toggleSidebar}
         >
           View Customer
         </li>
         </Link>
-        <Link to="/createcustomer">
+        <Link to="/createcustomer" className="text-xs">
         <li
-          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
           onClick={toggleSidebar}
         >
           Create Customer
@@ -118,7 +118,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         </Link>
 
         <li
-          className="mb-4 hover:bg-gray-700 p-2 rounded cursor-pointer"
+          className=" hover:bg-gray-700 p-2 rounded cursor-pointer text-xs"
           onClick={() => handleMenuClick("Settings")}
         >
           Settings

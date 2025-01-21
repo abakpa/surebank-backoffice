@@ -3,12 +3,14 @@ import {useDispatch,useSelector} from 'react-redux'
 import {useNavigate} from 'react-router-dom'
 import { createCustomerRequest } from '../redux/slices/customerSlice'
 import {fetchBranchRequest} from '../redux/slices/branchSlice'
+import {fetchStaffRequest} from '../redux/slices/staffSlice'
+
 
 const CreateCustomer = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
-    const {error,loading} = useSelector((state)=>state.staff)
+    const {error,loading,staffs} = useSelector((state)=>state.staff)
     const {branches} = useSelector((state)=>state.branch)
 
   const [name, setName] = useState("");
@@ -16,15 +18,20 @@ const CreateCustomer = () => {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [branch, setBranch] = useState("");
+  const [branchId, setBranchId] = useState("");
+  const [accountManagerId, setAccountManagerId] = useState("");
 
   useEffect(()=>{
     dispatch(fetchBranchRequest())
 },[dispatch])
 
+  useEffect(()=>{
+            dispatch(fetchStaffRequest())
+        },[dispatch])
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    const details = { name, address, phone, email, password, branch }
+    const details = { name, address, phone, email, password, branchId, accountManagerId }
     const data ={details,navigate}
     dispatch(createCustomerRequest(data))
       setName("");
@@ -32,7 +39,7 @@ const CreateCustomer = () => {
       setPhone("");
       setEmail("");
       setPassword("");
-      setBranch("");
+      setBranchId("");
   };
   if(error)return <p>{error}</p>
   return (
@@ -113,16 +120,36 @@ const CreateCustomer = () => {
             Branch
           </label>
           <select
-            id="branch"
-            value={branch}
-            onChange={(e) => setBranch(e.target.value)}
+            id="branchId"
+            value={branchId}
+            onChange={(e) => setBranchId(e.target.value)}
             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
             required
           >
             <option value="">Select a branch</option>
             {branches.map((branch, index) => (
-              <option key={index} value={branch.name}>
+              <option key={index} value={branch._id}>
                 {branch.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
+            Account Rep
+          </label>
+          <select
+            id="accountManagerId"
+            value={accountManagerId}
+            onChange={(e) => setAccountManagerId(e.target.value)}
+            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            required
+          >
+            <option value="">Select a branch</option>
+            {staffs.map((staff, index) => (
+              <option key={index} value={staff._id}>
+                {staff.name}
               </option>
             ))}
           </select>

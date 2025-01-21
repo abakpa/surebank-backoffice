@@ -20,6 +20,16 @@ const branchSlice = createSlice({
         fetchBranchFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchBranchByIdRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchByIdSuccess:(state,action)=>{
+            state.branches= action.payload;
+            state.loading=false
+        },
+        fetchBranchByIdFailure:(state,action)=>{
+            state.error = action.payload
+        },
         createBranchRequest:(state)=>{
             state.loading=true
         },
@@ -34,6 +44,16 @@ const branchSlice = createSlice({
     }
 })
 
-export const {fetchBranchRequest,fetchBranchSuccess,fetchBranchFailure,createBranchRequest,createBranchSuccess,createBranchFailure} = branchSlice.actions
+export const {
+    fetchBranchRequest,
+    fetchBranchSuccess,
+    fetchBranchFailure,
+    fetchBranchByIdRequest,
+    fetchBranchByIdSuccess,
+    fetchBranchByIdFailure,
+    createBranchRequest,
+    createBranchSuccess,
+    createBranchFailure
+} = branchSlice.actions
 
 export default branchSlice.reducer

@@ -1,29 +1,34 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { fetchCustomerAccountRequest } from "../redux/slices/createAccountSlice";
 
 const ViewCustomerAccount = () => {
   const [accountNumber, setAccountNumber] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Validation: Ensure account number is not empty and is numeric
-    if (!accountNumber.trim()) {
+    // Trim and validate account number
+    const trimmedAccountNumber = accountNumber.trim();
+
+    if (!trimmedAccountNumber) {
       setError("Account number is required.");
       return;
     }
 
-    if (!/^\d+$/.test(accountNumber)) {
+    if (!/^\d+$/.test(trimmedAccountNumber)) {
       setError("Account number must contain only numbers.");
       return;
     }
 
-    setError(""); // Clear errors if valid
-
-    // Navigate to the dashboard, passing the account number
-    navigate(`/dashboard/${accountNumber}`);
+    // Clear error and dispatch the action
+    setError("");
+    const data = { accountNumber: trimmedAccountNumber, navigate };
+    dispatch(fetchCustomerAccountRequest(data));
   };
 
   return (
@@ -44,7 +49,7 @@ const ViewCustomerAccount = () => {
               value={accountNumber}
               onChange={(e) => setAccountNumber(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
-              placeholder="123456789"
+              placeholder="e.g., 123456789"
               required
             />
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}

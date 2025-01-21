@@ -20,6 +20,16 @@ const customerSlice = createSlice({
         fetchCustomerFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchCustomerByIdRequest:(state)=>{
+            state.loading = true
+        },
+        fetchCustomerByIdSuccess:(state,action)=>{
+            state.customers= action.payload;
+            state.loading=false
+        },
+        fetchCustomerByIdFailure:(state,action)=>{
+            state.error = action.payload
+        },
         createCustomerRequest:(state)=>{
             state.loading=true
         },
@@ -34,6 +44,16 @@ const customerSlice = createSlice({
     }
 })
 
-export const {fetchCustomerRequest,fetchCustomerSuccess,fetchCustomerFailure,createCustomerRequest,createCustomerSuccess,createCustomerFailure} = customerSlice.actions
+export const {
+    fetchCustomerRequest,
+    fetchCustomerSuccess,
+    fetchCustomerFailure,
+    fetchCustomerByIdRequest,
+    fetchCustomerByIdSuccess,
+    fetchCustomerByIdFailure,
+    createCustomerRequest,
+    createCustomerSuccess,
+    createCustomerFailure
+} = customerSlice.actions
 
 export default customerSlice.reducer

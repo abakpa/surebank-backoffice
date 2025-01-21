@@ -75,7 +75,7 @@ function App() {
                   <Route path="/deposit" element={<Deposit />} />
                   <Route path="/createaccount" element={<CreateAccount />} />
                   <Route path="/viewcustomeraccount" element={<ViewCustomerAccount />} />
-                  <Route path="/customeraccountdashboard" element={<CustomerAccountDashboard />} />
+                  <Route path="/customeraccountdashboard/:customerId" element={<CustomerAccountDashboard />} />
                 </>
               ) : (
                 // Redirect unauthenticated users to Login

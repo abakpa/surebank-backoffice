@@ -1,6 +1,16 @@
 import {call, put, takeLatest} from 'redux-saga/effects'
 import axios from 'axios'
-import {fetchBranchRequest,fetchBranchSuccess,fetchBranchFailure,createBranchRequest,createBranchSuccess,createBranchFailure} from '../slices/branchSlice'
+import {
+    fetchBranchRequest,
+    fetchBranchSuccess,
+    fetchBranchFailure,
+    fetchBranchByIdRequest,
+    fetchBranchByIdSuccess,
+    fetchBranchByIdFailure,
+    createBranchRequest,
+    createBranchSuccess,
+    createBranchFailure
+} from '../slices/branchSlice'
 import { url } from './url'
 
  function* fetchBranchSaga(){
@@ -9,6 +19,16 @@ import { url } from './url'
         yield put(fetchBranchSuccess(response.data))
     } catch (error) {
         yield put(fetchBranchFailure(error.response.data.message))
+    }
+}
+ function* fetchBranchByIdSaga(action){
+    const {branchId} = action.payload
+    try {
+
+        const response = yield call(axios.get, `${url}/api/branch/${branchId}`)
+        yield put(fetchBranchByIdSuccess(response.data))
+    } catch (error) {
+        yield put(fetchBranchByIdFailure(error.response.data.message))
     }
 }
 function* createBranchSaga(action){
@@ -24,6 +44,7 @@ function* createBranchSaga(action){
 
 function* branchSaga(){
     yield takeLatest(fetchBranchRequest.type, fetchBranchSaga)
+    yield takeLatest(fetchBranchByIdRequest.type, fetchBranchByIdSaga)
     yield takeLatest(createBranchRequest.type, createBranchSaga)
 }
 

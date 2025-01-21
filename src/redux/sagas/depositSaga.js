@@ -12,7 +12,7 @@ import { url } from './url'
     }
 }
 function* createDepositSaga(action){
-    const {details,navigate} = action.payload
+    const {details} = action.payload
     try {
         const token = localStorage.getItem('authToken');
         const config = {
@@ -22,7 +22,7 @@ function* createDepositSaga(action){
         }
         const response = yield call(axios.post,`${url}/api/dsaccount/deposit`, details,config);
         yield put(createDepositSuccess(response.data))
-        navigate('/deposit')
+        // navigate('/deposit')
     } catch (error) {
         yield put(createDepositFailure(error.message))
     }

@@ -13,8 +13,7 @@ const CreateAccount = () => {
         const navigate = useNavigate()
   const { staffs } = useSelector((state) => state.staff);
 
-
-        const accountType = ["Daily Savings", "Fix Savings", "Electronic Savings"];
+        const accountType = ["Rent", "Scool fees", "Food"];
 
   const [accountNumber, setAccountNumber] = useState("");
   const [amountPerDay, setAmountPerDay] = useState("");
@@ -42,7 +41,7 @@ const CreateAccount = () => {
     }
 
     // onSubmit({ accountNumber, amount: parseFloat(amount) });
-        const details = { accountNumber, amountPerDay: parseFloat(amountPerDay) }
+        const details = { accountManagerId, accountTypes, accountNumber, amountPerDay: parseFloat(amountPerDay) }
         const data ={details,navigate}
         dispatch(createCustomerAccountRequest(data))
     setAccountNumber("");

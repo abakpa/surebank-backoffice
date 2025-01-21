@@ -22,6 +22,7 @@ const CreateStaff = () => {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [role, setRole] = useState(loggedInStaffRole === "Manager" ? "Agent" : "");
   const [branch, setBranch] = useState(loggedInStaffRole === "Manager" ? loggedInStaffBranch : "");
 
@@ -31,13 +32,14 @@ const CreateStaff = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const details = { name, address, phone, email, role, branch };
+    const details = { name, address, phone, email, role, branch,password };
     const data = { details, navigate };
     dispatch(createStaffRequest(data));
     setName("");
     setAddress("");
     setPhone("");
     setEmail("");
+    setPassword("");
     setRole(loggedInStaffRole === "Manager" ? "Agent" : "");
     setBranch(loggedInStaffRole === "Manager" ? loggedInStaffBranch : "");
   };
@@ -98,6 +100,19 @@ const CreateStaff = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
             required
           />

@@ -1,7 +1,7 @@
 import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
-    customerAccountDetail:null,
+    customerAccountDetail:[],
     loading: false,
     error:null,
 };
@@ -20,6 +20,16 @@ const customerAccountDetailSlice = createSlice({
         fetchCustomerAccountDetailFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchAllCustomerAccountDetailRequest:(state)=>{
+            state.loading = true
+        },
+        fetchAllCustomerAccountDetailSuccess:(state,action)=>{
+            state.customerAccountDetail= action.payload;
+            state.loading=false
+        },
+        fetchAllCustomerAccountDetailFailure:(state,action)=>{
+            state.error = action.payload
+        },
         createCustomerAccountDetailRequest:(state)=>{
             state.loading=true
         },
@@ -34,6 +44,16 @@ const customerAccountDetailSlice = createSlice({
     }
 })
 
-export const {fetchCustomerAccountDetailRequest,fetchCustomerAccountDetailSuccess,fetchCustomerAccountDetailFailure,createCustomerAccountDetailRequest,createCustomerAccountDetailSuccess,createCustomerAccountDetailFailure} = customerAccountDetailSlice.actions
+export const {
+    fetchCustomerAccountDetailRequest,
+    fetchCustomerAccountDetailSuccess,
+    fetchCustomerAccountDetailFailure,
+    fetchAllCustomerAccountDetailRequest,
+    fetchAllCustomerAccountDetailSuccess,
+    fetchAllCustomerAccountDetailFailure,
+    createCustomerAccountDetailRequest,
+    createCustomerAccountDetailSuccess,
+    createCustomerAccountDetailFailure
+} = customerAccountDetailSlice.actions
 
 export default customerAccountDetailSlice.reducer
