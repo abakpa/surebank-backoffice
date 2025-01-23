@@ -1,12 +1,18 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCustomerRequest } from "../redux/slices/customerSlice";
+import {fetchBranchRequest} from '../redux/slices/branchSlice'
 import Tablehead from "./Table/CustomerTablehead";
 import Tablebody from "./Table/CustomerTablebody";
 
 const Viewcustomer = () => {
   const dispatch = useDispatch();
   const { loading, customers, error } = useSelector((state) => state.customer);
+   const {branches} = useSelector((state)=>state.branch)
+  
+      useEffect(()=>{
+          dispatch(fetchBranchRequest())
+      },[dispatch])
 
   useEffect(() => {
     dispatch(fetchCustomerRequest());
@@ -49,7 +55,7 @@ const Viewcustomer = () => {
       <h2 className=" text-xl font-bold mb-4 text-center">Customer List</h2>
         <table className="w-full min-w-[700px] border-collapse border border-gray-300">
           <Tablehead />
-          <Tablebody customers={customers} />
+          <Tablebody customers={customers} branches={branches} />
         </table>
     </div>
   );

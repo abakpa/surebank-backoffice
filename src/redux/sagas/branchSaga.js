@@ -16,6 +16,7 @@ import { url } from './url'
  function* fetchBranchSaga(){
     try {
         const response = yield call(axios.get, `${url}/api/branch`)
+        console.log("branch saga",response.data)
         yield put(fetchBranchSuccess(response.data))
     } catch (error) {
         yield put(fetchBranchFailure(error.response.data.message))

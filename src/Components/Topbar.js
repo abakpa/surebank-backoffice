@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useDispatch,useSelector } from 'react-redux'
 import {useNavigate} from 'react-router-dom'
 import { logoutRequest } from '../redux/slices/loginSlice'
+import logo from '../images/surebanklogo.png';
 
 
 const Topbar = ({  onLogin, onLogout, toggleSidebar }) => {
@@ -28,7 +29,9 @@ const token = isLoggedIn || localStorage.getItem("authToken");
 
         {/* System Name */}
         <Link to="/content">        
-        <h1 className="lg:text-xl text-sm font-bold">Sure Bank</h1>
+        <div className="h-16 w-16">
+            <img src={logo} alt="Sure Bank" className="rounded-lg shadow-lg w-full" />
+          </div>
         </Link>
         {/* Buttons */}
         <div className="flex items-center space-x-4">

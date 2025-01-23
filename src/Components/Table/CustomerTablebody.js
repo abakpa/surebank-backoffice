@@ -1,6 +1,14 @@
 import { useNavigate } from "react-router-dom";
 
-const Tablebody = ({ customers = [] }) => { // Default value for customers
+// Mock function to get branch name from branchId
+const getBranchName = (branchId, branches = []) => {
+  
+  const branch = branches.find((branch) => branch._id === branchId);
+  return branch ? branch.name : "Unknown Branch";
+};
+
+const Tablebody = ({ customers = [], branches = [] }) => { // Default values for props
+  console.log("check???",customers,branches)
   const navigate = useNavigate();
 
   const handleRowClick = (customerId) => {
@@ -20,7 +28,9 @@ const Tablebody = ({ customers = [] }) => { // Default value for customers
             <td className="border border-gray-300 p-2">{customer.address}</td>
             <td className="border border-gray-300 p-2">{customer.phone}</td>
             <td className="border border-gray-300 p-2">{customer.email}</td>
-            <td className="border border-gray-300 p-2">{customer.branch}</td>
+            <td className="border border-gray-300 p-2">
+              {getBranchName(customer.branchId, branches)}
+            </td>
           </tr>
         ))
       ) : (

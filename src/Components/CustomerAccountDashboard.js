@@ -227,6 +227,7 @@ const CustomerAccountDashboard = () => {
                         {transaction.direction === 'Credit' ? "+" : "-"}
                         {transaction.amount}
                       </p>
+                      <p className="text-sm text-gray-600">{transaction.narration}</p>
                       <p className="text-sm text-gray-600">Bal: ₦{transaction.balance}</p>
                     </li>
                   ))

@@ -1,6 +1,7 @@
 import React,{useEffect} from "react";
 import {useDispatch,useSelector} from 'react-redux'
 import {fetchStaffRequest} from '../redux/slices/staffSlice'
+import {fetchBranchRequest} from '../redux/slices/branchSlice'
 import Tablehead from "./Table/StaffTableHead";
 import Tablebody from "./Table/StaffTableBody";
 
@@ -8,6 +9,11 @@ const Viewstaff = () => {
 
         const dispatch = useDispatch()
         const {loading,staffs,error} = useSelector((state)=>state.staff)
+          const {branches} = useSelector((state)=>state.branch)
+          
+              useEffect(()=>{
+                  dispatch(fetchBranchRequest())
+              },[dispatch])
     
         useEffect(()=>{
             dispatch(fetchStaffRequest())
@@ -47,7 +53,7 @@ const Viewstaff = () => {
       <h2 className=" text-xl font-bold mb-4 text-center">Staff List</h2>
       <table className="w-full min-w-[700px] border-collapse border border-gray-300">
           <Tablehead />
-          <Tablebody staffs={staffs} />
+          <Tablebody staffs={staffs} branches={branches} />
         </table>
     </div>
   );

@@ -4,19 +4,22 @@ import { useNavigate } from "react-router-dom";
 import { createStaffRequest } from "../redux/slices/staffSlice";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import Select from "./Select";
+import Select2 from "./Select2";
 
 const CreateStaff = () => {
+  const { branches } = useSelector((state) => state.branch);
   const isLoggedIn = useSelector((state) => state.login.staff?.role);
   const loggedInStaffRole = isLoggedIn || localStorage.getItem("staffRole");
   const isLoggedInBranch = useSelector((state) => state.login.staff?.branch);
   const loggedInStaffBranch = isLoggedInBranch || localStorage.getItem("staffBranch");
+
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const roles = ["Manager", "Agent", "Admin"];
   const { error, loading } = useSelector((state) => state.staff);
-  const { branches } = useSelector((state) => state.branch);
+ 
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -24,7 +27,7 @@ const CreateStaff = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState(loggedInStaffRole === "Manager" ? "Agent" : "");
-  const [branch, setBranch] = useState(loggedInStaffRole === "Manager" ? loggedInStaffBranch : "");
+  const [branchId, setBranchId] = useState(loggedInStaffRole === "Manager" ? loggedInStaffBranch : "");
 
   useEffect(() => {
     dispatch(fetchBranchRequest());
@@ -32,7 +35,7 @@ const CreateStaff = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const details = { name, address, phone, email, role, branch,password };
+    const details = { name, address, phone, email, role, branchId,password };
     const data = { details, navigate };
     dispatch(createStaffRequest(data));
     setName("");
@@ -41,7 +44,7 @@ const CreateStaff = () => {
     setEmail("");
     setPassword("");
     setRole(loggedInStaffRole === "Manager" ? "Agent" : "");
-    setBranch(loggedInStaffRole === "Manager" ? loggedInStaffBranch : "");
+    setBranchId(loggedInStaffRole === "Manager" ? loggedInStaffBranch : "");
   };
 
   return (
@@ -154,12 +157,12 @@ const CreateStaff = () => {
             />
           </div>
         ) : loggedInStaffRole === "Admin" ? (
-          <Select
-            label="Branch"
-            options={branches.map((branch) => branch.name)}
-            value={branch}
-            onChange={setBranch}
-          />
+          <Select2
+          label="Branch"
+          options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+          value={branchId}
+          onChange={(selectedId) => setBranchId(selectedId)}
+        />
         ) : null}
 
         <div>
