@@ -18,7 +18,10 @@ import {
     fetchCustomerSubAccountFailure,
     createCustomerAccountRequest,
     createCustomerAccountSuccess,
-    createCustomerAccountFailure
+    createCustomerAccountFailure,
+    editCustomerAccountRequest,
+    editCustomerAccountSuccess,
+    editCustomerAccountFailure
 } from '../slices/createAccountSlice'
 import { url } from './url'
 
@@ -130,6 +133,22 @@ function* createCustomerAccountSaga(action){
         yield put(createCustomerAccountFailure(error.message))
     }
 }
+function* editCustomerAccountSaga(action){
+    const {details} = action.payload
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const response = yield call(axios.put,`${url}/api/dsaccount`, details,config);
+        yield put(editCustomerAccountSuccess(response.data))
+        // navigate('/deposit')
+    } catch (error) {
+        yield put(editCustomerAccountFailure(error.message))
+    }
+}
 
 function* customerAccountSaga(){
     yield takeLatest(fetchAllCustomerAccountRequest.type, fetchAllCustomerAccountSaga)
@@ -137,6 +156,7 @@ function* customerAccountSaga(){
     yield takeLatest(fetchCustomerAccountRequest.type, fetchCustomerAccountSaga)
     yield takeLatest(fetchCustomerSubAccountRequest.type, fetchCustomerSubAccountSaga)
     yield takeLatest(createCustomerAccountRequest.type, createCustomerAccountSaga)
+    yield takeLatest(editCustomerAccountRequest.type, editCustomerAccountSaga)
 }
 
 export default customerAccountSaga

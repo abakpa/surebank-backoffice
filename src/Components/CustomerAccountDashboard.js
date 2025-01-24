@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAccountTransactionRequest, fetchCustomerAccountRequest } from "../redux/slices/createAccountSlice";
 import { fetchCustomerSubAccountRequest } from "../redux/slices/subAccountSlice";
 import { createDepositRequest } from '../redux/slices/depositSlice';
+import { editCustomerAccountRequest } from '../redux/slices/createAccountSlice';
 import {fetchStaffRequest} from '../redux/slices/staffSlice'
 import { createCustomerAccountRequest } from '../redux/slices/createAccountSlice'
 
@@ -21,6 +22,7 @@ const CustomerAccountDashboard = () => {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [getAmountPerDay, setGetAmountPerDay] = useState(null);
   const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showCreateAccountModal, setShowCreateAccountModal] = useState(false);
   const [amountPerDay, setAmountPerDay] = useState("");
   const [accountType, setAccountType] = useState("");
@@ -80,6 +82,27 @@ const CustomerAccountDashboard = () => {
     dispatch(createDepositRequest(data));
     setAmountPerDay("");
     setShowDepositModal(false);
+  };
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (!selectedAccount.DSAccountNumber || !amountPerDay) {
+      setError("Both fields are required.");
+      return;
+    }
+
+    if (isNaN(amountPerDay) || parseFloat(amountPerDay) <= 0) {
+      setError("Please enter a valid amount.");
+      return;
+    }
+
+    const details = { DSAccountNumber: selectedAccount.DSAccountNumber, amountPerDay: parseFloat(amountPerDay) };
+    const data = {details}
+    console.log("details",details)
+    dispatch(editCustomerAccountRequest(data));
+    setAmountPerDay("");
+    setShowEditModal(false);
   };
 
     useEffect(() => {
@@ -162,7 +185,18 @@ const CustomerAccountDashboard = () => {
               : "bg-gray-100 text-blue-700"
           }`}
         >
-          {account.accountType} Account
+          {account.accountType} Account <strong>{account.amountPerDay}</strong> 
+          <button
+        onClick={() => {
+          setSelectedAccount(account);
+          setGetAmountPerDay(account.amountPerDay);
+          setShowEditModal(true);
+        }}
+       className="text-blue-600 hover:text-blue-800 ml-2"
+        >
+      <i className="fas fa-edit text-lg" title="Edit"></i>
+      </button>
+
         </div>
           <p className="text-sm text-gray-600">
             Number: {account.DSAccountNumber || "N/A"}
@@ -271,6 +305,40 @@ const CustomerAccountDashboard = () => {
               className="bg-green-500 text-white px-4 py-2 rounded"
             >
               Deposit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+       {showEditModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {error && <p className="text-red-600 mb-4 text-sm">{error}</p>}
+  
+      <div className="bg-white p-6 rounded shadow-md w-96">
+      <h3 className="text-lg font-bold mb-4">
+      Edit <span className="text-green-600">₦{getAmountPerDay}</span> daily
+     </h3>
+        <form onSubmit={handleEditSubmit}>
+          <input
+            type="number"
+            value={amountPerDay}
+            onChange={(e) => setAmountPerDay(e.target.value)}
+            placeholder="Enter amount"
+            className="w-full border border-gray-300 rounded p-2 mb-4"
+          />
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => setShowEditModal(false)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-green-500 text-white px-4 py-2 rounded"
+            >
+              Edit
             </button>
           </div>
         </form>

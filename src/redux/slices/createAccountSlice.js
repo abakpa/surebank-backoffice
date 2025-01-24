@@ -60,6 +60,17 @@ const customerAccountSlice = createSlice({
         createCustomerAccountFailure:(state,action)=>{
             state.error=action.payload
             state.loading=false
+        },
+        editCustomerAccountRequest:(state)=>{
+            state.loading=true
+        },
+        editCustomerAccountSuccess:(state,action)=>{
+            state.customerAccount.push(action.payload)
+            state.loading=false
+        },
+        editCustomerAccountFailure:(state,action)=>{
+            state.error=action.payload
+            state.loading=false
         }
     }
 })
@@ -79,7 +90,10 @@ export const {
     fetchCustomerSubAccountFailure,
     createCustomerAccountRequest,
     createCustomerAccountSuccess,
-    createCustomerAccountFailure
+    createCustomerAccountFailure,
+    editCustomerAccountRequest,
+    editCustomerAccountSuccess,
+    editCustomerAccountFailure
 } = customerAccountSlice.actions
 
 export default customerAccountSlice.reducer

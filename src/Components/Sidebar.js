@@ -1,21 +1,28 @@
 import React from "react";
-import { Link } from 'react-router-dom';
-import { useSelector } from "react-redux";
-
-
+import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logoutRequest } from "../redux/slices/loginSlice";
+import { useNavigate } from "react-router-dom";
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
-  const isLoggedIn = useSelector((state) => state.login.staff?.role);
-  const loggedInStaffRole = isLoggedIn || localStorage.getItem("staffRole");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const isLoggedIn = useSelector((state) => state.login.token);
+  const token = isLoggedIn || localStorage.getItem("authToken");
+  const loggedInStaffRole = useSelector((state) => state.login.staff?.role) || localStorage.getItem("staffRole");
+
+  const handleLogout = () => {
+    dispatch(logoutRequest({ navigate }));
+  };
+
   const handleMenuClick = (menu) => {
     console.log(`Navigating to: ${menu}`);
-    // Perform navigation or other actions here
     toggleSidebar(); // Close the sidebar after clicking a menu item on small screens
   };
 
   return (
     <div
-      className={`fixed inset-y-0 left-0 w-64 bg-gray-800 text-white p-4 mt-4 transform ${
+      className={`fixed inset-y-0 left-0 w-64 bg-gray-800 text-white p-4 mt-12 transform ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       } transition-transform lg:translate-x-0 lg:relative lg:block z-20`}
     >
@@ -29,100 +36,69 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       <h2 className="text-xl font-bold mb-6">Sidebar</h2>
       <ul>
         <li
-          className=" hover:bg-gray-700 p-2 rounded cursor-pointer text-xs"
+          className="hover:bg-gray-700 p-2 rounded cursor-pointer text-xs"
           onClick={() => handleMenuClick("Dashboard")}
         >
           Dashboard
         </li>
-        {/* <Link to="/viewcustomeraccount" className="text-xs">
-        <li
-          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={toggleSidebar}
-        >
-          View Customer Account
-        </li>
-        </Link> */}
-        {/* <Link to="/customeraccountdashboard" className="text-xs">
-        <li
-          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={toggleSidebar}
-        >
-          Customer Dashboard
-        </li>
-        </Link> */}
-        {/* <Link to="/createaccount" className="text-xs">
-        <li
-          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={toggleSidebar}
-        >
-          Create Account
-        </li>
-        </Link> */}
-        {/* <Link to="/deposit" className="text-xs">
-        <li
-          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={toggleSidebar}
-        >
-          Deposit
-        </li>
-        </Link> */}
+
         <Link to="/branches" className="text-xs">
-        <li
-          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={toggleSidebar}
-        >
-          Branches
-        </li>
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            Branches
+          </li>
         </Link>
         <Link to="/createbranch" className="text-xs">
-        <li
-          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={toggleSidebar}
-        >
-          Create Branch
-        </li>
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            Create Branch
+          </li>
         </Link>
         <Link to="/staff" className="text-xs">
-        <li
-          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={toggleSidebar}
-        >
-          View Staff
-        </li>
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            View Staff
+          </li>
         </Link>
-        {loggedInStaffRole !== "Agent" &&(
-        <Link to="/createstaff" className="text-xs">
-        <li
-          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={toggleSidebar}
-        >
-          Create Staff
-        </li>
-        </Link>
+        {loggedInStaffRole !== "Agent" && (
+          <Link to="/createstaff" className="text-xs">
+            <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+              Create Staff
+            </li>
+          </Link>
         )}
         <Link to="/customers" className="text-xs">
-        <li
-          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={toggleSidebar}
-        >
-          View Customer
-        </li>
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            View Customer
+          </li>
         </Link>
         <Link to="/createcustomer" className="text-xs">
-        <li
-          className=" hover:bg-gray-700 p-2 rounded cursor-pointer"
-          onClick={toggleSidebar}
-        >
-          Create Customer
-        </li>
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            Create Customer
+          </li>
         </Link>
 
         <li
-          className=" hover:bg-gray-700 p-2 rounded cursor-pointer text-xs"
+          className="hover:bg-gray-700 p-2 rounded cursor-pointer text-xs"
           onClick={() => handleMenuClick("Settings")}
         >
           Settings
         </li>
+
+        {/* Login/Logout Buttons (only on small screens) */}
+        <div className="block lg:hidden">
+          {token ? (
+            <li
+              className="bg-red-600 hover:bg-red-500 text-center p-2 rounded cursor-pointer mt-4 text-xs"
+              onClick={handleLogout}
+            >
+              Logout
+            </li>
+          ) : (
+            <Link to="/login" className="text-xs">
+              <li className="bg-green-600 hover:bg-green-500 text-center p-2 rounded cursor-pointer mt-4">
+                Login
+              </li>
+            </Link>
+          )}
+        </div>
       </ul>
     </div>
   );
