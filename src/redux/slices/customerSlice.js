@@ -34,7 +34,7 @@ const customerSlice = createSlice({
             state.loading=true
         },
         createCustomerSuccess:(state,action)=>{
-            state.customers.push(action.payload)
+            state.customers=action.payload
             state.loading=false
         },
         createCustomerFailure:(state,action)=>{

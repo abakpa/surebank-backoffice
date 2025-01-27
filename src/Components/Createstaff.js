@@ -48,7 +48,7 @@ const CreateStaff = () => {
   };
 
   return (
-    <div className="p-6 bg-white rounded shadow-md max-w-lg mx-auto mb-6">
+    <div className="p-6 mt-10 bg-white rounded shadow-md max-w-lg mx-auto mb-6">
       <h2 className="text-xl font-bold mb-4">Create New Staff</h2>
       {error && <p className="text-red-600 mb-4 text-sm">{error}</p>}
       <form onSubmit={handleSubmit}>

@@ -3,7 +3,7 @@ import {createSlice} from '@reduxjs/toolkit';
 const initialState = {
     deposit:null,
     loading: false,
-    error:null,
+    errors:null,
 };
 
 const depositSlice = createSlice({
@@ -24,7 +24,8 @@ const depositSlice = createSlice({
             state.loading=true
         },
         createDepositSuccess:(state,action)=>{
-            state.deposit.push(action.payload)
+            state.deposit = action.payload
+            console.log("LLLL",state.deposit)
             state.loading=false
         },
         createDepositFailure:(state,action)=>{

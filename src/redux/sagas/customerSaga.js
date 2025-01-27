@@ -45,7 +45,9 @@ function* createCustomerSaga(action){
         yield put(createCustomerSuccess(response.data))
         navigate('/customers')
     } catch (error) {
-        yield put(createCustomerFailure(error.message))
+        console.log("errrror",error)
+        const errorMessage = error.response?.data?.error
+        yield put(createCustomerFailure(errorMessage))
     }
 }
 

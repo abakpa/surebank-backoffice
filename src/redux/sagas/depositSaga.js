@@ -24,7 +24,8 @@ function* createDepositSaga(action){
         yield put(createDepositSuccess(response.data))
         // navigate('/deposit')
     } catch (error) {
-        yield put(createDepositFailure(error.message))
+        const errorMessage = error.response?.data?.message
+        yield put(createDepositFailure(errorMessage))
     }
 }
 

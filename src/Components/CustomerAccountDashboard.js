@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAccountTransactionRequest, fetchCustomerAccountRequest } from "../redux/slices/createAccountSlice";
 import { fetchCustomerSubAccountRequest } from "../redux/slices/subAccountSlice";
 import { createDepositRequest } from '../redux/slices/depositSlice';
+import { createWithdrawalRequest } from '../redux/slices/withdrawalSlice';
+import { createMainWithdrawalRequest } from '../redux/slices/withdrawalSlice';
 import { editCustomerAccountRequest } from '../redux/slices/createAccountSlice';
 import {fetchStaffRequest} from '../redux/slices/staffSlice'
 import { createCustomerAccountRequest } from '../redux/slices/createAccountSlice'
@@ -15,21 +17,73 @@ import Select2 from "./Select2";
 const CustomerAccountDashboard = () => {
   const { customerId } = useParams();
   const dispatch = useDispatch();
-  const { customerAccount } = useSelector((state) => state.customerAccount);
+  const { customerAccount,error:customerAccountError } = useSelector((state) => state.customerAccount);
   const { subAccount } = useSelector((state) => state.subAccount);
     const { staffs } = useSelector((state) => state.staff);
+    const {withdrawal,error:withdrawalError} = useSelector((state)=>state.withdrawal)
+    const {deposit,error:depositError} = useSelector((state)=>state.deposit)
   
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [getAmountPerDay, setGetAmountPerDay] = useState(null);
   const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
+  const [showMainWithdrawalModal, setShowMainWithdrawalModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCreateAccountModal, setShowCreateAccountModal] = useState(false);
   const [amountPerDay, setAmountPerDay] = useState("");
   const [accountType, setAccountType] = useState("");
-//   const [createAmount, setCreateAmount] = useState("");
     const [accountManagerId, setAccountManagerId] = useState("");
   
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
+  useEffect(() => {
+    if (customerAccount?.message) {
+      setShowSuccess(true);
+      const timer = setTimeout(() => setShowSuccess(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [customerAccount?.message]);
+
+  useEffect(() => {
+    if (customerAccountError) {
+      setShowError(true);
+      const timer = setTimeout(() => setShowError(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [customerAccountError]);
+  useEffect(() => {
+    if (withdrawal?.message) {
+      setShowSuccess(true);
+      const timer = setTimeout(() => setShowSuccess(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [withdrawal?.message]);
+
+  useEffect(() => {
+    if (withdrawalError) {
+      setShowError(true);
+      const timer = setTimeout(() => setShowError(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [withdrawalError]);
+
+  useEffect(() => {
+    if (deposit?.message) {
+      setShowSuccess(true);
+      const timer = setTimeout(() => setShowSuccess(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [deposit?.message]);
+
+  useEffect(() => {
+    if (depositError) {
+      setShowError(true);
+      const timer = setTimeout(() => setShowError(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [depositError]);
+
 
   useEffect(() => {
     const data = { customerId: customerId };
@@ -42,13 +96,11 @@ const CustomerAccountDashboard = () => {
   }, [dispatch, customerId]);
 
 
-//   const accountId = localStorage.getItem("accountId");
   const customerName = localStorage.getItem("customerName");
   const accountNumber = localStorage.getItem("accountNumber");
+  const mainAccountId = localStorage.getItem("mainAccountId");
   const ledgerBalance = localStorage.getItem("ledgerBalance");
   const availableBalance = localStorage.getItem("availableBalance");
-//   const DSAccountNumber = localStorage.getItem("DSAccountNumber");
-//   const balance = localStorage.getItem("balance");
 
   const accountTransaction = (accountTypeId) => {
     if (!accountTypeId) return;
@@ -56,23 +108,19 @@ const CustomerAccountDashboard = () => {
     setSelectedAccount(accountTypeId);
   };
   
-//   const accounts = [
-//     subAccount?.DSAccountNumber && { type: "Daily Savings", number: subAccount.DSAccountNumber, balance: subAccount.totalContribution },
-//   ].filter(Boolean);
-
   const transactionHistory = Array.isArray(customerAccount) ? customerAccount : [];
 
   const handleDepositSubmit = (e) => {
     e.preventDefault();
-    setError("");
+    setErrors("");
 
     if (!selectedAccount.DSAccountNumber || !amountPerDay) {
-      setError("Both fields are required.");
+      setErrors("Both fields are required.");
       return;
     }
 
     if (isNaN(amountPerDay) || parseFloat(amountPerDay) <= 0) {
-      setError("Please enter a valid amount.");
+      setErrors("Please enter a valid amount.");
       return;
     }
 
@@ -83,17 +131,53 @@ const CustomerAccountDashboard = () => {
     setAmountPerDay("");
     setShowDepositModal(false);
   };
-  const handleEditSubmit = (e) => {
+  const handleWithdrawalSubmit = (e) => {
     e.preventDefault();
-    setError("");
+    setErrors("");
 
     if (!selectedAccount.DSAccountNumber || !amountPerDay) {
-      setError("Both fields are required.");
+      setErrors("Both fields are required.");
       return;
     }
 
     if (isNaN(amountPerDay) || parseFloat(amountPerDay) <= 0) {
-      setError("Please enter a valid amount.");
+      setErrors("Please enter a valid amount.");
+      return;
+    }
+
+    const details = { DSAccountNumber: selectedAccount.DSAccountNumber,accountType:selectedAccount.accountType, amountPerDay: parseFloat(amountPerDay) };
+    const data = {details}
+    console.log("details",details)
+    dispatch(createWithdrawalRequest(data));
+    setAmountPerDay("");
+    setShowWithdrawalModal(false);
+  };
+  const handleMainWithdrawalSubmit = (e) => {
+    e.preventDefault();
+    setErrors("");
+
+    if (isNaN(amountPerDay) || parseFloat(amountPerDay) <= 0) {
+      setErrors("Please enter a valid amount.");
+      return;
+    }
+
+    const details = { accountNumber: accountNumber, amountPerDay: parseFloat(amountPerDay) };
+    const data = {details}
+    dispatch(createMainWithdrawalRequest(data));
+    setAmountPerDay("");
+    setShowMainWithdrawalModal(false);
+  };
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    setErrors("");
+
+    if (!selectedAccount.DSAccountNumber || !amountPerDay) {
+      setErrors("Both fields are required.");
+      return;
+    }
+
+    if (isNaN(amountPerDay) || parseFloat(amountPerDay) <= 0) {
+      setErrors("Please enter a valid amount.");
       return;
     }
 
@@ -113,19 +197,18 @@ const CustomerAccountDashboard = () => {
   
     const handleCreateAccount = (e) => {
       e.preventDefault();
-      setError("");
+      setErrors("");
   
       if (!accountNumber || !amountPerDay) {
-        setError("Both fields are required.");
+        setErrors("Both fields are required.");
         return;
       }
   
       if (isNaN(amountPerDay) || parseFloat(amountPerDay) <= 0) {
-        setError("Please enter a valid amount.");
+        setErrors("Please enter a valid amount.");
         return;
       }
   
-      // onSubmit({ accountNumber, amount: parseFloat(amount) });
           const details = { accountManagerId, accountType, accountNumber, amountPerDay: parseFloat(amountPerDay) }
           const data ={details}
           dispatch(createCustomerAccountRequest(data))
@@ -137,13 +220,70 @@ const CustomerAccountDashboard = () => {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
+     
+  {/* Notification Section */}
+  {showSuccess && (
+        <>
+          {deposit?.message && (
+            <div className="alert-slide bg-green-100 text-green-800 px-4 py-2 rounded mb-4 fixed top-0 left-1/2 transform -translate-x-1/2 z-50">
+              {deposit.message}
+            </div>
+          )}
+          {withdrawal?.message && (
+            <div className="alert-slide bg-green-100 text-green-800 px-4 py-2 rounded mb-4 fixed top-0 left-1/2 transform -translate-x-1/2 z-50">
+              {withdrawal.message}
+            </div>
+          )}
+          {customerAccount?.message && (
+            <div className="alert-slide bg-green-100 text-green-800 px-4 py-2 rounded mb-4 fixed top-0 left-1/2 transform -translate-x-1/2 z-50">
+              {customerAccount.message}
+            </div>
+          )}
+        </>
+      )}
+
+      {showError && (
+        <>
+          {withdrawalError && (
+            <div className="alert-slide bg-red-100 text-red-800 px-4 py-2 rounded mb-4 fixed top-0 left-1/2 transform -translate-x-1/2 z-50">
+              {withdrawalError}
+            </div>
+          )}
+          {depositError && (
+            <div className="alert-slide bg-red-100 text-red-800 px-4 py-2 rounded mb-4 fixed top-0 left-1/2 transform -translate-x-1/2 z-50">
+              {depositError}
+            </div>
+          )}
+          {customerAccountError && (
+            <div className="alert-slide bg-red-100 text-red-800 px-4 py-2 rounded mb-4 fixed top-0 left-1/2 transform -translate-x-1/2 z-50">
+              {customerAccountError}
+            </div>
+          )}
+        </>
+      )}
       {/* Header */}
-      <header className="mb-6">
+      <header className="mb-6 mt-6">
         <h1 className="text-2xl font-bold">Customer Account Dashboard</h1>
         <p className="text-gray-700"><strong>Name:</strong> {customerName}</p>
         <p className="text-gray-700"><strong>Account Number:</strong> {accountNumber}</p>
         <p className="text-gray-700"><strong>Total Balance:</strong> ₦{ledgerBalance}</p>
-        <p className="text-gray-700"><strong>Available Balance:</strong> ₦{availableBalance}</p>
+        <p className="text-gray-700">
+          <strong>Available Balance:</strong> ₦{availableBalance} 
+          <button
+          onClick={() => accountTransaction(mainAccountId)}
+          className="text-blue-600 hover:underline ml-1"
+        >
+          <i className="fas fa-folder-open text-lg" title="View Transactions"></i>
+        </button>
+          <button
+          onClick={() => {
+            setShowMainWithdrawalModal(true);
+          }}
+          className="text-red-600 hover:text-red-800 ml-1"
+        >
+          <i className="fas fa-minus-circle text-lg" title="Withdraw"></i>
+        </button>
+        </p>
       </header>
   {/* Add Account Section */}
 <div className="mt-2">
@@ -185,7 +325,7 @@ const CustomerAccountDashboard = () => {
               : "bg-gray-100 text-blue-700"
           }`}
         >
-          {account.accountType} Account <strong>{account.amountPerDay}</strong> 
+          {account.accountType} Account <strong>₦{account.amountPerDay}</strong> 
           <button
         onClick={() => {
           setSelectedAccount(account);
@@ -227,7 +367,9 @@ const CustomerAccountDashboard = () => {
         {/* Withdrawal Icon */}
         <button
           onClick={() => {
-            // Add withdrawal logic here
+            setSelectedAccount(account);
+            setGetAmountPerDay(account.amountPerDay);
+            setShowWithdrawalModal(true);
           }}
           className="text-red-600 hover:text-red-800"
         >
@@ -279,7 +421,7 @@ const CustomerAccountDashboard = () => {
   
        {showDepositModal && (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      {error && <p className="text-red-600 mb-4 text-sm">{error}</p>}
+      {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
   
       <div className="bg-white p-6 rounded shadow-md w-96">
       <h3 className="text-lg font-bold mb-4">
@@ -311,9 +453,77 @@ const CustomerAccountDashboard = () => {
       </div>
     </div>
   )}
+       {showWithdrawalModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+  
+      <div className="bg-white p-6 rounded shadow-md w-96">
+      <h3 className="text-lg font-bold mb-4">
+      Withdrawal 
+     </h3>
+        <form onSubmit={handleWithdrawalSubmit}>
+          <input
+            type="number"
+            value={amountPerDay}
+            onChange={(e) => setAmountPerDay(e.target.value)}
+            placeholder="Enter amount"
+            className="w-full border border-gray-300 rounded p-2 mb-4"
+          />
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => setShowWithdrawalModal(false)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-red-600 text-white px-4 py-2 rounded"
+            >
+              Withdraw
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+       {showMainWithdrawalModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+  
+      <div className="bg-white p-6 rounded shadow-md w-96">
+      <h3 className="text-lg font-bold mb-4">
+      Withdrawal 
+     </h3>
+        <form onSubmit={handleMainWithdrawalSubmit}>
+          <input
+            type="number"
+            value={amountPerDay}
+            onChange={(e) => setAmountPerDay(e.target.value)}
+            placeholder="Enter amount"
+            className="w-full border border-gray-300 rounded p-2 mb-4"
+          />
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => setShowMainWithdrawalModal(false)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-red-600 text-white px-4 py-2 rounded"
+            >
+              Withdraw
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
        {showEditModal && (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      {error && <p className="text-red-600 mb-4 text-sm">{error}</p>}
+      {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
   
       <div className="bg-white p-6 rounded shadow-md w-96">
       <h3 className="text-lg font-bold mb-4">
@@ -372,7 +582,7 @@ const CustomerAccountDashboard = () => {
         </div>
           <div className="mb-4">
             <label htmlFor="amountPerDay" className="block text-sm font-medium text-gray-700">
-              Initial Deposit
+              Daily Deposit
             </label>
             <input
               id="amountPerDay"

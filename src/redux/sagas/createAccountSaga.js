@@ -52,8 +52,9 @@ function* fetchCustomerAccountSaga(action) {
     const accountResponse = yield call(axios.post, `${url}/api/account/${customerId}`);
 
     // Store account details in localStorage
-    const { ledgerBalance, availableBalance, accountNumber } = accountResponse.data;
+    const { ledgerBalance, availableBalance, accountNumber, _id } = accountResponse.data;
     localStorage.setItem("customerId", customerId);
+    localStorage.setItem("mainAccountId", _id);
     localStorage.setItem("accountNumber", accountNumber);
     localStorage.setItem("ledgerBalance", ledgerBalance);
     localStorage.setItem("availableBalance", availableBalance);
@@ -118,7 +119,6 @@ function* fetchCustomerAccountSaga(action) {
 }
 function* createCustomerAccountSaga(action){
     const {details,navigate} = action.payload
-    console.log("details???",details)
     try {
         const token = localStorage.getItem('authToken');
         const config = {
@@ -130,7 +130,9 @@ function* createCustomerAccountSaga(action){
         yield put(createCustomerAccountSuccess(response.data))
         navigate('/deposit')
     } catch (error) {
-        yield put(createCustomerAccountFailure(error.message))
+        console.log("errrror",error)
+        const errorMessage = error.response?.data?.error
+        yield put(createCustomerAccountFailure(errorMessage))
     }
 }
 function* editCustomerAccountSaga(action){

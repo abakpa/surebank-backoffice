@@ -4,6 +4,8 @@ import {useNavigate} from 'react-router-dom'
 import { createCustomerRequest } from '../redux/slices/customerSlice'
 import {fetchBranchRequest} from '../redux/slices/branchSlice'
 import {fetchStaffRequest} from '../redux/slices/staffSlice'
+import Select2 from "./Select2";
+
 
 
 const CreateCustomer = () => {
@@ -12,6 +14,8 @@ const CreateCustomer = () => {
 
     const {error,loading,staffs} = useSelector((state)=>state.staff)
     const {branches} = useSelector((state)=>state.branch)
+      const { error:createCustomerError } = useSelector((state) => state.customer);
+    
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -20,6 +24,16 @@ const CreateCustomer = () => {
   const [password, setPassword] = useState("");
   const [branchId, setBranchId] = useState("");
   const [accountManagerId, setAccountManagerId] = useState("");
+  const [showError, setShowError] = useState(false);
+  
+
+    useEffect(() => {
+      if (createCustomerError) {
+        setShowError(true);
+        const timer = setTimeout(() => setShowError(false), 5000);
+        return () => clearTimeout(timer);
+      }
+    }, [createCustomerError]);
 
   useEffect(()=>{
     dispatch(fetchBranchRequest())
@@ -43,8 +57,18 @@ const CreateCustomer = () => {
   };
   if(error)return <p>{error}</p>
   return (
-    <div className="p-6 bg-white rounded shadow-md max-w-lg mx-auto mb-6">
-      <h2 className="text-xl font-bold mb-4">Create New Staff</h2>
+    <div className="p-6 mt-10 bg-white rounded shadow-md max-w-lg mx-auto mb-6">
+        {showError && (
+        <>
+          {createCustomerError && (
+            <div className="alert-slide bg-red-100 text-red-800 px-4 py-2 rounded mb-4 fixed top-0 left-1/2 transform -translate-x-1/2 z-50">
+              {createCustomerError}
+            </div>
+          )}
+      
+        </>
+      )}
+      <h2 className="text-xl font-bold mb-4">Create New Customer</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -116,43 +140,21 @@ const CreateCustomer = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
-            Branch
-          </label>
-          <select
-            id="branchId"
-            value={branchId}
-            onChange={(e) => setBranchId(e.target.value)}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
-            required
-          >
-            <option value="">Select a branch</option>
-            {branches.map((branch, index) => (
-              <option key={index} value={branch._id}>
-                {branch.name}
-              </option>
-            ))}
-          </select>
+        <Select2
+          label="Branch"
+          options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+          value={branchId}
+          onChange={(selectedId) => setBranchId(selectedId)}
+        />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
-            Account Rep
-          </label>
-          <select
-            id="accountManagerId"
-            value={accountManagerId}
-            onChange={(e) => setAccountManagerId(e.target.value)}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
-            required
-          >
-            <option value="">Select a branch</option>
-            {staffs.map((staff, index) => (
-              <option key={index} value={staff._id}>
-                {staff.name}
-              </option>
-            ))}
-          </select>
+        <Select2
+          label="Account Rep"
+          options={staffs.map((staff) => ({ label: staff.name, value: staff._id }))}
+          value={accountManagerId}
+          onChange={(selectedId) => setAccountManagerId(selectedId)}
+        />
         </div>
             <div>
             {loading ? (

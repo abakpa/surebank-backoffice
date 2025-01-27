@@ -54,7 +54,7 @@ const customerAccountSlice = createSlice({
             state.loading=true
         },
         createCustomerAccountSuccess:(state,action)=>{
-            state.customerAccount.push(action.payload)
+            state.customerAccount=action.payload
             state.loading=false
         },
         createCustomerAccountFailure:(state,action)=>{
@@ -65,7 +65,7 @@ const customerAccountSlice = createSlice({
             state.loading=true
         },
         editCustomerAccountSuccess:(state,action)=>{
-            state.customerAccount.push(action.payload)
+            state.customerAccount=action.payload
             state.loading=false
         },
         editCustomerAccountFailure:(state,action)=>{
