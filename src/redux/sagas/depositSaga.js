@@ -21,6 +21,7 @@ function* createDepositSaga(action){
             }
         }
         const response = yield call(axios.post,`${url}/api/dsaccount/deposit`, details,config);
+        console.log("???>>>",response)
         yield put(createDepositSuccess(response.data))
         // navigate('/deposit')
     } catch (error) {

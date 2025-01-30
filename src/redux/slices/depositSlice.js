@@ -3,7 +3,7 @@ import {createSlice} from '@reduxjs/toolkit';
 const initialState = {
     deposit:null,
     loading: false,
-    errors:null,
+    error:null,
 };
 
 const depositSlice = createSlice({

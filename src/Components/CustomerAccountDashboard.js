@@ -8,6 +8,7 @@ import { createMainWithdrawalRequest } from '../redux/slices/withdrawalSlice';
 import { editCustomerAccountRequest } from '../redux/slices/createAccountSlice';
 import {fetchStaffRequest} from '../redux/slices/staffSlice'
 import { createCustomerAccountRequest } from '../redux/slices/createAccountSlice'
+import Loader from "./Loader";
 
 
 import { useParams } from "react-router-dom";
@@ -21,7 +22,7 @@ const CustomerAccountDashboard = () => {
   const { subAccount } = useSelector((state) => state.subAccount);
     const { staffs } = useSelector((state) => state.staff);
     const {withdrawal,error:withdrawalError} = useSelector((state)=>state.withdrawal)
-    const {deposit,error:depositError} = useSelector((state)=>state.deposit)
+    const {loading,deposit,error:depositError} = useSelector((state)=>state.deposit)
   
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [getAmountPerDay, setGetAmountPerDay] = useState(null);
@@ -220,6 +221,7 @@ const CustomerAccountDashboard = () => {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
+      {loading && <Loader />}
      
   {/* Notification Section */}
   {showSuccess && (
