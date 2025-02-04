@@ -24,7 +24,6 @@ const CreateStaff = () => {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState(loggedInStaffRole === "Manager" ? "Agent" : "");
   const [branchId, setBranchId] = useState(loggedInStaffRole === "Manager" ? loggedInStaffBranch : "");
@@ -35,13 +34,12 @@ const CreateStaff = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const details = { name, address, phone, email, role, branchId,password };
+    const details = { name, address, phone, role, branchId,password };
     const data = { details, navigate };
     dispatch(createStaffRequest(data));
     setName("");
     setAddress("");
     setPhone("");
-    setEmail("");
     setPassword("");
     setRole(loggedInStaffRole === "Manager" ? "Agent" : "");
     setBranchId(loggedInStaffRole === "Manager" ? loggedInStaffBranch : "");
@@ -94,19 +92,6 @@ const CreateStaff = () => {
           />
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
-            required
-          />
-        </div>
         <div className="mb-4">
           <label htmlFor="password" className="block text-sm font-medium text-gray-700">
             Password

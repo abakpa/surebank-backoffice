@@ -20,6 +20,46 @@ const depositSlice = createSlice({
         fetchDepositFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchCustomerAccountRequest:(state)=>{
+            state.loading = true
+        },
+        fetchCustomerAccountSuccess:(state,action)=>{
+            state.deposit= action.payload;
+            state.loading=false
+        },
+        fetchCustomerAccountFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchCustomerByIdRequest:(state)=>{
+            state.loading = true
+        },
+        fetchCustomerByIdSuccess:(state,action)=>{
+            state.deposit= action.payload;
+            state.loading=false
+        },
+        fetchCustomerByIdFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchCustomerSubAccountRequest:(state)=>{
+            state.loading = true
+        },
+        fetchCustomerSubAccountSuccess:(state,action)=>{
+            state.deposit= action.payload;
+            state.loading=false
+        },
+        fetchCustomerSubAccountFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchSubAccountDepositRequest:(state)=>{
+            state.loading = true
+        },
+        fetchSubAccountDepositSuccess:(state,action)=>{
+            state.deposit= action.payload;
+            state.loading=false
+        },
+        fetchSubAccountDepositFailure:(state,action)=>{
+            state.error = action.payload
+        },
         createDepositRequest:(state)=>{
             state.loading=true
         },
@@ -35,6 +75,25 @@ const depositSlice = createSlice({
     }
 })
 
-export const {fetchDepositRequest,fetchDepositSuccess,fetchDepositFailure,createDepositRequest,createDepositSuccess,createDepositFailure} = depositSlice.actions
+export const {
+    fetchDepositRequest,
+    fetchDepositSuccess,
+    fetchDepositFailure,
+    fetchCustomerAccountRequest,
+    fetchCustomerAccountSuccess,
+    fetchCustomerAccountFailure,
+    fetchCustomerByIdRequest,
+    fetchCustomerByIdSuccess,
+    fetchCustomerByIdFailure,
+    fetchCustomerSubAccountRequest,
+    fetchCustomerSubAccountSuccess,
+    fetchCustomerSubAccountFailure,
+    fetchSubAccountDepositRequest,
+    fetchSubAccountDepositSuccess,
+    fetchSubAccountDepositFailure,
+    createDepositRequest,
+    createDepositSuccess,
+    createDepositFailure
+} = depositSlice.actions
 
 export default depositSlice.reducer

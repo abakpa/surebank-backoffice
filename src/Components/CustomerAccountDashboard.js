@@ -1,19 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAccountTransactionRequest, fetchCustomerAccountRequest } from "../redux/slices/createAccountSlice";
-import { fetchCustomerSubAccountRequest } from "../redux/slices/subAccountSlice";
+import { fetchAccountTransactionRequest } from "../redux/slices/createAccountSlice";
+// import { fetchCustomerSubAccountRequest } from "../redux/slices/subAccountSlice";
 import { createDepositRequest } from '../redux/slices/depositSlice';
+import { fetchCustomerAccountRequest } from '../redux/slices/depositSlice';
 import { createWithdrawalRequest } from '../redux/slices/withdrawalSlice';
 import { createMainWithdrawalRequest } from '../redux/slices/withdrawalSlice';
 import { editCustomerAccountRequest } from '../redux/slices/createAccountSlice';
 import {fetchStaffRequest} from '../redux/slices/staffSlice'
 import { createCustomerAccountRequest } from '../redux/slices/createAccountSlice'
+import NotificationPopup from './Notification'
 import Loader from "./Loader";
+import Tablebody from "./Table/TransactionTableBody";
+import Tablehead from "./Table/TransactionTableHead";
 
 
 import { useParams } from "react-router-dom";
 import Select from "./Select";
 import Select2 from "./Select2";
+
+// const getBranchName = (staffId, staffs = []) => {
+  
+//   const staff = staffs.find((staff) => staff._id === staffId);
+//   return staff ? staff.name : "Unknown Branch";
+// };
 
 const CustomerAccountDashboard = () => {
   const { customerId } = useParams();
@@ -23,6 +33,10 @@ const CustomerAccountDashboard = () => {
     const { staffs } = useSelector((state) => state.staff);
     const {withdrawal,error:withdrawalError} = useSelector((state)=>state.withdrawal)
     const {loading,deposit,error:depositError} = useSelector((state)=>state.deposit)
+    const newSubAccount = deposit?.subAccount
+  //  { console.log("trying",newSubAccount)}
+
+    console.log("checking>>><<<",deposit)
   
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [getAmountPerDay, setGetAmountPerDay] = useState(null);
@@ -38,6 +52,7 @@ const CustomerAccountDashboard = () => {
   const [errors, setErrors] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
+
   useEffect(() => {
     if (customerAccount?.message) {
       setShowSuccess(true);
@@ -86,10 +101,10 @@ const CustomerAccountDashboard = () => {
   }, [depositError]);
 
 
-  useEffect(() => {
-    const data = { customerId: customerId };
-    dispatch(fetchCustomerSubAccountRequest(data));
-  }, [dispatch,customerId]);
+  // useEffect(() => {
+  //   const data = { customerId: customerId };
+  //   dispatch(fetchSubAccountDepositRequest(data));
+  // }, [dispatch,customerId]);
   
   useEffect(() => {
     const data = { customerId: customerId };
@@ -98,10 +113,8 @@ const CustomerAccountDashboard = () => {
 
 
   const customerName = localStorage.getItem("customerName");
-  const accountNumber = localStorage.getItem("accountNumber");
-  const mainAccountId = localStorage.getItem("mainAccountId");
-  const ledgerBalance = localStorage.getItem("ledgerBalance");
-  const availableBalance = localStorage.getItem("availableBalance");
+  // const accountNumber = localStorage.getItem("accountNumber");
+  // const mainAccountId = localStorage.getItem("mainAccountId");
 
   const accountTransaction = (accountTypeId) => {
     if (!accountTypeId) return;
@@ -125,7 +138,7 @@ const CustomerAccountDashboard = () => {
       return;
     }
 
-    const details = { DSAccountNumber: selectedAccount.DSAccountNumber,accountType:selectedAccount.accountType, amountPerDay: parseFloat(amountPerDay) };
+    const details = { DSAccountNumber: selectedAccount.DSAccountNumber,accountType:selectedAccount.accountType,customerId:customerId, amountPerDay: parseFloat(amountPerDay) };
     const data = {details}
     console.log("details",details)
     dispatch(createDepositRequest(data));
@@ -162,7 +175,7 @@ const CustomerAccountDashboard = () => {
       return;
     }
 
-    const details = { accountNumber: accountNumber, amountPerDay: parseFloat(amountPerDay) };
+    const details = { accountNumber: deposit?.account?.accountNumber, amountPerDay: parseFloat(amountPerDay) };
     const data = {details}
     dispatch(createMainWithdrawalRequest(data));
     setAmountPerDay("");
@@ -197,10 +210,11 @@ const CustomerAccountDashboard = () => {
       const accountpackages = ["Rent", "School fees", "Food"];
   
     const handleCreateAccount = (e) => {
+      console.log("handle")
       e.preventDefault();
       setErrors("");
   
-      if (!accountNumber || !amountPerDay) {
+      if (!deposit.account.accountNumber || !amountPerDay) {
         setErrors("Both fields are required.");
         return;
       }
@@ -210,7 +224,8 @@ const CustomerAccountDashboard = () => {
         return;
       }
   
-          const details = { accountManagerId, accountType, accountNumber, amountPerDay: parseFloat(amountPerDay) }
+          const details = { accountManagerId, accountType, accountNumber:deposit?.account?.accountNumber, amountPerDay: parseFloat(amountPerDay) }
+          console.log("44",details)
           const data ={details}
           dispatch(createCustomerAccountRequest(data))
       setAmountPerDay("");
@@ -219,60 +234,35 @@ const CustomerAccountDashboard = () => {
       setShowCreateAccountModal(false);
     };
 
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       {loading && <Loader />}
      
-  {/* Notification Section */}
-  {showSuccess && (
-        <>
-          {deposit?.message && (
-            <div className="alert-slide bg-green-100 text-green-800 px-4 py-2 rounded mb-4 fixed top-0 left-1/2 transform -translate-x-1/2 z-50">
-              {deposit.message}
-            </div>
-          )}
-          {withdrawal?.message && (
-            <div className="alert-slide bg-green-100 text-green-800 px-4 py-2 rounded mb-4 fixed top-0 left-1/2 transform -translate-x-1/2 z-50">
-              {withdrawal.message}
-            </div>
-          )}
-          {customerAccount?.message && (
-            <div className="alert-slide bg-green-100 text-green-800 px-4 py-2 rounded mb-4 fixed top-0 left-1/2 transform -translate-x-1/2 z-50">
-              {customerAccount.message}
-            </div>
-          )}
-        </>
+         {showSuccess && (
+        <NotificationPopup 
+          messages={[deposit?.message, withdrawal?.message, customerAccount?.message].filter(Boolean)}
+          type="success"
+          onClose={() => setShowSuccess(false)}
+        />
       )}
-
       {showError && (
-        <>
-          {withdrawalError && (
-            <div className="alert-slide bg-red-100 text-red-800 px-4 py-2 rounded mb-4 fixed top-0 left-1/2 transform -translate-x-1/2 z-50">
-              {withdrawalError}
-            </div>
-          )}
-          {depositError && (
-            <div className="alert-slide bg-red-100 text-red-800 px-4 py-2 rounded mb-4 fixed top-0 left-1/2 transform -translate-x-1/2 z-50">
-              {depositError}
-            </div>
-          )}
-          {customerAccountError && (
-            <div className="alert-slide bg-red-100 text-red-800 px-4 py-2 rounded mb-4 fixed top-0 left-1/2 transform -translate-x-1/2 z-50">
-              {customerAccountError}
-            </div>
-          )}
-        </>
+        <NotificationPopup 
+          messages={[depositError, withdrawalError, customerAccountError].filter(Boolean)}
+          type="error"
+          onClose={() => setShowError(false)}
+        />
       )}
       {/* Header */}
       <header className="mb-6 mt-6">
         <h1 className="text-2xl font-bold">Customer Account Dashboard</h1>
         <p className="text-gray-700"><strong>Name:</strong> {customerName}</p>
-        <p className="text-gray-700"><strong>Account Number:</strong> {accountNumber}</p>
-        <p className="text-gray-700"><strong>Total Balance:</strong> ₦{ledgerBalance}</p>
+        <p className="text-gray-700"><strong>Account Number:</strong> {deposit?.account?.accountNumber}</p>
+        <p className="text-gray-700"><strong>Total Balance:</strong> ₦{deposit?.account?.ledgerBalance}</p>
         <p className="text-gray-700">
-          <strong>Available Balance:</strong> ₦{availableBalance} 
+          <strong>Available Balance:</strong> ₦{deposit?.account?.availableBalance} 
           <button
-          onClick={() => accountTransaction(mainAccountId)}
+          onClick={() => accountTransaction(deposit?.account?._id)}
           className="text-blue-600 hover:underline ml-1"
         >
           <i className="fas fa-folder-open text-lg" title="View Transactions"></i>
@@ -295,7 +285,7 @@ const CustomerAccountDashboard = () => {
       DS
     </div>
     <div className="cursor-pointer bg-green-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => setShowCreateAccountModal(true)}>
-      BS
+      SB
     </div>
     <div className="cursor-pointer bg-purple-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => setShowCreateAccountModal(true)}>
       FD
@@ -308,9 +298,9 @@ const CustomerAccountDashboard = () => {
         {/* Left Panel - Account Details */}
         <div className="bg-white p-4 rounded shadow-md">
           <h2 className="text-lg font-bold mb-4">Accounts</h2>
-          {Array.isArray(subAccount) && subAccount.length > 0 ? (
+          {Array.isArray(newSubAccount) && newSubAccount.length > 0 ? (
   <ul className="space-y-4">
-    {subAccount.map((account, index) => (
+    {newSubAccount.map((account, index) => (
       <li
         key={index}
         className="flex justify-between items-center bg-gray-50 p-3 rounded hover:shadow-md"
@@ -395,20 +385,29 @@ const CustomerAccountDashboard = () => {
               <h3 className="text-md font-semibold mb-2">Account: {subAccount.DSAccountNumber}</h3>
               <ul className="space-y-2">
                 {transactionHistory.length > 0 ? (
-                  transactionHistory.map((transaction, index) => (
-                    <li key={index} className="flex justify-between items-center bg-gray-50 p-3 rounded">
-                      <div>
-                        <p className="text-sm font-medium">{transaction.direction}</p>
-                        <p className="text-xs text-gray-500">{transaction.date}</p>
-                      </div>
-                      <p className={`text-sm font-semibold ${transaction.direction === 'Credit' ? "text-green-600" : "text-red-600"}`}>
-                        {transaction.direction === 'Credit' ? "+" : "-"}
-                        {transaction.amount}
-                      </p>
-                      <p className="text-sm text-gray-600">{transaction.narration}</p>
-                      <p className="text-sm text-gray-600">Bal: ₦{transaction.balance}</p>
-                    </li>
-                  ))
+                  // transactionHistory.map((transaction, index) => (
+                  //   <li key={index} className="flex justify-between items-center bg-gray-50 p-3 rounded">
+                  //     <div>
+                  //       <p className="text-xs font-medium">{transaction.direction}</p>
+                  //       <p className="text-xs text-gray-500">{transaction.date}</p>
+                  //     </div>
+                  //     <p className={`text-xs ml-2 font-semibold ${transaction.direction === 'Credit' ? "text-green-600" : "text-red-600"}`}>
+                  //       {transaction.direction === 'Credit' ? "+" : "-"}
+                  //       {transaction.amount}
+                  //     </p>
+                  //     <p className="text-xs text-gray-600 ml-2">{transaction.narration}</p>
+                  //     <div>
+                  //     <p className="text-xs text-gray-600 ml-2">Bal:</p>
+                  //     <p className="text-xs text-gray-600 ml-2">₦{transaction.balance}</p>
+                  //     </div>
+                  //     <p className="text-xs text-gray-600 ml-2"> {getBranchName(transaction.createdBy, staffs)}</p>
+
+                  //   </li>
+                  <table className="md:min-w-[500px] md:ml-4">
+                  <Tablehead />
+                  <Tablebody customers={transactionHistory} branches={staffs} />
+                </table>
+                  
                 ) : (
                   <p className="text-gray-600">No transactions found.</p>
                 )}
@@ -617,3 +616,5 @@ const CustomerAccountDashboard = () => {
   )
     };
     export default CustomerAccountDashboard;
+
+    

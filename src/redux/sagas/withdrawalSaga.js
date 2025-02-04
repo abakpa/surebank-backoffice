@@ -48,6 +48,7 @@ function* createMainWithdrawalSaga(action){
                 Authorization: `Bearer ${token}`
             }
         }
+        console.log("33",details)
         const response = yield call(axios.post,`${url}/api/dsaccount/mainwithdrawal`, details,config);
         yield put(createMainWithdrawalSuccess(response.data))
         console.log("errrror",response.data)

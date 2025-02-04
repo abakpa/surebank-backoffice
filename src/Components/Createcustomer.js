@@ -20,7 +20,6 @@ const CreateCustomer = () => {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [branchId, setBranchId] = useState("");
   const [accountManagerId, setAccountManagerId] = useState("");
@@ -45,15 +44,15 @@ const CreateCustomer = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const details = { name, address, phone, email, password, branchId, accountManagerId }
+    const details = { name, address, phone, password, branchId, accountManagerId }
     const data ={details,navigate}
     dispatch(createCustomerRequest(data))
       setName("");
       setAddress("");
       setPhone("");
-      setEmail("");
       setPassword("");
       setBranchId("");
+      setAccountManagerId("")
   };
   if(error)return <p>{error}</p>
   return (
@@ -112,19 +111,6 @@ const CreateCustomer = () => {
           />
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
-            required
-          />
-        </div>
         <div className="mb-4">
           <label htmlFor="password" className="block text-sm font-medium text-gray-700">
             Password

@@ -50,7 +50,7 @@ const Viewstaff = () => {
       if(error)return <p>Error: {error}</p>
   return (
     <div className="flex flex-col p-6 bg-gray-100">
-      <h2 className=" text-xl font-bold mb-4 text-center">Staff List</h2>
+      <h2 className=" text-xl font-bold mb-4 mt-4 text-center">Staff List</h2>
       <table className="w-full min-w-[700px] border-collapse border border-gray-300">
           <Tablehead />
           <Tablebody staffs={staffs} branches={branches} />

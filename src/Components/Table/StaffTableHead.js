@@ -5,7 +5,6 @@ const Tablehead = () => {
           <th className="border border-gray-300 p-2">Name</th>
           <th className="border border-gray-300 p-2">Address</th>
           <th className="border border-gray-300 p-2">Phone</th>
-          <th className="border border-gray-300 p-2">Email</th>
           <th className="border border-gray-300 p-2">Role</th>
           <th className="border border-gray-300 p-2">Branch</th>
         </tr>
