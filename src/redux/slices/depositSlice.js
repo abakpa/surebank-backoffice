@@ -71,7 +71,62 @@ const depositSlice = createSlice({
         createDepositFailure:(state,action)=>{
             state.error=action.payload
             state.loading=false
-        }
+        },
+        fetchWithdrawalRequest:(state)=>{
+            state.loading = true
+        },
+        fetchWithdrawalSuccess:(state,action)=>{
+            state.withdrawal= action.payload;
+            state.loading=false
+        },
+        fetchWithdrawalFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        createWithdrawalRequest:(state)=>{
+            state.loading=true
+        },
+        createWithdrawalSuccess:(state,action)=>{
+            state.withdrawal=action.payload
+            state.loading=false
+        },
+        createWithdrawalFailure:(state,action)=>{
+            state.error=action.payload
+            state.loading=false
+        },
+        createMainWithdrawalRequest:(state)=>{
+            state.loading=true
+        },
+        createMainWithdrawalSuccess:(state,action)=>{
+            state.withdrawal=action.payload
+            state.loading=false
+        },
+        createMainWithdrawalFailure:(state,action)=>{
+            state.error=action.payload
+            state.loading=false
+        },
+        createCustomerAccountRequest:(state)=>{
+            state.loading=true
+        },
+        createCustomerAccountSuccess:(state,action)=>{
+            state.customerAccount=action.payload
+            state.loading=false
+        },
+        createCustomerAccountFailure:(state,action)=>{
+            state.error=action.payload
+            state.loading=false
+        },
+        editCustomerAccountRequest:(state)=>{
+            state.loading=true
+        },
+        editCustomerAccountSuccess:(state,action)=>{
+            state.customerAccount=action.payload
+            state.loading=false
+        },
+        editCustomerAccountFailure:(state,action)=>{
+            state.error=action.payload
+            state.loading=false
+        },
+        
     }
 })
 
@@ -93,7 +148,22 @@ export const {
     fetchSubAccountDepositFailure,
     createDepositRequest,
     createDepositSuccess,
-    createDepositFailure
+    createDepositFailure,
+    fetchWithdrawalRequest,
+    fetchWithdrawalSuccess,
+    fetchWithdrawalFailure,
+    createWithdrawalRequest,
+    createWithdrawalSuccess,
+    createWithdrawalFailure,
+    createMainWithdrawalRequest,
+    createMainWithdrawalSuccess,
+    createMainWithdrawalFailure,
+    createCustomerAccountRequest,
+    createCustomerAccountSuccess,
+    createCustomerAccountFailure,
+    editCustomerAccountRequest,
+    editCustomerAccountSuccess,
+    editCustomerAccountFailure
 } = depositSlice.actions
 
 export default depositSlice.reducer

@@ -12,7 +12,19 @@ import {
     fetchSubAccountDepositFailure,
     createDepositRequest,
     createDepositSuccess,
-    createDepositFailure
+    createDepositFailure,
+    createMainWithdrawalRequest,
+    createMainWithdrawalSuccess,
+    createMainWithdrawalFailure,
+    createWithdrawalRequest,
+    createWithdrawalSuccess,
+    createWithdrawalFailure,
+    createCustomerAccountRequest,
+    createCustomerAccountSuccess,
+    createCustomerAccountFailure,
+    editCustomerAccountRequest,
+    editCustomerAccountSuccess,
+    editCustomerAccountFailure
 } from '../slices/depositSlice'
 import { url } from './url'
 
@@ -63,6 +75,83 @@ function* createDepositSaga(action) {
       yield put(createDepositFailure(errorMessage));
     }
   }
+  function* createWithdrawalSaga(action){
+    const {details} = action.payload
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const response = yield call(axios.post,`${url}/api/dsaccount/withdrawal`, details,config);
+        console.log("errrror",response.data)
+        yield put(createWithdrawalSuccess(response.data))
+           yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
+        // navigate('/deposit')
+    } catch (error) {
+        const errorMessage = error.response?.data?.message
+        yield put(createWithdrawalFailure(errorMessage))
+    }
+}
+  function* createMainWithdrawalSaga(action){
+    const {details} = action.payload
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        console.log("33",details)
+        const response = yield call(axios.post,`${url}/api/dsaccount/mainwithdrawal`, details,config);
+        yield put(createMainWithdrawalSuccess(response.data))
+           yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
+        console.log("errrror",response.data)
+        // navigate('/deposit')
+    } catch (error) {
+        console.log("errrror",error)
+        const errorMessage = error.response?.data?.message
+        yield put(createMainWithdrawalFailure(errorMessage))
+    }
+}
+function* createCustomerAccountSaga(action){
+    const {details,navigate} = action.payload
+    console.log("44",details)
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const response = yield call(axios.post,`${url}/api/dsaccount`, details,config);
+        yield put(createCustomerAccountSuccess(response.data))
+        yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
+        navigate('/deposit')
+    } catch (error) {
+        console.log("errrror",error)
+        const errorMessage = error.response?.data?.error
+        yield put(createCustomerAccountFailure(errorMessage))
+    }
+}
+function* editCustomerAccountSaga(action){
+    const {details} = action.payload
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const response = yield call(axios.put,`${url}/api/dsaccount`, details,config);
+        yield put(editCustomerAccountSuccess(response.data))
+        yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
+        // navigate('/deposit')
+    } catch (error) {
+        yield put(editCustomerAccountFailure(error.message))
+    }
+}
   
   function* fetchCustomerAccountSaga(action) {
     const { customerId } = action.payload;
@@ -98,6 +187,10 @@ function* depositSaga(){
     yield takeLatest(fetchSubAccountDepositRequest.type, fetchSubAccountDepositSaga)
     yield takeLatest(createDepositRequest.type, createDepositSaga)
     yield takeLatest(fetchCustomerAccountRequest.type, fetchCustomerAccountSaga)
+    yield takeLatest(createMainWithdrawalRequest.type, createMainWithdrawalSaga)
+    yield takeLatest(createWithdrawalRequest.type, createWithdrawalSaga)
+    yield takeLatest(createCustomerAccountRequest.type, createCustomerAccountSaga)
+    yield takeLatest(editCustomerAccountRequest.type, editCustomerAccountSaga)
 }
 
 export default depositSaga

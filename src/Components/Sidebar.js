@@ -9,7 +9,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   const navigate = useNavigate();
   const isLoggedIn = useSelector((state) => state.login.token);
   const token = isLoggedIn || localStorage.getItem("authToken");
-  const loggedInStaffRole = useSelector((state) => state.login.staff?.role) || localStorage.getItem("staffRole");
+  // const loggedInStaffRole = useSelector((state) => state.login.staff?.role) || localStorage.getItem("staffRole");
 
   const handleLogout = () => {
     dispatch(logoutRequest({ navigate }));
@@ -47,31 +47,22 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             Branches
           </li>
         </Link>
-        <Link to="/createbranch" className="text-xs">
-          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
-            Create Branch
-          </li>
-        </Link>
+    
         <Link to="/staff" className="text-xs">
           <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
-            View Staff
+            Staff
           </li>
         </Link>
-        {loggedInStaffRole !== "Agent" && (
+        {/* {loggedInStaffRole !== "Agent" && (
           <Link to="/createstaff" className="text-xs">
             <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
               Create Staff
             </li>
           </Link>
-        )}
+        )} */}
         <Link to="/customers" className="text-xs">
           <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
-            View Customer
-          </li>
-        </Link>
-        <Link to="/createcustomer" className="text-xs">
-          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
-            Create Customer
+            Customers
           </li>
         </Link>
 

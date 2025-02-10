@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAccountTransactionRequest } from "../redux/slices/createAccountSlice";
-// import { fetchCustomerSubAccountRequest } from "../redux/slices/subAccountSlice";
 import { createDepositRequest } from '../redux/slices/depositSlice';
-import { fetchCustomerAccountRequest } from '../redux/slices/depositSlice';
-import { createWithdrawalRequest } from '../redux/slices/withdrawalSlice';
-import { createMainWithdrawalRequest } from '../redux/slices/withdrawalSlice';
-import { editCustomerAccountRequest } from '../redux/slices/createAccountSlice';
+import { fetchCustomerAccountRequest,createMainWithdrawalRequest,createWithdrawalRequest,editCustomerAccountRequest,createCustomerAccountRequest } from '../redux/slices/depositSlice';
 import {fetchStaffRequest} from '../redux/slices/staffSlice'
-import { createCustomerAccountRequest } from '../redux/slices/createAccountSlice'
 import NotificationPopup from './Notification'
 import Loader from "./Loader";
 import Tablebody from "./Table/TransactionTableBody";
@@ -19,12 +14,6 @@ import { useParams } from "react-router-dom";
 import Select from "./Select";
 import Select2 from "./Select2";
 
-// const getBranchName = (staffId, staffs = []) => {
-  
-//   const staff = staffs.find((staff) => staff._id === staffId);
-//   return staff ? staff.name : "Unknown Branch";
-// };
-
 const CustomerAccountDashboard = () => {
   const { customerId } = useParams();
   const dispatch = useDispatch();
@@ -34,9 +23,6 @@ const CustomerAccountDashboard = () => {
     const {withdrawal,error:withdrawalError} = useSelector((state)=>state.withdrawal)
     const {loading,deposit,error:depositError} = useSelector((state)=>state.deposit)
     const newSubAccount = deposit?.subAccount
-  //  { console.log("trying",newSubAccount)}
-
-    console.log("checking>>><<<",deposit)
   
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [getAmountPerDay, setGetAmountPerDay] = useState(null);
@@ -159,7 +145,7 @@ const CustomerAccountDashboard = () => {
       return;
     }
 
-    const details = { DSAccountNumber: selectedAccount.DSAccountNumber,accountType:selectedAccount.accountType, amountPerDay: parseFloat(amountPerDay) };
+    const details = { DSAccountNumber: selectedAccount.DSAccountNumber,accountType:selectedAccount.accountType,customerId:customerId, amountPerDay: parseFloat(amountPerDay) };
     const data = {details}
     console.log("details",details)
     dispatch(createWithdrawalRequest(data));
@@ -175,7 +161,7 @@ const CustomerAccountDashboard = () => {
       return;
     }
 
-    const details = { accountNumber: deposit?.account?.accountNumber, amountPerDay: parseFloat(amountPerDay) };
+    const details = { accountNumber: deposit?.account?.accountNumber,customerId:customerId, amountPerDay: parseFloat(amountPerDay) };
     const data = {details}
     dispatch(createMainWithdrawalRequest(data));
     setAmountPerDay("");
@@ -195,7 +181,7 @@ const CustomerAccountDashboard = () => {
       return;
     }
 
-    const details = { DSAccountNumber: selectedAccount.DSAccountNumber, amountPerDay: parseFloat(amountPerDay) };
+    const details = { DSAccountNumber: selectedAccount.DSAccountNumber,customerId:customerId, amountPerDay: parseFloat(amountPerDay) };
     const data = {details}
     console.log("details",details)
     dispatch(editCustomerAccountRequest(data));
@@ -224,7 +210,7 @@ const CustomerAccountDashboard = () => {
         return;
       }
   
-          const details = { accountManagerId, accountType, accountNumber:deposit?.account?.accountNumber, amountPerDay: parseFloat(amountPerDay) }
+          const details = { accountManagerId, accountType,customerId:customerId, accountNumber:deposit?.account?.accountNumber, amountPerDay: parseFloat(amountPerDay) }
           console.log("44",details)
           const data ={details}
           dispatch(createCustomerAccountRequest(data))
@@ -385,24 +371,7 @@ const CustomerAccountDashboard = () => {
               <h3 className="text-md font-semibold mb-2">Account: {subAccount.DSAccountNumber}</h3>
               <ul className="space-y-2">
                 {transactionHistory.length > 0 ? (
-                  // transactionHistory.map((transaction, index) => (
-                  //   <li key={index} className="flex justify-between items-center bg-gray-50 p-3 rounded">
-                  //     <div>
-                  //       <p className="text-xs font-medium">{transaction.direction}</p>
-                  //       <p className="text-xs text-gray-500">{transaction.date}</p>
-                  //     </div>
-                  //     <p className={`text-xs ml-2 font-semibold ${transaction.direction === 'Credit' ? "text-green-600" : "text-red-600"}`}>
-                  //       {transaction.direction === 'Credit' ? "+" : "-"}
-                  //       {transaction.amount}
-                  //     </p>
-                  //     <p className="text-xs text-gray-600 ml-2">{transaction.narration}</p>
-                  //     <div>
-                  //     <p className="text-xs text-gray-600 ml-2">Bal:</p>
-                  //     <p className="text-xs text-gray-600 ml-2">₦{transaction.balance}</p>
-                  //     </div>
-                  //     <p className="text-xs text-gray-600 ml-2"> {getBranchName(transaction.createdBy, staffs)}</p>
-
-                  //   </li>
+          
                   <table className="md:min-w-[500px] md:ml-4">
                   <Tablehead />
                   <Tablebody customers={transactionHistory} branches={staffs} />

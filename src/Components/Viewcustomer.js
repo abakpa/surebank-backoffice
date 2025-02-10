@@ -1,22 +1,36 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCustomerRequest } from "../redux/slices/customerSlice";
-import {fetchBranchRequest} from '../redux/slices/branchSlice'
+import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import Tablehead from "./Table/CustomerTablehead";
 import Tablebody from "./Table/CustomerTablebody";
+import { Link } from "react-router-dom";
 
 const Viewcustomer = () => {
   const dispatch = useDispatch();
   const { loading, customers, error } = useSelector((state) => state.customer);
-   const {branches} = useSelector((state)=>state.branch)
-  
-      useEffect(()=>{
-          dispatch(fetchBranchRequest())
-      },[dispatch])
+  const { branches } = useSelector((state) => state.branch);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
+    dispatch(fetchBranchRequest());
     dispatch(fetchCustomerRequest());
   }, [dispatch]);
+
+  console.log("Customers from Redux:", customers);
+  console.log("Type of Customers:", typeof customers);
+
+  // Ensure customers is always an array
+  const customerList = Array.isArray(customers) ? customers : [];
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const filteredCustomers = customerList.filter((customer) =>
+    (customer?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (customer?.phone?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+  );
 
   if (loading) {
     return (
@@ -51,12 +65,32 @@ const Viewcustomer = () => {
   if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
 
   return (
-    <div className="flex flex-col p-6 bg-gray-100">
-      <h2 className=" text-xl font-bold mb-4 text-center">Customer List</h2>
-        <table className="w-full min-w-[700px] border-collapse border border-gray-300">
+    <div className="flex flex-col p-4 bg-gray-100 min-h-screen w-full mt-10">
+      <h2 className="text-xl font-bold mb-4 text-center">Customer List</h2>
+      
+      {/* Search and Create Buttons */}
+      <div className="flex flex-col md:flex-row items-center justify-between mb-4 gap-2">
+        <input
+          type="text"
+          placeholder="Search customers..."
+          value={searchTerm}
+          onChange={handleSearch}
+          className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md"
+        />
+        <Link to="/createcustomer" className="text-xs">
+          <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+            Create Customer
+          </button>
+        </Link>
+      </div>
+      
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[600px] border-collapse border border-gray-300">
           <Tablehead />
-          <Tablebody customers={customers} branches={branches} />
+          <Tablebody customers={filteredCustomers} branches={branches} />
         </table>
+      </div>
     </div>
   );
 };
