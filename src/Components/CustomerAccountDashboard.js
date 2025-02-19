@@ -499,8 +499,8 @@ const CustomerAccountDashboard = () => {
           </button>
         </div>
 
-        <p className="text-sm text-gray-600">Number: {account.SBAccountNumber || "N/A"}</p>
-        <p className="text-sm text-gray-600">Balance: ₦{account.balance || 0}</p>
+        <p className="text-xs text-gray-600">Number: {account.SBAccountNumber || "N/A"}</p>
+        <p className="text-xs text-gray-600">Balance: ₦{account.balance || 0}</p>
       </div>
 
       <div className="flex space-x-2">
