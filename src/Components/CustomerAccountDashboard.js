@@ -458,34 +458,51 @@ const CustomerAccountDashboard = () => {
   newSubAccount.sbAccount.map((account, index) => (
     <li
       key={`sb-${index}`}
-      className="flex justify-between items-center bg-gray-50 p-3 rounded hover:shadow-md"
+      className="flex justify-between items-center bg-gray-50 p-3 rounded hover:shadow-md relative"
     >
       <div>
-        <div
-          className={`inline-block px-2 py-1 rounded-full text-xs font-semibold mb-1 ${
-            account.accountType === "Rent"
-              ? "bg-blue-100 text-gray-700"
-              : account.accountType === "School fees"
-              ? "bg-green-100 text-green-700"
-              : account.accountType === "Food"
-              ? "bg-purple-100 text-purple-700"
-              : "bg-gray-100 text-blue-700"
-          }`}
-        >
-          {account.productName} <strong>₦{account.sellingPrice}</strong>
+        <div className="flex items-center space-x-2">
+          {/* Product Name & Selling Price */}
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-semibold ${
+              account.accountType === "Rent"
+                ? "bg-blue-100 text-gray-700"
+                : account.accountType === "School fees"
+                ? "bg-green-100 text-green-700"
+                : account.accountType === "Food"
+                ? "bg-purple-100 text-purple-700"
+                : "bg-gray-100 text-blue-700"
+            }`}
+          >
+            {account.productName} <strong>₦{account.sellingPrice}</strong>
+          </span>
+
+          {/* Info Icon with Tooltip */}
+          <div className="relative group">
+            <button className="text-gray-600 hover:text-gray-800">
+              <i className="fas fa-info-circle text-sm" title="Product description"></i>
+            </button>
+            <div className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-2 w-48 bg-green-700 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              {account.productDescription || "No description available"}
+            </div>
+          </div>
+
+          {/* Edit Button */}
           <button
             onClick={() => {
               setSelectedAccount(account);
               setShowSBEditModal(true);
             }}
-            className="text-blue-600 hover:text-blue-800 ml-2"
+            className="text-blue-600 hover:text-blue-800"
           >
-            <i className="fas fa-edit text-lg" title="Edit"></i>
+            <i className="fas fa-edit text-sm" title="Edit"></i>
           </button>
         </div>
+
         <p className="text-sm text-gray-600">Number: {account.SBAccountNumber || "N/A"}</p>
         <p className="text-sm text-gray-600">Balance: ₦{account.balance || 0}</p>
       </div>
+
       <div className="flex space-x-2">
         {/* View Transactions */}
         <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
@@ -496,10 +513,10 @@ const CustomerAccountDashboard = () => {
           <i className="fas fa-plus-circle text-lg" title="Deposit"></i>
         </button>
         {/* Withdrawal Icon */}
-        {loggedInStaffRole === 'Admin' &&(
-        <button onClick={() => { setSelectedAccount(account); setShowSBWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
-          <i className="fas fa-minus-circle text-lg" title="Withdraw"></i>
-        </button>
+        {loggedInStaffRole === 'Admin' && (
+          <button onClick={() => { setSelectedAccount(account); setShowSBWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
+            <i className="fas fa-minus-circle text-lg" title="Withdraw"></i>
+          </button>
         )}
         {/* Sell Icon */}
         <button onClick={() => { setSelectedAccount(account); setShowSellModal(true); }} className="text-yellow-600 hover:text-yellow-800">
@@ -508,6 +525,8 @@ const CustomerAccountDashboard = () => {
       </div>
     </li>
   ))}
+
+
 
   </ul>
 ) : (
