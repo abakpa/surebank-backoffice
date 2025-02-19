@@ -30,7 +30,30 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
             {customer.direction === 'Credit' ? "+" : "-"} {customer.amount}
             </p>
             </td>
-            <td ><p className={`ml-2 ${customer.direction === 'Credit' ?  "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>{customer.narration}</p></td>
+            <td>
+  <p
+    className={`ml-2 text-xs flex items-center space-x-1 ${
+      customer.direction === "Credit"
+        ? "text-green-600"
+        : customer.direction === "Moved"
+        ? "text-purple-500"
+        : "text-red-600"
+    }`}
+  >
+    {/* Icon with smaller size */}
+    <span
+      className={`cursor-pointer text-[10px] font-bold text-white w-4 h-4 rounded flex items-center justify-center ${
+        customer.narration === "SB Deposit" ? "bg-green-500" :customer.narration === "DS Deposit"? "bg-blue-500":customer.narration === "DS Charge"? "bg-blue-500":customer.narration === "Total DS"? "bg-blue-500":""
+      }`}
+    >
+      {customer.narration === "SB Deposit" ? "SB" :customer.narration==="DS Deposit"? "DS":customer.narration==="DS Charge"? "DS":customer.narration==="Total DS"? "DS":""}
+    </span>
+
+    {/* Text "Deposit" */}
+    <span>{customer.narration==='DS Deposit' ? "Deposit" : customer.narration==='DS Charge' ? "Charge" : customer.narration==='SB Deposit' ? "Deposit": customer.narration==='Total DS' ? "Total" : customer.narration}</span>
+  </p>
+</td>
+
             <td ><p className={`${customer.direction === 'Credit' ?  "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>{customer.balance}</p></td>
             <td >
               <p className={`${customer.direction === 'Credit' ?  "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>{getBranchName(customer.createdBy, branches)}</p>
