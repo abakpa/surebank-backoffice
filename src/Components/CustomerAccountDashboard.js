@@ -433,7 +433,7 @@ const CustomerAccountDashboard = () => {
                 }}
                 className="text-blue-600 hover:text-blue-800 ml-2"
               >
-                <i className="fas fa-edit text-lg" title="Edit"></i>
+                <i className="fas fa-edit text-sm md:text-lg" title="Edit"></i>
               </button>
             </div>
             <p className="text-sm text-gray-600">Number: {account.DSAccountNumber || "N/A"}</p>
@@ -441,13 +441,13 @@ const CustomerAccountDashboard = () => {
           </div>
           <div className="flex space-x-2">
             <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
-              <i className="fas fa-folder-open text-lg" title="View Transactions"></i>
+              <i className="fas fa-folder-open text-sm md:text-lg" title="View Transactions"></i>
             </button>
             <button onClick={() => { setSelectedAccount(account); setShowDepositModal(true); }} className="text-green-600 hover:text-green-800">
-              <i className="fas fa-plus-circle text-lg" title="Deposit"></i>
+              <i className="fas fa-plus-circle text-sm md:text-lg" title="Deposit"></i>
             </button>
             <button onClick={() => { setSelectedAccount(account); setShowWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
-              <i className="fas fa-minus-circle text-lg" title="Withdraw"></i>
+              <i className="fas fa-minus-circle text-sm md:text-lg" title="Withdraw"></i>
             </button>
           </div>
         </li>
@@ -461,8 +461,9 @@ const CustomerAccountDashboard = () => {
       className="flex justify-between items-center bg-gray-50 p-3 rounded hover:shadow-md relative"
     >
       <div>
-        <div className="flex items-center space-x-2">
-          {/* Product Name & Selling Price */}
+        {/* Product Info Container - Responsive Flex */}
+        <div className="flex flex-col md:flex-row md:items-center md:space-x-3">
+          {/* Product Name & Price */}
           <span
             className={`px-2 py-1 rounded-full text-xs font-semibold ${
               account.accountType === "Rent"
@@ -477,54 +478,62 @@ const CustomerAccountDashboard = () => {
             {account.productName} <strong>₦{account.sellingPrice}</strong>
           </span>
 
-          {/* Info Icon with Tooltip */}
-          <div className="relative group">
-            <button className="text-gray-600 hover:text-gray-800">
-              <i className="fas fa-info-circle text-sm" title="Product description"></i>
-            </button>
-            <div className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-2 w-48 bg-green-700 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              {account.productDescription || "No description available"}
+          {/* Tooltip & Edit - Same Row on Desktop, Below on Mobile */}
+          <div className="flex items-center space-x-2 mt-1 md:mt-0">
+            {/* Info Icon with Tooltip */}
+            <div className="relative group">
+              <button className="text-gray-600 hover:text-gray-800">
+                <i className="fas fa-info-circle text-sm" title="Product description"></i>
+              </button>
+              <div className="absolute left-14 transform -translate-x-1/2 bottom-full mb-2 w-48 bg-green-700 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                {account.productDescription || "No description available"}
+              </div>
             </div>
-          </div>
 
-          {/* Edit Button */}
-          <button
-            onClick={() => {
-              setSelectedAccount(account);
-              setShowSBEditModal(true);
-            }}
-            className="text-blue-600 hover:text-blue-800"
-          >
-            <i className="fas fa-edit text-sm" title="Edit"></i>
-          </button>
+            {/* Edit Button */}
+            <button
+              onClick={() => {
+                setSelectedAccount(account);
+                setShowSBEditModal(true);
+              }}
+              className="text-blue-600 hover:text-blue-800"
+            >
+              <i className="fas fa-edit text-sm" title="Edit"></i>
+            </button>
+          </div>
         </div>
 
+        {/* Account Details */}
         <p className="text-xs text-gray-600">Number: {account.SBAccountNumber || "N/A"}</p>
         <p className="text-xs text-gray-600">Balance: ₦{account.balance || 0}</p>
       </div>
 
-      <div className="flex space-x-2">
+      {/* Action Buttons */}
+      <div className="flex space-x-1">
         {/* View Transactions */}
         <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
-          <i className="fas fa-folder-open text-lg" title="View Transactions"></i>
+          <i className="fas fa-folder-open text-sm md:text-lg" title="View Transactions"></i>
         </button>
         {/* Deposit Icon */}
         <button onClick={() => { setSelectedAccount(account); setShowSBDepositModal(true); }} className="text-green-600 hover:text-green-800">
-          <i className="fas fa-plus-circle text-lg" title="Deposit"></i>
+          <i className="fas fa-plus-circle text-sm md:text-lg" title="Deposit"></i>
         </button>
         {/* Withdrawal Icon */}
         {loggedInStaffRole === 'Admin' && (
           <button onClick={() => { setSelectedAccount(account); setShowSBWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
-            <i className="fas fa-minus-circle text-lg" title="Withdraw"></i>
+            <i className="fas fa-minus-circle text-sm md:text-lg" title="Withdraw"></i>
           </button>
         )}
         {/* Sell Icon */}
         <button onClick={() => { setSelectedAccount(account); setShowSellModal(true); }} className="text-yellow-600 hover:text-yellow-800">
-          <i className="fas fa-shopping-cart text-lg" title="Sell"></i>
+          <i className="fas fa-shopping-cart text-sm md:text-lg" title="Sell"></i>
         </button>
       </div>
     </li>
   ))}
+
+
+
 
 
 
