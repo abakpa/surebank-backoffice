@@ -98,14 +98,14 @@ const CustomerAccountDashboard = () => {
   useEffect(() => {
     if (depositError) {
       setShowError(true);
-      const timer = setTimeout(() => {
-        setShowError(false);
-        dispatch(clearDepositError()); // Dispatch action to reset error in Redux store
-      }, 5000);
-  
-      return () => clearTimeout(timer);
     }
-  }, [depositError, dispatch]);
+  }, [depositError]);
+  
+  useEffect(() => {
+    if (!showError) {
+      dispatch(clearDepositError()); // Reset error immediately when showError is false
+    }
+  }, [showError, dispatch]);
 
 
   // useEffect(() => {
