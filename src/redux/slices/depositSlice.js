@@ -180,6 +180,9 @@ const depositSlice = createSlice({
             state.error=action.payload
             state.loading=false
         },
+        clearDepositError: (state) => {
+            state.error = null; // Reset error state
+          },
         
     }
 })
@@ -232,7 +235,8 @@ export const {
     editCustomerAccountFailure,
     editCustomerSBAccountRequest,
     editCustomerSBAccountSuccess,
-    editCustomerSBAccountFailure
+    editCustomerSBAccountFailure,
+    clearDepositError
 } = depositSlice.actions
 
 export default depositSlice.reducer

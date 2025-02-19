@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAccountTransactionRequest } from "../redux/slices/createAccountSlice";
 import { createDepositRequest,createSBDepositRequest } from '../redux/slices/depositSlice';
-import { fetchCustomerAccountRequest,createMainWithdrawalRequest,createWithdrawalRequest, createSBWithdrawalRequest,createSBSellProductRequest,editCustomerAccountRequest,editCustomerSBAccountRequest,createCustomerAccountRequest,createCustomerSBAccountRequest } from '../redux/slices/depositSlice';
+import { fetchCustomerAccountRequest,clearDepositError,createMainWithdrawalRequest,createWithdrawalRequest, createSBWithdrawalRequest,createSBSellProductRequest,editCustomerAccountRequest,editCustomerSBAccountRequest,createCustomerAccountRequest,createCustomerSBAccountRequest } from '../redux/slices/depositSlice';
 import {fetchStaffRequest} from '../redux/slices/staffSlice'
 import NotificationPopup from './Notification'
 import Loader from "./Loader";
@@ -98,10 +98,14 @@ const CustomerAccountDashboard = () => {
   useEffect(() => {
     if (depositError) {
       setShowError(true);
-      const timer = setTimeout(() => setShowError(false), 5000);
+      const timer = setTimeout(() => {
+        setShowError(false);
+        dispatch(clearDepositError()); // Dispatch action to reset error in Redux store
+      }, 5000);
+  
       return () => clearTimeout(timer);
     }
-  }, [depositError]);
+  }, [depositError, dispatch]);
 
 
   // useEffect(() => {
