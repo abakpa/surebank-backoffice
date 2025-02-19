@@ -8,7 +8,6 @@ const getBranchName = (branchId, branches = []) => {
 };
 
 const Tablebody = ({ customers = [], branches = [] }) => { // Default values for props
-  console.log("check???",customers,branches)
   const navigate = useNavigate();
 
   const handleRowClick = (customerId) => {

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAccountTransactionRequest } from "../redux/slices/createAccountSlice";
-import { createDepositRequest } from '../redux/slices/depositSlice';
-import { fetchCustomerAccountRequest,createMainWithdrawalRequest,createWithdrawalRequest,editCustomerAccountRequest,createCustomerAccountRequest } from '../redux/slices/depositSlice';
+import { createDepositRequest,createSBDepositRequest } from '../redux/slices/depositSlice';
+import { fetchCustomerAccountRequest,createMainWithdrawalRequest,createWithdrawalRequest, createSBWithdrawalRequest,createSBSellProductRequest,editCustomerAccountRequest,editCustomerSBAccountRequest,createCustomerAccountRequest,createCustomerSBAccountRequest } from '../redux/slices/depositSlice';
 import {fetchStaffRequest} from '../redux/slices/staffSlice'
 import NotificationPopup from './Notification'
 import Loader from "./Loader";
@@ -17,6 +17,8 @@ import Select2 from "./Select2";
 const CustomerAccountDashboard = () => {
   const { customerId } = useParams();
   const dispatch = useDispatch();
+    const isLoggedIn = useSelector((state) => state.login.staff?.role);
+    const loggedInStaffRole = isLoggedIn || localStorage.getItem("staffRole");
   const { customerAccount,error:customerAccountError } = useSelector((state) => state.customerAccount);
   const { subAccount } = useSelector((state) => state.subAccount);
     const { staffs } = useSelector((state) => state.staff);
@@ -27,17 +29,33 @@ const CustomerAccountDashboard = () => {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [getAmountPerDay, setGetAmountPerDay] = useState(null);
   const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showSBDepositModal, setShowSBDepositModal] = useState(false);
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
+  const [showSBWithdrawalModal, setShowSBWithdrawalModal] = useState(false);
+  const [showSellModal, setShowSellModal] = useState(false);
   const [showMainWithdrawalModal, setShowMainWithdrawalModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showSBEditModal, setShowSBEditModal] = useState(false);
   const [showCreateAccountModal, setShowCreateAccountModal] = useState(false);
+  const [showCreateSBAccountModal, setShowCreateSBAccountModal] = useState(false);
   const [amountPerDay, setAmountPerDay] = useState("");
+  const [amount, setAmount] = useState("");
+  const [sellingPrice, setSellingPrice] = useState("");
+  const [productName, setProductName] = useState("");
+  const [productDescription, setProductDescription] = useState("");
   const [accountType, setAccountType] = useState("");
     const [accountManagerId, setAccountManagerId] = useState("");
   
   const [errors, setErrors] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
+
+  useEffect(() => {
+    if (selectedAccount) {
+      setSellingPrice(selectedAccount.sellingPrice); // Pre-fill amount
+      setProductName(selectedAccount.productName); // Pre-fill product name
+    }
+  }, [selectedAccount]);
 
   useEffect(() => {
     if (customerAccount?.message) {
@@ -69,7 +87,6 @@ const CustomerAccountDashboard = () => {
       return () => clearTimeout(timer);
     }
   }, [withdrawalError]);
-
   useEffect(() => {
     if (deposit?.message) {
       setShowSuccess(true);
@@ -131,6 +148,27 @@ const CustomerAccountDashboard = () => {
     setAmountPerDay("");
     setShowDepositModal(false);
   };
+  const handleSBDepositSubmit = (e) => {
+    e.preventDefault();
+    setErrors("");
+
+    if (!selectedAccount.SBAccountNumber || !amount) {
+      setErrors("Both fields are required.");
+      return;
+    }
+
+    if (isNaN(amount) || parseFloat(amount) <= 0) {
+      setErrors("Please enter a valid amount.");
+      return;
+    }
+
+    const details = { SBAccountNumber: selectedAccount.SBAccountNumber,productName:selectedAccount.productName,customerId:customerId, amount: parseFloat(amount) };
+    const data = {details}
+    console.log("details",details)
+    dispatch(createSBDepositRequest(data));
+    setAmount("");
+    setShowSBDepositModal(false);
+  };
   const handleWithdrawalSubmit = (e) => {
     e.preventDefault();
     setErrors("");
@@ -151,6 +189,37 @@ const CustomerAccountDashboard = () => {
     dispatch(createWithdrawalRequest(data));
     setAmountPerDay("");
     setShowWithdrawalModal(false);
+  };
+  const handleSBWithdrawalSubmit = (e) => {
+    e.preventDefault();
+    setErrors("");
+
+    if (!selectedAccount.SBAccountNumber || !amount) {
+      setErrors("Both fields are required.");
+      return;
+    }
+
+    if (isNaN(amount) || parseFloat(amount) <= 0) {
+      setErrors("Please enter a valid amount.");
+      return;
+    }
+
+    const details = { SBAccountNumber: selectedAccount.SBAccountNumber,productName:selectedAccount.productName,customerId:customerId, amount: parseFloat(amount) };
+    const data = {details}
+    console.log("details",details)
+    dispatch(createSBWithdrawalRequest(data));
+    setAmount("");
+    setShowSBWithdrawalModal(false);
+  };
+  const handleSellSubmit = (e) => {
+    e.preventDefault();
+    setErrors("");
+
+    const details = { SBAccountNumber: selectedAccount.SBAccountNumber,productName:selectedAccount.productName,customerId:customerId};
+    const data = {details}
+    console.log("details",details)
+    dispatch(createSBSellProductRequest(data));
+    setShowSellModal(false);
   };
   const handleMainWithdrawalSubmit = (e) => {
     e.preventDefault();
@@ -188,6 +257,27 @@ const CustomerAccountDashboard = () => {
     setAmountPerDay("");
     setShowEditModal(false);
   };
+  const handleSBEditSubmit = (e) => {
+    e.preventDefault();
+    setErrors("");
+
+    if (!selectedAccount.SBAccountNumber || !sellingPrice) {
+      setErrors("Both fields are required.");
+      return;
+    }
+
+    if (isNaN(sellingPrice) || parseFloat(sellingPrice) <= 0) {
+      setErrors("Please enter a valid amount.");
+      return;
+    }
+
+    const details = { SBAccountNumber: selectedAccount.SBAccountNumber,productName,customerId:customerId, sellingPrice: parseFloat(sellingPrice) };
+    const data = {details}
+    console.log("details",details)
+    dispatch(editCustomerSBAccountRequest(data));
+    setSellingPrice("");
+    setShowSBEditModal(false);
+  };
 
     useEffect(() => {
         dispatch(fetchStaffRequest());
@@ -218,6 +308,30 @@ const CustomerAccountDashboard = () => {
       setAccountType("");
       setAccountManagerId("");
       setShowCreateAccountModal(false);
+    };
+    const handleCreateSBAccount = (e) => {
+      console.log("handle")
+      e.preventDefault();
+      setErrors("");
+  
+      if (!deposit.account.accountNumber || !sellingPrice) {
+        setErrors("Both fields are required.");
+        return;
+      }
+  
+      if (isNaN(sellingPrice) || parseFloat(sellingPrice) <= 0) {
+        setErrors("Please enter a valid selling price.");
+        return;
+      }
+  
+          const details = { accountManagerId, productName, productDescription, customerId:customerId, accountNumber:deposit?.account?.accountNumber, sellingPrice: parseFloat(sellingPrice) }
+          console.log("44",details)
+          const data ={details}
+          dispatch(createCustomerSBAccountRequest(data))
+      setSellingPrice("");
+      setProductName("");
+      setAccountManagerId("");
+      setShowCreateSBAccountModal(false);
     };
 
 
@@ -270,7 +384,7 @@ const CustomerAccountDashboard = () => {
     <div className="cursor-pointer bg-blue-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => setShowCreateAccountModal(true)}>
       DS
     </div>
-    <div className="cursor-pointer bg-green-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => setShowCreateAccountModal(true)}>
+    <div className="cursor-pointer bg-green-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => setShowCreateSBAccountModal(true)}>
       SB
     </div>
     <div className="cursor-pointer bg-purple-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => setShowCreateAccountModal(true)}>
@@ -284,14 +398,65 @@ const CustomerAccountDashboard = () => {
         {/* Left Panel - Account Details */}
         <div className="bg-white p-4 rounded shadow-md">
           <h2 className="text-lg font-bold mb-4">Accounts</h2>
-          {Array.isArray(newSubAccount) && newSubAccount.length > 0 ? (
+          {(Array.isArray(newSubAccount?.dsAccount) && newSubAccount.dsAccount.length > 0) || 
+ (Array.isArray(newSubAccount?.sbAccount) && newSubAccount.sbAccount.length > 0) ? (
   <ul className="space-y-4">
-    {newSubAccount.map((account, index) => (
-      <li
-        key={index}
-        className="flex justify-between items-center bg-gray-50 p-3 rounded hover:shadow-md"
-      >
-        <div>
+    {/* DS Accounts */}
+    {Array.isArray(newSubAccount?.dsAccount) &&
+      newSubAccount.dsAccount.map((account, index) => (
+        <li
+          key={`ds-${index}`}
+          className="flex justify-between items-center bg-gray-50 p-3 rounded hover:shadow-md"
+        >
+          <div>
+            <div
+              className={`inline-block px-2 py-1 rounded-full text-xs font-semibold mb-1 ${
+                account.accountType === "Rent"
+                  ? "bg-blue-100 text-gray-700"
+                  : account.accountType === "School fees"
+                  ? "bg-green-100 text-green-700"
+                  : account.accountType === "Food"
+                  ? "bg-purple-100 text-purple-700"
+                  : "bg-gray-100 text-blue-700"
+              }`}
+            >
+              {account.accountType} Account <strong>₦{account.amountPerDay}</strong>
+              <button
+                onClick={() => {
+                  setSelectedAccount(account);
+                  setGetAmountPerDay(account.amountPerDay);
+                  setShowEditModal(true);
+                }}
+                className="text-blue-600 hover:text-blue-800 ml-2"
+              >
+                <i className="fas fa-edit text-lg" title="Edit"></i>
+              </button>
+            </div>
+            <p className="text-sm text-gray-600">Number: {account.DSAccountNumber || "N/A"}</p>
+            <p className="text-sm text-gray-600">Balance: ₦{account.totalContribution || 0}</p>
+          </div>
+          <div className="flex space-x-2">
+            <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
+              <i className="fas fa-folder-open text-lg" title="View Transactions"></i>
+            </button>
+            <button onClick={() => { setSelectedAccount(account); setShowDepositModal(true); }} className="text-green-600 hover:text-green-800">
+              <i className="fas fa-plus-circle text-lg" title="Deposit"></i>
+            </button>
+            <button onClick={() => { setSelectedAccount(account); setShowWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
+              <i className="fas fa-minus-circle text-lg" title="Withdraw"></i>
+            </button>
+          </div>
+        </li>
+      ))}
+
+    {/* SB Accounts */}
+    {Array.isArray(newSubAccount?.sbAccount) &&
+  newSubAccount.sbAccount.map((account, index) => (
+    <li
+      key={`sb-${index}`}
+      className="flex justify-between items-center bg-gray-50 p-3 rounded hover:shadow-md"
+    >
+      <div>
         <div
           className={`inline-block px-2 py-1 rounded-full text-xs font-semibold mb-1 ${
             account.accountType === "Rent"
@@ -303,63 +468,48 @@ const CustomerAccountDashboard = () => {
               : "bg-gray-100 text-blue-700"
           }`}
         >
-          {account.accountType} Account <strong>₦{account.amountPerDay}</strong> 
+          {account.productName} <strong>₦{account.sellingPrice}</strong>
           <button
-        onClick={() => {
-          setSelectedAccount(account);
-          setGetAmountPerDay(account.amountPerDay);
-          setShowEditModal(true);
-        }}
-       className="text-blue-600 hover:text-blue-800 ml-2"
-        >
-      <i className="fas fa-edit text-lg" title="Edit"></i>
-      </button>
-
+            onClick={() => {
+              setSelectedAccount(account);
+              setShowSBEditModal(true);
+            }}
+            className="text-blue-600 hover:text-blue-800 ml-2"
+          >
+            <i className="fas fa-edit text-lg" title="Edit"></i>
+          </button>
         </div>
-          <p className="text-sm text-gray-600">
-            Number: {account.DSAccountNumber || "N/A"}
-          </p>
-          <p className="text-sm text-gray-600">
-            Balance: ₦{account.totalContribution || 0}
-          </p>
-        </div>
-        <div className="flex space-x-2">
+        <p className="text-sm text-gray-600">Number: {account.SBAccountNumber || "N/A"}</p>
+        <p className="text-sm text-gray-600">Balance: ₦{account.balance || 0}</p>
+      </div>
+      <div className="flex space-x-2">
         {/* View Transactions */}
-        <button
-          onClick={() => accountTransaction(account._id)}
-          className="text-blue-600 hover:underline"
-        >
+        <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
           <i className="fas fa-folder-open text-lg" title="View Transactions"></i>
         </button>
         {/* Deposit Icon */}
-        <button
-          onClick={() => {
-            setSelectedAccount(account);
-            setGetAmountPerDay(account.amountPerDay);
-            setShowDepositModal(true);
-          }}
-          className="text-green-600 hover:text-green-800"
-        >
+        <button onClick={() => { setSelectedAccount(account); setShowSBDepositModal(true); }} className="text-green-600 hover:text-green-800">
           <i className="fas fa-plus-circle text-lg" title="Deposit"></i>
         </button>
         {/* Withdrawal Icon */}
-        <button
-          onClick={() => {
-            setSelectedAccount(account);
-            setGetAmountPerDay(account.amountPerDay);
-            setShowWithdrawalModal(true);
-          }}
-          className="text-red-600 hover:text-red-800"
-        >
+        {loggedInStaffRole === 'Admin' &&(
+        <button onClick={() => { setSelectedAccount(account); setShowSBWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
           <i className="fas fa-minus-circle text-lg" title="Withdraw"></i>
         </button>
+        )}
+        {/* Sell Icon */}
+        <button onClick={() => { setSelectedAccount(account); setShowSellModal(true); }} className="text-yellow-600 hover:text-yellow-800">
+          <i className="fas fa-shopping-cart text-lg" title="Sell"></i>
+        </button>
       </div>
-      </li>
-    ))}
+    </li>
+  ))}
+
   </ul>
 ) : (
   <p className="text-gray-600">Customer does not have any accounts.</p>
 )}
+
 
         </div>
 
@@ -423,6 +573,40 @@ const CustomerAccountDashboard = () => {
       </div>
     </div>
   )}
+       {showSBDepositModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+  
+      <div className="bg-white p-6 rounded shadow-md w-96">
+      <h3 className="text-lg font-bold mb-4">
+      Deposit
+     </h3>
+        <form onSubmit={handleSBDepositSubmit}>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="Enter amount"
+            className="w-full border border-gray-300 rounded p-2 mb-4"
+          />
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => setShowSBDepositModal(false)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-green-500 text-white px-4 py-2 rounded"
+            >
+              Deposit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
        {showWithdrawalModal && (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
@@ -451,6 +635,68 @@ const CustomerAccountDashboard = () => {
               className="bg-red-600 text-white px-4 py-2 rounded"
             >
               Withdraw
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+       {showSBWithdrawalModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+  
+      <div className="bg-white p-6 rounded shadow-md w-96">
+      <h3 className="text-lg font-bold mb-4">
+      Withdrawal 
+     </h3>
+        <form onSubmit={handleSBWithdrawalSubmit}>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="Enter amount"
+            className="w-full border border-gray-300 rounded p-2 mb-4"
+          />
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => setShowSBWithdrawalModal(false)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-red-600 text-white px-4 py-2 rounded"
+            >
+              Withdraw
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+       {showSellModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+  
+      <div className="bg-white p-6 rounded shadow-md w-96">
+      <h5 className="text-sm font-bold mb-4">
+      {"Are you sure you want to sell the product?"}
+     </h5>
+        <form onSubmit={handleSellSubmit}>
+    
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => setShowSellModal(false)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-red-600 text-white px-4 py-2 rounded"
+            >
+              Sell
             </button>
           </div>
         </form>
@@ -525,6 +771,48 @@ const CustomerAccountDashboard = () => {
       </div>
     </div>
   )}
+       {showSBEditModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div className="bg-white p-6 rounded shadow-md w-96">
+    <h3 className="text-lg font-bold mb-4">Edit</h3>
+
+    {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+
+    <form onSubmit={handleSBEditSubmit}>
+      <input
+        type="number"
+        value={sellingPrice}
+        onChange={(e) => setSellingPrice(e.target.value)}
+        // placeholder="Enter amount"
+        className="w-full border border-gray-300 rounded p-2 mb-4"
+      />
+      <input
+        type="text"
+        value={productName}
+        onChange={(e) => setProductName(e.target.value)}
+        // placeholder="Enter product name"
+        className="w-full border border-gray-300 rounded p-2 mb-4"
+      />
+      <div className="flex justify-end space-x-4">
+        <button
+          onClick={() => setShowSBEditModal(false)}
+          type="button"
+          className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="bg-green-500 text-white px-4 py-2 rounded"
+        >
+          Edit
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+  )}
   
   {/* Create Account Package Modal */}
   {showCreateAccountModal && (
@@ -566,6 +854,79 @@ const CustomerAccountDashboard = () => {
           <div className="flex justify-end space-x-4">
             <button
               onClick={() => setShowCreateAccountModal(false)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              Create Account
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+  
+  {/* Create SB Account Package Modal */}
+  {showCreateSBAccountModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded shadow-md w-96">
+        <h3 className="text-lg font-bold mb-4">Create Account Package</h3>
+        <form onSubmit={handleCreateSBAccount}>
+        <div className="mb-4">
+         <Select2
+  label="Account Manager"
+  options={staffs.map((staff) => ({ label: staff.name, value: staff._id }))}
+  value={accountManagerId}
+  onChange={(selectedId) => setAccountManagerId(selectedId)}
+/>
+
+        </div>
+          <div className="mb-4">
+            <label htmlFor="amountPerDay" className="block text-sm font-medium text-gray-700">
+              Product Name
+            </label>
+            <input
+              id="productName"
+              type="text"
+              value={productName}
+              onChange={(e) => setProductName(e.target.value)}
+              placeholder="Enter Product Name"
+              className="w-full border border-gray-300 rounded p-2 mt-1"
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="amountPerDay" className="block text-sm font-medium text-gray-700">
+              Product Description
+            </label>
+            <input
+              id="productDescription"
+              type="text"
+              value={productDescription}
+              onChange={(e) => setProductDescription(e.target.value)}
+              placeholder="Enter Product Description"
+              className="w-full border border-gray-300 rounded p-2 mt-1"
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="amountPerDay" className="block text-sm font-medium text-gray-700">
+              Seling Price
+            </label>
+            <input
+              id="sellingPrice"
+              type="number"
+              value={sellingPrice}
+              onChange={(e) => setSellingPrice(e.target.value)}
+              placeholder="Enter amount"
+              className="w-full border border-gray-300 rounded p-2 mt-1"
+            />
+          </div>
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => setShowCreateSBAccountModal(false)}
               className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
             >
               Cancel

@@ -17,8 +17,6 @@ const Viewcustomer = () => {
     dispatch(fetchCustomerRequest());
   }, [dispatch]);
 
-  console.log("Customers from Redux:", customers);
-  console.log("Type of Customers:", typeof customers);
 
   // Ensure customers is always an array
   const customerList = Array.isArray(customers) ? customers : [];
