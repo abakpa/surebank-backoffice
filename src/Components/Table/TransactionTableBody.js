@@ -7,7 +7,6 @@ const getBranchName = (staffId, staffs = []) => {
   };
 
 const Tablebody = ({ customers = [], branches = [] }) => { // Default values for props
-  console.log("check???",customers,branches)
   return (
     <tbody className="text-xs">
       {Array.isArray(customers) && customers.length > 0 ? (
@@ -17,7 +16,7 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
             className=" hover:bg-gray-100"
           >
             <td>
-            <p className="text-xs ml-2 mb-2 font-semibold">
+            <p className="text-xs mb-2 font-semibold">
                 <span className={customer.direction === 'Credit' ? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500": "text-red-600"}>
                 {customer.direction}
                 </span>
@@ -26,13 +25,13 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
             </p>
             </td>            
             <td>
-            <p className={`text-xs ml-1 font-semibold ${customer.direction === 'Credit' ?  "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>
+            <p className={`text-xs font-semibold ${customer.direction === 'Credit' ?  "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>
             {customer.direction === 'Credit' ? "+" : "-"} {customer.amount}
             </p>
             </td>
             <td>
   <p
-    className={`ml-2 text-xs flex items-center space-x-1 ${
+    className={` text-xs flex items-center space-x-1 ${
       customer.direction === "Credit"
         ? "text-green-600"
         : customer.direction === "Moved"
@@ -75,7 +74,7 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
 </p>
 </td>
 
-            <td ><p className={`${customer.direction === 'Credit' ?  "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>{customer.balance}</p></td>
+            <td ><p className={`ml-2 ${customer.direction === 'Credit' ?  "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>{customer.balance}</p></td>
             <td >
               <p className={`${customer.direction === 'Credit' ?  "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>{getBranchName(customer.createdBy, branches)}</p>
             </td>

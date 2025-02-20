@@ -443,7 +443,7 @@ const CustomerAccountDashboard = () => {
             <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
               <i className="fas fa-folder-open text-sm md:text-lg" title="View Transactions"></i>
             </button>
-            <button onClick={() => { setSelectedAccount(account); setShowDepositModal(true); }} className="text-green-600 hover:text-green-800">
+            <button onClick={() => { setSelectedAccount(account);setGetAmountPerDay(account.amountPerDay); setShowDepositModal(true); }} className="text-green-600 hover:text-green-800">
               <i className="fas fa-plus-circle text-sm md:text-lg" title="Deposit"></i>
             </button>
             <button onClick={() => { setSelectedAccount(account); setShowWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
