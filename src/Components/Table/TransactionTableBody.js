@@ -50,8 +50,29 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
     </span>
 
     {/* Text "Deposit" */}
-    <span>{customer.narration==='DS Deposit' ? "Deposit" : customer.narration==='DS Charge' ? "Charge" : customer.narration==='SB Deposit' ? "Deposit": customer.narration==='Total DS' ? "Total" : customer.narration}</span>
-  </p>
+    <span className="flex items-center gap-1">
+  {customer.narration === "From DS account" ? (
+    <>
+      From
+      <span className="cursor-pointer bg-blue-500 text-white w-4 h-4 text-[10px] font-bold rounded flex items-center justify-center">
+        DS
+      </span>
+      account
+    </>
+  ) : customer.narration === "DS Deposit" ? (
+    "Deposit"
+  ) : customer.narration === "DS Charge" ? (
+    "Charge"
+  ) : customer.narration === "SB Deposit" ? (
+    "Deposit"
+  ) : customer.narration === "Total DS" ? (
+    "Total"
+  ) : (
+    customer.narration
+  )}
+</span>
+ 
+</p>
 </td>
 
             <td ><p className={`${customer.direction === 'Credit' ?  "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>{customer.balance}</p></td>
