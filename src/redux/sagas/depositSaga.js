@@ -25,23 +25,36 @@ import {
     createSBWithdrawalRequest,
     createSBWithdrawalSuccess,
     createSBWithdrawalFailure,
+    createFDWithdrawalRequest,
+    createFDWithdrawalSuccess,
+    createFDWithdrawalFailure,
     createSBSellProductRequest,
     createSBSellProductSuccess,
     createSBSellProductFailure,
+    createFDMaturedWithdrawalRequest,
+    createFDMaturedWithdrawalSuccess,
+    createFDMaturedWithdrawalFailure,
     createCustomerAccountRequest,
     createCustomerAccountSuccess,
     createCustomerAccountFailure,
     createCustomerSBAccountRequest,
     createCustomerSBAccountSuccess,
     createCustomerSBAccountFailure,
+    createCustomerFDAccountRequest,
+    createCustomerFDAccountSuccess,
+    createCustomerFDAccountFailure,
     editCustomerAccountRequest,
     editCustomerAccountSuccess,
     editCustomerAccountFailure,
     editCustomerSBAccountRequest,
     editCustomerSBAccountSuccess,
-    editCustomerSBAccountFailure
+    editCustomerSBAccountFailure,
+    editCustomerFDAccountRequest,
+    editCustomerFDAccountSuccess,
+    editCustomerFDAccountFailure
 } from '../slices/depositSlice'
 import { url } from './url'
+import {sendTemplateMessage} from '../../Components/WhatsappNotification'
 
  function* fetchDepositSaga(){
     try {
@@ -110,6 +123,11 @@ function* createSBDepositSaga(action) {
       );
   
       // Dispatch deposit success action
+      console.log("result saga",response.data)
+      const amount = response.data.data.newTransaction.amount
+      const balance = response.data.data.newTransaction.balance
+      const direction = 'deposit'
+      sendTemplateMessage(amount,balance,direction)
       yield put(createSBDepositSuccess(response.data));
       // After deposit, refresh customer account details
       yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
@@ -156,6 +174,25 @@ function* createSBDepositSaga(action) {
         yield put(createSBWithdrawalFailure(errorMessage))
     }
 }
+  function* createFDWithdrawalSaga(action){
+    const {details} = action.payload
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const response = yield call(axios.post,`${url}/api/fdaccount/imaturewithdrawal`, details,config);
+        yield put(createFDWithdrawalSuccess(response.data))
+
+           yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
+        // navigate('/deposit')
+    } catch (error) {
+        const errorMessage = error.response?.data?.message
+        yield put(createFDWithdrawalFailure(errorMessage))
+    }
+}
   function* createSBSellProductSaga(action){
     const {details} = action.payload
     try {
@@ -173,6 +210,25 @@ function* createSBDepositSaga(action) {
     } catch (error) {
         const errorMessage = error.response?.data?.message
         yield put(createSBSellProductFailure(errorMessage))
+    }
+}
+  function* createFDMaturedWithdrawalSaga(action){
+    const {details} = action.payload
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const response = yield call(axios.post,`${url}/api/fdaccount/withdrawal`, details,config);
+        yield put(createFDMaturedWithdrawalSuccess(response.data))
+
+           yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
+        // navigate('/deposit')
+    } catch (error) {
+        const errorMessage = error.response?.data?.message
+        yield put(createFDMaturedWithdrawalFailure(errorMessage))
     }
 }
   function* createMainWithdrawalSaga(action){
@@ -231,6 +287,24 @@ function* createCustomerSBAccountSaga(action){
         yield put(createCustomerSBAccountFailure(errorMessage))
     }
 }
+function* createCustomerFDAccountSaga(action){
+    const {details,navigate} = action.payload
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const response = yield call(axios.post,`${url}/api/fdaccount`, details,config);
+        yield put(createCustomerFDAccountSuccess(response.data))
+        yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
+        navigate('/deposit')
+    } catch (error) {
+        const errorMessage = error.response?.data?.error
+        yield put(createCustomerFDAccountFailure(errorMessage))
+    }
+}
 function* editCustomerAccountSaga(action){
     const {details} = action.payload
     try {
@@ -265,22 +339,41 @@ function* editCustomerSBAccountSaga(action){
         yield put(editCustomerSBAccountFailure(error.message))
     }
 }
+function* editCustomerFDAccountSaga(action){
+    const {details} = action.payload
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const response = yield call(axios.put,`${url}/api/fdaccount`, details,config);
+        yield put(editCustomerFDAccountSuccess(response.data))
+        yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
+        // navigate('/deposit')
+    } catch (error) {
+        yield put(editCustomerFDAccountFailure(error.message))
+    }
+}
   
 function* fetchCustomerAccountSaga(action) {
   const { customerId } = action.payload;
   try {
     // Fetch all required data in parallel
-    const [accountResponse, customerResponse, dsAccountResponse, sbAccountResponse] = yield all([
+    const [accountResponse, customerResponse, dsAccountResponse, sbAccountResponse,fdAccountResponse] = yield all([
       call(axios.post, `${url}/api/account/${customerId}`),
       call(axios.get, `${url}/api/customer/${customerId}`),
       call(axios.get, `${url}/api/dsaccount/${customerId}`),
       call(axios.get, `${url}/api/sbaccount/${customerId}`),
+      call(axios.get, `${url}/api/fdaccount/${customerId}`),
     ]);
 
     // Combine dsAccountResponse and sbAccountResponse into one object
     const subAccount = {
       dsAccount: dsAccountResponse.data,
       sbAccount: sbAccountResponse.data,
+      fdAccount: fdAccountResponse.data,
     };
 
     // Store customer ID and name in local storage
@@ -311,11 +404,15 @@ function* depositSaga(){
     yield takeLatest(createMainWithdrawalRequest.type, createMainWithdrawalSaga)
     yield takeLatest(createWithdrawalRequest.type, createWithdrawalSaga)
     yield takeLatest(createSBWithdrawalRequest.type, createSBWithdrawalSaga)
+    yield takeLatest(createFDWithdrawalRequest.type, createFDWithdrawalSaga)
     yield takeLatest(createSBSellProductRequest.type, createSBSellProductSaga)
+    yield takeLatest(createFDMaturedWithdrawalRequest.type, createFDMaturedWithdrawalSaga)
     yield takeLatest(createCustomerAccountRequest.type, createCustomerAccountSaga)
     yield takeLatest(createCustomerSBAccountRequest.type, createCustomerSBAccountSaga)
+    yield takeLatest(createCustomerFDAccountRequest.type, createCustomerFDAccountSaga)
     yield takeLatest(editCustomerAccountRequest.type, editCustomerAccountSaga)
     yield takeLatest(editCustomerSBAccountRequest.type, editCustomerSBAccountSaga)
+    yield takeLatest(editCustomerFDAccountRequest.type, editCustomerFDAccountSaga)
 }
 
 export default depositSaga

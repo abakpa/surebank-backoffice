@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAccountTransactionRequest } from "../redux/slices/createAccountSlice";
-import { createDepositRequest,createSBDepositRequest } from '../redux/slices/depositSlice';
+import { createDepositRequest,createSBDepositRequest,createCustomerFDAccountRequest,createFDWithdrawalRequest,createFDMaturedWithdrawalRequest,editCustomerFDAccountRequest } from '../redux/slices/depositSlice';
 import { fetchCustomerAccountRequest,clearDepositError,createMainWithdrawalRequest,createWithdrawalRequest, createSBWithdrawalRequest,createSBSellProductRequest,editCustomerAccountRequest,editCustomerSBAccountRequest,createCustomerAccountRequest,createCustomerSBAccountRequest } from '../redux/slices/depositSlice';
 import {fetchStaffRequest} from '../redux/slices/staffSlice'
 import NotificationPopup from './Notification'
@@ -33,13 +33,19 @@ const CustomerAccountDashboard = () => {
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
   const [showSBWithdrawalModal, setShowSBWithdrawalModal] = useState(false);
   const [showSellModal, setShowSellModal] = useState(false);
+  const [showMaturedWithdrawalModal, setShowMaturedWithdrawalModal] = useState(false);
   const [showMainWithdrawalModal, setShowMainWithdrawalModal] = useState(false);
+  const [showFDWithdrawalModal, setShowFDWithdrawalModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSBEditModal, setShowSBEditModal] = useState(false);
+  const [showFDEditModal, setShowFDEditModal] = useState(false);
   const [showCreateAccountModal, setShowCreateAccountModal] = useState(false);
   const [showCreateSBAccountModal, setShowCreateSBAccountModal] = useState(false);
+  const [showCreateFDAccountModal, setShowCreateFDAccountModal] = useState(false);
   const [amountPerDay, setAmountPerDay] = useState("");
   const [amount, setAmount] = useState("");
+  const [fdamount, setFdamount] = useState("");
+  const [durationMonths, setDurationMonths] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
   const [productName, setProductName] = useState("");
   const [productDescription, setProductDescription] = useState("");
@@ -54,6 +60,12 @@ const CustomerAccountDashboard = () => {
     if (selectedAccount) {
       setSellingPrice(selectedAccount.sellingPrice); // Pre-fill amount
       setProductName(selectedAccount.productName); // Pre-fill product name
+    }
+  }, [selectedAccount]);
+  useEffect(() => {
+    if (selectedAccount) {
+      setFdamount(selectedAccount.fdamount); // Pre-fill amount
+      setDurationMonths(selectedAccount.durationMonths); // Pre-fill product name
     }
   }, [selectedAccount]);
 
@@ -169,7 +181,8 @@ const CustomerAccountDashboard = () => {
     const details = { SBAccountNumber: selectedAccount.SBAccountNumber,productName:selectedAccount.productName,customerId:customerId, amount: parseFloat(amount) };
     const data = {details}
     console.log("details",details)
-    dispatch(createSBDepositRequest(data));
+     dispatch(createSBDepositRequest(data));
+
     setAmount("");
     setShowSBDepositModal(false);
   };
@@ -215,6 +228,27 @@ const CustomerAccountDashboard = () => {
     setAmount("");
     setShowSBWithdrawalModal(false);
   };
+  const handleFDWithdrawalSubmit = (e) => {
+    e.preventDefault();
+    setErrors("");
+
+    if (!selectedAccount.FDAccountNumber || !fdamount) {
+      setErrors("Both fields are required.");
+      return;
+    }
+
+    if (isNaN(fdamount) || parseFloat(fdamount) <= 0) {
+      setErrors("Please enter a valid amount.");
+      return;
+    }
+
+    const details = { FDAccountNumber: selectedAccount.FDAccountNumber,customerId:customerId, fdamount: parseFloat(fdamount) };
+    const data = {details}
+    console.log("details",details)
+    dispatch(createFDWithdrawalRequest(data));
+    setFdamount("");
+    setShowFDWithdrawalModal(false);
+  };
   const handleSellSubmit = (e) => {
     e.preventDefault();
     setErrors("");
@@ -224,6 +258,16 @@ const CustomerAccountDashboard = () => {
     console.log("details",details)
     dispatch(createSBSellProductRequest(data));
     setShowSellModal(false);
+  };
+  const handleMaturedFDSubmit = (e) => {
+    e.preventDefault();
+    setErrors("");
+
+    const details = { FDAccountNumber: selectedAccount.FDAccountNumber,customerId:customerId};
+    const data = {details}
+    console.log("details",details)
+    dispatch(createFDMaturedWithdrawalRequest(data));
+    setShowMaturedWithdrawalModal(false);
   };
   const handleMainWithdrawalSubmit = (e) => {
     e.preventDefault();
@@ -282,6 +326,28 @@ const CustomerAccountDashboard = () => {
     setSellingPrice("");
     setShowSBEditModal(false);
   };
+  const handleFDEditSubmit = (e) => {
+    e.preventDefault();
+    setErrors("");
+
+    if (!selectedAccount.FDAccountNumber || !fdamount) {
+      setErrors("Both fields are required.");
+      return;
+    }
+
+    if (isNaN(fdamount) || parseFloat(fdamount) <= 0) {
+      setErrors("Please enter a valid amount.");
+      return;
+    }
+
+    const details = { FDAccountNumber: selectedAccount.FDAccountNumber,customerId:customerId,durationMonths:durationMonths, fdamount: parseFloat(fdamount) };
+    const data = {details}
+    console.log("details",details)
+    dispatch(editCustomerFDAccountRequest(data));
+    setFdamount("");
+    setDurationMonths("");
+    setShowFDEditModal(false);
+  };
 
     useEffect(() => {
         dispatch(fetchStaffRequest());
@@ -337,6 +403,30 @@ const CustomerAccountDashboard = () => {
       setAccountManagerId("");
       setShowCreateSBAccountModal(false);
     };
+    const handleCreateFDAccount = (e) => {
+      console.log("handle")
+      e.preventDefault();
+      setErrors("");
+  
+      if (!deposit.account.accountNumber || !fdamount) {
+        setErrors("Both fields are required.");
+        return;
+      }
+  
+      if (isNaN(fdamount) || parseFloat(fdamount) <= 0) {
+        setErrors("Please enter a valid amount.");
+        return;
+      }
+  
+          const details = { accountManagerId, durationMonths, customerId:customerId, accountNumber:deposit?.account?.accountNumber, fdamount:parseFloat(fdamount) }
+          console.log("44",details)
+          const data ={details}
+          dispatch(createCustomerFDAccountRequest(data))
+      setFdamount("");
+      setDurationMonths("");
+      setAccountManagerId("");
+      setShowCreateFDAccountModal(false);
+    };
 
 
   return (
@@ -391,7 +481,7 @@ const CustomerAccountDashboard = () => {
     <div className="cursor-pointer bg-green-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => setShowCreateSBAccountModal(true)}>
       SB
     </div>
-    <div className="cursor-pointer bg-purple-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => setShowCreateAccountModal(true)}>
+    <div className="cursor-pointer bg-purple-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => setShowCreateFDAccountModal(true)}>
       FD
     </div>
   </div>
@@ -433,7 +523,7 @@ const CustomerAccountDashboard = () => {
                 }}
                 className="text-blue-600 hover:text-blue-800 ml-2"
               >
-                <i className="fas fa-edit text-sm md:text-lg" title="Edit"></i>
+                <i className="fas fa-edit text-sm" title="Edit"></i>
               </button>
             </div>
             <p className="text-sm text-gray-600">Number: {account.DSAccountNumber || "N/A"}</p>
@@ -452,6 +542,72 @@ const CustomerAccountDashboard = () => {
           </div>
         </li>
       ))}
+{/* FD Accounts */}
+{Array.isArray(newSubAccount?.fdAccount) &&
+  newSubAccount.fdAccount.map((account, index) => {
+    const today = new Date();
+    const maturityDate = new Date(account.maturityDate);
+    const isMatured = maturityDate <= today; // Check if matured
+    return (
+      <li
+        key={`fd-${index}`}
+        className="flex justify-between items-center bg-gray-50 p-3 rounded hover:shadow-md"
+      >
+        <div>
+          <div
+            className={`inline-block px-2 py-1 rounded-full text-xs font-semibold mb-1 ${
+              account.accountType === "Rent"
+                ? "bg-blue-100 text-gray-700"
+                : account.accountType === "School fees"
+                ? "bg-green-100 text-green-700"
+                : account.accountType === "Food"
+                ? "bg-purple-100 text-purple-700"
+                : "bg-gray-100 text-blue-700"
+            }`}
+          >
+            FD Account <strong>₦{account.fdamount}</strong>
+            {account.totalAmount === 0 &&(
+            <button
+              onClick={() => {
+                setSelectedAccount(account);
+                setGetAmountPerDay(account.fdamount);
+                setShowFDEditModal(true);
+              }}
+              className="text-blue-600 hover:text-blue-800 ml-2"
+            >
+              <i className="fas fa-edit text-sm" title="Edit"></i>
+            </button>
+    )}
+          </div>
+          <p className="text-sm text-gray-600">Number: {account.FDAccountNumber || "N/A"}</p>
+          <p className="text-sm text-gray-600">Balance: ₦{account.totalAmount || 0}</p>
+        </div>
+        <div className="flex space-x-2">
+          <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
+            <i className="fas fa-folder-open text-sm md:text-lg" title="View Transactions"></i>
+          </button>
+          <button onClick={() => { setSelectedAccount(account); setGetAmountPerDay(account.amountPerDay); setShowDepositModal(true); }} className="text-green-600 hover:text-green-800">
+            <i className="fas fa-plus-circle text-sm md:text-lg" title="Deposit"></i>
+          </button>
+          <button onClick={() => { setSelectedAccount(account); setShowFDWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
+            <i className="fas fa-minus-circle text-sm md:text-lg" title="Withdraw"></i>
+          </button>
+
+          {/* New Button for Withdrawing Matured Fixed Deposit */}
+          {isMatured && account.totalAmount > 0 && (
+           
+            <button
+              onClick={() => { setSelectedAccount(account); setShowMaturedWithdrawalModal(true); }}
+              className="text-yellow-600 hover:text-yellow-800"
+            >
+              <i className="fas fa-unlock text-sm md:text-lg" title="Withdraw Matured FD"></i>
+            </button>
+          )}
+        </div>
+      </li>
+    );
+  })}
+
 
     {/* SB Accounts */}
     {Array.isArray(newSubAccount?.sbAccount) &&
@@ -726,6 +882,34 @@ const CustomerAccountDashboard = () => {
       </div>
     </div>
   )}
+       {showMaturedWithdrawalModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+  
+      <div className="bg-white p-6 rounded shadow-md w-96">
+      <h5 className="text-sm font-bold mb-4">
+      {"Are you sure you want to withdraw the money?"}
+     </h5>
+        <form onSubmit={handleMaturedFDSubmit}>
+    
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => setShowMaturedWithdrawalModal(false)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-red-600 text-white px-4 py-2 rounded"
+            >
+              Yes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
        {showMainWithdrawalModal && (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
@@ -745,6 +929,40 @@ const CustomerAccountDashboard = () => {
           <div className="flex justify-end space-x-4">
             <button
               onClick={() => setShowMainWithdrawalModal(false)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-red-600 text-white px-4 py-2 rounded"
+            >
+              Withdraw
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+       {showFDWithdrawalModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+  
+      <div className="bg-white p-6 rounded shadow-md w-96">
+      <h3 className="text-lg font-bold mb-4">
+      Withdrawal 
+     </h3>
+        <form onSubmit={handleFDWithdrawalSubmit}>
+          <input
+            type="number"
+            value={fdamount}
+            onChange={(e) => setFdamount(e.target.value)}
+            placeholder="Enter amount"
+            className="w-full border border-gray-300 rounded p-2 mb-4"
+          />
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => setShowFDWithdrawalModal(false)}
               className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
             >
               Cancel
@@ -819,6 +1037,49 @@ const CustomerAccountDashboard = () => {
       <div className="flex justify-end space-x-4">
         <button
           onClick={() => setShowSBEditModal(false)}
+          type="button"
+          className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="bg-green-500 text-white px-4 py-2 rounded"
+        >
+          Edit
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+  )}
+       {showFDEditModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div className="bg-white p-6 rounded shadow-md w-96">
+    <h3 className="text-lg font-bold mb-4">Edit</h3>
+
+    {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+
+    <form onSubmit={handleFDEditSubmit}>
+      <input
+        type="number"
+        value={fdamount}
+        onChange={(e) => setFdamount(e.target.value)}
+        // placeholder="Enter amount"
+        className="w-full border border-gray-300 rounded p-2 mb-4"
+      />
+      <input
+        type="number"
+        value={durationMonths}
+        onChange={(e) => setDurationMonths(e.target.value)}
+        // placeholder="Enter amount"
+        className="w-full border border-gray-300 rounded p-2 mb-4"
+      />
+ 
+      <div className="flex justify-end space-x-4">
+        <button
+          onClick={() => setShowFDEditModal(false)}
           type="button"
           className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
         >
@@ -950,6 +1211,66 @@ const CustomerAccountDashboard = () => {
           <div className="flex justify-end space-x-4">
             <button
               onClick={() => setShowCreateSBAccountModal(false)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              Create Account
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+  {/* Create FD Account Package Modal */}
+  {showCreateFDAccountModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded shadow-md w-96">
+        <h3 className="text-lg font-bold mb-4">Create Account Package</h3>
+        <form onSubmit={handleCreateFDAccount}>
+        <div className="mb-4">
+         <Select2
+  label="Account Manager"
+  options={staffs.map((staff) => ({ label: staff.name, value: staff._id }))}
+  value={accountManagerId}
+  onChange={(selectedId) => setAccountManagerId(selectedId)}
+/>
+
+        </div>
+ 
+          <div className="mb-4">
+            <label htmlFor="amountPerDay" className="block text-sm font-medium text-gray-700">
+              Amount
+            </label>
+            <input
+              id="fdamount"
+              type="number"
+              value={fdamount}
+              onChange={(e) => setFdamount(e.target.value)}
+              placeholder="Enter amount"
+              className="w-full border border-gray-300 rounded p-2 mt-1"
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="amountPerDay" className="block text-sm font-medium text-gray-700">
+              Duration
+            </label>
+            <input
+              id="durationMonths"
+              type="number"
+              value={durationMonths}
+              onChange={(e) => setDurationMonths(e.target.value)}
+              placeholder="Enter duration"
+              className="w-full border border-gray-300 rounded p-2 mt-1"
+            />
+          </div>
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => setShowCreateFDAccountModal(false)}
               className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
             >
               Cancel
