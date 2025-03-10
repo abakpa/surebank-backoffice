@@ -20,7 +20,7 @@ function* loginSaga(action){
         localStorage.setItem('staffRole', staff.role);
         localStorage.setItem('staffBranch', staff.branch);
         yield put(loginSuccess(response.data))
-        navigate('/content')
+        navigate('/dashboard')
     } catch (error) {
         yield put(loginFailure(error.message))
     }
@@ -34,7 +34,7 @@ function* logoutSaga(action){
         localStorage.removeItem('staffEmail');
         localStorage.removeItem('staffRole');
         localStorage.removeItem('staffBranch');
-        navigate('/content');
+        navigate('/dashboard');
 
         // Dispatch logout success action
         yield put(logoutSuccess());

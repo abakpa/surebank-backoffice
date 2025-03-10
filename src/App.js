@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import { useSelector } from "react-redux";
 import Sidebar from "./Components/Sidebar";
 import Topbar from "./Components/Topbar";
-import Content from "./Components/Content";
+import Dashboard from "./Components/Dashboard";
 import Viewbranches from "./Components/Viewbranches";
 import Createbranch from "./Components/Createbranch";
 import ViewStaff from "./Components/Viewstaff";
@@ -64,14 +64,14 @@ function App() {
               {/* Protected Routes */}
               {token ? (
                 <>
-                  <Route path="/" element={<Content />} />
+                  <Route path="/" element={<Dashboard />} />
                   <Route path="/branches" element={<Viewbranches />} />
                   <Route path="/createbranch" element={<Createbranch />} />
                   <Route path="/staff" element={<ViewStaff />} />
                   <Route path="/createstaff" element={<CreateStaff />} />
                   <Route path="/customers" element={<ViewCustomer />} />
                   <Route path="/createcustomer" element={<CreateCustomer />} />
-                  <Route path="/content" element={<Content />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/deposit" element={<Deposit />} />
                   <Route path="/createaccount" element={<CreateAccount />} />
                   <Route path="/viewcustomeraccount" element={<ViewCustomerAccount />} />
