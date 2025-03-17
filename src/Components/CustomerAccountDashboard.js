@@ -159,7 +159,6 @@ const CustomerAccountDashboard = () => {
 
     const details = { DSAccountNumber: selectedAccount.DSAccountNumber,accountType:selectedAccount.accountType,customerId:customerId, amountPerDay: parseFloat(amountPerDay) };
     const data = {details}
-    console.log("details",details)
     dispatch(createDepositRequest(data));
     setAmountPerDay("");
     setShowDepositModal(false);
@@ -202,7 +201,6 @@ const CustomerAccountDashboard = () => {
 
     const details = { DSAccountNumber: selectedAccount.DSAccountNumber,accountType:selectedAccount.accountType,customerId:customerId, amountPerDay: parseFloat(amountPerDay) };
     const data = {details}
-    console.log("details",details)
     dispatch(createWithdrawalRequest(data));
     setAmountPerDay("");
     setShowWithdrawalModal(false);
@@ -223,7 +221,6 @@ const CustomerAccountDashboard = () => {
 
     const details = { SBAccountNumber: selectedAccount.SBAccountNumber,productName:selectedAccount.productName,customerId:customerId, amount: parseFloat(amount) };
     const data = {details}
-    console.log("details",details)
     dispatch(createSBWithdrawalRequest(data));
     setAmount("");
     setShowSBWithdrawalModal(false);
@@ -244,7 +241,6 @@ const CustomerAccountDashboard = () => {
 
     const details = { FDAccountNumber: selectedAccount.FDAccountNumber,customerId:customerId, fdamount: parseFloat(fdamount) };
     const data = {details}
-    console.log("details",details)
     dispatch(createFDWithdrawalRequest(data));
     setFdamount("");
     setShowFDWithdrawalModal(false);
@@ -255,7 +251,6 @@ const CustomerAccountDashboard = () => {
 
     const details = { SBAccountNumber: selectedAccount.SBAccountNumber,productName:selectedAccount.productName,customerId:customerId};
     const data = {details}
-    console.log("details",details)
     dispatch(createSBSellProductRequest(data));
     setShowSellModal(false);
   };
@@ -265,7 +260,6 @@ const CustomerAccountDashboard = () => {
 
     const details = { FDAccountNumber: selectedAccount.FDAccountNumber,customerId:customerId};
     const data = {details}
-    console.log("details",details)
     dispatch(createFDMaturedWithdrawalRequest(data));
     setShowMaturedWithdrawalModal(false);
   };
@@ -300,7 +294,6 @@ const CustomerAccountDashboard = () => {
 
     const details = { DSAccountNumber: selectedAccount.DSAccountNumber,customerId:customerId, amountPerDay: parseFloat(amountPerDay) };
     const data = {details}
-    console.log("details",details)
     dispatch(editCustomerAccountRequest(data));
     setAmountPerDay("");
     setShowEditModal(false);
@@ -321,7 +314,6 @@ const CustomerAccountDashboard = () => {
 
     const details = { SBAccountNumber: selectedAccount.SBAccountNumber,productName,customerId:customerId, sellingPrice: parseFloat(sellingPrice) };
     const data = {details}
-    console.log("details",details)
     dispatch(editCustomerSBAccountRequest(data));
     setSellingPrice("");
     setShowSBEditModal(false);
@@ -342,7 +334,6 @@ const CustomerAccountDashboard = () => {
 
     const details = { FDAccountNumber: selectedAccount.FDAccountNumber,customerId:customerId,durationMonths:durationMonths, fdamount: parseFloat(fdamount) };
     const data = {details}
-    console.log("details",details)
     dispatch(editCustomerFDAccountRequest(data));
     setFdamount("");
     setDurationMonths("");
@@ -356,7 +347,6 @@ const CustomerAccountDashboard = () => {
       const accountpackages = ["Rent", "School fees", "Food"];
   
     const handleCreateAccount = (e) => {
-      console.log("handle")
       e.preventDefault();
       setErrors("");
   
@@ -371,7 +361,6 @@ const CustomerAccountDashboard = () => {
       }
   
           const details = { accountManagerId, accountType,customerId:customerId, accountNumber:deposit?.account?.accountNumber, amountPerDay: parseFloat(amountPerDay) }
-          console.log("44",details)
           const data ={details}
           dispatch(createCustomerAccountRequest(data))
       setAmountPerDay("");
@@ -380,7 +369,6 @@ const CustomerAccountDashboard = () => {
       setShowCreateAccountModal(false);
     };
     const handleCreateSBAccount = (e) => {
-      console.log("handle")
       e.preventDefault();
       setErrors("");
   
@@ -395,7 +383,6 @@ const CustomerAccountDashboard = () => {
       }
   
           const details = { accountManagerId, productName, productDescription, customerId:customerId, accountNumber:deposit?.account?.accountNumber, sellingPrice: parseFloat(sellingPrice) }
-          console.log("44",details)
           const data ={details}
           dispatch(createCustomerSBAccountRequest(data))
       setSellingPrice("");
@@ -419,7 +406,6 @@ const CustomerAccountDashboard = () => {
       }
   
           const details = { accountManagerId, durationMonths, customerId:customerId, accountNumber:deposit?.account?.accountNumber, fdamount:parseFloat(fdamount) }
-          console.log("44",details)
           const data ={details}
           dispatch(createCustomerFDAccountRequest(data))
       setFdamount("");

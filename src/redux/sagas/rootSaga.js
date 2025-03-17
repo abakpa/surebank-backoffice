@@ -8,7 +8,8 @@ import withdrawalSaga from './withdrawalSaga'
 import customerAccountSaga from './createAccountSaga'
 import subAccountSaga from './subAccountSaga'
 import customerAccountDetailSaga from './customerAccountDetailSaga'
+import dashboardSaga from './dashboardSaga'
 
 export default function* rootSaga(){
-    yield all([branchSaga(),staffSaga(),customerSaga(),loginSaga(),depositSaga(),customerAccountSaga(),customerAccountDetailSaga(),subAccountSaga(),withdrawalSaga()])
+    yield all([branchSaga(),staffSaga(),customerSaga(),loginSaga(),depositSaga(),customerAccountSaga(),customerAccountDetailSaga(),subAccountSaga(),withdrawalSaga(),dashboardSaga()])
 }

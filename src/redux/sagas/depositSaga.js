@@ -123,7 +123,6 @@ function* createSBDepositSaga(action) {
       );
   
       // Dispatch deposit success action
-      console.log("result saga",response.data)
       const amount = response.data.data.newTransaction.amount
       const balance = response.data.data.newTransaction.balance
       const direction = 'deposit'
