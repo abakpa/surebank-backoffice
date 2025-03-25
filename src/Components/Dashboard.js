@@ -176,7 +176,7 @@ const Dashboard = () => {
       />
       <input 
         type="date" 
-        className="p-2 border rounded-md appearance-none" 
+        className="p-2 border rounded-md" 
         value={date}
         onChange={(e) => setDate(e.target.value)}
       />
