@@ -1,6 +1,7 @@
 import React, { useState,useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
+
 import {
   fetchDSContributionRequest,
   fetchSBContributionRequest,
@@ -175,7 +176,7 @@ const Dashboard = () => {
       />
       <input 
         type="date" 
-        className="p-2 border rounded-md" 
+        className="p-2 border rounded-md appearance-none" 
         value={date}
         onChange={(e) => setDate(e.target.value)}
       />
