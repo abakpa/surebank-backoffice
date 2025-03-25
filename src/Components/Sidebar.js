@@ -35,13 +35,14 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       </button>
       <h2 className="text-xl font-bold mb-6">Sidebar</h2>
       <ul>
+        <Link to="/dashboard">
         <li
           className="hover:bg-gray-700 p-2 rounded cursor-pointer text-xs"
           onClick={() => handleMenuClick("Dashboard")}
         >
           Dashboard
         </li>
-
+        </Link>
         <Link to="/branches" className="text-xs">
           <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
             Branches
