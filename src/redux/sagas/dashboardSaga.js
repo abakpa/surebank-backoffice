@@ -40,6 +40,12 @@ import {
     fetchTotalincomeRequest,
     fetchTotalincomeSuccess,
     fetchTotalincomeFailure,
+    fetchTotalExpenditureRequest,
+    fetchTotalExpenditureSuccess,
+    fetchTotalExpenditureFailure,
+    fetchTotalProfitRequest,
+    fetchTotalProfitSuccess,
+    fetchTotalProfitFailure,
   
 } from '../slices/dashboardSlice'
 import { url } from './url'
@@ -115,7 +121,7 @@ function* fetchDSWithdrawalSaga(action) {
     const { details6 = null } = action.payload;
     try {
         const requestData = details6 ? details6 : {};
-        const dsresponse = yield call(axios.post, `${url}/api/admindashboard/dswithdrawal`, requestData);
+        const dsresponse = yield call(axios.post, `${url}/api/admindashboard/dailydswithdrawal`, requestData);
         yield put(fetchDSWithdrawalSuccess(dsresponse.data));
     } catch (error) {
         yield put(fetchDSWithdrawalFailure(error.response?.data?.message || "An error occurred"));
@@ -187,6 +193,28 @@ function* fetchTotalincomeSaga(action) {
         yield put(fetchTotalincomeFailure(error.response?.data?.message || "An error occurred"));
     }
 }
+function* fetchTotalExpenditureSaga(action) {
+    const { details13 = null } = action.payload;
+
+    try {
+        const requestData = details13 ? details13 : {};
+        const dsresponse = yield call(axios.post, `${url}/api/admindashboard/totalexpenditure`, requestData);
+        yield put(fetchTotalExpenditureSuccess(dsresponse.data));
+    } catch (error) {
+        yield put(fetchTotalExpenditureFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+function* fetchTotalProfitSaga(action) {
+    const { details14 = null } = action.payload;
+
+    try {
+        const requestData = details14 ? details14 : {};
+        const dsresponse = yield call(axios.post, `${url}/api/admindashboard/profit`, requestData);
+        yield put(fetchTotalProfitSuccess(dsresponse.data));
+    } catch (error) {
+        yield put(fetchTotalProfitFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
 
 
 
@@ -206,6 +234,8 @@ function* depositSaga(){
     yield takeLatest(fetchDSincomeRequest.type, fetchDSincomeSaga)
     yield takeLatest(fetchSBincomeRequest.type, fetchSBincomeSaga)
     yield takeLatest(fetchTotalincomeRequest.type, fetchTotalincomeSaga)
+    yield takeLatest(fetchTotalExpenditureRequest.type, fetchTotalExpenditureSaga)
+    yield takeLatest(fetchTotalProfitRequest.type, fetchTotalProfitSaga)
 
 }
 

@@ -14,6 +14,8 @@ const initialState = {
     dsincome: null,
     sbincome: null,
     totalincome: null,
+    totalexpenditure: null,
+    profit: null,
     loading: false,
     error:null,
 };
@@ -149,7 +151,27 @@ const dashboardSlice = createSlice({
             state.totalincome= action.payload;
             state.loading=false
         },
-        fetchTotalFailure:(state,action)=>{
+        fetchTotalincomeFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchTotalExpenditureRequest:(state)=>{
+            state.loading = true
+        },
+        fetchTotalExpenditureSuccess:(state,action)=>{
+            state.totalexpenditure= action.payload;
+            state.loading=false
+        },
+        fetchTotalExpenditureFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchTotalProfitRequest:(state)=>{
+            state.loading = true
+        },
+        fetchTotalProfitSuccess:(state,action)=>{
+            state.profit= action.payload;
+            state.loading=false
+        },
+        fetchTotalProfitFailure:(state,action)=>{
             state.error = action.payload
         },
     
@@ -196,6 +218,12 @@ export const {
     fetchTotalincomeRequest,
     fetchTotalincomeSuccess,
     fetchTotalincomeFailure,
+    fetchTotalExpenditureRequest,
+    fetchTotalExpenditureSuccess,
+    fetchTotalExpenditureFailure,
+    fetchTotalProfitRequest,
+    fetchTotalProfitSuccess,
+    fetchTotalProfitFailure,
  
 } = dashboardSlice.actions
 

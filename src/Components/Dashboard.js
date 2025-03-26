@@ -16,6 +16,8 @@ import {
   fetchDSincomeRequest,
   fetchSBincomeRequest,
   fetchTotalincomeRequest,
+  fetchTotalExpenditureRequest,
+  fetchTotalProfitRequest
 } from '../redux/slices/dashboardSlice'
 import Loader from "./Loader";
 import Select2 from "./Select2";
@@ -38,6 +40,8 @@ const Dashboard = () => {
     const [date10, setDate10] = useState("");
     const [date11, setDate11] = useState("");
     const [date12, setDate12] = useState("");
+    const [date13, setDate13] = useState("");
+    const [date14, setDate14] = useState("");
     const [branchId, setBranchId] = useState("");
     const [branchId1, setBranchId1] = useState("");
     const [branchId2, setBranchId2] = useState("");
@@ -51,6 +55,8 @@ const Dashboard = () => {
     const [branchId10, setBranchId10] = useState("");
     const [branchId11, setBranchId11] = useState("");
     const [branchId12, setBranchId12] = useState("");
+    const [branchId13, setBranchId13] = useState("");
+    const [branchId14, setBranchId14] = useState("");
     const {
       loading,
       dscontribution,
@@ -66,6 +72,8 @@ const Dashboard = () => {
       dsincome,
       sbincome,
       totalincome,
+      totalexpenditure,
+      profit
     } = useSelector((state)=>state.dashboard)
       const newdsContribution = dscontribution || 0
       const newsbContribution = sbcontribution || 0
@@ -80,6 +88,8 @@ const Dashboard = () => {
       const newdsincome = dsincome || 0
       const newsbincome = sbincome || 0
       const newtotalincome = totalincome || 0
+      const newtotalexpenditure = totalexpenditure || 0
+      const newprofit = profit || 0
 
 
 
@@ -101,6 +111,8 @@ const Dashboard = () => {
         const details10 = { branchId: branchId10, date: date10 };
         const details11 = { branchId: branchId11, date: date11 };
         const details12 = { branchId: branchId12, date: date12 };
+        const details13 = { branchId: branchId13, date: date13 };
+        const details14 = { branchId: branchId14, date: date14 };
         const data = {details}
         const data1 = {details1}
         const data2 = {details2}
@@ -114,6 +126,8 @@ const Dashboard = () => {
         const data10 = {details10}
         const data11 = {details11}
         const data12 = {details12}
+        const data13 = {details13}
+        const data14 = {details14}
     
         dispatch(fetchDSContributionRequest(data));
         dispatch(fetchSBContributionRequest(data1));
@@ -128,6 +142,8 @@ const Dashboard = () => {
         dispatch(fetchDSincomeRequest(data10)); 
         dispatch(fetchSBincomeRequest(data11)); 
         dispatch(fetchTotalincomeRequest(data12)); 
+        dispatch(fetchTotalExpenditureRequest(data13)); 
+        dispatch(fetchTotalProfitRequest(data14)); 
     }, [
       dispatch,
       branchId,
@@ -156,6 +172,10 @@ const Dashboard = () => {
       date11,
       branchId12,
       date12,
+      branchId13,
+      date13,
+      branchId14,
+      date14,
     ]);
     
   return (
@@ -439,19 +459,19 @@ const Dashboard = () => {
   {/* Card 14 - Violet */}
   <div className="p-4 rounded-lg shadow-md bg-violet-100">
     <h3 className="text-sm font-semibold mb-2 text-violet-800">Total Expenses</h3>
-    <p className="text-sm font-bold text-violet-800">{ 0}</p>
+    <p className="text-sm font-bold text-violet-800">{ newtotalexpenditure || 0}</p>
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
-        value={branchId12}
-        onChange={(selectedId) => setBranchId12(selectedId)}
+        value={branchId13}
+        onChange={(selectedId) => setBranchId13(selectedId)}
       />
       <input 
         type="date" 
         className="p-2 border rounded-md" 
-        value={date12}
-        onChange={(e) => setDate12(e.target.value)}
+        value={date13}
+        onChange={(e) => setDate13(e.target.value)}
       />
   
     </form>
@@ -459,41 +479,20 @@ const Dashboard = () => {
 
   {/* Card 15 - Fuchsia */}
   <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
-    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">Total Savings</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ 0}</p>
+    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">Profit</h3>
+    <p className="text-sm font-bold text-fuchsia-800">{ newprofit || 0}</p>
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
-        value={branchId12}
-        onChange={(selectedId) => setBranchId12(selectedId)}
+        value={branchId14}
+        onChange={(selectedId) => setBranchId14(selectedId)}
       />
       <input 
         type="date" 
         className="p-2 border rounded-md" 
-        value={date12}
-        onChange={(e) => setDate12(e.target.value)}
-      />
-  
-    </form>
-  </div>
-
-  {/* Card 16 - Rose */}
-  <div className="p-4 rounded-lg shadow-md bg-rose-100">
-    <h3 className="text-sm font-semibold mb-2 text-rose-800">Total Investments</h3>
-    <p className="text-sm font-bold text-rose-800">{ 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
-      <Select2
-        label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
-        value={branchId12}
-        onChange={(selectedId) => setBranchId12(selectedId)}
-      />
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date12}
-        onChange={(e) => setDate12(e.target.value)}
+        value={date14}
+        onChange={(e) => setDate14(e.target.value)}
       />
   
     </form>
