@@ -13,6 +13,7 @@ import expenditureSaga from './expenditureSaga'
 import expenditureReportSaga from './expenditureReportSaga'
 import sbincomeSaga from './sbincomeSaga'
 import dsincomeSaga from './dsincomeSaga'
+import transactionSaga from './transactionSaga'
 
 export default function* rootSaga(){
     yield all([
@@ -30,5 +31,6 @@ export default function* rootSaga(){
         sbincomeSaga(),
         dsincomeSaga(),
         expenditureReportSaga(),
+        transactionSaga(),
     ])
 }

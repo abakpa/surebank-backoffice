@@ -52,10 +52,9 @@ import { url } from './url'
 
 function* fetchDSContributionSaga(action) {
     const { details = null } = action.payload; 
-
     try {
         const requestData = details ? details : {};
-        const dsresponse = yield call(axios.get, `${url}/api/admindashboard/ds`, requestData);
+        const dsresponse = yield call(axios.post, `${url}/api/admindashboard/ds`, requestData);
 
         yield put(fetchDSContributionSuccess(dsresponse.data));
     } catch (error) {
@@ -67,7 +66,7 @@ function* fetchSBContributionSaga(action) {
 
     try {
         const requestData = details1 ? details1 : {};
-        const sbresponse = yield call(axios.get, `${url}/api/admindashboard/sb`, requestData);
+        const sbresponse = yield call(axios.post, `${url}/api/admindashboard/sb`, requestData);
         yield put(fetchSBContributionSuccess(sbresponse.data));
     } catch (error) {
         yield put(fetchSBContributionFailure(error.sbresponse?.data?.message || "An error occurred"));
@@ -78,7 +77,7 @@ function* fetcTotalSBandDSSaga(action) {
 
     try {
         const requestData = details2 ? details2 : {};
-        const sbresponse = yield call(axios.get, `${url}/api/admindashboard/totalsbandds`, requestData);
+        const sbresponse = yield call(axios.post, `${url}/api/admindashboard/totalsbandds`, requestData);
         yield put(fetcTotalSBandDSSuccess(sbresponse.data));
     } catch (error) {
         yield put(fetcTotalSBandDSFailure(error.sbresponse?.data?.message || "An error occurred"));

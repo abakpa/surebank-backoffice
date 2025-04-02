@@ -18,9 +18,9 @@ function* fetchExpenditureSaga(){
 }
 
 
-function* customerSaga(){
+function* expenditurereportSaga(){
     yield takeLatest(fetchExpenditureRequest.type, fetchExpenditureSaga)
   
 }
 
-export default customerSaga
+export default expenditurereportSaga

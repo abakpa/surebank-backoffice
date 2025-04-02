@@ -27,9 +27,9 @@ function* createExpenditureSaga(action){
     }
 }
 
-function* customerSaga(){
+function* expenditureSaga(){
 
     yield takeLatest(createExpenditureRequest.type, createExpenditureSaga)
 }
 
-export default customerSaga
+export default expenditureSaga

@@ -1,8 +1,8 @@
-const getBranchName = (branchId, branches = []) => {
+const getBranchNames = (branchId, branches = []) => {
   
-    const branch = branches.find((branch) => branch._id === branchId);
-    return branch ? branch.name : "Unknown Branch";
-  };
+  const branch = branches.find((branch) => branch._id === branchId);
+  return branch ? branch.name : "Unknown Branch";
+};
 
 const Tablebody = ({ staffs, branches = [] }) => {
     return (
@@ -13,9 +13,8 @@ const Tablebody = ({ staffs, branches = [] }) => {
             <td className="border border-gray-300 p-2">{staff.address}</td>
             <td className="border border-gray-300 p-2">{staff.phone}</td>
             <td className="border border-gray-300 p-2">{staff.role}</td>
-            {/* <td className="border border-gray-300 p-2">{staff.branch}</td> */}
             <td className="border border-gray-300 p-2">
-              {getBranchName(staff.branchId, branches)}
+            {getBranchNames(staff.branchId, branches)}
             </td>
           </tr>
         ))}
