@@ -4,8 +4,10 @@ import { useSelector } from "react-redux";
 import Sidebar from "./Components/Sidebar";
 import Topbar from "./Components/Topbar";
 import Dashboard from "./Components/Dashboard";
+import LandingPage from "./Components/LandingPage";
 import Viewbranches from "./Components/Viewbranches";
 import Createbranch from "./Components/Createbranch";
+import Expenditure from "./Components/Expenditure";
 import ViewStaff from "./Components/Viewstaff";
 import CreateStaff from "./Components/Createstaff";
 import ViewCustomer from "./Components/Viewcustomer";
@@ -16,6 +18,9 @@ import ViewCustomerAccount from "./Components/ViewCustomerAccount";
 import CustomerAccountDashboard from "./Components/CustomerAccountDashboard";
 import Login from "./Components/Stafflogin";
 import Footer from "./Components/Footer";
+import SBIncome from "./Components/SbIncome";
+import DSIncome from "./Components/DSIcome";
+import ExpenditureReport from "./Components/ExpenditureReport";
 
 function App() {
   const isLoggedIn = useSelector((state) => state.login.token);
@@ -67,12 +72,17 @@ function App() {
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/branches" element={<Viewbranches />} />
                   <Route path="/createbranch" element={<Createbranch />} />
+                  <Route path="/expenditure" element={<Expenditure />} />
                   <Route path="/staff" element={<ViewStaff />} />
                   <Route path="/createstaff" element={<CreateStaff />} />
                   <Route path="/customers" element={<ViewCustomer />} />
                   <Route path="/createcustomer" element={<CreateCustomer />} />
                   <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/landingpage" element={<LandingPage />} />
                   <Route path="/deposit" element={<Deposit />} />
+                  <Route path="/sbincome" element={<SBIncome />} />
+                  <Route path="/dsincome" element={<DSIncome />} />
+                  <Route path="/expenditurereport" element={<ExpenditureReport />} />
                   <Route path="/createaccount" element={<CreateAccount />} />
                   <Route path="/viewcustomeraccount" element={<ViewCustomerAccount />} />
                   <Route path="/customeraccountdashboard/:customerId" element={<CustomerAccountDashboard />} />

@@ -9,6 +9,10 @@ import customerAccountReducer from './slices/createAccountSlice'
 import subAccountReducer from './slices/subAccountSlice'
 import customerAccountDetailReducer from './slices/customerAccountDetailSlice'
 import admindashboard from './slices/dashboardSlice'
+import expenditures from './slices/expenditureSlice'
+import expendituresreport from './slices/expenditureReportSlice'
+import sbincome from './slices/sbIncomeSlice'
+import dsincome from './slices/dsincomeSlice'
 
 const rootReducer = combineReducers({
     branch:branchReducer,
@@ -20,7 +24,11 @@ const rootReducer = combineReducers({
     customerAccount:customerAccountReducer,
     subAccount:subAccountReducer,
     customerAccountDetail:customerAccountDetailReducer,
-    dashboard:admindashboard
+    dashboard:admindashboard,
+    expenditure:expenditures,
+    expenditurereport:expendituresreport,
+    sbincomereport:sbincome,
+    dsincomereport:dsincome,
 });
 
 export default rootReducer;

@@ -1,6 +1,8 @@
 import React, { useState,useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
+
 
 import {
   fetchDSContributionRequest,
@@ -394,7 +396,11 @@ const Dashboard = () => {
   </div>
 
   {/* Card 11 - Amber */}
-  <div className="p-4 rounded-lg shadow-md bg-amber-100">
+  <div className="relative p-4 rounded-lg shadow-md bg-amber-100">
+      {/* Transaction Statement Icon (Top-right Corner) */}
+  <Link to="/dsincome" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
+    <i className="fas fa-file-alt text-lg" title="View Transaction Statement"></i>
+  </Link>
     <h3 className="text-sm font-semibold mb-2 text-amber-800">DS Income</h3>
     <p className="text-sm font-bold text-amber-800">{newdsincome || 0}</p>
     <form className="flex flex-col gap-2 mt-2">
@@ -414,26 +420,34 @@ const Dashboard = () => {
     </form>
   </div>
 
-  {/* Card 12 - Lime */}
-  <div className="p-4 rounded-lg shadow-md bg-lime-100">
-    <h3 className="text-sm font-semibold mb-2 text-lime-800">SB Income</h3>
-    <p className="text-sm font-bold text-lime-800">{newsbincome || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
-      <Select2
-        label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
-        value={branchId11}
-        onChange={(selectedId) => setBranchId11(selectedId)}
-      />
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date11}
-        onChange={(e) => setDate11(e.target.value)}
-      />
-   
-    </form>
-  </div>
+
+{/* Card 12 - Lime */}
+<div className="relative p-4 rounded-lg shadow-md bg-lime-100">
+  {/* Transaction Statement Icon (Top-right Corner) */}
+  <Link to="/sbincome" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
+    <i className="fas fa-file-alt text-lg" title="View Transaction Statement"></i>
+  </Link>
+
+  <h3 className="text-sm font-semibold mb-2 text-lime-800">SB Income</h3>
+  <p className="text-sm font-bold text-lime-800">{newsbincome || 0}</p>
+
+  <form className="flex flex-col gap-2 mt-2">
+    <Select2
+      label="Branch"
+      options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+      value={branchId11}
+      onChange={(selectedId) => setBranchId11(selectedId)}
+    />
+    <input 
+      type="date" 
+      className="p-2 border rounded-md" 
+      value={date11}
+      onChange={(e) => setDate11(e.target.value)}
+    />
+  </form>
+</div>
+
+
 
   {/* Card 13 - Emerald */}
   <div className="p-4 rounded-lg shadow-md bg-emerald-100">
@@ -457,7 +471,11 @@ const Dashboard = () => {
   </div>
 
   {/* Card 14 - Violet */}
-  <div className="p-4 rounded-lg shadow-md bg-violet-100">
+  <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
+         {/* Transaction Statement Icon (Top-right Corner) */}
+  <Link to="/expenditurereport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
+    <i className="fas fa-file-alt text-lg" title="View Transaction Statement"></i>
+  </Link>
     <h3 className="text-sm font-semibold mb-2 text-violet-800">Total Expenses</h3>
     <p className="text-sm font-bold text-violet-800">{ newtotalexpenditure || 0}</p>
     <form className="flex flex-col gap-2 mt-2">

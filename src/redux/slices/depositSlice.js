@@ -20,6 +20,16 @@ const depositSlice = createSlice({
         fetchDepositFailure:(state,action)=>{
             state.error = action.payload
         },
+        createCostPriceRequest:(state)=>{
+            state.loading = true
+        },
+        createCostPriceSuccess:(state,action)=>{
+            state.deposit= action.payload;
+            state.loading=false
+        },
+        createCostPriceFailure:(state,action)=>{
+            state.error = action.payload
+        },
         fetchCustomerAccountRequest:(state)=>{
             state.loading = true
         },
@@ -235,6 +245,9 @@ export const {
     fetchDepositRequest,
     fetchDepositSuccess,
     fetchDepositFailure,
+    createCostPriceRequest,
+    createCostPriceSuccess,
+    createCostPriceFailure,
     fetchCustomerAccountRequest,
     fetchCustomerAccountSuccess,
     fetchCustomerAccountFailure,

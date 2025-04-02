@@ -66,6 +66,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             Customers
           </li>
         </Link>
+        <Link to="/expenditure" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+          Expenditure
+          </li>
+        </Link>
 
         <li
           className="hover:bg-gray-700 p-2 rounded cursor-pointer text-xs"

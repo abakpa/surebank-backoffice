@@ -4,6 +4,9 @@ import {
     fetchDepositRequest,
     fetchDepositSuccess,
     fetchDepositFailure,
+    createCostPriceRequest,
+    createCostPriceSuccess,
+    createCostPriceFailure,
     fetchCustomerAccountRequest,
     fetchCustomerAccountSuccess,
     fetchCustomerAccountFailure,
@@ -64,6 +67,7 @@ import {sendTemplateMessage} from '../../Components/WhatsappNotification'
         yield put(fetchDepositFailure(error.response.data.message))
     }
 }
+
  function* fetchSubAccountDepositSaga(action){
     const {customerId} = action.payload
     try {
@@ -101,6 +105,35 @@ function* createDepositSaga(action) {
     } catch (error) {
       const errorMessage = error.response?.data?.message || "An error occurred";
       yield put(createDepositFailure(errorMessage));
+    }
+  }
+function* createCostPriceSaga(action) {
+    const { details } = action.payload;
+  console.log("cost price",details)
+    try {
+      const token = localStorage.getItem("authToken");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+  
+      // Make deposit request
+      const response = yield call(
+        axios.put,
+        `${url}/api/sbaccount/costprice`,
+        details,
+        config
+      );
+  
+      // Dispatch deposit success action
+      yield put(createCostPriceSuccess(response.data));
+      // After deposit, refresh customer account details
+      yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
+  
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "An error occurred";
+      yield put(createCostPriceFailure(errorMessage));
     }
   }
 function* createSBDepositSaga(action) {
@@ -396,6 +429,7 @@ function* fetchCustomerAccountSaga(action) {
 
 function* depositSaga(){
     yield takeLatest(fetchDepositRequest.type, fetchDepositSaga)
+    yield takeLatest(createCostPriceRequest.type,createCostPriceSaga)
     yield takeLatest(fetchSubAccountDepositRequest.type, fetchSubAccountDepositSaga)
     yield takeLatest(createDepositRequest.type, createDepositSaga)
     yield takeLatest(createSBDepositRequest.type, createSBDepositSaga)

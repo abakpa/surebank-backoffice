@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAccountTransactionRequest } from "../redux/slices/createAccountSlice";
-import { createDepositRequest,createSBDepositRequest,createCustomerFDAccountRequest,createFDWithdrawalRequest,createFDMaturedWithdrawalRequest,editCustomerFDAccountRequest } from '../redux/slices/depositSlice';
+import { createDepositRequest,createCostPriceRequest,createSBDepositRequest,createCustomerFDAccountRequest,createFDWithdrawalRequest,createFDMaturedWithdrawalRequest,editCustomerFDAccountRequest } from '../redux/slices/depositSlice';
 import { fetchCustomerAccountRequest,clearDepositError,createMainWithdrawalRequest,createWithdrawalRequest, createSBWithdrawalRequest,createSBSellProductRequest,editCustomerAccountRequest,editCustomerSBAccountRequest,createCustomerAccountRequest,createCustomerSBAccountRequest } from '../redux/slices/depositSlice';
 import {fetchStaffRequest} from '../redux/slices/staffSlice'
 import NotificationPopup from './Notification'
@@ -29,6 +29,7 @@ const CustomerAccountDashboard = () => {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [getAmountPerDay, setGetAmountPerDay] = useState(null);
   const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showCostPriceModal, setShowCostPriceModal] = useState(false);
   const [showSBDepositModal, setShowSBDepositModal] = useState(false);
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
   const [showSBWithdrawalModal, setShowSBWithdrawalModal] = useState(false);
@@ -162,6 +163,26 @@ const CustomerAccountDashboard = () => {
     dispatch(createDepositRequest(data));
     setAmountPerDay("");
     setShowDepositModal(false);
+  };
+  const handleCostPriceSubmit = (e) => {
+    e.preventDefault();
+    setErrors("");
+
+    if (!selectedAccount.SBAccountNumber || !amountPerDay) {
+      setErrors("Both fields are required.");
+      return;
+    }
+
+    if (isNaN(amountPerDay) || parseFloat(amountPerDay) <= 0) {
+      setErrors("Please enter a valid amount.");
+      return;
+    }
+
+    const details = { SBAccountNumber: selectedAccount.SBAccountNumber,customerId:customerId,productName:selectedAccount.productName, costPrice: parseFloat(amountPerDay) };
+    const data = {details}
+    dispatch(createCostPriceRequest(data));
+    setAmountPerDay("");
+    setShowCostPriceModal(false);
   };
   const handleSBDepositSubmit = (e) => {
     e.preventDefault();
@@ -642,6 +663,16 @@ const CustomerAccountDashboard = () => {
             >
               <i className="fas fa-edit text-sm" title="Edit"></i>
             </button>
+               {/* Cost Price Icon */}
+        {loggedInStaffRole === 'Admin' && (
+        <button onClick={() => { 
+        setSelectedAccount(account); 
+        setShowCostPriceModal(true); }} 
+        className="text-purple-600 hover:text-purple-800">
+          <i className="fas fa-naira-sign text-sm"></i>
+        </button>
+        )}
+
           </div>
         </div>
 
@@ -732,6 +763,40 @@ const CustomerAccountDashboard = () => {
               className="bg-green-500 text-white px-4 py-2 rounded"
             >
               Deposit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+       {showCostPriceModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+  
+      <div className="bg-white p-6 rounded shadow-md w-96">
+      <h3 className="text-lg font-bold mb-4">
+      Input cost price
+     </h3>
+        <form onSubmit={handleCostPriceSubmit}>
+          <input
+            type="number"
+            value={amountPerDay}
+            onChange={(e) => setAmountPerDay(e.target.value)}
+            placeholder="Enter amount"
+            className="w-full border border-gray-300 rounded p-2 mb-4"
+          />
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => setShowCostPriceModal(false)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-green-500 text-white px-4 py-2 rounded"
+            >
+              Submit
             </button>
           </div>
         </form>

@@ -29,7 +29,7 @@ const Topbar = ({ toggleSidebar }) => {
         )}
 
         {/* System Name */}
-        <Link to="/dashboard">
+        <Link to="/landingpage">
           <div className="h-16 w-16">
             <img src={logo} alt="Sure Bank" className="rounded-lg shadow-lg w-full" />
           </div>
