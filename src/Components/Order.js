@@ -1,44 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCustomerRequest } from "../redux/slices/customerSlice";
+import { fetchOrderRequest } from "../redux/slices/orderSlice";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
-import Tablehead from "./Table/CustomerTablehead";
-import Tablebody from "./Table/CustomerTablebody";
-import { Link } from "react-router-dom";
+import Tablehead from "./Table/OrderTableHead";
+import Tablebody from "./Table/OrderTableBody";
+// import { Link } from "react-router-dom";
 
-const Viewcustomer = () => {
+const Order = () => {
   const dispatch = useDispatch();
-  const { loading, customers, error } = useSelector((state) => state.customer);
+  const { loading, order, error } = useSelector((state) => state.order);
   const { branches } = useSelector((state) => state.branch);
   const [searchTerm, setSearchTerm] = useState("");
-
   useEffect(() => {
     dispatch(fetchBranchRequest());
-    dispatch(fetchCustomerRequest());
+    dispatch(fetchOrderRequest());
   }, [dispatch]);
 
   // Ensure customers is always an array
-  const customerList = Array.isArray(customers) ? customers : [];
+  const orderList = Array.isArray(order) ? order : [];
 
   const handleSearch = (e) => {
-    setSearchTerm(e.target.value.toLowerCase());
+    setSearchTerm(e.target.value);
   };
 
-  const filteredCustomers = customerList.filter((customer) => {
-    const customerName = customer?.name?.toLowerCase() || "";
-    const customerPhone = customer?.phone?.toLowerCase() || "";
-    
-    // Find branch name from branchId
-    const branch = branches.find((b) => b._id === customer.branchId);
-    const branchName = branch?.name?.toLowerCase() || "";
-
-    return (
-      customerName.includes(searchTerm) || 
-      customerPhone.includes(searchTerm) || 
-      branchName.includes(searchTerm) // Search by branch name
-    );
-  });
-
+  const filteredorderList = orderList.filter((orderList) =>
+    (orderList?.status?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (orderList?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+  );
+  console.log("component transaction",filteredorderList)
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -64,7 +53,7 @@ const Viewcustomer = () => {
             className="opacity-75"
           />
         </svg>
-        <p className="text-blue-500 ml-4">Loading customers...</p>
+        <p className="text-blue-500 ml-4">Loading Transaction Statement...</p>
       </div>
     );
   }
@@ -73,33 +62,33 @@ const Viewcustomer = () => {
 
   return (
     <div className="flex flex-col p-4 bg-gray-100 min-h-screen w-full mt-10">
-      <h2 className="text-xl font-bold mb-4 text-center">Customer List</h2>
+      <h2 className="text-xl font-bold mb-4 text-center">Product Order</h2>
       
       {/* Search and Create Buttons */}
       <div className="flex flex-col md:flex-row items-center justify-between mb-4 gap-2">
         <input
           type="text"
-          placeholder="Search customers by name, phone, or branch..."
+          placeholder="Search by branch or status..."
           value={searchTerm}
           onChange={handleSearch}
           className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md"
         />
-        <Link to="/createcustomer" className="text-xs">
+        {/* <Link to="/expenditure" className="text-xs">
           <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-            Create Customer
+            Record Expenses
           </button>
-        </Link>
+        </Link> */}
       </div>
       
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full min-w-[600px] border-collapse border border-gray-300">
           <Tablehead />
-          <Tablebody customers={filteredCustomers} branches={branches} />
+          <Tablebody customers={filteredorderList} branches={branches} />
         </table>
       </div>
     </div>
   );
 };
 
-export default Viewcustomer;
+export default Order;

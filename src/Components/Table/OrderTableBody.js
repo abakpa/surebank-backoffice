@@ -25,9 +25,9 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
           >
             <td className="border border-gray-300 p-2">{customer.customerId.name}</td>
             <td className="border border-gray-300 p-2">{customer.branchId.name}</td>
-            <td className="border border-gray-300 p-2">{customer.narration}</td>
-            <td className="border border-gray-300 p-2">{customer.amount}</td>
-            <td className="border border-gray-300 p-2">{customer.date}</td>
+            <td className="border border-gray-300 p-2">{customer.productName}</td>
+            <td className="border border-gray-300 p-2">{customer.sellingPrice}</td>
+            <td className="border border-gray-300 p-2">{customer.status}</td>
             <td className="border border-gray-300 p-2">{customer.createdBy.name}</td>
             {/* <td className="border border-gray-300 p-2">
               {getBranchName(customer.branchId, branches)}

@@ -14,6 +14,7 @@ import expendituresreport from './slices/expenditureReportSlice'
 import sbincome from './slices/sbIncomeSlice'
 import dsincome from './slices/dsincomeSlice'
 import transactions from './slices/transactionSlice'
+import orders from './slices/orderSlice'
 
 const rootReducer = combineReducers({
     branch:branchReducer,
@@ -30,7 +31,8 @@ const rootReducer = combineReducers({
     expenditurereport:expendituresreport,
     sbincomereport:sbincome,
     dsincomereport:dsincome,
-    transaction:transactions
+    transaction:transactions,
+    order:orders,
 });
 
 export default rootReducer;

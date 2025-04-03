@@ -22,6 +22,7 @@ import SBIncome from "./Components/SbIncome";
 import DSIncome from "./Components/DSIcome";
 import ExpenditureReport from "./Components/ExpenditureReport";
 import Transaction from "./Components/Transaction";
+import Order from "./Components/Order";
 
 function App() {
   const isLoggedIn = useSelector((state) => state.login.token);
@@ -80,6 +81,7 @@ function App() {
                   <Route path="/createcustomer" element={<CreateCustomer />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/transaction" element={<Transaction />} />
+                  <Route path="/order" element={<Order />} />
                   <Route path="/landingpage" element={<LandingPage />} />
                   <Route path="/deposit" element={<Deposit />} />
                   <Route path="/sbincome" element={<SBIncome />} />

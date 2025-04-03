@@ -76,6 +76,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           Transaction
           </li>
         </Link>
+        <Link to="/order" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+          Order
+          </li>
+        </Link>
 
         <li
           className="hover:bg-gray-700 p-2 rounded cursor-pointer text-xs"
