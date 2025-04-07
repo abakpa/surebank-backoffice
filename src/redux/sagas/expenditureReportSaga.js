@@ -4,6 +4,9 @@ import {
     fetchExpenditureRequest,
     fetchExpenditureSuccess,
     fetchExpenditureFailure,
+    fetchBranchExpenditureRequest,
+    fetchBranchExpenditureSuccess,
+    fetchBranchExpenditureFailure,
 
 } from '../slices/expenditureReportSlice'
 import { url } from './url'
@@ -16,10 +19,25 @@ function* fetchExpenditureSaga(){
         yield put(fetchExpenditureFailure(error.response.data.message))
     }
 }
+function* fetchBranchExpenditureSaga(){
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const response = yield call(axios.post, `${url}/api/managerdashboard/branchexpenditurereport`,{},config)
+        yield put(fetchBranchExpenditureSuccess(response.data))
+    } catch (error) {
+        yield put(fetchBranchExpenditureFailure(error.response.data.message))
+    }
+}
 
 
 function* expenditurereportSaga(){
     yield takeLatest(fetchExpenditureRequest.type, fetchExpenditureSaga)
+    yield takeLatest(fetchBranchExpenditureRequest.type, fetchBranchExpenditureSaga)
   
 }
 

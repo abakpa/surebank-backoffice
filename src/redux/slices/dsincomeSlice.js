@@ -2,6 +2,7 @@ import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
     dsincome: [],
+    branchdsincome: [],
     loading: false,
     error:null,
 };
@@ -18,6 +19,16 @@ const dsincomeSlice = createSlice({
             state.loading=false
         },
         fetchDSIncomeFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchBranchDSIncomeRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchDSIncomeSuccess:(state,action)=>{
+            state.branchdsincome= action.payload;
+            state.loading=false
+        },
+        fetchBranchDSIncomeFailure:(state,action)=>{
             state.error = action.payload
         },
         fetchDSIncomeByIdRequest:(state)=>{
@@ -48,6 +59,9 @@ export const {
     fetchDSIncomeRequest,
     fetchDSIncomeSuccess,
     fetchDSIncomeFailure,
+    fetchBranchDSIncomeRequest,
+    fetchBranchDSIncomeSuccess,
+    fetchBranchDSIncomeFailure,
     fetchDSIncomeByIdRequest,
     fetchDSIncomeByIdSuccess,
     fetchDSIncomeByIdFailure,

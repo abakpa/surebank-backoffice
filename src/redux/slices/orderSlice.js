@@ -2,6 +2,7 @@ import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
     order: [],
+    branchorder: [],
     loading: false,
     error:null,
 };
@@ -19,6 +20,16 @@ const orderSlice = createSlice({
         },
         fetchOrderFailure:(state,action)=>{
             state.error = action.payload
+        },
+        fetchBranchOrderRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchOrderSuccess:(state,action)=>{
+            state.branchorder= action.payload;
+            state.loading=false
+        },
+        fetchBranchOrderFailure:(state,action)=>{
+            state.error = action.payload
         }
 
      }
@@ -28,6 +39,9 @@ export const {
     fetchOrderRequest,
     fetchOrderSuccess,
     fetchOrderFailure,
+    fetchBranchOrderRequest,
+    fetchBranchOrderSuccess,
+    fetchBranchOrderFailure,
  
 } = orderSlice.actions
 

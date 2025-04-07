@@ -2,6 +2,7 @@ import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
     staffs: [],
+    branchstaffs: [],
     loading: false,
     error:null,
 };
@@ -20,6 +21,16 @@ const staffSlice = createSlice({
         fetchStaffFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchBranchStaffRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchStaffSuccess:(state,action)=>{
+            state.branchstaffs= action.payload;
+            state.loading=false
+        },
+        fetchBranchStaffFailure:(state,action)=>{
+            state.error = action.payload
+        },
         createStaffRequest:(state)=>{
             state.loading=true
         },
@@ -34,6 +45,16 @@ const staffSlice = createSlice({
     }
 })
 
-export const {fetchStaffRequest,fetchStaffSuccess,fetchStaffFailure,createStaffRequest,createStaffSuccess,createStaffFailure} = staffSlice.actions
+export const {
+    fetchStaffRequest,
+    fetchStaffSuccess,
+    fetchStaffFailure,
+    fetchBranchStaffRequest,
+    fetchBranchStaffSuccess,
+    fetchBranchStaffFailure,
+    createStaffRequest,
+    createStaffSuccess,
+    createStaffFailure
+} = staffSlice.actions
 
 export default staffSlice.reducer

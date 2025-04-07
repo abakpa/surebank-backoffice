@@ -2,13 +2,16 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Sidebar from "./Components/Sidebar";
+import ManagerSidebar from "./Components/ManagerSidebar";
 import Topbar from "./Components/Topbar";
 import Dashboard from "./Components/Dashboard";
+import ManagerDashboard from "./Components/ManagerDashboard";
 import LandingPage from "./Components/LandingPage";
 import Viewbranches from "./Components/Viewbranches";
 import Createbranch from "./Components/Createbranch";
 import Expenditure from "./Components/Expenditure";
 import ViewStaff from "./Components/Viewstaff";
+import ViewBranchStaff from "./Components/ViewBranchStaff";
 import CreateStaff from "./Components/Createstaff";
 import ViewCustomer from "./Components/Viewcustomer";
 import CreateCustomer from "./Components/Createcustomer";
@@ -19,14 +22,19 @@ import CustomerAccountDashboard from "./Components/CustomerAccountDashboard";
 import Login from "./Components/Stafflogin";
 import Footer from "./Components/Footer";
 import SBIncome from "./Components/SbIncome";
+import BranchSBIncome from "./Components/BranchSBIncome";
 import DSIncome from "./Components/DSIcome";
+import BranchDSIncome from "./Components/BranchDSIncome";
 import ExpenditureReport from "./Components/ExpenditureReport";
+import BranchExpenditureReport from "./Components/BranchExpenditureReport";
 import Transaction from "./Components/Transaction";
 import Order from "./Components/Order";
+import BranchOrder from "./Components/BranchOrder";
 
 function App() {
   const isLoggedIn = useSelector((state) => state.login.token);
   const token = isLoggedIn || localStorage.getItem("authToken");
+ const loggedInStaffRole = useSelector((state) => state.login.staff?.role) || localStorage.getItem("staffRole");
 
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false); // Track sidebar state
 
@@ -45,8 +53,12 @@ function App() {
       <div className="container mx-auto relative flex  h-screen ">
         {/* Render Sidebar only when logged in */}
         {token && (
-          <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-        )}
+  loggedInStaffRole === 'Admin' ? (
+    <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+  ) : (
+    <ManagerSidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+  )
+)}
 
         {/* Overlay for small screens */}
         {isSidebarOpen && token && (
@@ -75,18 +87,25 @@ function App() {
                   <Route path="/branches" element={<Viewbranches />} />
                   <Route path="/createbranch" element={<Createbranch />} />
                   <Route path="/expenditure" element={<Expenditure />} />
+                  <Route path="/expenditure" element={<Expenditure />} />
                   <Route path="/staff" element={<ViewStaff />} />
+                  <Route path="/branchstaff" element={<ViewBranchStaff />} />
                   <Route path="/createstaff" element={<CreateStaff />} />
                   <Route path="/customers" element={<ViewCustomer />} />
                   <Route path="/createcustomer" element={<CreateCustomer />} />
                   <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/managerdashboard" element={<ManagerDashboard />} />
                   <Route path="/transaction" element={<Transaction />} />
                   <Route path="/order" element={<Order />} />
+                  <Route path="/branchorder" element={<BranchOrder />} />
                   <Route path="/landingpage" element={<LandingPage />} />
                   <Route path="/deposit" element={<Deposit />} />
                   <Route path="/sbincome" element={<SBIncome />} />
+                  <Route path="/branchsbincome" element={<BranchSBIncome />} />
                   <Route path="/dsincome" element={<DSIncome />} />
+                  <Route path="/branchdsincome" element={<BranchDSIncome />} />
                   <Route path="/expenditurereport" element={<ExpenditureReport />} />
+                  <Route path="/branchexpenditurereport" element={<BranchExpenditureReport />} />
                   <Route path="/createaccount" element={<CreateAccount />} />
                   <Route path="/viewcustomeraccount" element={<ViewCustomerAccount />} />
                   <Route path="/customeraccountdashboard/:customerId" element={<CustomerAccountDashboard />} />
