@@ -30,7 +30,6 @@ import { url } from './url'
             }
         }
         const response = yield call(axios.post, `${url}/api/staff/branchstaff`,{},config)
-        console.log("staff branch",response)
         yield put(fetchBranchStaffSuccess(response.data))
     } catch (error) {
         yield put(fetchBranchStaffFailure(error.response.data.message))

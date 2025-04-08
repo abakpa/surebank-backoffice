@@ -3,9 +3,11 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import { useSelector } from "react-redux";
 import Sidebar from "./Components/Sidebar";
 import ManagerSidebar from "./Components/ManagerSidebar";
+import RepSidebar from "./Components/RepSidebar";
 import Topbar from "./Components/Topbar";
 import Dashboard from "./Components/Dashboard";
 import ManagerDashboard from "./Components/ManagerDashboard";
+import RepDashboard from "./Components/RepDashboard";
 import LandingPage from "./Components/LandingPage";
 import Viewbranches from "./Components/Viewbranches";
 import Createbranch from "./Components/Createbranch";
@@ -30,6 +32,7 @@ import BranchExpenditureReport from "./Components/BranchExpenditureReport";
 import Transaction from "./Components/Transaction";
 import Order from "./Components/Order";
 import BranchOrder from "./Components/BranchOrder";
+import RepOrder from "./Components/RepOrder";
 
 function App() {
   const isLoggedIn = useSelector((state) => state.login.token);
@@ -55,9 +58,9 @@ function App() {
         {token && (
   loggedInStaffRole === 'Admin' ? (
     <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-  ) : (
-    <ManagerSidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-  )
+  ) :loggedInStaffRole === 'Agent' ? (
+    <RepSidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+  ):( <ManagerSidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />)
 )}
 
         {/* Overlay for small screens */}
@@ -95,9 +98,11 @@ function App() {
                   <Route path="/createcustomer" element={<CreateCustomer />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/managerdashboard" element={<ManagerDashboard />} />
+                  <Route path="/repdashboard" element={<RepDashboard />} />
                   <Route path="/transaction" element={<Transaction />} />
                   <Route path="/order" element={<Order />} />
                   <Route path="/branchorder" element={<BranchOrder />} />
+                  <Route path="/reporder" element={<RepOrder />} />
                   <Route path="/landingpage" element={<LandingPage />} />
                   <Route path="/deposit" element={<Deposit />} />
                   <Route path="/sbincome" element={<SBIncome />} />

@@ -7,6 +7,9 @@ import {
     fetchBranchOrderRequest,
     fetchBranchOrderSuccess,
     fetchBranchOrderFailure,
+    fetchRepOrderRequest,
+    fetchRepOrderSuccess,
+    fetchRepOrderFailure,
 
 } from '../slices/orderSlice'
 import { url } from './url'
@@ -40,11 +43,26 @@ function* fetchBranchOrderSaga(){
         yield put(fetchBranchOrderFailure(error.response.data.message))
     }
 }
+function* fetchRepOrderSaga(){
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const response = yield call(axios.post, `${url}/api/repdashboard/reporder`,{},config)
+        yield put(fetchRepOrderSuccess(response.data))
+    } catch (error) {
+        yield put(fetchRepOrderFailure(error.response.data.message))
+    }
+}
 
 
 function* transactionSaga(){
     yield takeLatest(fetchOrderRequest.type, fetchOrderSaga)
     yield takeLatest(fetchBranchOrderRequest.type, fetchBranchOrderSaga)
+    yield takeLatest(fetchRepOrderRequest.type, fetchRepOrderSaga)
   
 }
 

@@ -10,7 +10,7 @@ const CreateStaff = () => {
   const { branches } = useSelector((state) => state.branch);
   const isLoggedIn = useSelector((state) => state.login.staff?.role);
   const loggedInStaffRole = isLoggedIn || localStorage.getItem("staffRole");
-  const isLoggedInBranch = useSelector((state) => state.login.staff?.branch);
+  const isLoggedInBranch = useSelector((state) => state.login?.staff?.branch);
   const loggedInStaffBranch = isLoggedInBranch || localStorage.getItem("staffBranch");
 
 
@@ -19,6 +19,9 @@ const CreateStaff = () => {
 
   const roles = ["Manager", "Agent", "Admin"];
   const { error, loading } = useSelector((state) => state.staff);
+   // Get the branch name using the branchId
+   const loggedInBranchName =
+   branches.find((branch) => branch._id === loggedInStaffBranch)?.name || "";
  
 
   const [name, setName] = useState("");
@@ -151,7 +154,7 @@ const CreateStaff = () => {
             <input
               id="branch"
               type="text"
-              value={loggedInStaffBranch}
+              value={loggedInBranchName}
               readOnly
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded bg-gray-100 focus:outline-none"
             />

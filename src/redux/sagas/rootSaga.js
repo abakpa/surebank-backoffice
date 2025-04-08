@@ -10,6 +10,7 @@ import subAccountSaga from './subAccountSaga'
 import customerAccountDetailSaga from './customerAccountDetailSaga'
 import dashboardSaga from './dashboardSaga'
 import managerdashboardSaga from './managerdashboardSaga'
+import repdashboardSaga from './repdashboardSaga'
 import expenditureSaga from './expenditureSaga'
 import expenditureReportSaga from './expenditureReportSaga'
 import sbincomeSaga from './sbincomeSaga'
@@ -35,6 +36,7 @@ export default function* rootSaga(){
         expenditureReportSaga(),
         transactionSaga(),
         orderSaga(),
-        managerdashboardSaga()
+        managerdashboardSaga(),
+        repdashboardSaga()
     ])
 }
