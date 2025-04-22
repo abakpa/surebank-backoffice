@@ -9,6 +9,8 @@ const initialState = {
     repdspackage: null,
     repsbpackage: null,
     reppackages: null,
+    fdpackage: null,
+    fdcontribution: null,
     loading: false,
     error:null,
 };
@@ -36,6 +38,16 @@ const dashboardSlice = createSlice({
             state.loading=false
         },
         fetchRepSBDailyContributionFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchRepFDDailyContributionRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepFDDailyContributionSuccess:(state,action)=>{
+            state.fdcontribution= action.payload;
+            state.loading=false
+        },
+        fetchRepFDDailyContributionFailure:(state,action)=>{
             state.error = action.payload
         },
         fetchRepTotalSBandDSDailyRequest:(state)=>{
@@ -78,6 +90,16 @@ const dashboardSlice = createSlice({
         fetchRepSBpackageFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchRepFDpackageRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepFDpackageSuccess:(state,action)=>{
+            state.fdpackage= action.payload;
+            state.loading=false
+        },
+        fetchRepFDpackageFailure:(state,action)=>{
+            state.error = action.payload
+        },
         fetchRepPackageRequest:(state)=>{
             state.loading = true
         },
@@ -101,6 +123,9 @@ export const {
     fetchRepSBDailyContributionRequest,
     fetchRepSBDailyContributionSuccess,
     fetchRepSBDailyContributionFailure,
+    fetchRepFDDailyContributionRequest,
+    fetchRepFDDailyContributionSuccess,
+    fetchRepFDDailyContributionFailure,
     fetchRepTotalSBandDSDailyRequest,
     fetchRepTotalSBandDSDailySuccess,
     fetchRepTotalSBandDSDailyFailure,
@@ -113,6 +138,9 @@ export const {
     fetchRepSBpackageRequest,
     fetchRepSBpackageSuccess,
     fetchRepSBpackageFailure,
+    fetchRepFDpackageRequest,
+    fetchRepFDpackageSuccess,
+    fetchRepFDpackageFailure,
     fetchRepPackageRequest,
     fetchRepPackageSuccess,
     fetchRepPackageFailure,

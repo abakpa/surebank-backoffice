@@ -7,6 +7,9 @@ import { Link } from "react-router-dom"; // Import Link from react-router-dom
 import {
   fetchDSContributionRequest,
   fetchSBContributionRequest,
+  fetchFDContributionRequest,
+  fetchFDInterestIncomeRequest,
+  fetchFDInterestExpenseRequest,
   fetcTotalSBandDSRequest,
   fetchDSDailyContributionRequest,
   fetchSBDailyContributionRequest,
@@ -14,6 +17,7 @@ import {
   fetchDSWithdrawalRequest,
   fetchDSpackageRequest,
   fetchSBpackageRequest,
+  fetchFDpackageRequest,
   fetchPackageRequest,
   fetchDSincomeRequest,
   fetchSBincomeRequest,
@@ -44,6 +48,10 @@ const Dashboard = () => {
     const [date12, setDate12] = useState("");
     const [date13, setDate13] = useState("");
     const [date14, setDate14] = useState("");
+    const [date15, setDate15] = useState("");
+    const [date16, setDate16] = useState("");
+    const [date17, setDate17] = useState("");
+    const [date18, setDate18] = useState("");
     const [branchId, setBranchId] = useState("");
     const [branchId1, setBranchId1] = useState("");
     const [branchId2, setBranchId2] = useState("");
@@ -59,10 +67,18 @@ const Dashboard = () => {
     const [branchId12, setBranchId12] = useState("");
     const [branchId13, setBranchId13] = useState("");
     const [branchId14, setBranchId14] = useState("");
+    const [branchId15, setBranchId15] = useState("");
+    const [branchId16, setBranchId16] = useState("");
+    const [branchId17, setBranchId17] = useState("");
+    const [branchId18, setBranchId18] = useState("");
     const {
       loading,
       dscontribution,
       sbcontribution,
+      fdcontribution,
+      fdinterestincome,
+      fdinterestexpense,
+      fdpackage,
       totalsbandds,
       dailyds,
       dailysb,
@@ -79,6 +95,7 @@ const Dashboard = () => {
     } = useSelector((state)=>state.dashboard)
       const newdsContribution = dscontribution || 0
       const newsbContribution = sbcontribution || 0
+      const newfdContribution = fdcontribution || 0
       const newtotalsbandds = totalsbandds || 0
       const newdailyds = dailyds || 0
       const newdailysb = dailysb || 0
@@ -86,12 +103,15 @@ const Dashboard = () => {
       const newdswithdrawal = dswithdrawal || 0
       const newdspackage = dspackage || 0
       const newsbpackage = sbpackage || 0
+      const newfdpackage = fdpackage || 0
       const newpackages = packages || 0
       const newdsincome = dsincome || 0
       const newsbincome = sbincome || 0
       const newtotalincome = totalincome || 0
       const newtotalexpenditure = totalexpenditure || 0
       const newprofit = profit || 0
+      const newinterestincome = fdinterestincome || 0
+      const newinterestexpense = fdinterestexpense || 0
 
 
 
@@ -115,6 +135,10 @@ const Dashboard = () => {
         const details12 = { branchId: branchId12, date: date12 };
         const details13 = { branchId: branchId13, date: date13 };
         const details14 = { branchId: branchId14, date: date14 };
+        const details15 = { branchId: branchId15, date: date15 };
+        const details16 = { branchId: branchId16, date: date16 };
+        const details17 = { branchId: branchId17, date: date17 };
+        const details18 = { branchId: branchId18, date: date18 };
         const data = {details}
         const data1 = {details1}
         const data2 = {details2}
@@ -130,6 +154,10 @@ const Dashboard = () => {
         const data12 = {details12}
         const data13 = {details13}
         const data14 = {details14}
+        const data15 = {details15}
+        const data16 = {details16}
+        const data17 = {details17}
+        const data18 = {details18}
     
         dispatch(fetchDSContributionRequest(data));
         dispatch(fetchSBContributionRequest(data1));
@@ -146,6 +174,11 @@ const Dashboard = () => {
         dispatch(fetchTotalincomeRequest(data12)); 
         dispatch(fetchTotalExpenditureRequest(data13)); 
         dispatch(fetchTotalProfitRequest(data14)); 
+        dispatch(fetchFDContributionRequest(data15));
+        dispatch(fetchFDpackageRequest(data16));
+        dispatch(fetchFDInterestIncomeRequest(data17));
+        dispatch(fetchFDInterestExpenseRequest(data18));
+
     }, [
       dispatch,
       branchId,
@@ -178,6 +211,14 @@ const Dashboard = () => {
       date13,
       branchId14,
       date14,
+      branchId15,
+      date15,
+      branchId16,
+      date16,
+      branchId17,
+      date17,
+      branchId18,
+      date18,
     ]);
     
   return (
@@ -511,6 +552,89 @@ const Dashboard = () => {
         className="p-2 border rounded-md" 
         value={date14}
         onChange={(e) => setDate14(e.target.value)}
+      />
+  
+    </form>
+  </div>
+  {/* Card 16 - Fuchsia */}
+  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
+    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Package</h3>
+    <p className="text-sm font-bold text-fuchsia-800">{ newfdpackage || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        value={branchId16}
+        onChange={(selectedId) => setBranchId16(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date16}
+        onChange={(e) => setDate16(e.target.value)}
+      />
+  
+    </form>
+  </div>
+  {/* Card 16 - Fuchsia */}
+  <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
+  <Link to="/fdreport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
+    <i className="fas fa-file-alt text-lg" title="View Transaction Statement"></i>
+  </Link>
+    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Contribution</h3>
+    <p className="text-sm font-bold text-fuchsia-800">{ newfdContribution || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        value={branchId15}
+        onChange={(selectedId) => setBranchId15(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date15}
+        onChange={(e) => setDate15(e.target.value)}
+      />
+  
+    </form>
+  </div>
+  {/* Card 15 - Fuchsia */}
+  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
+    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Interest Icome</h3>
+    <p className="text-sm font-bold text-fuchsia-800">{ newinterestincome || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        value={branchId17}
+        onChange={(selectedId) => setBranchId17(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date17}
+        onChange={(e) => setDate17(e.target.value)}
+      />
+  
+    </form>
+  </div>
+  {/* Card 15 - Fuchsia */}
+  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
+    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Interest Expense</h3>
+    <p className="text-sm font-bold text-fuchsia-800">{ newinterestexpense || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        value={branchId18}
+        onChange={(selectedId) => setBranchId18(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date18}
+        onChange={(e) => setDate18(e.target.value)}
       />
   
     </form>

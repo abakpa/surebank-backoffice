@@ -21,7 +21,7 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
           <tr
             key={index}
             className="text-center hover:bg-gray-100 cursor-pointer"
-            onClick={() => handleRowClick(customer._id)}
+            onClick={() => handleRowClick(customer.customerId._id)}
           >
             <td className="border border-gray-300 p-2">{customer.customerId.name}</td>
             <td className="border border-gray-300 p-2">{customer.customerId.branchId.name}</td>

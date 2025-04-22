@@ -13,6 +13,7 @@ import managerdashboard from './slices/managerdashboardSlice'
 import repdashboard from './slices/repdashboardSlice'
 import expenditures from './slices/expenditureSlice'
 import expendituresreport from './slices/expenditureReportSlice'
+import fdreport from './slices/fdSlice'
 import sbincome from './slices/sbIncomeSlice'
 import dsincome from './slices/dsincomeSlice'
 import transactions from './slices/transactionSlice'
@@ -37,6 +38,7 @@ const rootReducer = combineReducers({
     dsincomereport:dsincome,
     transaction:transactions,
     order:orders,
+    fd:fdreport
 });
 
 export default rootReducer;

@@ -16,6 +16,10 @@ const initialState = {
     branchtotalincome: null,
     branchtotalexpenditure: null,
     branchprofit: null,
+    fdcontribution: null,
+    fdinterestincome: null,
+    fdinterestexpense: null,
+    fdpackage: null,
     loading: false,
     error:null,
 };
@@ -42,6 +46,46 @@ const dashboardSlice = createSlice({
             state.loading=false
         },
         fetchBranchSBContributionFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchBranchFDContributionRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchFDContributionSuccess:(state,action)=>{
+            state.fdcontribution= action.payload;
+            state.loading=false
+        },
+        fetchBranchFDContributionFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchBranchFDInterestIncomeRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchFDInterestIncomeSuccess:(state,action)=>{
+            state.fdinterestincome= action.payload;
+            state.loading=false
+        },
+        fetchBranchFDInterestIncomeFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchBranchFDInterestExpenseRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchFDInterestExpenseSuccess:(state,action)=>{
+            state.fdinterestexpense= action.payload;
+            state.loading=false
+        },
+        fetchBranchFDInterestExpenseFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchBranchFDpackageRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchFDpackageSuccess:(state,action)=>{
+            state.fdpackage= action.payload;
+            state.loading=false
+        },
+        fetchBranchFDpackageFailure:(state,action)=>{
             state.error = action.payload
         },
         fetcBranchTotalSBandDSRequest:(state)=>{
@@ -185,6 +229,18 @@ export const {
     fetchBranchSBContributionRequest,
     fetchBranchSBContributionSuccess,
     fetchBranchSBContributionFailure,
+    fetchBranchFDContributionRequest,
+    fetchBranchFDContributionSuccess,
+    fetchBranchFDContributionFailure,
+    fetchBranchFDInterestIncomeRequest,
+    fetchBranchFDInterestIncomeSuccess,
+    fetchBranchFDInterestIncomeFailure,
+    fetchBranchFDInterestExpenseRequest,
+    fetchBranchFDInterestExpenseSuccess,
+    fetchBranchFDInterestExpenseFailure,
+    fetchBranchFDpackageRequest,
+    fetchBranchFDpackageSuccess,
+    fetchBranchFDpackageFailure,
     fetcBranchTotalSBandDSRequest,
     fetcBranchTotalSBandDSSuccess,
     fetcBranchTotalSBandDSFailure,

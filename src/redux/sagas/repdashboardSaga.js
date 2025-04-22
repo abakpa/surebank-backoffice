@@ -7,6 +7,9 @@ import {
     fetchRepSBDailyContributionRequest,
     fetchRepSBDailyContributionSuccess,
     fetchRepSBDailyContributionFailure,
+    fetchRepFDDailyContributionRequest,
+    fetchRepFDDailyContributionSuccess,
+    fetchRepFDDailyContributionFailure,
     fetchRepTotalSBandDSDailyRequest,
     fetchRepTotalSBandDSDailySuccess,
     fetchRepTotalSBandDSDailyFailure,
@@ -19,6 +22,9 @@ import {
     fetchRepSBpackageRequest,
     fetchRepSBpackageSuccess,
     fetchRepSBpackageFailure,
+    fetchRepFDpackageRequest,
+    fetchRepFDpackageSuccess,
+    fetchRepFDpackageFailure,
     fetchRepPackageRequest,
     fetchRepPackageSuccess,
     fetchRepPackageFailure,
@@ -59,6 +65,23 @@ function* fetchRepSBDailyContributionSaga(action) {
         yield put(fetchRepSBDailyContributionSuccess(dsresponse.data));
     } catch (error) {
         yield put(fetchRepSBDailyContributionFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+function* fetchReFDDailyContributionSaga(action) {
+    const { details16 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details16 ? details16 : {};
+        const dsresponse = yield call(axios.post, `${url}/api/repdashboard/repfd`, requestData,config);
+        yield put(fetchRepFDDailyContributionSuccess(dsresponse.data));
+    } catch (error) {
+        yield put(fetchRepFDDailyContributionFailure(error.response?.data?.message || "An error occurred"));
     }
 }
 function* fetchRepTotalSBandDSDailySaga(action) {
@@ -111,6 +134,23 @@ function* fetchRepDSpackageSaga(action) {
         yield put(fetchRepDSpackageFailure(error.response?.data?.message || "An error occurred"));
     }
 }
+function* fetchRepFDpackageSaga(action) {
+    const { details15 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details15 ? details15 : {};
+        const dsresponse = yield call(axios.post, `${url}/api/repdashboard/repfdpackage`, requestData,config);
+        yield put(fetchRepFDpackageSuccess(dsresponse.data));
+    } catch (error) {
+        yield put(fetchRepFDpackageFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
 function* fetchRepSBpackageSaga(action) {
     const { details8 = null } = action.payload;
 
@@ -154,10 +194,12 @@ function* depositSaga(){
    
     yield takeLatest(fetchRepDSDailyContributionRequest.type, fetchRepDSDailyContributionSaga)
     yield takeLatest(fetchRepSBDailyContributionRequest.type, fetchRepSBDailyContributionSaga)
+    yield takeLatest(fetchRepFDDailyContributionRequest.type, fetchReFDDailyContributionSaga)
     yield takeLatest(fetchRepTotalSBandDSDailyRequest.type, fetchRepTotalSBandDSDailySaga)
     yield takeLatest(fetchRepDSWithdrawalRequest.type, fetchRepDSWithdrawalSaga)
     yield takeLatest(fetchRepDSpackageRequest.type, fetchRepDSpackageSaga)
     yield takeLatest(fetchRepSBpackageRequest.type, fetchRepSBpackageSaga)
+    yield takeLatest(fetchRepFDpackageRequest.type, fetchRepFDpackageSaga)
     yield takeLatest(fetchRepPackageRequest.type, fetchRepPackageSaga)
    
 

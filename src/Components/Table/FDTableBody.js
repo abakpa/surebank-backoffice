@@ -1,4 +1,4 @@
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 // Mock function to get branch name from branchId
 // const getBranchName = (branchId, branches = []) => {
@@ -8,11 +8,13 @@
 // };
 
 const Tablebody = ({ customers = [], branches = [] }) => { // Default values for props
-  // const navigate = useNavigate();
+    console.log("checking",customers)
+  const navigate = useNavigate();
 
-  // const handleRowClick = (customerId) => {
-  //   navigate(`/customeraccountdashboard/${customerId}`);
-  // };
+  const handleRowClick = (customerId) => {
+    console.log("id <<<<<",customerId)
+    navigate(`/customeraccountdashboard/${customerId}`);
+  };
 
   return (
     <tbody className="text-sm">
@@ -21,12 +23,14 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
           <tr
             key={index}
             className="text-center hover:bg-gray-100 cursor-pointer"
-            // onClick={() => handleRowClick(customer.createdBy._id)}
+            onClick={() => handleRowClick(customer.customerId._id)}
           >
+            <td className="border border-gray-300 p-2">{customer.customerId.name}</td>
+            <td className="border border-gray-300 p-2">{customer.fdamount}</td>
+            <td className="border border-gray-300 p-2">{customer.incomeInterest}</td>
+            <td className="border border-gray-300 p-2">{customer.expenseInterest}</td>
+            <td className="border border-gray-300 p-2">{customer.branchId.name}</td>
             <td className="border border-gray-300 p-2">{customer.createdBy.name}</td>
-            <td className="border border-gray-300 p-2">{customer.createdBy.branchId.name}</td>
-            <td className="border border-gray-300 p-2">{customer.reason}</td>
-            <td className="border border-gray-300 p-2">{customer.amount}</td>
             {/* <td className="border border-gray-300 p-2">
               {getBranchName(customer.branchId, branches)}
             </td> */}

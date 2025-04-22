@@ -7,6 +7,15 @@ import {
     fetchSBContributionRequest,
     fetchSBContributionSuccess,
     fetchSBContributionFailure,
+    fetchFDContributionRequest,
+    fetchFDContributionSuccess,
+    fetchFDContributionFailure,
+    fetchFDInterestIncomeRequest,
+    fetchFDInterestIncomeSuccess,
+    fetchFDInterestIncomeFailure,
+    fetchFDInterestExpenseRequest,
+    fetchFDInterestExpenseSuccess,
+    fetchFDInterestExpenseFailure,
     fetcTotalSBandDSRequest,
     fetcTotalSBandDSSuccess,
     fetcTotalSBandDSFailure,
@@ -28,6 +37,9 @@ import {
     fetchSBpackageRequest,
     fetchSBpackageSuccess,
     fetchSBpackageFailure,
+    fetchFDpackageRequest,
+    fetchFDpackageSuccess,
+    fetchFDpackageFailure,
     fetchPackageRequest,
     fetchPackageSuccess,
     fetchPackageFailure,
@@ -70,6 +82,39 @@ function* fetchSBContributionSaga(action) {
         yield put(fetchSBContributionSuccess(sbresponse.data));
     } catch (error) {
         yield put(fetchSBContributionFailure(error.sbresponse?.data?.message || "An error occurred"));
+    }
+}
+function* fetchFDContributionSaga(action) {
+    const { details15 = null } = action.payload; 
+
+    try {
+        const requestData = details15 ? details15 : {};
+        const fdresponse = yield call(axios.post, `${url}/api/admindashboard/fd`, requestData);
+        yield put(fetchFDContributionSuccess(fdresponse.data));
+    } catch (error) {
+        yield put(fetchFDContributionFailure(error.sbresponse?.data?.message || "An error occurred"));
+    }
+}
+function* fetchFDInterestIncomeSaga(action) {
+    const { details17 = null } = action.payload; 
+
+    try {
+        const requestData = details17 ? details17 : {};
+        const fdresponse = yield call(axios.post, `${url}/api/admindashboard/fdinterestincome`, requestData);
+        yield put(fetchFDInterestIncomeSuccess(fdresponse.data));
+    } catch (error) {
+        yield put(fetchFDInterestIncomeFailure(error.sbresponse?.data?.message || "An error occurred"));
+    }
+}
+function* fetchFDInterestExpenseSaga(action) {
+    const { details18 = null } = action.payload; 
+
+    try {
+        const requestData = details18 ? details18 : {};
+        const fdresponse = yield call(axios.post, `${url}/api/admindashboard/fdinterestexpense`, requestData);
+        yield put(fetchFDInterestExpenseSuccess(fdresponse.data));
+    } catch (error) {
+        yield put(fetchFDInterestExpenseFailure(error.sbresponse?.data?.message || "An error occurred"));
     }
 }
 function* fetcTotalSBandDSSaga(action) {
@@ -148,6 +193,17 @@ function* fetchSBpackageSaga(action) {
         yield put(fetchSBpackageFailure(error.response?.data?.message || "An error occurred"));
     }
 }
+function* fetchFDpackageSaga(action) {
+    const { details16 = null } = action.payload;
+
+    try {
+        const requestData = details16 ? details16 : {};
+        const dsresponse = yield call(axios.post, `${url}/api/admindashboard/fdpackage`, requestData);
+        yield put(fetchFDpackageSuccess(dsresponse.data));
+    } catch (error) {
+        yield put(fetchFDpackageFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
 function* fetchPackageSaga(action) {
     const { details9 = null } = action.payload;
 
@@ -222,6 +278,9 @@ function* depositSaga(){
 
     yield takeLatest(fetchDSContributionRequest.type, fetchDSContributionSaga)
     yield takeLatest(fetchSBContributionRequest.type, fetchSBContributionSaga)
+    yield takeLatest(fetchFDContributionRequest.type, fetchFDContributionSaga)
+    yield takeLatest(fetchFDInterestIncomeRequest.type, fetchFDInterestIncomeSaga)
+    yield takeLatest(fetchFDInterestExpenseRequest.type, fetchFDInterestExpenseSaga)
     yield takeLatest(fetcTotalSBandDSRequest.type, fetcTotalSBandDSSaga)
     yield takeLatest(fetchDSDailyContributionRequest.type, fetchDSDailyContributionSaga)
     yield takeLatest(fetchSBDailyContributionRequest.type, fetchSBDailyContributionSaga)
@@ -229,6 +288,7 @@ function* depositSaga(){
     yield takeLatest(fetchDSWithdrawalRequest.type, fetchDSWithdrawalSaga)
     yield takeLatest(fetchDSpackageRequest.type, fetchDSpackageSaga)
     yield takeLatest(fetchSBpackageRequest.type, fetchSBpackageSaga)
+    yield takeLatest(fetchFDpackageRequest.type, fetchFDpackageSaga)
     yield takeLatest(fetchPackageRequest.type, fetchPackageSaga)
     yield takeLatest(fetchDSincomeRequest.type, fetchDSincomeSaga)
     yield takeLatest(fetchSBincomeRequest.type, fetchSBincomeSaga)

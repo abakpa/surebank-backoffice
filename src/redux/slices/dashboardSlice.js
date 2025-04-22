@@ -3,6 +3,9 @@ import {createSlice} from '@reduxjs/toolkit';
 const initialState = {
     dscontribution: null,
     sbcontribution: null,
+    fdcontribution: null,
+    fdinterestincome: null,
+    fdinterestexpense: null,
     totalsbandds: null,
     dailyds: null,
     dailysb: null,
@@ -10,6 +13,7 @@ const initialState = {
     dswithdrawal: null,
     dspackage: null,
     sbpackage: null,
+    fdpackage: null,
     packages: null,
     dsincome: null,
     sbincome: null,
@@ -42,6 +46,36 @@ const dashboardSlice = createSlice({
             state.loading=false
         },
         fetchSBContributionFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchFDContributionRequest:(state)=>{
+            state.loading = true
+        },
+        fetchFDContributionSuccess:(state,action)=>{
+            state.fdcontribution= action.payload;
+            state.loading=false
+        },
+        fetchFDContributionFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchFDInterestIncomeRequest:(state)=>{
+            state.loading = true
+        },
+        fetchFDInterestIncomeSuccess:(state,action)=>{
+            state.fdinterestincome= action.payload;
+            state.loading=false
+        },
+        fetchFDInterestIncomeFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchFDInterestExpenseRequest:(state)=>{
+            state.loading = true
+        },
+        fetchFDInterestExpenseSuccess:(state,action)=>{
+            state.fdinterestexpense= action.payload;
+            state.loading=false
+        },
+        fetchFDInterestExpenseFailure:(state,action)=>{
             state.error = action.payload
         },
         fetcTotalSBandDSRequest:(state)=>{
@@ -112,6 +146,16 @@ const dashboardSlice = createSlice({
             state.loading=false
         },
         fetchSBpackageFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchFDpackageRequest:(state)=>{
+            state.loading = true
+        },
+        fetchFDpackageSuccess:(state,action)=>{
+            state.fdpackage= action.payload;
+            state.loading=false
+        },
+        fetchFDpackageFailure:(state,action)=>{
             state.error = action.payload
         },
         fetchPackageRequest:(state)=>{
@@ -185,6 +229,15 @@ export const {
     fetchSBContributionRequest,
     fetchSBContributionSuccess,
     fetchSBContributionFailure,
+    fetchFDContributionRequest,
+    fetchFDContributionSuccess,
+    fetchFDContributionFailure,
+    fetchFDInterestIncomeRequest,
+    fetchFDInterestIncomeSuccess,
+    fetchFDInterestIncomeFailure,
+    fetchFDInterestExpenseRequest,
+    fetchFDInterestExpenseSuccess,
+    fetchFDInterestExpenseFailure,
     fetcTotalSBandDSRequest,
     fetcTotalSBandDSSuccess,
     fetcTotalSBandDSFailure,
@@ -206,6 +259,9 @@ export const {
     fetchSBpackageRequest,
     fetchSBpackageSuccess,
     fetchSBpackageFailure,
+    fetchFDpackageRequest,
+    fetchFDpackageSuccess,
+    fetchFDpackageFailure,
     fetchPackageRequest,
     fetchPackageSuccess,
     fetchPackageFailure,

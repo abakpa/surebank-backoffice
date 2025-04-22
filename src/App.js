@@ -28,6 +28,8 @@ import BranchSBIncome from "./Components/BranchSBIncome";
 import DSIncome from "./Components/DSIcome";
 import BranchDSIncome from "./Components/BranchDSIncome";
 import ExpenditureReport from "./Components/ExpenditureReport";
+import FDReport from "./Components/FDTransaction";
+import BranchFDReport from "./Components/BranchFDTransaction";
 import BranchExpenditureReport from "./Components/BranchExpenditureReport";
 import Transaction from "./Components/Transaction";
 import Order from "./Components/Order";
@@ -110,6 +112,8 @@ function App() {
                   <Route path="/dsincome" element={<DSIncome />} />
                   <Route path="/branchdsincome" element={<BranchDSIncome />} />
                   <Route path="/expenditurereport" element={<ExpenditureReport />} />
+                  <Route path="/fdreport" element={<FDReport />} />
+                  <Route path="/branchfdreport" element={<BranchFDReport />} />
                   <Route path="/branchexpenditurereport" element={<BranchExpenditureReport />} />
                   <Route path="/createaccount" element={<CreateAccount />} />
                   <Route path="/viewcustomeraccount" element={<ViewCustomerAccount />} />

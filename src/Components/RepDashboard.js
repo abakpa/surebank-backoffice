@@ -8,10 +8,12 @@ import {
 
   fetchRepDSDailyContributionRequest,
   fetchRepSBDailyContributionRequest,
+  fetchRepFDDailyContributionRequest,
   fetchRepTotalSBandDSDailyRequest,
   fetchRepDSWithdrawalRequest,
   fetchRepDSpackageRequest,
   fetchRepSBpackageRequest,
+  fetchRepFDpackageRequest,
   fetchRepPackageRequest,
 
 } from '../redux/slices/repdashboardSlice'
@@ -31,6 +33,8 @@ const RepDashboard = () => {
     const [date7, setDate7] = useState("");
     const [date8, setDate8] = useState("");
     const [date9, setDate9] = useState("");
+    const [date15, setDate15] = useState("");
+    const [date16, setDate16] = useState("");
     const {
       loading,
      repdailyds,
@@ -40,6 +44,8 @@ const RepDashboard = () => {
      repdspackage,
      repsbpackage,
      reppackages,
+     fdpackage,
+     fdcontribution,
   
     } = useSelector((state)=>state.repdashboard)
   
@@ -50,6 +56,8 @@ const RepDashboard = () => {
       const newdspackage = repdspackage || 0
       const newsbpackage = repsbpackage || 0
       const newpackages = reppackages || 0
+      const newfdpackage = fdpackage || 0
+      const newfdContribution = fdcontribution || 0
       
 
 
@@ -67,6 +75,8 @@ const RepDashboard = () => {
         const details7 = { date: date7 };
         const details8 = { date: date8 };
         const details9 = { date: date9 };
+        const details15 = { date: date15 };
+        const details16 = { date: date16 };
     
    
         const data3 = {details3}
@@ -76,13 +86,17 @@ const RepDashboard = () => {
         const data7 = {details7}
         const data8 = {details8}
         const data9 = {details9}
+        const data15 = {details15}
+        const data16 = {details16}
   
         dispatch(fetchRepDSDailyContributionRequest(data3)); 
         dispatch(fetchRepSBDailyContributionRequest(data4)); 
+        dispatch(fetchRepFDDailyContributionRequest(data16)); 
         dispatch(fetchRepTotalSBandDSDailyRequest(data5)); 
         dispatch(fetchRepDSWithdrawalRequest(data6)); 
         dispatch(fetchRepDSpackageRequest(data7)); 
         dispatch(fetchRepSBpackageRequest(data8)); 
+        dispatch(fetchRepFDpackageRequest(data15)); 
         dispatch(fetchRepPackageRequest(data9)); 
  
     }, [
@@ -95,6 +109,8 @@ const RepDashboard = () => {
       date7,
       date8,
       date9,
+      date15,
+      date16,
 
     ]);
     
@@ -248,6 +264,49 @@ const RepDashboard = () => {
         onChange={(e) => setDate9(e.target.value)}
       />
  
+    </form>
+  </div>
+    {/* Card 16 - Fuchsia */}
+    <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
+    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Package</h3>
+    <p className="text-sm font-bold text-fuchsia-800">{ newfdpackage || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      {/* <Select2
+        label="Branch"
+        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        value={branchId16}
+        onChange={(selectedId) => setBranchId16(selectedId)}
+      /> */}
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date15}
+        onChange={(e) => setDate15(e.target.value)}
+      />
+  
+    </form>
+  </div>
+    {/* Card 16 - Fuchsia */}
+    <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
+  {/* <Link to="/branchfdreport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
+    <i className="fas fa-file-alt text-lg" title="View FD Transaction Statement"></i>
+  </Link> */}
+    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Contribution</h3>
+    <p className="text-sm font-bold text-fuchsia-800">{ newfdContribution || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      {/* <Select2
+        label="Branch"
+        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        value={branchId15}
+        onChange={(selectedId) => setBranchId15(selectedId)}
+      /> */}
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date16}
+        onChange={(e) => setDate16(e.target.value)}
+      />
+  
     </form>
   </div>
 </div>

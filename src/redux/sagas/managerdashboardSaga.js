@@ -7,6 +7,18 @@ import {
     fetchBranchSBContributionRequest,
     fetchBranchSBContributionSuccess,
     fetchBranchSBContributionFailure,
+    fetchBranchFDContributionRequest,
+    fetchBranchFDContributionSuccess,
+    fetchBranchFDContributionFailure,
+    fetchBranchFDInterestIncomeRequest,
+    fetchBranchFDInterestIncomeSuccess,
+    fetchBranchFDInterestIncomeFailure,
+    fetchBranchFDInterestExpenseRequest,
+    fetchBranchFDInterestExpenseSuccess,
+    fetchBranchFDInterestExpenseFailure,
+    fetchBranchFDpackageRequest,
+    fetchBranchFDpackageSuccess,
+    fetchBranchFDpackageFailure,
     fetcBranchTotalSBandDSRequest,
     fetcBranchTotalSBandDSSuccess,
     fetcBranchTotalSBandDSFailure,
@@ -81,6 +93,74 @@ function* fetchBranchSBContributionSaga(action) {
         yield put(fetchBranchSBContributionSuccess(sbresponse.data));
     } catch (error) {
         yield put(fetchBranchSBContributionFailure(error.sbresponse?.data?.message || "An error occurred"));
+    }
+}
+function* fetchBranchFDContributionSaga(action) {
+    const { details15 = null } = action.payload; 
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details15 ? details15 : {};
+        const fdresponse = yield call(axios.post, `${url}/api/managerdashboard/branchfd`, requestData,config);
+        yield put(fetchBranchFDContributionSuccess(fdresponse.data));
+    } catch (error) {
+        yield put(fetchBranchFDContributionFailure(error.sbresponse?.data?.message || "An error occurred"));
+    }
+}
+function* fetchBranchFDInterestIncomeSaga(action) {
+    const { details17 = null } = action.payload; 
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details17 ? details17 : {};
+        const fdresponse = yield call(axios.post, `${url}/api/managerdashboard/branchfdinterestincome`, requestData,config);
+        yield put(fetchBranchFDInterestIncomeSuccess(fdresponse.data));
+    } catch (error) {
+        yield put(fetchBranchFDInterestIncomeFailure(error.sbresponse?.data?.message || "An error occurred"));
+    }
+}
+function* fetchBranchFDInterestExpenseSaga(action) {
+    const { details18 = null } = action.payload; 
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details18 ? details18 : {};
+        const fdresponse = yield call(axios.post, `${url}/api/managerdashboard/branchfdinterestexpense`, requestData,config);
+        yield put(fetchBranchFDInterestExpenseSuccess(fdresponse.data));
+    } catch (error) {
+        yield put(fetchBranchFDInterestExpenseFailure(error.sbresponse?.data?.message || "An error occurred"));
+    }
+}
+function* fetchBranchFDpackageSaga(action) {
+    const { details16 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details16 ? details16 : {};
+        const dsresponse = yield call(axios.post, `${url}/api/managerdashboard/branchfdpackage`, requestData,config);
+        yield put(fetchBranchFDpackageSuccess(dsresponse.data));
+    } catch (error) {
+        yield put(fetchBranchFDpackageFailure(error.response?.data?.message || "An error occurred"));
     }
 }
 function* fetcBranchTotalSBandDSSaga(action) {
@@ -324,6 +404,10 @@ function* depositSaga(){
     yield takeLatest(fetchBranchTotalincomeRequest.type, fetchBranchTotalincomeSaga)
     yield takeLatest(fetchBranchTotalExpenditureRequest.type, fetchBranchTotalExpenditureSaga)
     yield takeLatest(fetchBranchTotalProfitRequest.type, fetchBranchTotalProfitSaga)
+    yield takeLatest(fetchBranchFDContributionRequest.type, fetchBranchFDContributionSaga)
+    yield takeLatest(fetchBranchFDInterestIncomeRequest.type, fetchBranchFDInterestIncomeSaga)
+    yield takeLatest(fetchBranchFDInterestExpenseRequest.type, fetchBranchFDInterestExpenseSaga)
+    yield takeLatest(fetchBranchFDpackageRequest.type, fetchBranchFDpackageSaga)
 
 }
 
