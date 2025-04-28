@@ -17,7 +17,7 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
           >
             <td>
             <p className="text-xs mb-2 font-semibold">
-                <span className={customer.direction === 'Credit' ? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500": "text-red-600"}>
+                <span className={customer.direction === 'Credit' ? "text-green-600":customer.direction ==='Transfer'? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500": "text-red-600"}>
                 {customer.direction}
                 </span>
                 <br />
@@ -25,14 +25,16 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
             </p>
             </td>            
             <td>
-            <p className={`text-xs font-semibold ${customer.direction === 'Credit' ?  "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>
-            {customer.direction === 'Credit' ? "+" : "-"} {customer.amount}
+            <p className={`text-xs font-semibold ${customer.direction === 'Credit' ?  "text-green-600":customer.direction ==='Transfer'? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>
+            {customer.direction === 'Credit' ? "+" : customer.direction === 'Transfer'? "+" : "-"} {customer.amount}
             </p>
             </td>
             <td>
   <p
     className={` text-xs flex items-center space-x-1 ${
       customer.direction === "Credit"
+        ? "text-green-600"
+        :customer.direction ==='Transfer'
         ? "text-green-600"
         : customer.direction === "Moved"
         ? "text-purple-500"
@@ -74,9 +76,9 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
 </p>
 </td>
 
-            <td ><p className={`ml-2 ${customer.direction === 'Credit' ?  "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>{customer.balance}</p></td>
+            <td ><p className={`ml-2 ${customer.direction === 'Credit' ?  "text-green-600":customer.direction ==='Transfer'? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>{customer.balance}</p></td>
             <td >
-              <p className={`${customer.direction === 'Credit' ?  "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>{getBranchName(customer.createdBy, branches)}</p>
+              <p className={`${customer.direction === 'Credit' ?  "text-green-600":customer.direction ==='Transfer'? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>{getBranchName(customer.createdBy, branches)}</p>
             </td>
           </tr>
         ))
