@@ -40,6 +40,28 @@ const expenditureSlice = createSlice({
         createExpenditureFailure:(state,action)=>{
             state.error=action.payload
             state.loading=false
+        },
+        createBranchExpenditureRequest:(state)=>{
+            state.loading=true
+        },
+        createBranchExpenditureSuccess:(state,action)=>{
+            state.expenditure.push(action.payload)
+            state.loading=false
+        },
+        createBranchExpenditureFailure:(state,action)=>{
+            state.error=action.payload
+            state.loading=false
+        },
+        createRepExpenditureRequest:(state)=>{
+            state.loading=true
+        },
+        createRepExpenditureSuccess:(state,action)=>{
+            state.expenditure.push(action.payload)
+            state.loading=false
+        },
+        createRepExpenditureFailure:(state,action)=>{
+            state.error=action.payload
+            state.loading=false
         }
     }
 })
@@ -53,7 +75,13 @@ export const {
     fetchBranchByIdFailure,
     createExpenditureRequest,
     createExpenditureSuccess,
-    createExpenditureFailure
+    createExpenditureFailure,
+    createBranchExpenditureRequest,
+    createBranchExpenditureSuccess,
+    createBranchExpenditureFailure,
+    createRepExpenditureRequest,
+    createRepExpenditureSuccess,
+    createRepExpenditureFailure
 } = expenditureSlice.actions
 
 export default expenditureSlice.reducer

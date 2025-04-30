@@ -3,6 +3,7 @@ import {createSlice} from '@reduxjs/toolkit';
 const initialState = {
     expenditurereport: [],
     branchexpenditurereport: [],
+    repexpenditurereport: [],
     loading: false,
     error:null,
 };
@@ -30,6 +31,16 @@ const expenditurereportSlice = createSlice({
         },
         fetchBranchExpenditureFailure:(state,action)=>{
             state.error = action.payload
+        },
+        fetchRepExpenditureRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepExpenditureSuccess:(state,action)=>{
+            state.repexpenditurereport= action.payload;
+            state.loading=false
+        },
+        fetchRepExpenditureFailure:(state,action)=>{
+            state.error = action.payload
         }
 
      }
@@ -42,6 +53,9 @@ export const {
     fetchBranchExpenditureRequest,
     fetchBranchExpenditureSuccess,
     fetchBranchExpenditureFailure,
+    fetchRepExpenditureRequest,
+    fetchRepExpenditureSuccess,
+    fetchRepExpenditureFailure,
     fetchBranchByIdRequest,
     fetchBranchByIdSuccess,
     fetchBranchByIdFailure,

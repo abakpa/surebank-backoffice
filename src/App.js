@@ -12,6 +12,8 @@ import LandingPage from "./Components/LandingPage";
 import Viewbranches from "./Components/Viewbranches";
 import Createbranch from "./Components/Createbranch";
 import Expenditure from "./Components/Expenditure";
+import RepExpenditure from "./Components/RepExpenditure";
+import BranchExpenditure from "./Components/BranchExpenditure";
 import ViewStaff from "./Components/Viewstaff";
 import ViewBranchStaff from "./Components/ViewBranchStaff";
 import CreateStaff from "./Components/Createstaff";
@@ -31,6 +33,7 @@ import ExpenditureReport from "./Components/ExpenditureReport";
 import FDReport from "./Components/FDTransaction";
 import BranchFDReport from "./Components/BranchFDTransaction";
 import BranchExpenditureReport from "./Components/BranchExpenditureReport";
+import RepExpenditureReport from "./Components/RepExpenditureReport";
 import Transaction from "./Components/Transaction";
 import Order from "./Components/Order";
 import BranchOrder from "./Components/BranchOrder";
@@ -93,6 +96,8 @@ function App() {
                   <Route path="/createbranch" element={<Createbranch />} />
                   <Route path="/expenditure" element={<Expenditure />} />
                   <Route path="/expenditure" element={<Expenditure />} />
+                  <Route path="/repexpenditure" element={<RepExpenditure />} />
+                  <Route path="/branchexpenditure" element={<BranchExpenditure />} />
                   <Route path="/staff" element={<ViewStaff />} />
                   <Route path="/branchstaff" element={<ViewBranchStaff />} />
                   <Route path="/createstaff" element={<CreateStaff />} />
@@ -115,6 +120,7 @@ function App() {
                   <Route path="/fdreport" element={<FDReport />} />
                   <Route path="/branchfdreport" element={<BranchFDReport />} />
                   <Route path="/branchexpenditurereport" element={<BranchExpenditureReport />} />
+                  <Route path="/repexpenditurereport" element={<RepExpenditureReport />} />
                   <Route path="/createaccount" element={<CreateAccount />} />
                   <Route path="/viewcustomeraccount" element={<ViewCustomerAccount />} />
                   <Route path="/customeraccountdashboard/:customerId" element={<CustomerAccountDashboard />} />

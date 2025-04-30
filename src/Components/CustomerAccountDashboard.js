@@ -500,6 +500,7 @@ const CustomerAccountDashboard = () => {
         <div className="bg-white p-4 rounded shadow-md">
           <h2 className="text-lg font-bold mb-4">Accounts</h2>
           {(Array.isArray(newSubAccount?.dsAccount) && newSubAccount.dsAccount.length > 0) || 
+          (Array.isArray(newSubAccount?.fdAccount) && newSubAccount.fdAccount.length > 0) || 
  (Array.isArray(newSubAccount?.sbAccount) && newSubAccount.sbAccount.length > 0) ? (
   <ul className="space-y-4">
     {/* DS Accounts */}

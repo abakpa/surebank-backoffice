@@ -1,7 +1,7 @@
 import React, { useState,useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 // import { fetchBranchRequest } from "../redux/slices/branchSlice";
-// import { Link } from "react-router-dom"; // Import Link from react-router-dom
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
 
 
 import {
@@ -15,6 +15,7 @@ import {
   fetchRepSBpackageRequest,
   fetchRepFDpackageRequest,
   fetchRepPackageRequest,
+  fetchRepTotalExpenditureRequest
 
 } from '../redux/slices/repdashboardSlice'
 import Loader from "./Loader";
@@ -33,6 +34,7 @@ const RepDashboard = () => {
     const [date7, setDate7] = useState("");
     const [date8, setDate8] = useState("");
     const [date9, setDate9] = useState("");
+    const [date13, setDate13] = useState("");
     const [date15, setDate15] = useState("");
     const [date16, setDate16] = useState("");
     const {
@@ -46,6 +48,7 @@ const RepDashboard = () => {
      reppackages,
      fdpackage,
      fdcontribution,
+     reptotalexpenditure
   
     } = useSelector((state)=>state.repdashboard)
   
@@ -58,6 +61,7 @@ const RepDashboard = () => {
       const newpackages = reppackages || 0
       const newfdpackage = fdpackage || 0
       const newfdContribution = fdcontribution || 0
+      const newrepexpenditure = reptotalexpenditure || 0
       
 
 
@@ -75,6 +79,7 @@ const RepDashboard = () => {
         const details7 = { date: date7 };
         const details8 = { date: date8 };
         const details9 = { date: date9 };
+        const details13 = { date: date13 };
         const details15 = { date: date15 };
         const details16 = { date: date16 };
     
@@ -86,6 +91,7 @@ const RepDashboard = () => {
         const data7 = {details7}
         const data8 = {details8}
         const data9 = {details9}
+        const data13 = {details13}
         const data15 = {details15}
         const data16 = {details16}
   
@@ -98,6 +104,7 @@ const RepDashboard = () => {
         dispatch(fetchRepSBpackageRequest(data8)); 
         dispatch(fetchRepFDpackageRequest(data15)); 
         dispatch(fetchRepPackageRequest(data9)); 
+        dispatch(fetchRepTotalExpenditureRequest(data13)); 
  
     }, [
       dispatch,
@@ -109,6 +116,7 @@ const RepDashboard = () => {
       date7,
       date8,
       date9,
+      date13,
       date15,
       date16,
 
@@ -305,6 +313,30 @@ const RepDashboard = () => {
         className="p-2 border rounded-md" 
         value={date16}
         onChange={(e) => setDate16(e.target.value)}
+      />
+  
+    </form>
+  </div>
+    {/* Card 14 - Violet */}
+    <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
+         {/* Transaction Statement Icon (Top-right Corner) */}
+  <Link to="/repexpenditurereport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
+    <i className="fas fa-file-alt text-lg" title="View Transaction Statement"></i>
+  </Link>
+    <h3 className="text-sm font-semibold mb-2 text-violet-800">Total Expenses</h3>
+    <p className="text-sm font-bold text-violet-800">{ newrepexpenditure || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      {/* <Select2
+        label="Branch"
+        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        value={branchId13}
+        onChange={(selectedId) => setBranchId13(selectedId)}
+      /> */}
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date13}
+        onChange={(e) => setDate13(e.target.value)}
       />
   
     </form>

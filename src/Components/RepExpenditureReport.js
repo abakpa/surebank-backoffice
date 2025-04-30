@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBranchExpenditureRequest } from "../redux/slices/expenditureReportSlice";
+import { fetchRepExpenditureRequest } from "../redux/slices/expenditureReportSlice";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import Tablehead from "./Table/ExpenditureTableHead";
 import Tablebody from "./Table/ExpenditureTableBody";
 import { Link } from "react-router-dom";
 
-const BranchExpenditureReport = () => {
+const RepExpenditureReport = () => {
   const dispatch = useDispatch();
-  const { loading, branchexpenditurereport, error } = useSelector((state) => state.expenditurereport);
+  const { loading, repexpenditurereport, error } = useSelector((state) => state.expenditurereport);
   const { branches } = useSelector((state) => state.branch);
   const [searchTerm, setSearchTerm] = useState("");
   useEffect(() => {
     dispatch(fetchBranchRequest());
-    dispatch(fetchBranchExpenditureRequest());
+    dispatch(fetchRepExpenditureRequest());
   }, [dispatch]);
 
 
   // Ensure customers is always an array
-  const expenditureList = Array.isArray(branchexpenditurereport) ? branchexpenditurereport : [];
+  const expenditureList = Array.isArray(repexpenditurereport) ? repexpenditurereport : [];
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -73,7 +73,7 @@ const BranchExpenditureReport = () => {
           onChange={handleSearch}
           className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md"
         />
-        <Link to="/branchexpenditure" className="text-xs">
+        <Link to="/repexpenditure" className="text-xs">
           <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
             Record Expenses
           </button>
@@ -91,4 +91,4 @@ const BranchExpenditureReport = () => {
   );
 };
 
-export default BranchExpenditureReport;
+export default RepExpenditureReport;

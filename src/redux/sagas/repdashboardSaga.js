@@ -28,6 +28,9 @@ import {
     fetchRepPackageRequest,
     fetchRepPackageSuccess,
     fetchRepPackageFailure,
+    fetchRepTotalExpenditureRequest,
+    fetchRepTotalExpenditureSuccess,
+    fetchRepTotalExpenditureFailure,
   
 } from '../slices/repdashboardSlice'
 import { url } from './url'
@@ -186,7 +189,23 @@ function* fetchRepPackageSaga(action) {
     }
 }
 
+function* fetchRepTotalExpenditureSaga(action) {
+    const { details13 = null } = action.payload;
 
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details13 ? details13 : {};
+        const dsresponse = yield call(axios.post, `${url}/api/repdashboard/reptotalexpenditure`, requestData,config);
+        yield put(fetchRepTotalExpenditureSuccess(dsresponse.data));
+    } catch (error) {
+        yield put(fetchRepTotalExpenditureFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
 
 
 function* depositSaga(){
@@ -201,7 +220,8 @@ function* depositSaga(){
     yield takeLatest(fetchRepSBpackageRequest.type, fetchRepSBpackageSaga)
     yield takeLatest(fetchRepFDpackageRequest.type, fetchRepFDpackageSaga)
     yield takeLatest(fetchRepPackageRequest.type, fetchRepPackageSaga)
-   
+    yield takeLatest(fetchRepTotalExpenditureRequest.type, fetchRepTotalExpenditureSaga)
+    
 
 }
 

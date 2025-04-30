@@ -11,6 +11,7 @@ const initialState = {
     reppackages: null,
     fdpackage: null,
     fdcontribution: null,
+    reptotalexpenditure: null,
     loading: false,
     error:null,
 };
@@ -110,7 +111,16 @@ const dashboardSlice = createSlice({
         fetchRepPackageFailure:(state,action)=>{
             state.error = action.payload
         },
-   
+        fetchRepTotalExpenditureRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepTotalExpenditureSuccess:(state,action)=>{
+            state.reptotalexpenditure= action.payload;
+            state.loading=false
+        },
+        fetchRepTotalExpenditureFailure:(state,action)=>{
+            state.error = action.payload
+        },
     
     }
 })
@@ -144,7 +154,9 @@ export const {
     fetchRepPackageRequest,
     fetchRepPackageSuccess,
     fetchRepPackageFailure,
- 
+    fetchRepTotalExpenditureRequest,
+    fetchRepTotalExpenditureSuccess,
+    fetchRepTotalExpenditureFailure,
  
 } = dashboardSlice.actions
 
