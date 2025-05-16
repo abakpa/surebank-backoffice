@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchRepOrderRequest } from "../redux/slices/orderSlice";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
-import Tablehead from "./Table/OrderTableHead";
-import Tablebody from "./Table/OrderTableBody";
+import Tablehead from "./Table/RepOrderTableHeader";
+import Tablebody from "./Table/RepOrderTableBody";
 // import { Link } from "react-router-dom";
 
 const RepOrder = () => {

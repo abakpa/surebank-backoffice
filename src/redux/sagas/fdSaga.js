@@ -7,6 +7,15 @@ import {
     fetchBranchFDRequest,
     fetchBranchFDSuccess,
     fetchBranchFDFailure,
+    fetchInterestRequest,
+    fetchInterestSuccess,
+    fetchInterestFailure,
+    createInterestRequest,
+    createInterestSuccess,
+    createInterestFailure,
+     updateInterestRequest,
+     updateInterestSuccess,
+     updateInterestFailure,
 
 } from '../slices/fdSlice'
 import { url } from './url'
@@ -14,6 +23,7 @@ import { url } from './url'
 function* fetchFDSaga(){
     try {
         const response = yield call(axios.post, `${url}/api/admindashboard/fdreport`)
+        console.log("fd",response)
         yield put(fetchFDSuccess(response.data))
     } catch (error) {
         yield put(fetchFDFailure(error.response.data.message))
@@ -33,10 +43,58 @@ function* fetchBranchFDSaga(){
         yield put(fetchBranchFDFailure(error.response.data.message))
     }
 }
+function* fetchInterestSaga(){
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const response = yield call(axios.post, `${url}/api/fdaccount/getinterest`,{},config)
+        yield put(fetchInterestSuccess(response.data))
+    } catch (error) {
+        yield put(fetchInterestFailure(error.response.data.message))
+    }
+}
+function* createInterestSaga(action){
+    const {details} = action.payload
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const response = yield call(axios.post, `${url}/api/fdaccount/interest`,details,config)
+        yield put(createInterestSuccess(response.data))
+    } catch (error) {
+        yield put(createInterestFailure(error.response.data.message))
+    }
+}
+function* updateInterestSaga(action){
+    const {details} = action.payload
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const response = yield call(axios.put, `${url}/api/fdaccount/interest`,details,config)
+        yield put(updateInterestSuccess(response.data))
+    } catch (error) {
+        yield put(updateInterestFailure(error.response.data.message))
+    }
+}
 
 
 function* FDreportSaga(){
     yield takeLatest(fetchFDRequest.type, fetchFDSaga)
+    yield takeLatest(fetchInterestRequest.type, fetchInterestSaga)
+    yield takeLatest(createInterestRequest.type, createInterestSaga)
+    yield takeLatest(updateInterestRequest.type, updateInterestSaga)
     yield takeLatest(fetchBranchFDRequest.type, fetchBranchFDSaga)
   
 }

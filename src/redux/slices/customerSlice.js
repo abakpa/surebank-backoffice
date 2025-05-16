@@ -20,6 +20,26 @@ const customerSlice = createSlice({
         fetchCustomerFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchBranchCustomerRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchCustomerSuccess:(state,action)=>{
+            state.customers= action.payload;
+            state.loading=false
+        },
+        fetchBranchCustomerFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchRepCustomerRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepCustomerSuccess:(state,action)=>{
+            state.customers= action.payload;
+            state.loading=false
+        },
+        fetchRepCustomerFailure:(state,action)=>{
+            state.error = action.payload
+        },
         fetchCustomerByIdRequest:(state)=>{
             state.loading = true
         },
@@ -48,6 +68,12 @@ export const {
     fetchCustomerRequest,
     fetchCustomerSuccess,
     fetchCustomerFailure,
+    fetchBranchCustomerRequest,
+    fetchBranchCustomerSuccess,
+    fetchBranchCustomerFailure,
+    fetchRepCustomerRequest,
+    fetchRepCustomerSuccess,
+    fetchRepCustomerFailure,
     fetchCustomerByIdRequest,
     fetchCustomerByIdSuccess,
     fetchCustomerByIdFailure,

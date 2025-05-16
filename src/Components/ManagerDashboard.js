@@ -5,9 +5,9 @@ import { Link } from "react-router-dom"; // Import Link from react-router-dom
 
 
 import {
-  fetchBranchDSContributionRequest,
-  fetchBranchSBContributionRequest,
-  fetcBranchTotalSBandDSRequest,
+  // fetchBranchDSContributionRequest,
+  // fetchBranchSBContributionRequest,
+  // fetcBranchTotalSBandDSRequest,
   fetchBranchDSDailyContributionRequest,
   fetchBranchSBDailyContributionRequest,
   fetchBranchTotalSBandDSDailyRequest,
@@ -16,7 +16,7 @@ import {
   fetchBranchSBpackageRequest,
   fetchBranchPackageRequest,
   fetchBranchFDpackageRequest,
-  fetchBranchFDContributionRequest,
+  // fetchBranchFDContributionRequest,
   fetchBranchTotalExpenditureRequest
 } from '../redux/slices/managerdashboardSlice'
 import Loader from "./Loader";
@@ -27,9 +27,9 @@ import Loader from "./Loader";
 const ManagerDashboard = () => {
     const dispatch = useDispatch();
     // const { branches } = useSelector((state) => state.branch);
-    const [date, setDate] = useState("");
-    const [date1, setDate1] = useState("");
-    const [date2, setDate2] = useState("");
+    // const [date, setDate] = useState("");
+    // const [date1, setDate1] = useState("");
+    // const [date2, setDate2] = useState("");
     const [date3, setDate3] = useState("");
     const [date4, setDate4] = useState("");
     const [date5, setDate5] = useState("");
@@ -38,7 +38,7 @@ const ManagerDashboard = () => {
     const [date8, setDate8] = useState("");
     const [date9, setDate9] = useState("");
     const [date13, setDate13] = useState("");
-    const [date15, setDate15] = useState("");
+    // const [date15, setDate15] = useState("");
     const [date16, setDate16] = useState("");
 
     // const [branchId, setBranchId] = useState("");
@@ -58,9 +58,9 @@ const ManagerDashboard = () => {
     // const [branchId14, setBranchId14] = useState("");
     const {
       loading,
-      branchdscontribution,
-      branchsbcontribution,
-      branchtotalsbandds,
+      // branchdscontribution,
+      // branchsbcontribution,
+      // branchtotalsbandds,
       branchdailyds,
       branchdailysb,
       branchtotaldailysbandds,
@@ -69,12 +69,12 @@ const ManagerDashboard = () => {
       branchsbpackage,
       branchpackages,
       branchtotalexpenditure,
-      fdcontribution,
+      // fdcontribution,
       fdpackage,
     } = useSelector((state)=>state.managerdashboard)
-      const newdsContribution = branchdscontribution || 0
-      const newsbContribution = branchsbcontribution || 0
-      const newtotalsbandds = branchtotalsbandds || 0
+      // const newdsContribution = branchdscontribution || 0
+      // const newsbContribution = branchsbcontribution || 0
+      // const newtotalsbandds = branchtotalsbandds || 0
       const newdailyds =  branchdailyds || 0
       const newdailysb =  branchdailysb || 0
       const newtotaldailysbandds =  branchtotaldailysbandds || 0
@@ -84,15 +84,15 @@ const ManagerDashboard = () => {
       const newpackages =  branchpackages || 0
       const newtotalexpenditure =  branchtotalexpenditure || 0
       const newfdpackage = fdpackage || 0
-      const newfdContribution = fdcontribution || 0
+      // const newfdContribution = fdcontribution || 0
     //   useEffect(() => {
     //     dispatch(fetchBranchRequest());
     //   }, [dispatch]);
 
       useEffect(() => {
-        const details = {  date: date };
-        const details1 = { date: date1 };
-        const details2 = { date: date2 };
+        // const details = {  date: date };
+        // const details1 = { date: date1 };
+        // const details2 = { date: date2 };
         const details3 = { date: date3 };
         const details4 = { date: date4 };
         const details5 = { date: date5 };
@@ -101,11 +101,11 @@ const ManagerDashboard = () => {
         const details8 = { date: date8 };
         const details9 = { date: date9 };
         const details13 = { date: date13 };
-        const details15 = { date: date15 };
+        // const details15 = { date: date15 };
         const details16 = { date: date16};
-        const data = {details}
-        const data1 = {details1}
-        const data2 = {details2}
+        // const data = {details}
+        // const data1 = {details1}
+        // const data2 = {details2}
         const data3 = {details3}
         const data4 = {details4}
         const data5 = {details5}
@@ -114,11 +114,11 @@ const ManagerDashboard = () => {
         const data8 = {details8}
         const data9 = {details9}
         const data13 = {details13}
-        const data15 = {details15}
+        // const data15 = {details15}
         const data16 = {details16}
-        dispatch(fetchBranchDSContributionRequest(data));
-        dispatch(fetchBranchSBContributionRequest(data1));
-        dispatch(fetcBranchTotalSBandDSRequest(data2)); 
+        // dispatch(fetchBranchDSContributionRequest(data));
+        // dispatch(fetchBranchSBContributionRequest(data1));
+        // dispatch(fetcBranchTotalSBandDSRequest(data2)); 
         dispatch(fetchBranchDSDailyContributionRequest(data3)); 
         dispatch(fetchBranchSBDailyContributionRequest(data4)); 
         dispatch(fetchBranchTotalSBandDSDailyRequest(data5)); 
@@ -127,14 +127,14 @@ const ManagerDashboard = () => {
         dispatch(fetchBranchSBpackageRequest(data8)); 
         dispatch(fetchBranchPackageRequest(data9)); 
         dispatch(fetchBranchTotalExpenditureRequest(data13)); 
-        dispatch(fetchBranchFDContributionRequest(data15));
+        // dispatch(fetchBranchFDContributionRequest(data15));
         dispatch(fetchBranchFDpackageRequest(data16));
    
     }, [
       dispatch,
-      date,
-      date1,
-      date2,
+      // date,
+      // date1,
+      // date2,
       date3,
       date4,
       date5,
@@ -143,7 +143,7 @@ const ManagerDashboard = () => {
       date8,
       date9,
       date13,
-      date15,
+      // date15,
       date16,
   
     ]);
@@ -154,17 +154,17 @@ const ManagerDashboard = () => {
   <h1 className="text-2xl font-bold mb-4 mt-10 text-center">Manager Dashboard</h1>
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
   {/* Card 1 - Blue */}
-  <div className="p-4 rounded-lg shadow-md bg-blue-100">
+  {/* <div className="p-4 rounded-lg shadow-md bg-blue-100">
     <h3 className="text-sm font-semibold mb-2 text-blue-800">Total DS Contribution</h3>
     <p className="text-sm font-bold text-blue-800">{newdsContribution}</p>
-    <form className="flex flex-col gap-2 mt-2">
+    <form className="flex flex-col gap-2 mt-2"> */}
       {/* <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
         value={branchId}
         onChange={(selectedId) => setBranchId(selectedId)}
       /> */}
-      <input 
+      {/* <input 
         type="date" 
         className="p-2 border rounded-md" 
         value={date}
@@ -172,20 +172,20 @@ const ManagerDashboard = () => {
       />
    
     </form>
-  </div>
+  </div> */}
 
   {/* Card 2 - Green */}
-  <div className="p-4 rounded-lg shadow-md bg-green-100">
+  {/* <div className="p-4 rounded-lg shadow-md bg-green-100">
     <h3 className="text-sm font-semibold mb-2 text-green-800">Total SB Contribution</h3>
     <p className="text-sm font-bold text-green-800">{newsbContribution}</p>
-    <form className="flex flex-col gap-2 mt-2">
+    <form className="flex flex-col gap-2 mt-2"> */}
       {/* <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
         value={branchId1}
         onChange={(selectedId) => setBranchId1(selectedId)}
       /> */}
-      <input 
+      {/* <input 
         type="date" 
         className="p-2 border rounded-md" 
         value={date1}
@@ -193,20 +193,20 @@ const ManagerDashboard = () => {
       />
   
     </form>
-  </div>
+  </div> */}
 
   {/* Card 3 - Red */}
-  <div className="p-4 rounded-lg shadow-md bg-red-100">
+  {/* <div className="p-4 rounded-lg shadow-md bg-red-100">
     <h3 className="text-sm font-semibold mb-2 text-red-800">Total Contribution</h3>
     <p className="text-sm font-bold text-red-800">{newtotalsbandds}</p>
-    <form className="flex flex-col gap-2 mt-2">
+    <form className="flex flex-col gap-2 mt-2"> */}
       {/* <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
         value={branchId2}
         onChange={(selectedId) => setBranchId2(selectedId)}
       /> */}
-      <input 
+      {/* <input 
         type="date" 
         className="p-2 border rounded-md" 
         value={date2}
@@ -214,7 +214,7 @@ const ManagerDashboard = () => {
       />
   
     </form>
-  </div>
+  </div> */}
 
   {/* Card 4 - Yellow */}
   <div className="p-4 rounded-lg shadow-md bg-yellow-100">
@@ -366,7 +366,7 @@ const ManagerDashboard = () => {
   <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
          {/* Transaction Statement Icon (Top-right Corner) */}
   <Link to="/branchexpenditurereport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
-    <i className="fas fa-file-alt text-lg" title="View Transaction Statement"></i>
+  <p className="text-sm md:text-sm">View Expenditure</p>
   </Link>
     <h3 className="text-sm font-semibold mb-2 text-violet-800">Total Expenses</h3>
     <p className="text-sm font-bold text-violet-800">{ newtotalexpenditure || 0}</p>
@@ -407,20 +407,20 @@ const ManagerDashboard = () => {
     </form>
   </div>
     {/* Card 16 - Fuchsia */}
-    <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
+    {/* <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
   <Link to="/branchfdreport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
     <i className="fas fa-file-alt text-lg" title="View FD Transaction Statement"></i>
   </Link>
     <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Contribution</h3>
     <p className="text-sm font-bold text-fuchsia-800">{ newfdContribution || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+    <form className="flex flex-col gap-2 mt-2"> */}
       {/* <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
         value={branchId15}
         onChange={(selectedId) => setBranchId15(selectedId)}
       /> */}
-      <input 
+      {/* <input 
         type="date" 
         className="p-2 border rounded-md" 
         value={date15}
@@ -428,7 +428,7 @@ const ManagerDashboard = () => {
       />
   
     </form>
-  </div>
+  </div> */}
 
 </div>
 </div>

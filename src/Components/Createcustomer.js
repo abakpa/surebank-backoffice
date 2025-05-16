@@ -17,7 +17,7 @@ const CreateCustomer = () => {
   const loggedInRole = useSelector((state) => state.login.staff?.role);
   const loggedInStaffId = useSelector((state) => state.login.staff?.id);
   const loggedInBranchId = useSelector((state) => state.login?.staff?.branch);
-  const loggedInStaffName = useSelector((state) => state.login.staff.name);
+  const loggedInStaffName = useSelector((state) => state.login.staff?.name);
 
   const staffRole = loggedInRole || localStorage.getItem("staffRole");
   const staffBranchId = loggedInBranchId || localStorage.getItem("staffBranch");

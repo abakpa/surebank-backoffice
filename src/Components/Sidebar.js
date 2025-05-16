@@ -81,12 +81,17 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           Order
           </li>
         </Link>
+        <Link to="/interest" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+          Interest Rate
+          </li>
+        </Link>
 
         <li
           className="hover:bg-gray-700 p-2 rounded cursor-pointer text-xs"
           onClick={() => handleMenuClick("Settings")}
         >
-          Settings
+          SMS
         </li>
 
         {/* Login/Logout Buttons (only on small screens) */}

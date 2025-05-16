@@ -1,39 +1,50 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchRepExpenditureRequest } from "../redux/slices/expenditureReportSlice";
+import { fetchRepCustomerRequest } from "../redux/slices/customerSlice";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
-import Tablehead from "./Table/ExpenditureTableHead";
-import Tablebody from "./Table/ExpenditureTableBody";
+import Tablehead from "./Table/CustomerTablehead";
+import Tablebody from "./Table/CustomerTablebody";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 
-const RepExpenditureReport = () => {
+const Viewcustomer = () => {
+  const dispatch = useDispatch();
+  const { loading, customers, error } = useSelector((state) => state.customer);
+  const { branches } = useSelector((state) => state.branch);
+  const [searchTerm, setSearchTerm] = useState("");
   const { search } = useLocation();
   const query = new URLSearchParams(search);
 
   const staffId = query.get("staffId"); 
-  // const { staffId } = useParams();
-  const dispatch = useDispatch();
-  const { loading, repexpenditurereport, error } = useSelector((state) => state.expenditurereport);
-  const { branches } = useSelector((state) => state.branch);
-  const [searchTerm, setSearchTerm] = useState("");
+console.log("KKKKKK>>>>",staffId)
   useEffect(() => {
     dispatch(fetchBranchRequest());
-    dispatch(fetchRepExpenditureRequest(staffId));
+    dispatch(fetchRepCustomerRequest(staffId));
+
   }, [dispatch,staffId]);
 
-
   // Ensure customers is always an array
-  const expenditureList = Array.isArray(repexpenditurereport) ? repexpenditurereport : [];
+  const customerList = Array.isArray(customers) ? customers : [];
 
   const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
+    setSearchTerm(e.target.value.toLowerCase());
   };
 
-  const filteredexpenditureList = expenditureList.filter((expenditureList) =>
-    (expenditureList?.createdBy?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-    (expenditureList?.createdBy?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-  );
+  const filteredCustomers = customerList.filter((customer) => {
+    const customerName = customer?.name?.toLowerCase() || "";
+    const customerPhone = customer?.phone?.toLowerCase() || "";
+    
+    // Find branch name from branchId
+    const branch = branches.find((b) => b._id === customer.branchId);
+    const branchName = branch?.name?.toLowerCase() || "";
+
+    return (
+      customerName.includes(searchTerm) || 
+      customerPhone.includes(searchTerm) || 
+      branchName.includes(searchTerm) // Search by branch name
+    );
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -59,7 +70,7 @@ const RepExpenditureReport = () => {
             className="opacity-75"
           />
         </svg>
-        <p className="text-blue-500 ml-4">Loading Expenditure Statement...</p>
+        <p className="text-blue-500 ml-4">Loading customers...</p>
       </div>
     );
   }
@@ -68,33 +79,38 @@ const RepExpenditureReport = () => {
 
   return (
     <div className="flex flex-col p-4 bg-gray-100 min-h-screen w-full mt-10">
-      <h2 className="text-xl font-bold mb-4 text-center">Expenditure Statement</h2>
+      <h2 className="text-xl font-bold mb-4 text-center">Customer List</h2>
       
       {/* Search and Create Buttons */}
       <div className="flex flex-col md:flex-row items-center justify-between mb-4 gap-2">
         <input
           type="text"
-          placeholder="Search by branch or name..."
+          placeholder="Search customers by name, phone, or branch..."
           value={searchTerm}
           onChange={handleSearch}
           className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md"
         />
-        <Link to="/repexpenditure" className="text-xs">
+        <Link to="/createcustomer" className="text-xs">
           <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-            Record Expenses
+            Create Customer
           </button>
         </Link>
+        <Link to="/branchcustomers" className="text-xs">
+      <button className="w-full md:w-auto px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+        View Branch Customers
+      </button>
+    </Link>
       </div>
       
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full min-w-[600px] border-collapse border border-gray-300">
           <Tablehead />
-          <Tablebody customers={filteredexpenditureList} branches={branches} />
+          <Tablebody customers={filteredCustomers} branches={branches} />
         </table>
       </div>
     </div>
   );
 };
 
-export default RepExpenditureReport;
+export default Viewcustomer;

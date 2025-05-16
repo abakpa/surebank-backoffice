@@ -39,6 +39,7 @@ const CustomerAccountDashboard = () => {
   const [showFDWithdrawalModal, setShowFDWithdrawalModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSBEditModal, setShowSBEditModal] = useState(false);
+  const [showMobileModal, setShowMobileModal] = useState(false);
   const [showFDEditModal, setShowFDEditModal] = useState(false);
   const [showCreateAccountModal, setShowCreateAccountModal] = useState(false);
   const [showCreateSBAccountModal, setShowCreateSBAccountModal] = useState(false);
@@ -140,6 +141,9 @@ const CustomerAccountDashboard = () => {
     if (!accountTypeId) return;
     dispatch(fetchAccountTransactionRequest({ accountTypeId }));
     setSelectedAccount(accountTypeId);
+    if (window.innerWidth < 768) {
+      setShowMobileModal(true);
+    }
   };
   
   const transactionHistory = Array.isArray(customerAccount) ? customerAccount : [];
@@ -655,6 +659,7 @@ const CustomerAccountDashboard = () => {
             </div>
 
             {/* Edit Button */}
+            {(loggedInStaffRole === 'Admin'||loggedInStaffRole === 'Manager') && (
             <button
               onClick={() => {
                 setSelectedAccount(account);
@@ -664,6 +669,7 @@ const CustomerAccountDashboard = () => {
             >
               <i className="fas fa-edit text-sm" title="Edit"></i>
             </button>
+              )}
                {/* Cost Price Icon */}
         {loggedInStaffRole === 'Admin' && (
         <button onClick={() => { 
@@ -710,29 +716,59 @@ const CustomerAccountDashboard = () => {
   <p className="text-gray-600">Customer does not have any accounts.</p>
 )}
   </div>
-        {/* Right Panel - Transaction History */}
-        <div className="bg-white p-4 rounded shadow-md">
-          <h2 className="text-lg font-bold mb-4">Transaction History</h2>
-          {selectedAccount ? (
-            <div>
-              <h3 className="text-md font-semibold mb-2">Account: {subAccount.DSAccountNumber}</h3>
-              <ul className="space-y-2">
+     {/* Desktop Right Panel */}
+     <div className="hidden md:block bg-white p-4 rounded shadow-md">
+        <h2 className="text-lg font-bold mb-4">Transaction History</h2>
+        {selectedAccount ? (
+          <div>
+            <h3 className="text-md font-semibold mb-2">Account: {subAccount.DSAccountNumber}</h3>
+            {transactionHistory.length > 0 ? (
+              <table className="md:min-w-[500px] md:ml-4">
+                <Tablehead />
+                <Tablebody customers={transactionHistory} branches={staffs} />
+              </table>
+            ) : (
+              <p className="text-gray-600">No transactions found.</p>
+            )}
+          </div>
+        ) : (
+          <p className="text-gray-600">Select an account to view transactions.</p>
+        )}
+      </div>
+
+    
+
+      {/* Mobile Modal */}
+      {showMobileModal && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center md:hidden">
+          <div className="bg-white w-[90%] max-h-[80%] overflow-auto p-4 rounded shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold">Transaction History</h2>
+              <button
+                className="text-red-500 font-bold"
+                onClick={() => setShowMobileModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+            {selectedAccount ? (
+              <div>
+                <h3 className="text-md font-semibold mb-2">Account: {subAccount.DSAccountNumber}</h3>
                 {transactionHistory.length > 0 ? (
-          
-                  <table className="md:min-w-[500px] md:ml-4">
-                  <Tablehead />
-                  <Tablebody customers={transactionHistory} branches={staffs} />
-                </table>
-                  
+                  <table className="min-w-full">
+                    <Tablehead />
+                    <Tablebody customers={transactionHistory} branches={staffs} />
+                  </table>
                 ) : (
                   <p className="text-gray-600">No transactions found.</p>
                 )}
-              </ul>
-            </div>
-          ) : (
-            <p className="text-gray-600">Select an account to view transactions.</p>
-          )}
+              </div>
+            ) : (
+              <p className="text-gray-600">Select an account to view transactions.</p>
+            )}
+          </div>
         </div>
+      )}
       </div>
 
   
@@ -1280,64 +1316,79 @@ const CustomerAccountDashboard = () => {
   )}
   {/* Create FD Account Package Modal */}
   {showCreateFDAccountModal && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded shadow-md w-96">
-        <h3 className="text-lg font-bold mb-4">Create Account Package</h3>
-        <form onSubmit={handleCreateFDAccount}>
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded shadow-md w-96">
+      <h3 className="text-lg font-bold mb-4">Create Account Package</h3>
+      <form onSubmit={handleCreateFDAccount}>
+        {/* Account Manager Select */}
         <div className="mb-4">
-         <Select2
-  label="Account Manager"
-  options={staffs.map((staff) => ({ label: staff.name, value: staff._id }))}
-  value={accountManagerId}
-  onChange={(selectedId) => setAccountManagerId(selectedId)}
-/>
-
+          <Select2
+            label="Account Manager"
+            options={staffs.map((staff) => ({
+              label: staff.name,
+              value: staff._id
+            }))}
+            value={accountManagerId}
+            onChange={(selectedId) => setAccountManagerId(selectedId)}
+          />
         </div>
- 
-          <div className="mb-4">
-            <label htmlFor="amountPerDay" className="block text-sm font-medium text-gray-700">
-              Amount
-            </label>
-            <input
-              id="fdamount"
-              type="number"
-              value={fdamount}
-              onChange={(e) => setFdamount(e.target.value)}
-              placeholder="Enter amount"
-              className="w-full border border-gray-300 rounded p-2 mt-1"
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="amountPerDay" className="block text-sm font-medium text-gray-700">
-              Duration
-            </label>
-            <input
-              id="durationMonths"
-              type="number"
-              value={durationMonths}
-              onChange={(e) => setDurationMonths(e.target.value)}
-              placeholder="Enter duration"
-              className="w-full border border-gray-300 rounded p-2 mt-1"
-            />
-          </div>
-          <div className="flex justify-end space-x-4">
-            <button
-              onClick={() => setShowCreateFDAccountModal(false)}
-              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded"
-            >
-              Create Account
-            </button>
-          </div>
-        </form>
-      </div>
+
+        {/* Amount Input */}
+        <div className="mb-4">
+          <label htmlFor="fdamount" className="block text-sm font-medium text-gray-700">
+            Amount
+          </label>
+          <input
+            id="fdamount"
+            type="number"
+            value={fdamount}
+            onChange={(e) => setFdamount(e.target.value)}
+            placeholder="Enter amount"
+            className="w-full border border-gray-300 rounded p-2 mt-1"
+          />
+        </div>
+
+        {/* Duration Dropdown */}
+        <div className="mb-4">
+          <label htmlFor="durationMonths" className="block text-sm font-medium text-gray-700">
+            Duration (Months)
+          </label>
+          <select
+            id="durationMonths"
+            value={durationMonths}
+            onChange={(e) => setDurationMonths(e.target.value)}
+            className="w-full border border-gray-300 rounded p-2 mt-1"
+          >
+            <option value="">Select duration</option>
+            {[3, 6, 9, 12, 18, 24].map((month) => (
+              <option key={month} value={month}>
+                {month} Month{month > 1 ? 's' : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-end space-x-4">
+          <button
+            type="button"
+            onClick={() => setShowCreateFDAccountModal(false)}
+            className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Create Account
+          </button>
+        </div>
+      </form>
     </div>
-  )}
+  </div>
+)}
+
   </div>
   )
     };

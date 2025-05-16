@@ -61,12 +61,12 @@ const ManagerSidebar = ({ isOpen, toggleSidebar }) => {
             </li>
           </Link>
         )} */}
-        <Link to="/customers" className="text-xs">
+        <Link to="/repcustomers" className="text-xs">
           <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
             Customers
           </li>
         </Link>
-        <Link to="/expenditure" className="text-xs">
+        <Link to="/repexpenditure" className="text-xs">
           <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
           Expenditure
           </li>

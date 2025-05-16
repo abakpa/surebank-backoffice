@@ -4,6 +4,8 @@ const Tablehead = () => {
         <tr className="bg-gray-100">
           <th className="border border-gray-300 p-2">Customer Name</th>
           <th className="border border-gray-300 p-2">Amount</th>
+          <th className="border border-gray-300 p-2">Duration</th>
+          <th className="border border-gray-300 p-2">Maturity</th>
           <th className="border border-gray-300 p-2">Interest Income</th>
           <th className="border border-gray-300 p-2">Interest Expense</th>
           <th className="border border-gray-300 p-2">Branch</th>

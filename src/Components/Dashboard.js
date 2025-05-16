@@ -515,7 +515,7 @@ const Dashboard = () => {
   <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
          {/* Transaction Statement Icon (Top-right Corner) */}
   <Link to="/expenditurereport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
-    <i className="fas fa-file-alt text-lg" title="View Transaction Statement"></i>
+  <p className="text-sm md:text-sm">View Expenditure</p>
   </Link>
     <h3 className="text-sm font-semibold mb-2 text-violet-800">Total Expenses</h3>
     <p className="text-sm font-bold text-violet-800">{ newtotalexpenditure || 0}</p>

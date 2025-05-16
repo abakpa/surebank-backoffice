@@ -36,7 +36,9 @@ function* fetchBranchExpenditureSaga(){
         yield put(fetchBranchExpenditureFailure(error.response.data.message))
     }
 }
-function* fetchRepExpenditureSaga(){
+function* fetchRepExpenditureSaga(staffId){
+
+    const role = localStorage.getItem('staffRole');
     try {
         const token = localStorage.getItem('authToken');
         const config = {
@@ -44,8 +46,15 @@ function* fetchRepExpenditureSaga(){
                 Authorization: `Bearer ${token}`
             }
         }
-        const response = yield call(axios.post, `${url}/api/repdashboard/repexpenditurereport`,{},config)
-        yield put(fetchRepExpenditureSuccess(response.data))
+        if (role === 'Agent') {
+            const response = yield call(axios.post, `${url}/api/repdashboard/repexpenditurereport`,{},config)
+            yield put(fetchRepExpenditureSuccess(response.data))
+          } else {
+            const response = yield call(axios.post, `${url}/api/mvrepdashboard/repexpenditurereport/${staffId.payload}`,)
+            yield put(fetchRepExpenditureSuccess(response.data))
+          }
+        
+       
     } catch (error) {
         yield put(fetchRepExpenditureFailure(error.response.data.message))
     }

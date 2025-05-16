@@ -18,11 +18,14 @@ import ViewStaff from "./Components/Viewstaff";
 import ViewBranchStaff from "./Components/ViewBranchStaff";
 import CreateStaff from "./Components/Createstaff";
 import ViewCustomer from "./Components/Viewcustomer";
+import ViewBranchCustomer from "./Components/ViewBranchCustomer";
+import ViewRepCustomer from "./Components/ViewRepCustomer";
 import CreateCustomer from "./Components/Createcustomer";
 import Deposit from "./Components/Deposit";
 import CreateAccount from "./Components/CreateAccount";
 import ViewCustomerAccount from "./Components/ViewCustomerAccount";
 import CustomerAccountDashboard from "./Components/CustomerAccountDashboard";
+import ManagerViewRepDashboard from "./Components/ManagerViewRepDashboard";
 import Login from "./Components/Stafflogin";
 import Footer from "./Components/Footer";
 import SBIncome from "./Components/SbIncome";
@@ -38,6 +41,7 @@ import Transaction from "./Components/Transaction";
 import Order from "./Components/Order";
 import BranchOrder from "./Components/BranchOrder";
 import RepOrder from "./Components/RepOrder";
+import InterestRate from "./Components/InterestRate";
 
 function App() {
   const isLoggedIn = useSelector((state) => state.login.token);
@@ -102,6 +106,8 @@ function App() {
                   <Route path="/branchstaff" element={<ViewBranchStaff />} />
                   <Route path="/createstaff" element={<CreateStaff />} />
                   <Route path="/customers" element={<ViewCustomer />} />
+                  <Route path="/branchcustomers" element={<ViewBranchCustomer />} />
+                  <Route path="/repcustomers" element={<ViewRepCustomer />} />
                   <Route path="/createcustomer" element={<CreateCustomer />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/managerdashboard" element={<ManagerDashboard />} />
@@ -123,7 +129,9 @@ function App() {
                   <Route path="/repexpenditurereport" element={<RepExpenditureReport />} />
                   <Route path="/createaccount" element={<CreateAccount />} />
                   <Route path="/viewcustomeraccount" element={<ViewCustomerAccount />} />
+                  <Route path="/interest" element={<InterestRate />} />
                   <Route path="/customeraccountdashboard/:customerId" element={<CustomerAccountDashboard />} />
+                  <Route path="/managerviewdashboard/:staffId" element={<ManagerViewRepDashboard />} />
                 </>
               ) : (
                 // Redirect unauthenticated users to Login

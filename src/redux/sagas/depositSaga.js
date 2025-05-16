@@ -347,11 +347,15 @@ function* editCustomerAccountSaga(action){
             }
         }
         const response = yield call(axios.put,`${url}/api/dsaccount`, details,config);
+        console.log("KKKKK",response)
+
         yield put(editCustomerAccountSuccess(response.data))
         yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
         // navigate('/deposit')
     } catch (error) {
-        yield put(editCustomerAccountFailure(error.message))
+        const errorMessage = error.response?.data?.message
+        console.log("jjjjjj",error)
+        yield put(editCustomerAccountFailure(errorMessage))
     }
 }
 function* editCustomerSBAccountSaga(action){
