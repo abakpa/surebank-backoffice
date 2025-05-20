@@ -9,7 +9,10 @@ import {
     fetchBranchStaffFailure,
     createStaffRequest,
     createStaffSuccess,
-    createStaffFailure
+    createStaffFailure,
+    updateStaffRequest,
+    updateStaffSuccess,
+    updateStaffFailure
 } from '../slices/staffSlice'
 import { url } from './url'
 
@@ -45,11 +48,25 @@ function* createStaffSaga(action){
         yield put(createStaffFailure(error.message))
     }
 }
+function* updateStaffSaga(action){
+    console.log(action.payload)
+    const {staffId,status} = action.payload
+    try {
+        const response = yield call(axios.put,`${url}/api/staff/${staffId}?status=${status}` );
+        yield put(updateStaffSuccess(response.data))
+        yield call (fetchBranchStaffSaga);
+        yield call (fetchStaffSaga);
+        // navigate('/staff')
+    } catch (error) {
+        yield put(updateStaffFailure(error.message))
+    }
+}
 
 function* staffSaga(){
     yield takeLatest(fetchStaffRequest.type, fetchStaffSaga)
     yield takeLatest(fetchBranchStaffRequest.type, fetchBranchStaffSaga)
     yield takeLatest(createStaffRequest.type, createStaffSaga)
+    yield takeLatest(updateStaffRequest.type, updateStaffSaga)
 }
 
 export default staffSaga

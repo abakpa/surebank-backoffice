@@ -47,6 +47,7 @@ const CustomerAccountDashboard = () => {
   const [amountPerDay, setAmountPerDay] = useState("");
   const [amount, setAmount] = useState("");
   const [fdamount, setFdamount] = useState("");
+  const [fdcharge, setFdcharge] = useState("");
   const [durationMonths, setDurationMonths] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
   const [productName, setProductName] = useState("");
@@ -66,10 +67,11 @@ const CustomerAccountDashboard = () => {
   }, [selectedAccount]);
   useEffect(() => {
     if (selectedAccount) {
-      setFdamount(selectedAccount.fdamount); // Pre-fill amount
+      setFdcharge(selectedAccount.chargeInterest)
+      setFdamount(selectedAccount.fdamount - fdcharge); // Pre-fill amount
       setDurationMonths(selectedAccount.durationMonths); // Pre-fill product name
     }
-  }, [selectedAccount]);
+  }, [selectedAccount,fdcharge]);
 
   useEffect(() => {
     if (customerAccount?.message) {
@@ -592,15 +594,15 @@ const CustomerAccountDashboard = () => {
     )}
           </div>
           <p className="text-sm text-gray-600">Number: {account.FDAccountNumber || "N/A"}</p>
-          <p className="text-sm text-gray-600">Balance: ₦{account.totalAmount || 0}</p>
+          <p className="text-sm text-gray-600">Interest: ₦{account.expenseInterest || 0}</p>
         </div>
         <div className="flex space-x-2">
           <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
             <i className="fas fa-folder-open text-sm md:text-lg" title="View Transactions"></i>
           </button>
-          <button onClick={() => { setSelectedAccount(account); setGetAmountPerDay(account.amountPerDay); setShowDepositModal(true); }} className="text-green-600 hover:text-green-800">
+          {/* <button onClick={() => { setSelectedAccount(account); setGetAmountPerDay(account.amountPerDay); setShowDepositModal(true); }} className="text-green-600 hover:text-green-800">
             <i className="fas fa-plus-circle text-sm md:text-lg" title="Deposit"></i>
-          </button>
+          </button> */}
           <button onClick={() => { setSelectedAccount(account); setShowFDWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
             <i className="fas fa-minus-circle text-sm md:text-lg" title="Withdraw"></i>
           </button>
@@ -1157,13 +1159,25 @@ const CustomerAccountDashboard = () => {
         // placeholder="Enter amount"
         className="w-full border border-gray-300 rounded p-2 mb-4"
       />
-      <input
-        type="number"
-        value={durationMonths}
-        onChange={(e) => setDurationMonths(e.target.value)}
-        // placeholder="Enter amount"
-        className="w-full border border-gray-300 rounded p-2 mb-4"
-      />
+    {/* Duration Dropdown */}
+    <div className="mb-4">
+          <label htmlFor="durationMonths" className="block text-sm font-medium text-gray-700">
+            Duration (Months)
+          </label>
+          <select
+            id="durationMonths"
+            value={durationMonths}
+            onChange={(e) => setDurationMonths(e.target.value)}
+            className="w-full border border-gray-300 rounded p-2 mt-1"
+          >
+            <option value="">Select duration</option>
+            {[3, 6, 9, 12, 18, 24].map((month) => (
+              <option key={month} value={month}>
+                {month} Month{month > 1 ? 's' : ''}
+              </option>
+            ))}
+          </select>
+        </div>
  
       <div className="flex justify-end space-x-4">
         <button

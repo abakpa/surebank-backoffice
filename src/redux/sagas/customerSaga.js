@@ -15,7 +15,13 @@ import {
     fetchCustomerByIdFailure,
     createCustomerRequest,
     createCustomerSuccess,
-    createCustomerFailure
+    createCustomerFailure,
+    transferCustomerRequest,
+    transferCustomerSuccess,
+    transferCustomerFailure,
+    transferAllCustomerRequest,
+    transferAllCustomerSuccess,
+    transferAllCustomerFailure,
 } from '../slices/customerSlice'
 import { url } from './url'
 
@@ -50,7 +56,6 @@ import { url } from './url'
                 Authorization: `Bearer ${token}`
             }
         }
-        console.log("LLLLLL",action.payload)
 
         if(role==='Agent'){
         const response = yield call(axios.post, `${url}/api/customer/repcustomer`, {},config)
@@ -104,6 +109,36 @@ function* createCustomerSaga(action) {
       yield put(createCustomerFailure(errorMessage));
     }
   }
+  function* transferAllCustomerSaga(action){
+    const {oldStaff,newStaff} = action.payload
+    try {
+        const response = yield call(axios.put,`${url}/api/customer/${oldStaff}?newStaff=${newStaff}` );
+        yield put(transferAllCustomerSuccess(response.data))
+        // navigate('/staff')
+    } catch (error) {
+        yield put(transferAllCustomerFailure(error.message))
+    }
+}
+function* transferCustomerSaga(action) {
+    const { customer, newStaff, oldStaff } = action.payload;
+  
+    try {
+      // Make PUT request to transfer the customer
+      const response = yield call(
+        axios.put,
+        `${url}/api/customer/newstaff/${customer}?newStaff=${newStaff}`
+      );
+  
+      // Dispatch success action
+      yield put(transferCustomerSuccess(response.data));
+  
+      // Fetch updated customer list for oldStaff (dispatch the action, not call the saga)
+      yield put(fetchRepCustomerRequest(oldStaff));
+  
+    } catch (error) {
+      yield put(transferCustomerFailure(error.message || "Transfer failed"));
+    }
+  }
 
 function* customerSaga(){
     yield takeLatest(fetchCustomerRequest.type, fetchCustomerSaga)
@@ -111,6 +146,8 @@ function* customerSaga(){
     yield takeLatest(fetchRepCustomerRequest.type, fetchRepCustomerSaga)
     yield takeLatest(fetchCustomerByIdRequest.type, fetchCustomerByIdSaga)
     yield takeLatest(createCustomerRequest.type, createCustomerSaga)
+    yield takeLatest(transferAllCustomerRequest.type, transferAllCustomerSaga)
+    yield takeLatest(transferCustomerRequest.type, transferCustomerSaga)
 }
 
 export default customerSaga

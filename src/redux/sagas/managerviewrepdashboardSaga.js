@@ -224,14 +224,12 @@ function* fetchMVRepTotalExpenditureSaga(action) {
         }
         const requestData = details13 ? details13 : {};
         const dsresponse = yield call(axios.post, `${url}/api/mvrepdashboard/reptotalexpenditure/${details13.staffId}`, requestData,config);
-        console.log("check response????",dsresponse)
         yield put(fetchMVRepTotalExpenditureSuccess(dsresponse.data));
     } catch (error) {
         yield put(fetchMVRepTotalExpenditureFailure(error.response?.data?.message || "An error occurred"));
     }
 }
 function* fetchMVTransactionSaga(action){
-    console.log("saga transaction 111",action.payload)
     
     try {
         const token = localStorage.getItem('authToken');
@@ -241,7 +239,6 @@ function* fetchMVTransactionSaga(action){
             }
         }
         const response = yield call(axios.post, `${url}/api/mvrepdashboard/reptransaction/${action.payload}`,{},config)
-        console.log("saga transaction 222",response)
         yield put(fetchMVTransactionSuccess(response.data))
     } catch (error) {
         yield put(fetchMVTransactionFailure(error.response.data.message))

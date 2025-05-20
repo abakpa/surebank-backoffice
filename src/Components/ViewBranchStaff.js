@@ -12,7 +12,6 @@ const ViewBranchStaff = () => {
   const { loading, branchstaffs, error } = useSelector((state) => state.staff);
   const { branches } = useSelector((state) => state.branch);
   const [searchTerm, setSearchTerm] = useState("");
-
   useEffect(() => {
     dispatch(fetchBranchRequest());
     dispatch(fetchBranchStaffRequest());

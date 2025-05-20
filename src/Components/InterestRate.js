@@ -14,6 +14,7 @@ const InterestRate = () => {
 
   const [incomeInterestRate, setIncomeInterestRate] = useState('');
   const [expenseInterestRate, setExpenseInterestRate] = useState('');
+  const [chargeInterestRate, setChargeInterestRate] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -30,6 +31,7 @@ const InterestRate = () => {
       const rate = interestRate[0]; // ✅ get the first object
       setIncomeInterestRate(String(rate.incomeInterestRate ?? ''));
       setExpenseInterestRate(String(rate.expenseInterestRate ?? ''));
+      setChargeInterestRate(String(rate.chargeInterestRate ?? ''));
       setIsEditMode(true);
     }
   }, [interestRate]);
@@ -42,6 +44,7 @@ const InterestRate = () => {
     const details = {
       incomeInterestRate,
       expenseInterestRate,
+      chargeInterestRate
     };
 
     const data = { details, navigate };
@@ -86,6 +89,17 @@ const InterestRate = () => {
             name="expenseInterestRate"
             value={expenseInterestRate}
             onChange={(e) => setExpenseInterestRate(e.target.value)}
+            className="w-full border px-3 py-2 rounded"
+            required
+          />
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">Interest Charge Rate (%)</label>
+          <input
+            type="number"
+            name="expenseInterestRate"
+            value={chargeInterestRate}
+            onChange={(e) => setChargeInterestRate(e.target.value)}
             className="w-full border px-3 py-2 rounded"
             required
           />

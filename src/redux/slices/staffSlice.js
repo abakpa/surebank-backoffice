@@ -41,6 +41,16 @@ const staffSlice = createSlice({
         createStaffFailure:(state,action)=>{
             state.error=action.payload
             state.loading=false
+        },
+        updateStaffRequest:(state)=>{
+            state.loading = true
+        },
+        updateStaffSuccess:(state,action)=>{
+            state.staffs= action.payload;
+            state.loading=false
+        },
+        updateStaffFailure:(state,action)=>{
+            state.error = action.payload
         }
     }
 })
@@ -54,7 +64,10 @@ export const {
     fetchBranchStaffFailure,
     createStaffRequest,
     createStaffSuccess,
-    createStaffFailure
+    createStaffFailure,
+    updateStaffRequest,
+    updateStaffSuccess,
+    updateStaffFailure
 } = staffSlice.actions
 
 export default staffSlice.reducer

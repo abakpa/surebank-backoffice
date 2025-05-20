@@ -8,6 +8,7 @@ const Tablehead = () => {
           <th className="border border-gray-300 p-2">Maturity</th>
           <th className="border border-gray-300 p-2">Interest Income</th>
           <th className="border border-gray-300 p-2">Interest Expense</th>
+          <th className="border border-gray-300 p-2">Status</th>
           <th className="border border-gray-300 p-2">Branch</th>
           <th className="border border-gray-300 p-2">Create By</th>
         </tr>
