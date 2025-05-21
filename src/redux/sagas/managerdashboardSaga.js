@@ -74,7 +74,10 @@ function* fetchBranchDSContributionSaga(action) {
         const requestData = details ? details : {};
         const dsresponse = yield call(axios.post, `${url}/api/managerdashboard/branchds`, requestData,config);
         yield put(fetchBranchDSContributionSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchDSContributionFailure(error.dsresponse?.data?.message || "An error occurred"));
     }
 }
@@ -91,7 +94,10 @@ function* fetchBranchSBContributionSaga(action) {
         const requestData = details1 ? details1 : {};
         const sbresponse = yield call(axios.post, `${url}/api/managerdashboard/branchsb`, requestData,config);
         yield put(fetchBranchSBContributionSuccess(sbresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchSBContributionFailure(error.sbresponse?.data?.message || "An error occurred"));
     }
 }
@@ -108,7 +114,10 @@ function* fetchBranchFDContributionSaga(action) {
         const requestData = details15 ? details15 : {};
         const fdresponse = yield call(axios.post, `${url}/api/managerdashboard/branchfd`, requestData,config);
         yield put(fetchBranchFDContributionSuccess(fdresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchFDContributionFailure(error.sbresponse?.data?.message || "An error occurred"));
     }
 }
@@ -125,7 +134,10 @@ function* fetchBranchFDInterestIncomeSaga(action) {
         const requestData = details17 ? details17 : {};
         const fdresponse = yield call(axios.post, `${url}/api/managerdashboard/branchfdinterestincome`, requestData,config);
         yield put(fetchBranchFDInterestIncomeSuccess(fdresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchFDInterestIncomeFailure(error.sbresponse?.data?.message || "An error occurred"));
     }
 }
@@ -142,7 +154,10 @@ function* fetchBranchFDInterestExpenseSaga(action) {
         const requestData = details18 ? details18 : {};
         const fdresponse = yield call(axios.post, `${url}/api/managerdashboard/branchfdinterestexpense`, requestData,config);
         yield put(fetchBranchFDInterestExpenseSuccess(fdresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchFDInterestExpenseFailure(error.sbresponse?.data?.message || "An error occurred"));
     }
 }
@@ -159,7 +174,10 @@ function* fetchBranchFDpackageSaga(action) {
         const requestData = details16 ? details16 : {};
         const dsresponse = yield call(axios.post, `${url}/api/managerdashboard/branchfdpackage`, requestData,config);
         yield put(fetchBranchFDpackageSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchFDpackageFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -176,7 +194,10 @@ function* fetcBranchTotalSBandDSSaga(action) {
         const requestData = details2 ? details2 : {};
         const sbresponse = yield call(axios.post, `${url}/api/managerdashboard/totalsbandds`, requestData,config);
         yield put(fetcBranchTotalSBandDSSuccess(sbresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetcBranchTotalSBandDSFailure(error.sbresponse?.data?.message || "An error occurred"));
     }
 }
@@ -193,7 +214,10 @@ function* fetchBranchDSDailyContributionSaga(action) {
         const requestData = details3 ? details3 : {};
         const dsresponse = yield call(axios.post, `${url}/api/managerdashboard/dailybranchds`, requestData, config);
         yield put(fetchBranchDSDailyContributionSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchDSDailyContributionFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -210,7 +234,10 @@ function* fetchBranchSBDailyContributionSaga(action) {
         const requestData = details4 ? details4 : {};
         const dsresponse = yield call(axios.post, `${url}/api/managerdashboard/dailybranchsb`, requestData,config);
         yield put(fetchBranchSBDailyContributionSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchSBDailyContributionFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -227,7 +254,10 @@ function* fetchBranchTotalSBandDSDailySaga(action) {
         const requestData = details5 ? details5 : {};
         const dsresponse = yield call(axios.post, `${url}/api/managerdashboard/totaldailybranchcontribution`, requestData,config);
         yield put(fetchBranchTotalSBandDSDailySuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchTotalSBandDSDailyFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -243,7 +273,10 @@ function* fetchBranchDSWithdrawalSaga(action) {
         const requestData = details6 ? details6 : {};
         const dsresponse = yield call(axios.post, `${url}/api/managerdashboard/dailybranchdswithdrawal`, requestData,config);
         yield put(fetchBranchDSWithdrawalSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchDSWithdrawalFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -260,7 +293,10 @@ function* fetchBranchDSpackageSaga(action) {
         const requestData = details7 ? details7 : {};
         const dsresponse = yield call(axios.post, `${url}/api/managerdashboard/branchdspackage`, requestData,config);
         yield put(fetchBranchDSpackageSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchDSpackageFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -277,7 +313,10 @@ function* fetchBranchSBpackageSaga(action) {
         const requestData = details8 ? details8 : {};
         const dsresponse = yield call(axios.post, `${url}/api/managerdashboard/branchsbpackage`, requestData,config);
         yield put(fetchBranchSBpackageSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchSBpackageFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -294,7 +333,10 @@ function* fetchBranchPackageSaga(action) {
         const requestData = details9 ? details9 : {};
         const dsresponse = yield call(axios.post, `${url}/api/managerdashboard/branchpackages`, requestData,config);
         yield put(fetchBranchPackageSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchPackageFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -311,7 +353,10 @@ function* fetchBranchDSincomeSaga(action) {
         const requestData = details10 ? details10 : {};
         const dsresponse = yield call(axios.post, `${url}/api/managerdashboard/branchdsincome`, requestData,config);
         yield put(fetchBranchDSincomeSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchDSincomeFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -328,7 +373,10 @@ function* fetchBranchSBincomeSaga(action) {
         const requestData = details11 ? details11 : {};
         const dsresponse = yield call(axios.post, `${url}/api/managerdashboard/branchsbincome`, requestData,config);
         yield put(fetchBranchSBincomeSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchSBincomeFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -345,7 +393,10 @@ function* fetchBranchTotalincomeSaga(action) {
         const requestData = details12 ? details12 : {};
         const dsresponse = yield call(axios.post, `${url}/api/managerdashboard/branchtotalincome`, requestData,config);
         yield put(fetchBranchTotalincomeSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchTotalincomeFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -362,7 +413,10 @@ function* fetchBranchTotalExpenditureSaga(action) {
         const requestData = details13 ? details13 : {};
         const dsresponse = yield call(axios.post, `${url}/api/managerdashboard/branchtotalexpenditure`, requestData,config);
         yield put(fetchBranchTotalExpenditureSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchTotalExpenditureFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -379,7 +433,10 @@ function* fetchBranchTotalProfitSaga(action) {
         const requestData = details14 ? details14 : {};
         const dsresponse = yield call(axios.post, `${url}/api/managerdashboard/branchprofit`, requestData,config);
         yield put(fetchBranchTotalProfitSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchTotalProfitFailure(error.response?.data?.message || "An error occurred"));
     }
 }

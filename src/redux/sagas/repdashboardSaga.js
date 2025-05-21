@@ -49,7 +49,10 @@ function* fetchRepDSDailyContributionSaga(action) {
         const requestData = details3 ? details3 : {};
         const dsresponse = yield call(axios.post, `${url}/api/repdashboard/dailyrepds`, requestData, config);
         yield put(fetchRepDSDailyContributionSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchRepDSDailyContributionFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -66,7 +69,10 @@ function* fetchRepSBDailyContributionSaga(action) {
         const requestData = details4 ? details4 : {};
         const dsresponse = yield call(axios.post, `${url}/api/repdashboard/dailyrepsb`, requestData,config);
         yield put(fetchRepSBDailyContributionSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchRepSBDailyContributionFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -83,7 +89,10 @@ function* fetchReFDDailyContributionSaga(action) {
         const requestData = details16 ? details16 : {};
         const dsresponse = yield call(axios.post, `${url}/api/repdashboard/repfd`, requestData,config);
         yield put(fetchRepFDDailyContributionSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchRepFDDailyContributionFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -100,7 +109,10 @@ function* fetchRepTotalSBandDSDailySaga(action) {
         const requestData = details5 ? details5 : {};
         const dsresponse = yield call(axios.post, `${url}/api/repdashboard/totaldailyrepcontribution`, requestData,config);
         yield put(fetchRepTotalSBandDSDailySuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchRepTotalSBandDSDailyFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -116,7 +128,10 @@ function* fetchRepDSWithdrawalSaga(action) {
         const requestData = details6 ? details6 : {};
         const dsresponse = yield call(axios.post, `${url}/api/repdashboard/dailyrepdswithdrawal`, requestData,config);
         yield put(fetchRepDSWithdrawalSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchRepDSWithdrawalFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -133,7 +148,10 @@ function* fetchRepDSpackageSaga(action) {
         const requestData = details7 ? details7 : {};
         const dsresponse = yield call(axios.post, `${url}/api/repdashboard/repdspackage`, requestData,config);
         yield put(fetchRepDSpackageSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchRepDSpackageFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -150,7 +168,10 @@ function* fetchRepFDpackageSaga(action) {
         const requestData = details15 ? details15 : {};
         const dsresponse = yield call(axios.post, `${url}/api/repdashboard/repfdpackage`, requestData,config);
         yield put(fetchRepFDpackageSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchRepFDpackageFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -167,7 +188,10 @@ function* fetchRepSBpackageSaga(action) {
         const requestData = details8 ? details8 : {};
         const dsresponse = yield call(axios.post, `${url}/api/repdashboard/repsbpackage`, requestData,config);
         yield put(fetchRepSBpackageSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchRepSBpackageFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -184,7 +208,10 @@ function* fetchRepPackageSaga(action) {
         const requestData = details9 ? details9 : {};
         const dsresponse = yield call(axios.post, `${url}/api/repdashboard/reppackages`, requestData,config);
         yield put(fetchRepPackageSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchRepPackageFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -202,7 +229,10 @@ function* fetchRepTotalExpenditureSaga(action) {
         const requestData = details13 ? details13 : {};
         const dsresponse = yield call(axios.post, `${url}/api/repdashboard/reptotalexpenditure`, requestData,config);
         yield put(fetchRepTotalExpenditureSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchRepTotalExpenditureFailure(error.response?.data?.message || "An error occurred"));
     }
 }

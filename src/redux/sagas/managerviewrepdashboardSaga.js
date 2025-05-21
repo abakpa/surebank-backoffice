@@ -55,7 +55,10 @@ function* fetchBranchStaffSaga(action) {
         const dsresponse = yield call(axios.post, `${url}/api/mvrepdashboard/branchstaff/${action.payload}`, {}, config);
         // console.log("branch staff",dsresponse.data.name)
         yield put(fetchBranchStaffSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchStaffFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -72,7 +75,10 @@ function* fetchMVRepDSDailyContributionSaga(action) {
         const dsresponse = yield call(axios.post, `${url}/api/mvrepdashboard/dailyrepds/${details3.staffId}`, requestData, config);
 
         yield put(fetchMVRepDSDailyContributionSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchMVRepDSDailyContributionFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -89,7 +95,10 @@ function* fetchMVRepSBDailyContributionSaga(action) {
         const requestData = details4 ? details4 : {};
         const dsresponse = yield call(axios.post, `${url}/api/mvrepdashboard/dailyrepsb/${details4.staffId}`, requestData,config);
         yield put(fetchMVRepSBDailyContributionSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchMVRepSBDailyContributionFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -106,7 +115,10 @@ function* fetchMVReFDDailyContributionSaga(action) {
         const requestData = details16 ? details16 : {};
         const dsresponse = yield call(axios.post, `${url}/api/mvrepdashboard/repfd/${details16.staffId}`, requestData,config);
         yield put(fetchMVRepFDDailyContributionSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchMVRepFDDailyContributionFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -123,7 +135,10 @@ function* fetchMVRepTotalSBandDSDailySaga(action) {
         const requestData = details5 ? details5 : {};
         const dsresponse = yield call(axios.post, `${url}/api/mvrepdashboard/totaldailyrepcontribution/${details5.staffId}`, requestData,config);
         yield put(fetchMVRepTotalSBandDSDailySuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchMVRepTotalSBandDSDailyFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -139,7 +154,10 @@ function* fetchMVRepDSWithdrawalSaga(action) {
         const requestData = details6 ? details6 : {};
         const dsresponse = yield call(axios.post, `${url}/api/mvrepdashboard/dailyrepdswithdrawal/${details6.staffId}`, requestData,config);
         yield put(fetchMVRepDSWithdrawalSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchMVRepDSWithdrawalFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -156,7 +174,10 @@ function* fetchMVRepDSpackageSaga(action) {
         const requestData = details7 ? details7 : {};
         const dsresponse = yield call(axios.post, `${url}/api/mvrepdashboard/repdspackage/${details7.staffId}`, requestData,config);
         yield put(fetchMVRepDSpackageSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchMVRepDSpackageFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -173,7 +194,10 @@ function* fetchMVRepFDpackageSaga(action) {
         const requestData = details15 ? details15 : {};
         const dsresponse = yield call(axios.post, `${url}/api/mvrepdashboard/repfdpackage/${details15.staffId}`, requestData,config);
         yield put(fetchMVRepFDpackageSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchMVRepFDpackageFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -190,7 +214,10 @@ function* fetchMVRepSBpackageSaga(action) {
         const requestData = details8 ? details8 : {};
         const dsresponse = yield call(axios.post, `${url}/api/mvrepdashboard/repsbpackage/${details8.staffId}`, requestData,config);
         yield put(fetchMVRepSBpackageSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchMVRepSBpackageFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -207,7 +234,10 @@ function* fetchMVRepPackageSaga(action) {
         const requestData = details9 ? details9 : {};
         const dsresponse = yield call(axios.post, `${url}/api/mvrepdashboard/reppackages/${details9.staffId}`, requestData,config);
         yield put(fetchMVRepPackageSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchMVRepPackageFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -225,7 +255,10 @@ function* fetchMVRepTotalExpenditureSaga(action) {
         const requestData = details13 ? details13 : {};
         const dsresponse = yield call(axios.post, `${url}/api/mvrepdashboard/reptotalexpenditure/${details13.staffId}`, requestData,config);
         yield put(fetchMVRepTotalExpenditureSuccess(dsresponse.data));
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchMVRepTotalExpenditureFailure(error.response?.data?.message || "An error occurred"));
     }
 }
@@ -240,7 +273,10 @@ function* fetchMVTransactionSaga(action){
         }
         const response = yield call(axios.post, `${url}/api/mvrepdashboard/reptransaction/${action.payload}`,{},config)
         yield put(fetchMVTransactionSuccess(response.data))
-    } catch (error) {
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchMVTransactionFailure(error.response.data.message))
     }
 }

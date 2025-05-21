@@ -27,9 +27,19 @@ import { url } from './url'
 
  function* fetchCustomerSaga(){
     try {
-        const response = yield call(axios.get, `${url}/api/customer`)
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = yield call(axios.get, `${url}/api/customer`,config)
         yield put(fetchCustomerSuccess(response.data))
     } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchCustomerFailure(error.response.data.message))
     }
 }
@@ -41,9 +51,13 @@ import { url } from './url'
                 Authorization: `Bearer ${token}`
             }
         }
-        const response = yield call(axios.post, `${url}/api/customer/branchcustomer`, {},config)
+        const response = yield call(axios.get, `${url}/api/customer/branchcustomer`,config)
         yield put(fetchBranchCustomerSuccess(response.data))
     } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchBranchCustomerFailure(error.response.data.message))
     }
 }
@@ -58,24 +72,37 @@ import { url } from './url'
         }
 
         if(role==='Agent'){
-        const response = yield call(axios.post, `${url}/api/customer/repcustomer`, {},config)
+        const response = yield call(axios.get, `${url}/api/customer/repcustomer`,config)
         yield put(fetchRepCustomerSuccess(response.data))
         }else{
-            const response = yield call(axios.post, `${url}/api/mvrepdashboard/repcustomer/${action.payload}`, {},config)
+            const response = yield call(axios.get, `${url}/api/mvrepdashboard/repcustomer/${action.payload}`,config)
         yield put(fetchRepCustomerSuccess(response.data))
         }
     } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchRepCustomerFailure(error.response.data.message))
     }
 }
  function* fetchCustomerByIdSaga(action){
 const {customerId} = action.payload
     try {
-
-        const response = yield call(axios.get, `${url}/api/customer/${customerId}`)
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = yield call(axios.get, `${url}/api/customer/${customerId}`,config)
         localStorage.setItem('customerName', response.data.name);
         yield put(fetchCustomerByIdSuccess(response.data))
     } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchCustomerByIdFailure(error.response.data.message))
     }
 }
@@ -104,7 +131,10 @@ function* createCustomerSaga(action) {
       }
   
     } catch (error) {
-      console.error('Customer creation error:', error);
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
       const errorMessage = error.response?.data?.error || 'An error occurred while creating the customer.';
       yield put(createCustomerFailure(errorMessage));
     }
@@ -112,10 +142,20 @@ function* createCustomerSaga(action) {
   function* transferAllCustomerSaga(action){
     const {oldStaff,newStaff} = action.payload
     try {
-        const response = yield call(axios.put,`${url}/api/customer/${oldStaff}?newStaff=${newStaff}` );
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = yield call(axios.put,`${url}/api/customer/${oldStaff}?newStaff=${newStaff}`,{},config );
         yield put(transferAllCustomerSuccess(response.data))
         // navigate('/staff')
     } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(transferAllCustomerFailure(error.message))
     }
 }
@@ -123,10 +163,16 @@ function* transferCustomerSaga(action) {
     const { customer, newStaff, oldStaff } = action.payload;
   
     try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
       // Make PUT request to transfer the customer
       const response = yield call(
         axios.put,
-        `${url}/api/customer/newstaff/${customer}?newStaff=${newStaff}`
+        `${url}/api/customer/newstaff/${customer}?newStaff=${newStaff}`,{},config
       );
   
       // Dispatch success action
@@ -136,6 +182,10 @@ function* transferCustomerSaga(action) {
       yield put(fetchRepCustomerRequest(oldStaff));
   
     } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
       yield put(transferCustomerFailure(error.message || "Transfer failed"));
     }
   }

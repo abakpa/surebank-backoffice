@@ -28,6 +28,10 @@ function* createExpenditureSaga(action){
         yield put(createExpenditureSuccess(response.data))
         navigate('/expenditurereport')
     } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         const errorMessage = error.response?.data?.error
         yield put(createExpenditureFailure(errorMessage))
     }
@@ -45,6 +49,10 @@ function* createBranchExpenditureSaga(action){
         yield put(createBranchExpenditureSuccess(response.data))
         navigate('/branchexpenditurereport')
     } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         const errorMessage = error.response?.data?.error
         yield put(createBranchExpenditureFailure(errorMessage))
     }
@@ -62,6 +70,10 @@ function* createRepExpenditureSaga(action){
         yield put(createRepExpenditureSuccess(response.data))
         navigate('/repexpenditurereport')
     } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         const errorMessage = error.response?.data?.error
         yield put(createRepExpenditureFailure(errorMessage))
     }

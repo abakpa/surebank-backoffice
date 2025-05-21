@@ -9,9 +9,19 @@ import { url } from './url'
 
  function* fetchWithdrawalSaga(){
     try {
-        const response = yield call(axios.get, `${url}/api/dsaccount/withdrawal`)
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = yield call(axios.get, `${url}/api/dsaccount/withdrawal`,{},config)
         yield put(fetchWithdrawalSuccess(response.data))
     } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchWithdrawalFailure(error.response.data.message))
     }
 }

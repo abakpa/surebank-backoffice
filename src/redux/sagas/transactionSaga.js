@@ -20,6 +20,10 @@ function* fetchTransactionSaga(){
         console.log("saga transaction",response)
         yield put(fetchTransactionSuccess(response.data))
     } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchTransactionFailure(error.response.data.message))
     }
 }

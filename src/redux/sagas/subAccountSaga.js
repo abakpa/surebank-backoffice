@@ -13,17 +13,21 @@ import { url } from './url'
     const {customerId} = action.payload
     
     try {
-        // const token = localStorage.getItem('authToken');
-        // const config = {
-        //     headers: {
-        //         Authorization: `Bearer ${token}`
-        //     }
-        // }
-        const response = yield call(axios.get,`${url}/api/dsaccount/${customerId}`);
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = yield call(axios.get,`${url}/api/dsaccount/${customerId}`,{},config);
         console.log("saga123 ds",response.data)
         yield put(fetchCustomerSubAccountSuccess(response.data))
         // navigate('/customeraccountdashboard')
     } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
         yield put(fetchCustomerSubAccountFailure(error.message))
     }
  
