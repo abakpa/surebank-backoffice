@@ -29,6 +29,7 @@ import ManagerViewRepDashboard from "./Components/ManagerViewRepDashboard";
 import Login from "./Components/Stafflogin";
 import Footer from "./Components/Footer";
 import SBIncome from "./Components/SbIncome";
+import FDIncome from "./Components/FDincome";
 import BranchSBIncome from "./Components/BranchSBIncome";
 import DSIncome from "./Components/DSIcome";
 import BranchDSIncome from "./Components/BranchDSIncome";
@@ -120,6 +121,7 @@ function App() {
                   <Route path="/landingpage" element={<LandingPage />} />
                   <Route path="/deposit" element={<Deposit />} />
                   <Route path="/sbincome" element={<SBIncome />} />
+                  <Route path="/fdincome" element={<FDIncome />} />
                   <Route path="/branchsbincome" element={<BranchSBIncome />} />
                   <Route path="/dsincome" element={<DSIncome />} />
                   <Route path="/branchdsincome" element={<BranchDSIncome />} />

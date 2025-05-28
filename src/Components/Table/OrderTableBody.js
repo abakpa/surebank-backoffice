@@ -1,14 +1,8 @@
 import { useNavigate } from "react-router-dom";
 
-// Mock function to get branch name from branchId
-// const getBranchName = (branchId, branches = []) => {
-  
-//   const branch = branches.find((branch) => branch._id === branchId);
-//   return branch ? branch.name : "Unknown Branch";
-// };
-
-const Tablebody = ({ customers = [], branches = [] }) => { // Default values for props
+const Tablebody = ({ customers = [], branches = [] }) => {
   const navigate = useNavigate();
+  const role = localStorage.getItem("staffRole");
 
   const handleRowClick = (customerId) => {
     navigate(`/customeraccountdashboard/${customerId}`);
@@ -24,19 +18,21 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
             onClick={() => handleRowClick(customer.customerId._id)}
           >
             <td className="border border-gray-300 p-2">{customer.customerId.name}</td>
-            <td className="border border-gray-300 p-2">{customer.branchId.name}</td>
+            {role !== "Manager" && (
+              <td className="border border-gray-300 p-2">{customer.branchId.name}</td>
+            )}
             <td className="border border-gray-300 p-2">{customer.productName}</td>
             <td className="border border-gray-300 p-2">{customer.sellingPrice}</td>
             <td className="border border-gray-300 p-2">{customer.status}</td>
             <td className="border border-gray-300 p-2">{customer.createdBy.name}</td>
-            {/* <td className="border border-gray-300 p-2">
-              {getBranchName(customer.branchId, branches)}
-            </td> */}
           </tr>
         ))
       ) : (
         <tr>
-          <td colSpan="5" className="text-center p-4">
+          <td 
+            colSpan={role === "Manager" ? "5" : "6"} 
+            className="text-center p-4"
+          >
             No customers found.
           </td>
         </tr>

@@ -29,6 +29,7 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
     <tbody className="text-sm">
       {Array.isArray(customers) && customers.length > 0 ? (
         customers.map((customer, index) => (
+          
           <tr
             key={index}
             className="text-center hover:bg-gray-100 cursor-pointer"

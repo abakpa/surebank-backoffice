@@ -1,18 +1,7 @@
-// import { useNavigate } from "react-router-dom";
-
-// Mock function to get branch name from branchId
-// const getBranchName = (branchId, branches = []) => {
-  
-//   const branch = branches.find((branch) => branch._id === branchId);
-//   return branch ? branch.name : "Unknown Branch";
-// };
-
-const Tablebody = ({ customers = [], branches = [] }) => { // Default values for props
-  // const navigate = useNavigate();
-
-  // const handleRowClick = (customerId) => {
-  //   navigate(`/customeraccountdashboard/${customerId}`);
-  // };
+const Tablebody = ({ customers = [], branches = [] }) => {
+  const role = localStorage.getItem("staffRole");
+  const isManagerOrAgent = role === "Manager" || role === "Agent";
+  const isRep = role === "Agent";
 
   return (
     <tbody className="text-sm">
@@ -21,20 +10,27 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
           <tr
             key={index}
             className="text-center hover:bg-gray-100 cursor-pointer"
-            // onClick={() => handleRowClick(customer.createdBy._id)}
           >
-            <td className="border border-gray-300 p-2">{customer.createdBy.name}</td>
-            <td className="border border-gray-300 p-2">{customer.createdBy.branchId.name}</td>
+            {!isRep && (
+              <td className="border border-gray-300 p-2">{customer.createdBy.name}</td>
+            )}
+            {!isManagerOrAgent && (
+              <td className="border border-gray-300 p-2">{customer.createdBy.branchId?.name}</td>
+            )}
             <td className="border border-gray-300 p-2">{customer.reason}</td>
             <td className="border border-gray-300 p-2">{customer.amount}</td>
-            {/* <td className="border border-gray-300 p-2">
-              {getBranchName(customer.branchId, branches)}
-            </td> */}
           </tr>
         ))
       ) : (
         <tr>
-          <td colSpan="5" className="text-center p-4">
+          <td 
+            colSpan={
+              2 + // reason + amount (always visible)
+              (isRep ? 0 : 1) + // createdBy.name
+              (isManagerOrAgent ? 0 : 1) // branchId.name
+            } 
+            className="text-center p-4"
+          >
             No customers found.
           </td>
         </tr>

@@ -17,6 +17,7 @@ import expendituresreport from './slices/expenditureReportSlice'
 import fdreport from './slices/fdSlice'
 import sbincome from './slices/sbIncomeSlice'
 import dsincome from './slices/dsincomeSlice'
+import fdincome from './slices/FDincomeSllice'
 import transactions from './slices/transactionSlice'
 import orders from './slices/orderSlice'
 
@@ -38,6 +39,7 @@ const rootReducer = combineReducers({
     expenditurereport:expendituresreport,
     sbincomereport:sbincome,
     dsincomereport:dsincome,
+    fdincomereport:fdincome,
     transaction:transactions,
     order:orders,
     fd:fdreport

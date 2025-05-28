@@ -1,33 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchTransactionRequest } from "../redux/slices/transactionSlice";
+import { fetchFDIncomeRequest } from "../redux/slices/FDincomeSllice";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
-import Tablehead from "./Table/StaffTransactionTableHead";
-import Tablebody from "./Table/StaffTransactionTableBody";
+import Tablehead from "./Table/FDincomeTableHead";
+import Tablebody from "./Table/FDincomeTableBody";
 // import { Link } from "react-router-dom";
 
-const Transaction = () => {
+const FDincome = () => {
   const dispatch = useDispatch();
-  const { loading, transaction, error } = useSelector((state) => state.transaction);
+  const { loading, fdincome, error } = useSelector((state) => state.fdincomereport);
   const { branches } = useSelector((state) => state.branch);
   const [searchTerm, setSearchTerm] = useState("");
+
   useEffect(() => {
     dispatch(fetchBranchRequest());
-    dispatch(fetchTransactionRequest());
+    dispatch(fetchFDIncomeRequest());
   }, [dispatch]);
 
+
   // Ensure customers is always an array
-  const transactionList = Array.isArray(transaction) ? transaction : [];
+  const fdincomeList = Array.isArray(fdincome) ? fdincome : [];
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredtransactionListList = transactionList.filter((transactionListList) =>
-    (transactionListList?.customerId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-    (transactionListList?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+  const filteredsbincomeList = fdincomeList.filter((fdincomeList) =>
+    (fdincomeList?.customerId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (fdincomeList?.customerId?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   );
-  console.log("component transaction",filteredtransactionListList)
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -53,7 +54,7 @@ const Transaction = () => {
             className="opacity-75"
           />
         </svg>
-        <p className="text-blue-500 ml-4">Loading Transaction Statement...</p>
+        <p className="text-blue-500 ml-4">Loading FD Income...</p>
       </div>
     );
   }
@@ -62,7 +63,7 @@ const Transaction = () => {
 
   return (
     <div className="flex flex-col p-4 bg-gray-100 min-h-screen w-full mt-10">
-      <h2 className="text-xl font-bold mb-4 text-center">Transaction Statement</h2>
+      <h2 className="text-xl font-bold mb-4 text-center">FD Income Statement</h2>
       
       {/* Search and Create Buttons */}
       <div className="flex flex-col md:flex-row items-center justify-between mb-4 gap-2">
@@ -73,9 +74,9 @@ const Transaction = () => {
           onChange={handleSearch}
           className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md"
         />
-        {/* <Link to="/expenditure" className="text-xs">
+        {/* <Link to="/createcustomer" className="text-xs">
           <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-            Record Expenses
+            Create Customer
           </button>
         </Link> */}
       </div>
@@ -83,12 +84,12 @@ const Transaction = () => {
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full min-w-[600px] border-collapse border border-gray-300">
-          <Tablehead customers={filteredtransactionListList} branches={branches}/>
-          <Tablebody customers={filteredtransactionListList} branches={branches} />
+          <Tablehead />
+          <Tablebody customers={filteredsbincomeList} branches={branches} />
         </table>
       </div>
     </div>
   );
 };
 
-export default Transaction;
+export default FDincome;

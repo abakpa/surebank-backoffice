@@ -8,7 +8,7 @@ import {
 
   fetchRepDSDailyContributionRequest,
   fetchRepSBDailyContributionRequest,
-  // fetchRepFDDailyContributionRequest,
+  fetchRepFDDailyContributionRequest,
   fetchRepTotalSBandDSDailyRequest,
   fetchRepDSWithdrawalRequest,
   fetchRepDSpackageRequest,
@@ -36,10 +36,11 @@ const RepDashboard = () => {
     const [date9, setDate9] = useState("");
     const [date13, setDate13] = useState("");
     const [date15, setDate15] = useState("");
-    // const [date16, setDate16] = useState("");
+    const [date16, setDate16] = useState("");
     const {
       loading,
      repdailyds,
+     repdailyfd,
      repdailysb,
      reptotaldailysbandds,
      repdswithdrawal,
@@ -52,6 +53,7 @@ const RepDashboard = () => {
     } = useSelector((state)=>state.repdashboard)
   
       const newdailyds = repdailyds || 0
+      const newdailyfd = repdailyfd || 0
       const newdailysb = repdailysb || 0
       const newtotaldailysbandds = reptotaldailysbandds || 0
       const newdswithdrawal = repdswithdrawal || 0
@@ -79,7 +81,7 @@ const RepDashboard = () => {
         const details9 = { date: date9 };
         const details13 = { date: date13 };
         const details15 = { date: date15 };
-        // const details16 = { date: date16 };
+        const details16 = { date: date16 };
     
    
         const data3 = {details3}
@@ -91,11 +93,11 @@ const RepDashboard = () => {
         const data9 = {details9}
         const data13 = {details13}
         const data15 = {details15}
-        // const data16 = {details16}
+        const data16 = {details16}
   
         dispatch(fetchRepDSDailyContributionRequest(data3)); 
         dispatch(fetchRepSBDailyContributionRequest(data4)); 
-        // dispatch(fetchRepFDDailyContributionRequest(data16)); 
+        dispatch(fetchRepFDDailyContributionRequest(data16)); 
         dispatch(fetchRepTotalSBandDSDailyRequest(data5)); 
         dispatch(fetchRepDSWithdrawalRequest(data6)); 
         dispatch(fetchRepDSpackageRequest(data7)); 
@@ -116,7 +118,7 @@ const RepDashboard = () => {
       date9,
       date13,
       date15,
-      // date16,
+      date16,
 
     ]);
     
@@ -163,6 +165,26 @@ const RepDashboard = () => {
         className="p-2 border rounded-md" 
         value={date4}
         onChange={(e) => setDate4(e.target.value)}
+      />
+    
+    </form>
+  </div>
+  {/* Card 5 - Purple */}
+  <div className="p-4 rounded-lg shadow-md bg-purple-100">
+    <h3 className="text-sm font-semibold mb-2 text-purple-800">Total FD Daily Contribution</h3>
+    <p className="text-sm font-bold text-purple-800">{newdailyfd || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      {/* <Select2
+        label="Branch"
+        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        value={branchId4}
+        onChange={(selectedId) => setBranchId4(selectedId)}
+      /> */}
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date16}
+        onChange={(e) => setDate16(e.target.value)}
       />
     
     </form>

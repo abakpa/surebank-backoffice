@@ -129,37 +129,34 @@ const CreateCustomer = () => {
           />
         </div>
 
-        {/* Branch (Input for Manager/Agent, Dropdown for Admin) */}
-        {staffRole === "Manager" || staffRole === "Agent" ? (
-          <div className="mb-4">
-            <label htmlFor="branch" className="block text-sm font-medium text-gray-700">Branch</label>
-            <input
-              id="branch"
-              type="text"
-              value={branchName}
-              readOnly
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded bg-gray-100 focus:outline-none"
-            />
-          </div>
-        ) : staffRole === "Admin" ? (
-          <Select2
-            label="Branch"
-            options={branches.map((branch) => ({
-              label: branch.name,
-              value: branch._id,
-            }))}
-            value={branchId}
-            onChange={setBranchId}
-          />
-        ) : null}
+   {/* Branch Field (Visible dropdown for Admin, Hidden field for Manager/Agent) */}
+{staffRole === "Manager" || staffRole === "Agent" ? (
+  <input
+    type="hidden"
+    name="branch"
+    value={branchName}
+  />
+) : staffRole === "Admin" ? (
+  <div className="mb-4">
+    <Select2
+      label="Branch"
+      options={branches.map((branch) => ({
+        label: branch.name,
+        value: branch._id,
+      }))}
+      value={branchId}
+      onChange={setBranchId}
+    />
+  </div>
+) : null}
 
         {/* Account Rep (Input for Agent, Dropdown for Admin/Manager) */}
         {staffRole === "Agent" ? (
           <div className="mb-4">
-            <label htmlFor="rep" className="block text-sm font-medium text-gray-700">Account Rep</label>
+            {/* <label htmlFor="rep" className="block text-sm font-medium text-gray-700">Account Rep</label> */}
             <input
               id="rep"
-              type="text"
+              type="hidden"
               value={loggedInStaffName}
               readOnly
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded bg-gray-100 focus:outline-none"

@@ -65,7 +65,7 @@ function* fetchRepExpenditureSaga(staffId){
             yield put(fetchRepExpenditureSuccess(response.data))
           } else {
             
-            const response = yield call(axios.post, `${url}/api/mvrepdashboard/repexpenditurereport/${staffId.payload}`,)
+            const response = yield call(axios.post, `${url}/api/mvrepdashboard/repexpenditurereport/${staffId.payload}`,{},config)
             yield put(fetchRepExpenditureSuccess(response.data))
           }
         

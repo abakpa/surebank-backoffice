@@ -113,7 +113,7 @@ function* fetchMVReFDDailyContributionSaga(action) {
             }
         }
         const requestData = details16 ? details16 : {};
-        const dsresponse = yield call(axios.post, `${url}/api/mvrepdashboard/repfd/${details16.staffId}`, requestData,config);
+        const dsresponse = yield call(axios.post, `${url}/api/mvrepdashboard/dailyrepfd/${details16.staffId}`, requestData,config);
         yield put(fetchMVRepFDDailyContributionSuccess(dsresponse.data));
     } catch (error) {  if (error.response && error.response.status === 401) {
             localStorage.removeItem('authToken');

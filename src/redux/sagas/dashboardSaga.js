@@ -22,6 +22,9 @@ import {
     fetchDSDailyContributionRequest,
     fetchDSDailyContributionSuccess,
     fetchDSDailyContributionFailure,
+    fetchFDDailyContributionRequest,
+    fetchFDDailyContributionSuccess,
+    fetchFDDailyContributionFailure,
     fetchSBDailyContributionRequest,
     fetchSBDailyContributionSuccess,
     fetchSBDailyContributionFailure,
@@ -49,6 +52,9 @@ import {
     fetchSBincomeRequest,
     fetchSBincomeSuccess,
     fetchSBincomeFailure,
+    fetchFDincomeRequest,
+    fetchFDincomeSuccess,
+    fetchFDincomeFailure,
     fetchTotalincomeRequest,
     fetchTotalincomeSuccess,
     fetchTotalincomeFailure,
@@ -207,6 +213,27 @@ function* fetchDSDailyContributionSaga(action) {
             window.location.href = '/login';
           }
         yield put(fetchDSDailyContributionFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+function* fetchFDDailyContributionSaga(action) {
+    const { details19 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const requestData = details19 ? details19 : {};
+        const dsresponse = yield call(axios.post, `${url}/api/admindashboard/dailyfd`, requestData,config);
+        yield put(fetchFDDailyContributionSuccess(dsresponse.data));
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchFDDailyContributionFailure(error.response?.data?.message || "An error occurred"));
     }
 }
 function* fetchSBDailyContributionSaga(action) {
@@ -397,6 +424,27 @@ function* fetchSBincomeSaga(action) {
         yield put(fetchSBincomeFailure(error.response?.data?.message || "An error occurred"));
     }
 }
+function* fetchFDincomeSaga(action) {
+    const { details20 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const requestData = details20 ? details20 : {};
+        const dsresponse = yield call(axios.post, `${url}/api/admindashboard/fdincome`, requestData,config);
+        yield put(fetchFDincomeSuccess(dsresponse.data));
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchFDincomeFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
 function* fetchTotalincomeSaga(action) {
     const { details12 = null } = action.payload;
 
@@ -473,6 +521,7 @@ function* depositSaga(){
     yield takeLatest(fetchFDInterestExpenseRequest.type, fetchFDInterestExpenseSaga)
     yield takeLatest(fetcTotalSBandDSRequest.type, fetcTotalSBandDSSaga)
     yield takeLatest(fetchDSDailyContributionRequest.type, fetchDSDailyContributionSaga)
+    yield takeLatest(fetchFDDailyContributionRequest.type, fetchFDDailyContributionSaga)
     yield takeLatest(fetchSBDailyContributionRequest.type, fetchSBDailyContributionSaga)
     yield takeLatest(fetchTotalSBandDSDailyRequest.type, fetchTotalSBandDSDailySaga)
     yield takeLatest(fetchDSWithdrawalRequest.type, fetchDSWithdrawalSaga)
@@ -482,6 +531,7 @@ function* depositSaga(){
     yield takeLatest(fetchPackageRequest.type, fetchPackageSaga)
     yield takeLatest(fetchDSincomeRequest.type, fetchDSincomeSaga)
     yield takeLatest(fetchSBincomeRequest.type, fetchSBincomeSaga)
+    yield takeLatest(fetchFDincomeRequest.type, fetchFDincomeSaga)
     yield takeLatest(fetchTotalincomeRequest.type, fetchTotalincomeSaga)
     yield takeLatest(fetchTotalExpenditureRequest.type, fetchTotalExpenditureSaga)
     yield takeLatest(fetchTotalProfitRequest.type, fetchTotalProfitSaga)

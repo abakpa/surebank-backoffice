@@ -3,6 +3,7 @@ import {createSlice} from '@reduxjs/toolkit';
 const initialState = {
  
     repdailyds: null,
+    repdailyfd: null,
     branchstaff:null,
     repdailysb: null,
     reptotaldailysbandds: null,
@@ -57,7 +58,7 @@ const managerviewrepdashboardSlice = createSlice({
             state.loading = true
         },
         fetchMVRepFDDailyContributionSuccess:(state,action)=>{
-            state.fdcontribution= action.payload;
+            state.repdailyfd= action.payload;
             state.loading=false
         },
         fetchMVRepFDDailyContributionFailure:(state,action)=>{

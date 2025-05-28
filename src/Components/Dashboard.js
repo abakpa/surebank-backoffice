@@ -12,6 +12,7 @@ import {
   fetchFDInterestExpenseRequest,
   fetcTotalSBandDSRequest,
   fetchDSDailyContributionRequest,
+  fetchFDDailyContributionRequest,
   fetchSBDailyContributionRequest,
   fetchTotalSBandDSDailyRequest,
   fetchDSWithdrawalRequest,
@@ -20,6 +21,7 @@ import {
   fetchFDpackageRequest,
   fetchPackageRequest,
   fetchDSincomeRequest,
+  fetchFDincomeRequest,
   fetchSBincomeRequest,
   fetchTotalincomeRequest,
   fetchTotalExpenditureRequest,
@@ -52,6 +54,8 @@ const Dashboard = () => {
     const [date16, setDate16] = useState("");
     const [date17, setDate17] = useState("");
     const [date18, setDate18] = useState("");
+    const [date19, setDate19] = useState("");
+    const [date20, setDate20] = useState("");
     const [branchId, setBranchId] = useState("");
     const [branchId1, setBranchId1] = useState("");
     const [branchId2, setBranchId2] = useState("");
@@ -71,6 +75,8 @@ const Dashboard = () => {
     const [branchId16, setBranchId16] = useState("");
     const [branchId17, setBranchId17] = useState("");
     const [branchId18, setBranchId18] = useState("");
+    const [branchId19, setBranchId19] = useState("");
+    const [branchId20, setBranchId20] = useState("");
     const {
       loading,
       dscontribution,
@@ -81,6 +87,7 @@ const Dashboard = () => {
       fdpackage,
       totalsbandds,
       dailyds,
+      dailyfd,
       dailysb,
       totaldailysbandds,
       dswithdrawal,
@@ -89,6 +96,7 @@ const Dashboard = () => {
       packages,
       dsincome,
       sbincome,
+      fdincome,
       totalincome,
       totalexpenditure,
       profit
@@ -98,6 +106,7 @@ const Dashboard = () => {
       const newfdContribution = fdcontribution || 0
       const newtotalsbandds = totalsbandds || 0
       const newdailyds = dailyds || 0
+      const newdailyfd = dailyfd || 0
       const newdailysb = dailysb || 0
       const newtotaldailysbandds = totaldailysbandds || 0
       const newdswithdrawal = dswithdrawal || 0
@@ -107,6 +116,7 @@ const Dashboard = () => {
       const newpackages = packages || 0
       const newdsincome = dsincome || 0
       const newsbincome = sbincome || 0
+      const newfdincome = fdincome || 0
       const newtotalincome = totalincome || 0
       const newtotalexpenditure = totalexpenditure || 0
       const newprofit = profit || 0
@@ -139,6 +149,8 @@ const Dashboard = () => {
         const details16 = { branchId: branchId16, date: date16 };
         const details17 = { branchId: branchId17, date: date17 };
         const details18 = { branchId: branchId18, date: date18 };
+        const details19 = { branchId: branchId19, date: date19 };
+        const details20 = { branchId: branchId20, date: date20 };
         const data = {details}
         const data1 = {details1}
         const data2 = {details2}
@@ -158,11 +170,14 @@ const Dashboard = () => {
         const data16 = {details16}
         const data17 = {details17}
         const data18 = {details18}
+        const data19 = {details19}
+        const data20 = {details20}
     
         dispatch(fetchDSContributionRequest(data));
         dispatch(fetchSBContributionRequest(data1));
         dispatch(fetcTotalSBandDSRequest(data2)); 
         dispatch(fetchDSDailyContributionRequest(data3)); 
+        dispatch(fetchFDDailyContributionRequest(data19)); 
         dispatch(fetchSBDailyContributionRequest(data4)); 
         dispatch(fetchTotalSBandDSDailyRequest(data5)); 
         dispatch(fetchDSWithdrawalRequest(data6)); 
@@ -170,6 +185,7 @@ const Dashboard = () => {
         dispatch(fetchSBpackageRequest(data8)); 
         dispatch(fetchPackageRequest(data9)); 
         dispatch(fetchDSincomeRequest(data10)); 
+        dispatch(fetchFDincomeRequest(data20)); 
         dispatch(fetchSBincomeRequest(data11)); 
         dispatch(fetchTotalincomeRequest(data12)); 
         dispatch(fetchTotalExpenditureRequest(data13)); 
@@ -219,6 +235,10 @@ const Dashboard = () => {
       date17,
       branchId18,
       date18,
+      branchId19,
+      date19,
+      branchId20,
+      date20,
     ]);
     
   return (
@@ -263,6 +283,69 @@ const Dashboard = () => {
         className="p-2 border rounded-md" 
         value={date1}
         onChange={(e) => setDate1(e.target.value)}
+      />
+  
+    </form>
+  </div>
+    {/* Card 16 - Fuchsia */}
+    <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
+  <Link to="/fdreport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
+    <i className="fas fa-file-alt text-lg" title="View Transaction Statement"></i>
+  </Link>
+    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Contribution</h3>
+    <p className="text-sm font-bold text-fuchsia-800">{ newfdContribution || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        value={branchId15}
+        onChange={(selectedId) => setBranchId15(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date15}
+        onChange={(e) => setDate15(e.target.value)}
+      />
+  
+    </form>
+  </div>
+  {/* Card 15 - Fuchsia */}
+  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
+    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Interest Icome</h3>
+    <p className="text-sm font-bold text-fuchsia-800">{ newinterestincome || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        value={branchId17}
+        onChange={(selectedId) => setBranchId17(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date17}
+        onChange={(e) => setDate17(e.target.value)}
+      />
+  
+    </form>
+  </div>
+  {/* Card 15 - Fuchsia */}
+  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
+    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Interest Expense</h3>
+    <p className="text-sm font-bold text-fuchsia-800">{ newinterestexpense || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        value={branchId18}
+        onChange={(selectedId) => setBranchId18(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date18}
+        onChange={(e) => setDate18(e.target.value)}
       />
   
     </form>
@@ -326,6 +409,26 @@ const Dashboard = () => {
         className="p-2 border rounded-md" 
         value={date4}
         onChange={(e) => setDate4(e.target.value)}
+      />
+    
+    </form>
+  </div>
+  {/* Card 5 - Purple */}
+  <div className="p-4 rounded-lg shadow-md bg-purple-100">
+    <h3 className="text-sm font-semibold mb-2 text-purple-800">Total FD Daily Contribution</h3>
+    <p className="text-sm font-bold text-purple-800">{newdailyfd || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        value={branchId19}
+        onChange={(selectedId) => setBranchId19(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date19}
+        onChange={(e) => setDate19(e.target.value)}
       />
     
     </form>
@@ -414,6 +517,26 @@ const Dashboard = () => {
   
     </form>
   </div>
+    {/* Card 16 - Fuchsia */}
+    <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
+    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Package</h3>
+    <p className="text-sm font-bold text-fuchsia-800">{ newfdpackage || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        value={branchId16}
+        onChange={(selectedId) => setBranchId16(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date16}
+        onChange={(e) => setDate16(e.target.value)}
+      />
+  
+    </form>
+  </div>
 
   {/* Card 10 - Cyan */}
   <div className="p-4 rounded-lg shadow-md bg-cyan-100">
@@ -487,6 +610,31 @@ const Dashboard = () => {
     />
   </form>
 </div>
+{/* Card 12 - Lime */}
+<div className="relative p-4 rounded-lg shadow-md bg-lime-100">
+  {/* Transaction Statement Icon (Top-right Corner) */}
+  <Link to="/fdincome" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
+    <i className="fas fa-file-alt text-lg" title="View Transaction Statement"></i>
+  </Link>
+
+  <h3 className="text-sm font-semibold mb-2 text-lime-800">FD Income</h3>
+  <p className="text-sm font-bold text-lime-800">{newfdincome || 0}</p>
+
+  <form className="flex flex-col gap-2 mt-2">
+    <Select2
+      label="Branch"
+      options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+      value={branchId20}
+      onChange={(selectedId) => setBranchId20(selectedId)}
+    />
+    <input 
+      type="date" 
+      className="p-2 border rounded-md" 
+      value={date20}
+      onChange={(e) => setDate20(e.target.value)}
+    />
+  </form>
+</div>
 
 
 
@@ -556,89 +704,8 @@ const Dashboard = () => {
   
     </form>
   </div>
-  {/* Card 16 - Fuchsia */}
-  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
-    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Package</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newfdpackage || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
-      <Select2
-        label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
-        value={branchId16}
-        onChange={(selectedId) => setBranchId16(selectedId)}
-      />
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date16}
-        onChange={(e) => setDate16(e.target.value)}
-      />
-  
-    </form>
-  </div>
-  {/* Card 16 - Fuchsia */}
-  <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
-  <Link to="/fdreport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
-    <i className="fas fa-file-alt text-lg" title="View Transaction Statement"></i>
-  </Link>
-    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Contribution</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newfdContribution || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
-      <Select2
-        label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
-        value={branchId15}
-        onChange={(selectedId) => setBranchId15(selectedId)}
-      />
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date15}
-        onChange={(e) => setDate15(e.target.value)}
-      />
-  
-    </form>
-  </div>
-  {/* Card 15 - Fuchsia */}
-  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
-    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Interest Icome</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newinterestincome || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
-      <Select2
-        label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
-        value={branchId17}
-        onChange={(selectedId) => setBranchId17(selectedId)}
-      />
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date17}
-        onChange={(e) => setDate17(e.target.value)}
-      />
-  
-    </form>
-  </div>
-  {/* Card 15 - Fuchsia */}
-  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
-    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Interest Expense</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newinterestexpense || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
-      <Select2
-        label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
-        value={branchId18}
-        onChange={(selectedId) => setBranchId18(selectedId)}
-      />
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date18}
-        onChange={(e) => setDate18(e.target.value)}
-      />
-  
-    </form>
-  </div>
+
+
 </div>
 </div>
 

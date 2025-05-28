@@ -3,6 +3,7 @@ import {createSlice} from '@reduxjs/toolkit';
 const initialState = {
  
     repdailyds: null,
+    repdailyfd: null,
     repdailysb: null,
     reptotaldailysbandds: null,
     repdswithdrawal: null,
@@ -45,7 +46,7 @@ const dashboardSlice = createSlice({
             state.loading = true
         },
         fetchRepFDDailyContributionSuccess:(state,action)=>{
-            state.fdcontribution= action.payload;
+            state.repdailyfd= action.payload;
             state.loading=false
         },
         fetchRepFDDailyContributionFailure:(state,action)=>{

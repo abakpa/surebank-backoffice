@@ -1,5 +1,6 @@
 const Tablehead = () => {
     const role = localStorage.getItem("staffRole");
+    const isManagerOrAgent = role === "Manager" || role === "Agent";
     const canTransfer = role === "Manager" || role === "Admin";
   
     return (
@@ -8,7 +9,9 @@ const Tablehead = () => {
           <th className="border border-gray-300 p-2">Name</th>
           <th className="border border-gray-300 p-2">Address</th>
           <th className="border border-gray-300 p-2">Phone</th>
+          {!isManagerOrAgent && (
           <th className="border border-gray-300 p-2">Branch</th>
+          )}
           {canTransfer && (
             <th className="border border-gray-300 p-2">Transfer Customer</th>
           )}

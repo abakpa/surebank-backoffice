@@ -1,14 +1,9 @@
 import { useNavigate } from "react-router-dom";
 
-// Mock function to get branch name from branchId
-const getBranchName = (branchId, branches = []) => {
-  
-  const branch = branches.find((branch) => branch._id === branchId);
-  return branch ? branch.name : "Unknown Branch";
-};
-
-const Tablebody = ({ customers = [], branches = [] }) => { // Default values for props
+const Tablebody = ({ customers = [], branches = [] }) => {
   const navigate = useNavigate();
+  const role = localStorage.getItem("staffRole");
+  const isManagerOrAgent = role === "Manager" || role === "Agent";
 
   const handleRowClick = (customerId) => {
     navigate(`/customeraccountdashboard/${customerId}`);
@@ -26,14 +21,16 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
             <td className="border border-gray-300 p-2">{customer.name}</td>
             <td className="border border-gray-300 p-2">{customer.address}</td>
             <td className="border border-gray-300 p-2">{customer.phone}</td>
-            <td className="border border-gray-300 p-2">
-              {getBranchName(customer.branchId, branches)}
-            </td>
+            {!isManagerOrAgent && (
+              <td className="border border-gray-300 p-2">
+                {branches.find(b => b._id === customer.branchId)?.name || "Unknown Branch"}
+              </td>
+            )}
           </tr>
         ))
       ) : (
         <tr>
-          <td colSpan="5" className="text-center p-4">
+          <td colSpan={isManagerOrAgent ? "3" : "4"} className="text-center p-4">
             No customers found.
           </td>
         </tr>

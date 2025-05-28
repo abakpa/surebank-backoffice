@@ -16,6 +16,7 @@ import expenditureSaga from './expenditureSaga'
 import expenditureReportSaga from './expenditureReportSaga'
 import fdReportSaga from './fdSaga'
 import sbincomeSaga from './sbincomeSaga'
+import fdincomeSaga from './fdincomeSaga'
 import dsincomeSaga from './dsincomeSaga'
 import transactionSaga from './transactionSaga'
 import orderSaga from './orderSaga'
@@ -34,6 +35,7 @@ export default function* rootSaga(){
         dashboardSaga(),
         expenditureSaga(),
         sbincomeSaga(),
+        fdincomeSaga(),
         dsincomeSaga(),
         expenditureReportSaga(),
         transactionSaga(),

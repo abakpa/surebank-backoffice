@@ -9,6 +9,7 @@ import {
   // fetchBranchSBContributionRequest,
   // fetcBranchTotalSBandDSRequest,
   fetchBranchDSDailyContributionRequest,
+  fetchBranchFDDailyContributionRequest,
   fetchBranchSBDailyContributionRequest,
   fetchBranchTotalSBandDSDailyRequest,
   fetchBranchDSWithdrawalRequest,
@@ -29,7 +30,7 @@ const ManagerDashboard = () => {
     // const { branches } = useSelector((state) => state.branch);
     // const [date, setDate] = useState("");
     // const [date1, setDate1] = useState("");
-    // const [date2, setDate2] = useState("");
+    const [date2, setDate2] = useState("");
     const [date3, setDate3] = useState("");
     const [date4, setDate4] = useState("");
     const [date5, setDate5] = useState("");
@@ -62,6 +63,7 @@ const ManagerDashboard = () => {
       // branchsbcontribution,
       // branchtotalsbandds,
       branchdailyds,
+      branchdailyfd,
       branchdailysb,
       branchtotaldailysbandds,
       branchdswithdrawal,
@@ -76,6 +78,7 @@ const ManagerDashboard = () => {
       // const newsbContribution = branchsbcontribution || 0
       // const newtotalsbandds = branchtotalsbandds || 0
       const newdailyds =  branchdailyds || 0
+      const newdailyfd =  branchdailyfd || 0
       const newdailysb =  branchdailysb || 0
       const newtotaldailysbandds =  branchtotaldailysbandds || 0
       const newdswithdrawal =  branchdswithdrawal || 0
@@ -92,7 +95,7 @@ const ManagerDashboard = () => {
       useEffect(() => {
         // const details = {  date: date };
         // const details1 = { date: date1 };
-        // const details2 = { date: date2 };
+        const details2 = { date: date2 };
         const details3 = { date: date3 };
         const details4 = { date: date4 };
         const details5 = { date: date5 };
@@ -105,7 +108,7 @@ const ManagerDashboard = () => {
         const details16 = { date: date16};
         // const data = {details}
         // const data1 = {details1}
-        // const data2 = {details2}
+        const data2 = {details2}
         const data3 = {details3}
         const data4 = {details4}
         const data5 = {details5}
@@ -120,6 +123,7 @@ const ManagerDashboard = () => {
         // dispatch(fetchBranchSBContributionRequest(data1));
         // dispatch(fetcBranchTotalSBandDSRequest(data2)); 
         dispatch(fetchBranchDSDailyContributionRequest(data3)); 
+        dispatch(fetchBranchFDDailyContributionRequest(data2)); 
         dispatch(fetchBranchSBDailyContributionRequest(data4)); 
         dispatch(fetchBranchTotalSBandDSDailyRequest(data5)); 
         dispatch(fetchBranchDSWithdrawalRequest(data6)); 
@@ -134,7 +138,7 @@ const ManagerDashboard = () => {
       dispatch,
       // date,
       // date1,
-      // date2,
+      date2,
       date3,
       date4,
       date5,
@@ -153,68 +157,6 @@ const ManagerDashboard = () => {
   {loading && <Loader />}
   <h1 className="text-2xl font-bold mb-4 mt-10 text-center">Manager Dashboard</h1>
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-  {/* Card 1 - Blue */}
-  {/* <div className="p-4 rounded-lg shadow-md bg-blue-100">
-    <h3 className="text-sm font-semibold mb-2 text-blue-800">Total DS Contribution</h3>
-    <p className="text-sm font-bold text-blue-800">{newdsContribution}</p>
-    <form className="flex flex-col gap-2 mt-2"> */}
-      {/* <Select2
-        label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
-        value={branchId}
-        onChange={(selectedId) => setBranchId(selectedId)}
-      /> */}
-      {/* <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-      />
-   
-    </form>
-  </div> */}
-
-  {/* Card 2 - Green */}
-  {/* <div className="p-4 rounded-lg shadow-md bg-green-100">
-    <h3 className="text-sm font-semibold mb-2 text-green-800">Total SB Contribution</h3>
-    <p className="text-sm font-bold text-green-800">{newsbContribution}</p>
-    <form className="flex flex-col gap-2 mt-2"> */}
-      {/* <Select2
-        label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
-        value={branchId1}
-        onChange={(selectedId) => setBranchId1(selectedId)}
-      /> */}
-      {/* <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date1}
-        onChange={(e) => setDate1(e.target.value)}
-      />
-  
-    </form>
-  </div> */}
-
-  {/* Card 3 - Red */}
-  {/* <div className="p-4 rounded-lg shadow-md bg-red-100">
-    <h3 className="text-sm font-semibold mb-2 text-red-800">Total Contribution</h3>
-    <p className="text-sm font-bold text-red-800">{newtotalsbandds}</p>
-    <form className="flex flex-col gap-2 mt-2"> */}
-      {/* <Select2
-        label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
-        value={branchId2}
-        onChange={(selectedId) => setBranchId2(selectedId)}
-      /> */}
-      {/* <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date2}
-        onChange={(e) => setDate2(e.target.value)}
-      />
-  
-    </form>
-  </div> */}
 
   {/* Card 4 - Yellow */}
   <div className="p-4 rounded-lg shadow-md bg-yellow-100">
@@ -253,6 +195,26 @@ const ManagerDashboard = () => {
         className="p-2 border rounded-md" 
         value={date4}
         onChange={(e) => setDate4(e.target.value)}
+      />
+    
+    </form>
+  </div>
+  {/* Card 5 - Purple */}
+  <div className="p-4 rounded-lg shadow-md bg-purple-100">
+    <h3 className="text-sm font-semibold mb-2 text-purple-800">Total FD Daily Contribution</h3>
+    <p className="text-sm font-bold text-purple-800">{newdailyfd || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      {/* <Select2
+        label="Branch"
+        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        value={branchId4}
+        onChange={(selectedId) => setBranchId4(selectedId)}
+      /> */}
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date2}
+        onChange={(e) => setDate2(e.target.value)}
       />
     
     </form>
@@ -406,29 +368,7 @@ const ManagerDashboard = () => {
   
     </form>
   </div>
-    {/* Card 16 - Fuchsia */}
-    {/* <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
-  <Link to="/branchfdreport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
-    <i className="fas fa-file-alt text-lg" title="View FD Transaction Statement"></i>
-  </Link>
-    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Contribution</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newfdContribution || 0}</p>
-    <form className="flex flex-col gap-2 mt-2"> */}
-      {/* <Select2
-        label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
-        value={branchId15}
-        onChange={(selectedId) => setBranchId15(selectedId)}
-      /> */}
-      {/* <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date15}
-        onChange={(e) => setDate15(e.target.value)}
-      />
-  
-    </form>
-  </div> */}
+
 
 </div>
 </div>

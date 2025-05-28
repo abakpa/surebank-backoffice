@@ -5,6 +5,7 @@ const initialState = {
     branchsbcontribution: null,
     branchtotalsbandds: null,
     branchdailyds: null,
+    branchdailyfd: null,
     branchdailysb: null,
     branchtotaldailysbandds: null,
     branchdswithdrawal: null,
@@ -106,6 +107,16 @@ const dashboardSlice = createSlice({
             state.loading=false
         },
         fetchBranchDSDailyContributionFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchBranchFDDailyContributionRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchFDDailyContributionSuccess:(state,action)=>{
+            state.branchdailyfd= action.payload;
+            state.loading=false
+        },
+        fetchBranchFDDailyContributionFailure:(state,action)=>{
             state.error = action.payload
         },
         fetchBranchSBDailyContributionRequest:(state)=>{
@@ -247,6 +258,9 @@ export const {
     fetchBranchDSDailyContributionRequest,
     fetchBranchDSDailyContributionSuccess,
     fetchBranchDSDailyContributionFailure,
+    fetchBranchFDDailyContributionRequest,
+    fetchBranchFDDailyContributionSuccess,
+    fetchBranchFDDailyContributionFailure,
     fetchBranchSBDailyContributionRequest,
     fetchBranchSBDailyContributionSuccess,
     fetchBranchSBDailyContributionFailure,

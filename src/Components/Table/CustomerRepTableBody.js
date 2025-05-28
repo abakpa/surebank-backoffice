@@ -11,9 +11,11 @@ const getBranchName = (branchId, branches = []) => {
 };
 
 const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) => {
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const role = localStorage.getItem("staffRole");
+  const isManagerOrAgent = role === "Manager" || role === "Agent";
 
   const [showModal, setShowModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -62,9 +64,11 @@ const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) 
               <td className="border border-gray-300 p-2">{customer.name}</td>
               <td className="border border-gray-300 p-2">{customer.address}</td>
               <td className="border border-gray-300 p-2">{customer.phone}</td>
+              {!isManagerOrAgent && (
               <td className="border border-gray-300 p-2">
                 {getBranchName(customer.branchId, branches)}
               </td>
+              )}
               {canTransfer && (
                 <td className="border border-gray-300 p-2">
                   <button

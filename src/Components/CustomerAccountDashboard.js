@@ -1171,7 +1171,7 @@ const CustomerAccountDashboard = () => {
             className="w-full border border-gray-300 rounded p-2 mt-1"
           >
             <option value="">Select duration</option>
-            {[3, 6, 9, 12, 18, 24].map((month) => (
+            {[6, 9, 12, 18, 24].map((month) => (
               <option key={month} value={month}>
                 {month} Month{month > 1 ? 's' : ''}
               </option>
@@ -1374,7 +1374,7 @@ const CustomerAccountDashboard = () => {
             className="w-full border border-gray-300 rounded p-2 mt-1"
           >
             <option value="">Select duration</option>
-            {[3, 6, 9, 12, 18, 24].map((month) => (
+            {[6, 9, 12, 18, 24].map((month) => (
               <option key={month} value={month}>
                 {month} Month{month > 1 ? 's' : ''}
               </option>

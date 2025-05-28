@@ -11,7 +11,7 @@ import {
 
   fetchMVRepDSDailyContributionRequest,
   fetchMVRepSBDailyContributionRequest,
-//   fetchMVRepFDDailyContributionRequest,
+  fetchMVRepFDDailyContributionRequest,
   fetchMVRepTotalSBandDSDailyRequest,
   fetchMVRepDSWithdrawalRequest,
   fetchMVRepDSpackageRequest,
@@ -43,10 +43,11 @@ const ManagerViewRepDashboard = () => {
     const [date9, setDate9] = useState("");
     const [date13, setDate13] = useState("");
     const [date15, setDate15] = useState("");
-    // const [date16, setDate16] = useState("");
+    const [date16, setDate16] = useState("");
     const {
       loading,
      repdailyds,
+     repdailyfd,
      branchstaff,
      repdailysb,
      reptotaldailysbandds,
@@ -60,6 +61,7 @@ const ManagerViewRepDashboard = () => {
   
     } = useSelector((state)=>state.mvrepdashboard)
       const newdailyds = repdailyds || 0
+      const newdailyfd = repdailyfd || 0
       const newdailysb = repdailysb || 0
       const newtotaldailysbandds = reptotaldailysbandds || 0
       const newdswithdrawal = repdswithdrawal || 0
@@ -87,7 +89,7 @@ const ManagerViewRepDashboard = () => {
         const details9 = { date: date9,staffId };
         const details13 = { date: date13,staffId };
         const details15 = { date: date15,staffId };
-        // const details16 = { date: date16,staffId };
+        const details16 = { date: date16,staffId };
    
         const data3 = {details3}
         const data4 = {details4}
@@ -98,11 +100,11 @@ const ManagerViewRepDashboard = () => {
         const data9 = {details9}
         const data13 = {details13}
         const data15 = {details15}
-        // const data16 = {details16}
+        const data16 = {details16}
   
         dispatch(fetchMVRepDSDailyContributionRequest(data3)); 
         dispatch(fetchMVRepSBDailyContributionRequest(data4)); 
-        // dispatch(fetchMVRepFDDailyContributionRequest(data16)); 
+        dispatch(fetchMVRepFDDailyContributionRequest(data16)); 
         dispatch(fetchMVRepTotalSBandDSDailyRequest(data5)); 
         dispatch(fetchMVRepDSWithdrawalRequest(data6)); 
         dispatch(fetchMVRepDSpackageRequest(data7)); 
@@ -125,7 +127,7 @@ const ManagerViewRepDashboard = () => {
       date9,
       date13,
       date15,
-    //   date16,
+      date16,
 
     ]);
     const transactionList = Array.isArray(transaction) ? transaction : [];
@@ -169,6 +171,21 @@ const ManagerViewRepDashboard = () => {
         className="p-2 border rounded-md" 
         value={date4}
         onChange={(e) => setDate4(e.target.value)}
+      />
+    
+    </form>
+  </div>
+  {/* Card 5 - Purple */}
+  <div className="p-4 rounded-lg shadow-md bg-purple-100">
+    <h3 className="text-sm font-semibold mb-2 text-purple-800">Total FD Daily Contribution</h3>
+    <p className="text-sm font-bold text-purple-800">{newdailyfd || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+   
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date16}
+        onChange={(e) => setDate16(e.target.value)}
       />
     
     </form>
@@ -292,7 +309,7 @@ const ManagerViewRepDashboard = () => {
 </div>
 <div className="overflow-x-auto">
         <table className="w-full min-w-[600px] border-collapse border border-gray-300">
-          <Tablehead />
+          <Tablehead customers={transactionList} branches={branches}/>
           <Tablebody customers={transactionList} branches={branches} />
         </table>
       </div>

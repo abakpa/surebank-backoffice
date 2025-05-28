@@ -87,7 +87,7 @@ function* fetchReFDDailyContributionSaga(action) {
             }
         }
         const requestData = details16 ? details16 : {};
-        const dsresponse = yield call(axios.post, `${url}/api/repdashboard/repfd`, requestData,config);
+        const dsresponse = yield call(axios.post, `${url}/api/repdashboard/dailyrepfd`, requestData,config);
         yield put(fetchRepFDDailyContributionSuccess(dsresponse.data));
     } catch (error) {  if (error.response && error.response.status === 401) {
             localStorage.removeItem('authToken');

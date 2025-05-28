@@ -8,6 +8,7 @@ const initialState = {
     fdinterestexpense: null,
     totalsbandds: null,
     dailyds: null,
+    dailyfd: null,
     dailysb: null,
     totaldailysbandds: null,
     dswithdrawal: null,
@@ -17,6 +18,7 @@ const initialState = {
     packages: null,
     dsincome: null,
     sbincome: null,
+    fdincome: null,
     totalincome: null,
     totalexpenditure: null,
     profit: null,
@@ -98,6 +100,16 @@ const dashboardSlice = createSlice({
         fetchDSDailyContributionFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchFDDailyContributionRequest:(state)=>{
+            state.loading = true
+        },
+        fetchFDDailyContributionSuccess:(state,action)=>{
+            state.dailyfd= action.payload;
+            state.loading=false
+        },
+        fetchFDDailyContributionFailure:(state,action)=>{
+            state.error = action.payload
+        },
         fetchSBDailyContributionRequest:(state)=>{
             state.loading = true
         },
@@ -175,7 +187,7 @@ const dashboardSlice = createSlice({
             state.dsincome= action.payload;
             state.loading=false
         },
-        fetchDSFailure:(state,action)=>{
+        fetchDSincomeFailure:(state,action)=>{
             state.error = action.payload
         },
         fetchSBincomeRequest:(state)=>{
@@ -185,7 +197,17 @@ const dashboardSlice = createSlice({
             state.sbincome= action.payload;
             state.loading=false
         },
-        fetchSBFailure:(state,action)=>{
+        fetchSBincomeFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchFDincomeRequest:(state)=>{
+            state.loading = true
+        },
+        fetchFDincomeSuccess:(state,action)=>{
+            state.fdincome= action.payload;
+            state.loading=false
+        },
+        fetchFDincomeFailure:(state,action)=>{
             state.error = action.payload
         },
         fetchTotalincomeRequest:(state)=>{
@@ -244,6 +266,9 @@ export const {
     fetchDSDailyContributionRequest,
     fetchDSDailyContributionSuccess,
     fetchDSDailyContributionFailure,
+    fetchFDDailyContributionRequest,
+    fetchFDDailyContributionSuccess,
+    fetchFDDailyContributionFailure,
     fetchSBDailyContributionRequest,
     fetchSBDailyContributionSuccess,
     fetchSBDailyContributionFailure,
@@ -271,6 +296,9 @@ export const {
     fetchSBincomeRequest,
     fetchSBincomeSuccess,
     fetchSBincomeFailure,
+    fetchFDincomeRequest,
+    fetchFDincomeSuccess,
+    fetchFDincomeFailure,
     fetchTotalincomeRequest,
     fetchTotalincomeSuccess,
     fetchTotalincomeFailure,

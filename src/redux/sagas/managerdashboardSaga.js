@@ -25,6 +25,9 @@ import {
     fetchBranchDSDailyContributionRequest,
     fetchBranchDSDailyContributionSuccess,
     fetchBranchDSDailyContributionFailure,
+    fetchBranchFDDailyContributionRequest,
+    fetchBranchFDDailyContributionSuccess,
+    fetchBranchFDDailyContributionFailure,
     fetchBranchSBDailyContributionRequest,
     fetchBranchSBDailyContributionSuccess,
     fetchBranchSBDailyContributionFailure,
@@ -219,6 +222,26 @@ function* fetchBranchDSDailyContributionSaga(action) {
             window.location.href = '/login';
           }
         yield put(fetchBranchDSDailyContributionFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+function* fetchBranchFDDailyContributionSaga(action) {
+    const { details2 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details2 ? details2 : {};
+        const dsresponse = yield call(axios.post, `${url}/api/managerdashboard/dailybranchfd`, requestData, config);
+        yield put(fetchBranchFDDailyContributionSuccess(dsresponse.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchBranchFDDailyContributionFailure(error.response?.data?.message || "An error occurred"));
     }
 }
 function* fetchBranchSBDailyContributionSaga(action) {
@@ -450,6 +473,7 @@ function* depositSaga(){
     yield takeLatest(fetchBranchSBContributionRequest.type, fetchBranchSBContributionSaga)
     yield takeLatest(fetcBranchTotalSBandDSRequest.type, fetcBranchTotalSBandDSSaga)
     yield takeLatest(fetchBranchDSDailyContributionRequest.type, fetchBranchDSDailyContributionSaga)
+    yield takeLatest(fetchBranchFDDailyContributionRequest.type, fetchBranchFDDailyContributionSaga)
     yield takeLatest(fetchBranchSBDailyContributionRequest.type, fetchBranchSBDailyContributionSaga)
     yield takeLatest(fetchBranchTotalSBandDSDailyRequest.type, fetchBranchTotalSBandDSDailySaga)
     yield takeLatest(fetchBranchDSWithdrawalRequest.type, fetchBranchDSWithdrawalSaga)
