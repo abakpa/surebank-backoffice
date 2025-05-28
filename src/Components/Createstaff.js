@@ -3,34 +3,51 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createStaffRequest } from "../redux/slices/staffSlice";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
-import Select from "./Select";
+import Select from "./Select3";
 import Select2 from "./Select2";
 
 const CreateStaff = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const { branches } = useSelector((state) => state.branch);
+  const { error, loading } = useSelector((state) => state.staff);
+
   const isLoggedIn = useSelector((state) => state.login.staff?.role);
   const loggedInStaffRole = isLoggedIn || localStorage.getItem("staffRole");
   const isLoggedInBranch = useSelector((state) => state.login?.staff?.branch);
   const loggedInStaffBranch = isLoggedInBranch || localStorage.getItem("staffBranch");
 
+  const loggedInBranchName =
+    branches.find((branch) => branch._id === loggedInStaffBranch)?.name || "";
 
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const roles = ["Manager", "Agent", "Admin"];
-  const { error, loading } = useSelector((state) => state.staff);
-   // Get the branch name using the branchId
-   const loggedInBranchName =
-   branches.find((branch) => branch._id === loggedInStaffBranch)?.name || "";
- 
-
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState(loggedInStaffRole === "Manager" ? "Agent" : "");
-  const [branchId, setBranchId] = useState(loggedInStaffRole === "Manager" ? loggedInStaffBranch : "");
+  const [branchId, setBranchId] = useState(
+    loggedInStaffRole === "Manager" ? loggedInStaffBranch : ""
+  );
+
+  // Role options
+  const allRoles = [
+    { label: "Manager", value: "Manager" },
+    { label: "Rep", value: "Agent" },
+    { label: "Admin", value: "Admin" },
+  ];
+
+  // Remove "Admin" role if current user is an Admin
+  const roles =
+    loggedInStaffRole === "Admin"
+      ? allRoles.filter((r) => r.value !== "Admin")
+      : allRoles;
+
+  const branchOptions = branches
+    .filter((branch) => branch.name !== "Head office")
+    .map((branch) => ({ label: branch.name, value: branch._id }));
 
   useEffect(() => {
     dispatch(fetchBranchRequest());
@@ -38,10 +55,12 @@ const CreateStaff = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const details = { name, address, phone, email, role, branchId,password };
+    const details = { firstName,lastName, address, phone, email, role, branchId, password };
     const data = { details, navigate };
     dispatch(createStaffRequest(data));
-    setName("");
+
+    setFirstName("");
+    setLastName("");
     setAddress("");
     setPhone("");
     setEmail("");
@@ -55,20 +74,36 @@ const CreateStaff = () => {
       <h2 className="text-xl font-bold mb-4">Create New Staff</h2>
       {error && <p className="text-red-600 mb-4 text-sm">{error}</p>}
       <form onSubmit={handleSubmit}>
+        {/* Name */}
         <div className="mb-4">
           <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-            Name
+            First Name
           </label>
           <input
-            id="name"
+            id="firstName"
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            required
+          />
+        </div>
+        {/* Name */}
+        <div className="mb-4">
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            Last Name
+          </label>
+          <input
+            id="lastName"
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
             required
           />
         </div>
 
+        {/* Address */}
         <div className="mb-4">
           <label htmlFor="address" className="block text-sm font-medium text-gray-700">
             Address
@@ -83,6 +118,7 @@ const CreateStaff = () => {
           />
         </div>
 
+        {/* Phone */}
         <div className="mb-4">
           <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
             Phone
@@ -97,6 +133,7 @@ const CreateStaff = () => {
           />
         </div>
 
+        {/* Email */}
         <div className="mb-4">
           <label htmlFor="email" className="block text-sm font-medium text-gray-700">
             Email
@@ -110,6 +147,8 @@ const CreateStaff = () => {
             required
           />
         </div>
+
+        {/* Password */}
         <div className="mb-4">
           <label htmlFor="password" className="block text-sm font-medium text-gray-700">
             Password
@@ -124,36 +163,33 @@ const CreateStaff = () => {
           />
         </div>
 
+        {/* Role */}
         {loggedInStaffRole === "Manager" ? (
           <div className="mb-4">
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+            {/* <label htmlFor="role" className="block text-sm font-medium text-gray-700">
               Role
-            </label>
+            </label> */}
             <input
               id="role"
-              type="text"
+              type="hidden"
               value="Agent"
               readOnly
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded bg-gray-100 focus:outline-none"
             />
           </div>
         ) : loggedInStaffRole === "Admin" ? (
-          <Select
-            label="Role"
-            options={roles}
-            value={role}
-            onChange={setRole}
-          />
+          <Select label="Role" options={roles} value={role} onChange={setRole} />
         ) : null}
 
+        {/* Branch */}
         {loggedInStaffRole === "Manager" ? (
           <div className="mb-4">
-            <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
+            {/* <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
               Branch
-            </label>
+            </label> */}
             <input
               id="branch"
-              type="text"
+              type="hidden"
               value={loggedInBranchName}
               readOnly
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded bg-gray-100 focus:outline-none"
@@ -161,13 +197,14 @@ const CreateStaff = () => {
           </div>
         ) : loggedInStaffRole === "Admin" ? (
           <Select2
-          label="Branch"
-          options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
-          value={branchId}
-          onChange={(selectedId) => setBranchId(selectedId)}
-        />
+            label="Branch"
+            options={branchOptions}
+            value={branchId}
+            onChange={setBranchId}
+          />
         ) : null}
 
+        {/* Submit */}
         <div>
           {loading ? (
             <button
@@ -178,10 +215,6 @@ const CreateStaff = () => {
               <svg
                 className="animate-spin h-5 w-5 mr-2 text-white"
                 viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                role="img"
-                aria-label="Loading"
               >
                 <circle
                   cx="12"

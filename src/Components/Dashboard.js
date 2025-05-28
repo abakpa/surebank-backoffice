@@ -35,6 +35,10 @@ import Select2 from "./Select2";
 const Dashboard = () => {
     const dispatch = useDispatch();
     const { branches } = useSelector((state) => state.branch);
+      // Exclude "Head office"
+  const branchOptions = branches
+  .filter((branch) => branch.name !== "Head office")
+  .map((branch) => ({ label: branch.name, value: branch._id }));
     const [date, setDate] = useState("");
     const [date1, setDate1] = useState("");
     const [date2, setDate2] = useState("");
@@ -253,7 +257,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId}
         onChange={(selectedId) => setBranchId(selectedId)}
       />
@@ -274,7 +278,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId1}
         onChange={(selectedId) => setBranchId1(selectedId)}
       />
@@ -297,7 +301,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId15}
         onChange={(selectedId) => setBranchId15(selectedId)}
       />
@@ -317,7 +321,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId17}
         onChange={(selectedId) => setBranchId17(selectedId)}
       />
@@ -337,7 +341,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId18}
         onChange={(selectedId) => setBranchId18(selectedId)}
       />
@@ -358,7 +362,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId2}
         onChange={(selectedId) => setBranchId2(selectedId)}
       />
@@ -379,7 +383,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId3}
         onChange={(selectedId) => setBranchId3(selectedId)}
       />
@@ -400,7 +404,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId4}
         onChange={(selectedId) => setBranchId4(selectedId)}
       />
@@ -420,7 +424,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId19}
         onChange={(selectedId) => setBranchId19(selectedId)}
       />
@@ -441,7 +445,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId5}
         onChange={(selectedId) => setBranchId5(selectedId)}
       />
@@ -462,7 +466,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId6}
         onChange={(selectedId) => setBranchId6(selectedId)}
       />
@@ -483,7 +487,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId7}
         onChange={(selectedId) => setBranchId7(selectedId)}
       />
@@ -504,7 +508,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId8}
         onChange={(selectedId) => setBranchId8(selectedId)}
       />
@@ -524,7 +528,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId16}
         onChange={(selectedId) => setBranchId16(selectedId)}
       />
@@ -545,7 +549,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId9}
         onChange={(selectedId) => setBranchId9(selectedId)}
       />
@@ -570,7 +574,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId10}
         onChange={(selectedId) => setBranchId10(selectedId)}
       />
@@ -598,7 +602,7 @@ const Dashboard = () => {
   <form className="flex flex-col gap-2 mt-2">
     <Select2
       label="Branch"
-      options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+      options={branchOptions}
       value={branchId11}
       onChange={(selectedId) => setBranchId11(selectedId)}
     />
@@ -623,7 +627,7 @@ const Dashboard = () => {
   <form className="flex flex-col gap-2 mt-2">
     <Select2
       label="Branch"
-      options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+      options={branchOptions}
       value={branchId20}
       onChange={(selectedId) => setBranchId20(selectedId)}
     />
@@ -645,7 +649,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId12}
         onChange={(selectedId) => setBranchId12(selectedId)}
       />
@@ -670,7 +674,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId13}
         onChange={(selectedId) => setBranchId13(selectedId)}
       />
@@ -691,7 +695,7 @@ const Dashboard = () => {
     <form className="flex flex-col gap-2 mt-2">
       <Select2
         label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        options={branchOptions}
         value={branchId14}
         onChange={(selectedId) => setBranchId14(selectedId)}
       />

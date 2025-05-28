@@ -27,7 +27,7 @@ const Tablebody = ({ customers = [], branches = [] }) => {
               <td className="border border-gray-300 p-2">{customer.amount}</td>
               <td className="border border-gray-300 p-2">{customer.date}</td>
               {!hideSensitiveInfo && (
-                <td className="border border-gray-300 p-2">{customer.createdBy.name}</td>
+                <td className="border border-gray-300 p-2">{customer.createdBy.firstName} {customer.createdBy.lastName}</td>
               )}
             </tr>
           );

@@ -1,10 +1,10 @@
 
 // Mock function to get branch name from branchId
 const getBranchName = (staffId, staffs = []) => {
-  
-    const staff = staffs.find((staff) => staff._id === staffId);
-    return staff ? staff.name : "Unknown Branch";
-  };
+  const staff = staffs.find((staff) => staff._id === staffId);
+  return staff ? `${staff.firstName} ${staff.lastName}` : "Unknown Branch";
+};
+
 
 const Tablebody = ({ customers = [], branches = [] }) => { // Default values for props
   return (

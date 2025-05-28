@@ -43,7 +43,7 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
             <td className="border border-gray-300 p-2">{customer.expenseInterest}</td>
             <td className="border border-gray-300 p-2">{customer.status}</td>
             <td className="border border-gray-300 p-2">{customer.branchId.name}</td>
-            <td className="border border-gray-300 p-2">{customer.createdBy.name}</td>
+            <td className="border border-gray-300 p-2">{customer.createdBy.firstName} {customer.createdBy.lastName}</td>
             {/* <td className="border border-gray-300 p-2">
               {getBranchName(customer.branchId, branches)}
             </td> */}

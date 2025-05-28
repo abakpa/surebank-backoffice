@@ -12,7 +12,7 @@ const Tablebody = ({ customers = [], branches = [] }) => {
             className="text-center hover:bg-gray-100 cursor-pointer"
           >
             {!isRep && (
-              <td className="border border-gray-300 p-2">{customer.createdBy.name}</td>
+              <td className="border border-gray-300 p-2">{customer.createdBy.firstName} {customer.createdBy.lastName}</td>
             )}
             {!isManagerOrAgent && (
               <td className="border border-gray-300 p-2">{customer.createdBy.branchId?.name}</td>
@@ -20,7 +20,7 @@ const Tablebody = ({ customers = [], branches = [] }) => {
             <td className="border border-gray-300 p-2">{customer.reason}</td>
             <td className="border border-gray-300 p-2">{customer.amount}</td>
           </tr>
-        ))
+        )) 
       ) : (
         <tr>
           <td 
