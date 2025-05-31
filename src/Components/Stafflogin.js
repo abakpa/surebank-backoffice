@@ -7,7 +7,7 @@ const Login = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const {error,loading} = useSelector((state)=>state.login)
-    const [credentials,setCredentials] = useState({phone:'',password:''})
+    const [credentials,setCredentials] = useState({email:'',password:''})
 
     const handleChange = (e) => {
         setCredentials({...credentials,[e.target.name]: e.target.value})
@@ -25,10 +25,10 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email input */}
             <input
-              type="phone"
-              name="phone"
-              placeholder="Phone Number"
-              value={credentials.phone}
+              type="email"
+              name="email"
+              placeholder="Email Number"
+              value={credentials.email}
               onChange={handleChange}
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
