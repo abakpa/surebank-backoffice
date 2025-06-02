@@ -15,11 +15,12 @@ const CreateCustomer = () => {
   const { error: createCustomerError } = useSelector((state) => state.customer);
 
   const loggedInRole = useSelector((state) => state.login.staff?.role);
-  const loggedInStaffId = useSelector((state) => state.login.staff?.id);
+  // const loggedInStaffId = useSelector((state) => state.login);
   const loggedInBranchId = useSelector((state) => state.login?.staff?.branch);
   const loggedInStaffName = useSelector((state) => state.login.staff?.name);
 
   const staffRole = loggedInRole || localStorage.getItem("staffRole");
+  const loggedInStaff = localStorage.getItem("staffId")
   const staffBranchId = loggedInBranchId || localStorage.getItem("staffBranch");
   const branchName = branches.find((branch) => branch._id === staffBranchId)?.name || "";
 
@@ -30,7 +31,6 @@ const CreateCustomer = () => {
   const [branchId, setBranchId] = useState("");
   const [accountManagerId, setAccountManagerId] = useState("");
   const [showError, setShowError] = useState(false);
-
   useEffect(() => {
     if (createCustomerError) {
       setShowError(true);
@@ -52,8 +52,9 @@ const CreateCustomer = () => {
       phone,
       password,
       branchId: staffRole === "Admin" ? branchId : staffBranchId,
-      accountManagerId: staffRole === "Agent" ? loggedInStaffId : accountManagerId,
+      accountManagerId: staffRole === "Agent" ? loggedInStaff : accountManagerId,
     };
+
     dispatch(createCustomerRequest({ details, navigate }));
 
     setName("");

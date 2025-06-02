@@ -12,7 +12,7 @@ import Tablehead from "./Table/TransactionTableHead";
 
 import { useParams } from "react-router-dom";
 import Select from "./Select";
-import Select2 from "./Select2";
+// import Select2 from "./Select2";
 
 const CustomerAccountDashboard = () => {
   const { customerId } = useParams();
@@ -25,7 +25,7 @@ const CustomerAccountDashboard = () => {
     const {withdrawal,error:withdrawalError} = useSelector((state)=>state.withdrawal)
     const {loading,deposit,error:depositError} = useSelector((state)=>state.deposit)
     const newSubAccount = deposit?.subAccount
-  
+    const staffId = localStorage.getItem("staffId");
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [getAmountPerDay, setGetAmountPerDay] = useState(null);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -53,11 +53,13 @@ const CustomerAccountDashboard = () => {
   const [productName, setProductName] = useState("");
   const [productDescription, setProductDescription] = useState("");
   const [accountType, setAccountType] = useState("");
-    const [accountManagerId, setAccountManagerId] = useState("");
+    // const [accountManagerId, setAccountManagerId] = useState("");
   
   const [errors, setErrors] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
+  
+  const duration = [6, 9, 12, 18, 24]
 
   useEffect(() => {
     if (selectedAccount) {
@@ -136,6 +138,7 @@ const CustomerAccountDashboard = () => {
 
 
   const customerName = localStorage.getItem("customerName");
+  const createdBy = localStorage.getItem("createdBy");
   // const accountNumber = localStorage.getItem("accountNumber");
   // const mainAccountId = localStorage.getItem("mainAccountId");
 
@@ -206,7 +209,6 @@ const CustomerAccountDashboard = () => {
 
     const details = { SBAccountNumber: selectedAccount.SBAccountNumber,productName:selectedAccount.productName,customerId:customerId, amount: parseFloat(amount) };
     const data = {details}
-    console.log("details",details)
      dispatch(createSBDepositRequest(data));
 
     setAmount("");
@@ -387,12 +389,18 @@ const CustomerAccountDashboard = () => {
         return;
       }
   
-          const details = { accountManagerId, accountType,customerId:customerId, accountNumber:deposit?.account?.accountNumber, amountPerDay: parseFloat(amountPerDay) }
+          const details = { 
+            accountManagerId:loggedInStaffRole === "Agent" ? staffId : createdBy, 
+            accountType,
+            customerId:customerId, 
+            accountNumber:deposit?.account?.accountNumber, 
+            amountPerDay: parseFloat(amountPerDay) 
+          }
           const data ={details}
           dispatch(createCustomerAccountRequest(data))
       setAmountPerDay("");
       setAccountType("");
-      setAccountManagerId("");
+      // setAccountManagerId("");
       setShowCreateAccountModal(false);
     };
     const handleCreateSBAccount = (e) => {
@@ -409,16 +417,22 @@ const CustomerAccountDashboard = () => {
         return;
       }
   
-          const details = { accountManagerId, productName, productDescription, customerId:customerId, accountNumber:deposit?.account?.accountNumber, sellingPrice: parseFloat(sellingPrice) }
+          const details = { 
+            accountManagerId:loggedInStaffRole === "Agent" ? staffId : createdBy, 
+            productName, 
+            productDescription, 
+            customerId:customerId, 
+            accountNumber:deposit?.account?.accountNumber, 
+            sellingPrice: parseFloat(sellingPrice) 
+          }
           const data ={details}
           dispatch(createCustomerSBAccountRequest(data))
       setSellingPrice("");
       setProductName("");
-      setAccountManagerId("");
+      // setAccountManagerId("");
       setShowCreateSBAccountModal(false);
     };
     const handleCreateFDAccount = (e) => {
-      console.log("handle")
       e.preventDefault();
       setErrors("");
   
@@ -432,12 +446,18 @@ const CustomerAccountDashboard = () => {
         return;
       }
   
-          const details = { accountManagerId, durationMonths, customerId:customerId, accountNumber:deposit?.account?.accountNumber, fdamount:parseFloat(fdamount) }
+          const details = { 
+            accountManagerId:loggedInStaffRole === "Agent" ? staffId : createdBy, 
+            durationMonths, 
+            customerId:customerId, 
+            accountNumber:deposit?.account?.accountNumber, 
+            fdamount:parseFloat(fdamount) 
+          }
           const data ={details}
           dispatch(createCustomerFDAccountRequest(data))
       setFdamount("");
       setDurationMonths("");
-      setAccountManagerId("");
+      // setAccountManagerId("");
       setShowCreateFDAccountModal(false);
     };
 
@@ -1161,22 +1181,12 @@ const CustomerAccountDashboard = () => {
       />
     {/* Duration Dropdown */}
     <div className="mb-4">
-          <label htmlFor="durationMonths" className="block text-sm font-medium text-gray-700">
-            Duration (Months)
-          </label>
-          <select
-            id="durationMonths"
+    <Select
+            label="Duration (Months)"
+            options={duration}
             value={durationMonths}
-            onChange={(e) => setDurationMonths(e.target.value)}
-            className="w-full border border-gray-300 rounded p-2 mt-1"
-          >
-            <option value="">Select duration</option>
-            {[6, 9, 12, 18, 24].map((month) => (
-              <option key={month} value={month}>
-                {month} Month{month > 1 ? 's' : ''}
-              </option>
-            ))}
-          </select>
+            onChange={setDurationMonths}
+          />
         </div>
  
       <div className="flex justify-end space-x-4">
@@ -1215,15 +1225,15 @@ const CustomerAccountDashboard = () => {
             onChange={setAccountType}
           />
         </div>
-        <div className="mb-4">
+        {/* <div className="mb-4">
          <Select2
   label="Account Manager"
-  options={staffs.map((staff) => ({ label: staff.name, value: staff._id }))}
+  options={staffs.map((staff) => ({ label: `${staff.firstName} ${staff.lastName}`, value: staff._id }))}
   value={accountManagerId}
   onChange={(selectedId) => setAccountManagerId(selectedId)}
 />
 
-        </div>
+        </div> */}
           <div className="mb-4">
             <label htmlFor="amountPerDay" className="block text-sm font-medium text-gray-700">
               Daily Deposit
@@ -1262,15 +1272,15 @@ const CustomerAccountDashboard = () => {
       <div className="bg-white p-6 rounded shadow-md w-96">
         <h3 className="text-lg font-bold mb-4">Create Account Package</h3>
         <form onSubmit={handleCreateSBAccount}>
-        <div className="mb-4">
+        {/* <div className="mb-4">
          <Select2
   label="Account Manager"
-  options={staffs.map((staff) => ({ label: staff.name, value: staff._id }))}
+  options={staffs.map((staff) => ({ label: `${staff.firstName} ${staff.lastName}`, value: staff._id }))}
   value={accountManagerId}
   onChange={(selectedId) => setAccountManagerId(selectedId)}
 />
 
-        </div>
+        </div> */}
           <div className="mb-4">
             <label htmlFor="amountPerDay" className="block text-sm font-medium text-gray-700">
               Product Name
@@ -1335,18 +1345,19 @@ const CustomerAccountDashboard = () => {
       <h3 className="text-lg font-bold mb-4">Create Account Package</h3>
       <form onSubmit={handleCreateFDAccount}>
         {/* Account Manager Select */}
+        {/* {(loggedInStaffRole === "Admin" || loggedInStaffRole === "Manager") &&
         <div className="mb-4">
           <Select2
             label="Account Manager"
             options={staffs.map((staff) => ({
-              label: staff.name,
+              label: `${staff.firstName} ${staff.lastName}`,
               value: staff._id
             }))}
             value={accountManagerId}
             onChange={(selectedId) => setAccountManagerId(selectedId)}
           />
         </div>
-
+        } */}
         {/* Amount Input */}
         <div className="mb-4">
           <label htmlFor="fdamount" className="block text-sm font-medium text-gray-700">
@@ -1364,7 +1375,7 @@ const CustomerAccountDashboard = () => {
 
         {/* Duration Dropdown */}
         <div className="mb-4">
-          <label htmlFor="durationMonths" className="block text-sm font-medium text-gray-700">
+          {/* <label htmlFor="durationMonths" className="block text-sm font-medium text-gray-700">
             Duration (Months)
           </label>
           <select
@@ -1379,7 +1390,13 @@ const CustomerAccountDashboard = () => {
                 {month} Month{month > 1 ? 's' : ''}
               </option>
             ))}
-          </select>
+          </select> */}
+          <Select
+            label="Duration (Months)"
+            options={duration}
+            value={durationMonths}
+            onChange={setDurationMonths}
+          />
         </div>
 
         {/* Action Buttons */}

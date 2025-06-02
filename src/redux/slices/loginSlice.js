@@ -8,7 +8,7 @@ const initialState = {
 };
 
 const loginSlice = createSlice({
-    name:'auth',
+    name:'login',
     initialState,
     reducers:{
         loginRequest:(state)=>{

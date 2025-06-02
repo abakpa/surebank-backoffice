@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 const Select = ({ options, value, onChange, label }) => {
+  console.log("KKKKKK",options)
   const [isOpen, setIsOpen] = useState(false);
 
   // Get the label of the currently selected option

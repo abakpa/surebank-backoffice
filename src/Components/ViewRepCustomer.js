@@ -157,7 +157,7 @@ const Viewcustomer = () => {
           
                          <Select2
                     label="Account Manager"
-                     options={staffList.map((staff) => ({ label: staff.name, value: staff._id }))}
+                     options={staffList.map((staff) => ({ label: `${staff.firstName} ${staff.lastName}`, value: staff._id }))}
                     value={newStaff}
                      onChange={(selectedId) => setNewStaff(selectedId)}
                       />

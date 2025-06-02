@@ -24,7 +24,7 @@ const Tablebody = ({ customers = [], branches = [] }) => {
             <td className="border border-gray-300 p-2">{customer.productName}</td>
             <td className="border border-gray-300 p-2">{customer.sellingPrice}</td>
             <td className="border border-gray-300 p-2">{customer.status}</td>
-            <td className="border border-gray-300 p-2">{customer.createdBy.firstName} {customer.createdBy.lastName}</td>
+            <td className="border border-gray-300 p-2">{customer.accountManagerId.firstName} {customer.accountManagerId.lastName}</td>
           </tr>
         ))
       ) : (

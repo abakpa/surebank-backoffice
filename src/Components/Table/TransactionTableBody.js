@@ -2,7 +2,7 @@
 // Mock function to get branch name from branchId
 const getBranchName = (staffId, staffs = []) => {
   const staff = staffs.find((staff) => staff._id === staffId);
-  return staff ? `${staff.firstName} ${staff.lastName}` : "Unknown Branch";
+  return staff ? staff.firstName : "Unknown Branch";
 };
 
 

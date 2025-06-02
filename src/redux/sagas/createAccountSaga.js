@@ -39,7 +39,6 @@ import { url } from './url'
   };
     try {
         const response = yield call(axios.get, `${url}/api/customertransaction/${accountTypeId}`,config)
-        console.log("transaction",response)
         yield put(fetchAccountTransactionSuccess(response.data))
     } catch (error) {
         if (error.response && error.response.status === 401) {

@@ -105,7 +105,7 @@ const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) 
             <Select2
               label="Account Manager"
               options={staffList.map((staff) => ({
-                label: staff.name,
+                label: `${staff.firstName} ${staff.lastName}`,
                 value: staff._id,
               }))}
               value={newStaff}

@@ -13,6 +13,7 @@ function* loginSaga(action){
     const {credentials,navigate} = action.payload
     try {
         const response = yield call(axios.post,`${url}/api/login/staff`, credentials);
+        console.log("000000",response)
         const { token,staff } = response.data;
         localStorage.setItem('authToken', token);
         localStorage.setItem('staffId', staff.id);
