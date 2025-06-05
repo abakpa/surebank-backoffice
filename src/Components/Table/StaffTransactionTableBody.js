@@ -26,7 +26,7 @@ const Tablebody = ({ customers = [], branches = [] }) => {
             onClick={() => handleRowClick(customer.customerId._id)}
           >
             <td className="border border-gray-300 p-2">
-              {customer.customerId.name}
+              {customer.customerId.firstName} {customer.customerId.lastName}
             </td>
 
             {!hideSensitiveInfo && (

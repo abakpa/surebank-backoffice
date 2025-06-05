@@ -8,6 +8,11 @@ const getBranchName = (branchId, branches = []) => {
   return branch ? branch.name : "Unknown Branch";
 };
 
+// Helper to format role display
+const formatRoleDisplay = (role) => {
+  return role === "Agent" ? "Rep" : role;
+};
+
 const Tablebody = ({ staffs, branches = [], onToggleStatus }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -44,7 +49,9 @@ const Tablebody = ({ staffs, branches = [], onToggleStatus }) => {
           <td className="border border-gray-300 p-2">{staff.firstName} {staff.lastName}</td>
           <td className="border border-gray-300 p-2">{staff.address}</td>
           <td className="border border-gray-300 p-2">{staff.phone}</td>
-          <td className="border border-gray-300 p-2">{staff.role}</td>
+          <td className="border border-gray-300 p-2">
+            {formatRoleDisplay(staff.role)}
+          </td>
           <td className="border border-gray-300 p-2">
             {getBranchName(staff.branchId, branches)}
           </td>

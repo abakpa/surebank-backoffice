@@ -96,7 +96,7 @@ const {customerId} = action.payload
           },
         };
         const response = yield call(axios.get, `${url}/api/customer/${customerId}`,config)
-        localStorage.setItem('customerName', response.data.name);
+        localStorage.setItem('customerName', `${response.data.firstName} ${response.data.lastName}`);
         yield put(fetchCustomerByIdSuccess(response.data))
     } catch (error) {
         if (error.response && error.response.status === 401) {

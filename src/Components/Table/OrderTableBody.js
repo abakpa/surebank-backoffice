@@ -17,7 +17,7 @@ const Tablebody = ({ customers = [], branches = [] }) => {
             className="text-center hover:bg-gray-100 cursor-pointer"
             onClick={() => handleRowClick(customer.customerId._id)}
           >
-            <td className="border border-gray-300 p-2">{customer.customerId.name}</td>
+            <td className="border border-gray-300 p-2">{customer.customerId.firstName} {customer.lastName}</td>
             {role !== "Manager" && (
               <td className="border border-gray-300 p-2">{customer.branchId.name}</td>
             )}

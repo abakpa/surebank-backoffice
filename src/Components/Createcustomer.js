@@ -24,7 +24,8 @@ const CreateCustomer = () => {
   const staffBranchId = loggedInBranchId || localStorage.getItem("staffBranch");
   const branchName = branches.find((branch) => branch._id === staffBranchId)?.name || "";
 
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -47,7 +48,8 @@ const CreateCustomer = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const details = {
-      name,
+      firstName,
+      lastName,
       address,
       phone,
       password,
@@ -57,7 +59,8 @@ const CreateCustomer = () => {
 
     dispatch(createCustomerRequest({ details, navigate }));
 
-    setName("");
+    setFirstName("");
+    setLastName("");
     setAddress("");
     setPhone("");
     setPassword("");
@@ -92,12 +95,23 @@ const CreateCustomer = () => {
       <form onSubmit={handleSubmit}>
         {/* Name */}
         <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+          <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">First Name</label>
           <input
-            id="name"
+            id="firstName"
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">Last Name</label>
+          <input
+            id="lastName"
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
             required
           />
@@ -123,7 +137,7 @@ const CreateCustomer = () => {
             id="phone"
             type="text"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => setPhone(e.target.value.replace(/\s+/g, ''))}
             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
             required
           />

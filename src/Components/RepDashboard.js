@@ -273,27 +273,6 @@ const RepDashboard = () => {
   
     </form>
   </div>
-
-  {/* Card 10 - Cyan */}
-  <div className="p-4 rounded-lg shadow-md bg-cyan-100">
-    <h3 className="text-sm font-semibold mb-2 text-cyan-800">Total Packages</h3>
-    <p className="text-sm font-bold text-cyan-800">{newpackages || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
-      {/* <Select2
-        label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
-        value={branchId9}
-        onChange={(selectedId) => setBranchId9(selectedId)}
-      /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date9}
-        onChange={(e) => setDate9(e.target.value)}
-      />
- 
-    </form>
-  </div>
     {/* Card 16 - Fuchsia */}
     <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
     <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Package</h3>
@@ -314,6 +293,27 @@ const RepDashboard = () => {
   
     </form>
   </div>
+  {/* Card 10 - Cyan */}
+  <div className="p-4 rounded-lg shadow-md bg-cyan-100">
+    <h3 className="text-sm font-semibold mb-2 text-cyan-800">Total Packages</h3>
+    <p className="text-sm font-bold text-cyan-800">{newpackages || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      {/* <Select2
+        label="Branch"
+        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        value={branchId9}
+        onChange={(selectedId) => setBranchId9(selectedId)}
+      /> */}
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date9}
+        onChange={(e) => setDate9(e.target.value)}
+      />
+ 
+    </form>
+  </div>
+
     {/* Card 16 - Fuchsia */}
     {/* <div className="relative p-4 rounded-lg shadow-md bg-violet-100"> */}
   {/* <Link to="/branchfdreport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">

@@ -303,7 +303,26 @@ const ManagerDashboard = () => {
   
     </form>
   </div>
-
+  {/* Card 16 - Fuchsia */}
+  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
+    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Package</h3>
+    <p className="text-sm font-bold text-fuchsia-800">{ newfdpackage || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      {/* <Select2
+        label="Branch"
+        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
+        value={branchId16}
+        onChange={(selectedId) => setBranchId16(selectedId)}
+      /> */}
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date16}
+        onChange={(e) => setDate16(e.target.value)}
+      />
+  
+    </form>
+  </div>
   {/* Card 10 - Cyan */}
   <div className="p-4 rounded-lg shadow-md bg-cyan-100">
     <h3 className="text-sm font-semibold mb-2 text-cyan-800">Total Packages</h3>
@@ -348,26 +367,7 @@ const ManagerDashboard = () => {
   
     </form>
   </div>
-  {/* Card 16 - Fuchsia */}
-  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
-    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Package</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newfdpackage || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
-      {/* <Select2
-        label="Branch"
-        options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
-        value={branchId16}
-        onChange={(selectedId) => setBranchId16(selectedId)}
-      /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date16}
-        onChange={(e) => setDate16(e.target.value)}
-      />
-  
-    </form>
-  </div>
+
 
 
 </div>
