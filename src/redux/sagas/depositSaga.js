@@ -132,7 +132,6 @@ function* createDepositSaga(action) {
   }
 function* createCostPriceSaga(action) {
     const { details } = action.payload;
-  console.log("cost price",details)
     try {
       const token = localStorage.getItem("authToken");
       const config = {
@@ -158,6 +157,7 @@ function* createCostPriceSaga(action) {
             localStorage.removeItem('authToken');
             window.location.href = '/login';
           }
+          console.log("saga error",error.response)
       const errorMessage = error.response?.data?.message || "An error occurred";
       yield put(createCostPriceFailure(errorMessage));
     }
@@ -431,7 +431,7 @@ function* editCustomerSBAccountSaga(action){
             localStorage.removeItem('authToken');
             window.location.href = '/login';
           }
-        yield put(editCustomerSBAccountFailure(error.message))
+        yield put(editCustomerSBAccountFailure(error?.response?.data?.message))
     }
 }
 function* editCustomerFDAccountSaga(action){
@@ -451,7 +451,7 @@ function* editCustomerFDAccountSaga(action){
             localStorage.removeItem('authToken');
             window.location.href = '/login';
           }
-        yield put(editCustomerFDAccountFailure(error.message))
+        yield put(editCustomerFDAccountFailure(error?.response?.data?.message))
     }
 }
   

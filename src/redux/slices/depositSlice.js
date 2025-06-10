@@ -29,6 +29,7 @@ const depositSlice = createSlice({
         },
         createCostPriceFailure:(state,action)=>{
             state.error = action.payload
+            state.loading=false
         },
         fetchCustomerAccountRequest:(state)=>{
             state.loading = true

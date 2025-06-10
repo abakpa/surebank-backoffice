@@ -45,10 +45,14 @@ const CustomerAccountDashboard = () => {
   const [showCreateSBAccountModal, setShowCreateSBAccountModal] = useState(false);
   const [showCreateFDAccountModal, setShowCreateFDAccountModal] = useState(false);
   const [amountPerDay, setAmountPerDay] = useState("");
+  const [costPrice, setCostPrice] = useState("");
   const [amount, setAmount] = useState("");
   const [fdamount, setFdamount] = useState("");
   const [fdcharge, setFdcharge] = useState("");
   const [durationMonths, setDurationMonths] = useState("");
+  const [editfdamount, setEditFdamount] = useState("");
+  // const [editfdcharge, setEditFdcharge] = useState("");
+  const [editdurationMonths, setEditDurationMonths] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
   const [productName, setProductName] = useState("");
   const [productDescription, setProductDescription] = useState("");
@@ -62,6 +66,12 @@ const CustomerAccountDashboard = () => {
   const duration = [6, 9, 12, 18, 24]
 
   useEffect(() => {
+if(selectedAccount){
+  setCostPrice(selectedAccount.costPrice)
+}
+  }, [selectedAccount]);
+
+  useEffect(() => {
     if (selectedAccount) {
       setSellingPrice(selectedAccount.sellingPrice); // Pre-fill amount
       setProductName(selectedAccount.productName); // Pre-fill product name
@@ -72,6 +82,13 @@ const CustomerAccountDashboard = () => {
       setFdcharge(selectedAccount.chargeInterest)
       setFdamount(selectedAccount.fdamount - fdcharge); // Pre-fill amount
       setDurationMonths(selectedAccount.durationMonths); // Pre-fill product name
+    }
+  }, [selectedAccount,fdcharge]);
+  useEffect(() => {
+    if (selectedAccount) {
+      // setEditFdcharge(selectedAccount.chargeInterest)
+      setEditFdamount(selectedAccount.fdamount); // Pre-fill amount
+      setEditDurationMonths(selectedAccount.durationMonths); // Pre-fill product name
     }
   }, [selectedAccount,fdcharge]);
 
@@ -177,20 +194,20 @@ const CustomerAccountDashboard = () => {
     e.preventDefault();
     setErrors("");
 
-    if (!selectedAccount.SBAccountNumber || !amountPerDay) {
+    if (!selectedAccount.SBAccountNumber || !costPrice) {
       setErrors("Both fields are required.");
       return;
     }
 
-    if (isNaN(amountPerDay) || parseFloat(amountPerDay) <= 0) {
+    if (isNaN(costPrice) || parseFloat(costPrice) <= 0) {
       setErrors("Please enter a valid amount.");
       return;
     }
 
-    const details = { SBAccountNumber: selectedAccount.SBAccountNumber,customerId:customerId,productName:selectedAccount.productName, costPrice: parseFloat(amountPerDay) };
+    const details = { SBAccountNumber: selectedAccount.SBAccountNumber,customerId:customerId,productName:selectedAccount.productName, costPrice: parseFloat(costPrice) };
     const data = {details}
     dispatch(createCostPriceRequest(data));
-    setAmountPerDay("");
+    setCostPrice("");
     setShowCostPriceModal(false);
   };
   const handleSBDepositSubmit = (e) => {
@@ -351,21 +368,21 @@ const CustomerAccountDashboard = () => {
     e.preventDefault();
     setErrors("");
 
-    if (!selectedAccount.FDAccountNumber || !fdamount) {
+    if (!selectedAccount.FDAccountNumber || !editfdamount) {
       setErrors("Both fields are required.");
       return;
     }
 
-    if (isNaN(fdamount) || parseFloat(fdamount) <= 0) {
+    if (isNaN(editfdamount) || parseFloat(editfdamount) <= 0) {
       setErrors("Please enter a valid amount.");
       return;
     }
 
-    const details = { FDAccountNumber: selectedAccount.FDAccountNumber,customerId:customerId,durationMonths:durationMonths, fdamount: parseFloat(fdamount) };
+    const details = { FDAccountNumber: selectedAccount.FDAccountNumber,customerId:customerId,durationMonths:editdurationMonths, fdamount: parseFloat(editfdamount) };
     const data = {details}
     dispatch(editCustomerFDAccountRequest(data));
-    setFdamount("");
-    setDurationMonths("");
+    setEditFdamount("");
+    setEditDurationMonths("");
     setShowFDEditModal(false);
   };
 
@@ -560,7 +577,7 @@ const CustomerAccountDashboard = () => {
                 <i className="fas fa-edit text-sm" title="Edit"></i>
               </button>
             </div>
-            <p className="text-sm text-gray-600">Number: {account.DSAccountNumber || "N/A"}</p>
+            <p className="text-sm text-gray-600"><span className="bg-blue-500 text-white w-8 h-8 rounded-sm"> DS:</span> {account.DSAccountNumber || "N/A"}</p>
             <p className="text-sm text-gray-600">Balance: ₦{account.totalContribution || 0}</p>
           </div>
           <div className="flex space-x-2">
@@ -600,7 +617,7 @@ const CustomerAccountDashboard = () => {
             }`}
           >
             FD Account <strong>₦{account.fdamount}</strong>
-            {account.totalAmount === 0 &&(
+            {/* {account.totalAmount === 0 &&( */}
             <button
               onClick={() => {
                 setSelectedAccount(account);
@@ -611,9 +628,9 @@ const CustomerAccountDashboard = () => {
             >
               <i className="fas fa-edit text-sm" title="Edit"></i>
             </button>
-    )}
+    {/* )} */}
           </div>
-          <p className="text-sm text-gray-600">Number: {account.FDAccountNumber || "N/A"}</p>
+          <p className="text-sm text-gray-600"><span className="bg-purple-500 text-white w-8 h-8 rounded-sm"> FD:</span> {account.FDAccountNumber || "N/A"}</p>
           <p className="text-sm text-gray-600">Interest: ₦{account.expenseInterest || 0}</p>
         </div>
         <div className="flex space-x-2">
@@ -681,7 +698,7 @@ const CustomerAccountDashboard = () => {
             </div>
 
             {/* Edit Button */}
-            {(loggedInStaffRole === 'Admin'||loggedInStaffRole === 'Manager') && (
+            {/* {(loggedInStaffRole === 'Admin'||loggedInStaffRole === 'Manager') && ( */}
             <button
               onClick={() => {
                 setSelectedAccount(account);
@@ -691,13 +708,13 @@ const CustomerAccountDashboard = () => {
             >
               <i className="fas fa-edit text-sm" title="Edit"></i>
             </button>
-              )}
+              {/* )} */}
                {/* Cost Price Icon */}
         {loggedInStaffRole === 'Admin' && (
         <button onClick={() => { 
         setSelectedAccount(account); 
         setShowCostPriceModal(true); }} 
-        className="text-purple-600 hover:text-purple-800">
+        className="text-green-500 hover:text-green-800">
           <i className="fas fa-naira-sign text-sm"></i>
         </button>
         )}
@@ -706,7 +723,7 @@ const CustomerAccountDashboard = () => {
         </div>
 
         {/* Account Details */}
-        <p className="text-xs text-gray-600">Number: {account.SBAccountNumber || "N/A"}</p>
+        <p className="text-xs text-gray-600"><span className="bg-green-500 text-white w-8 h-8 rounded-sm"> SB:</span> {account.SBAccountNumber || "N/A"}</p>
         <p className="text-xs text-gray-600">Balance: ₦{account.balance || 0}</p>
       </div>
 
@@ -839,8 +856,8 @@ const CustomerAccountDashboard = () => {
         <form onSubmit={handleCostPriceSubmit}>
           <input
             type="number"
-            value={amountPerDay}
-            onChange={(e) => setAmountPerDay(e.target.value)}
+            value={costPrice}
+            onChange={(e) => setCostPrice(e.target.value)}
             placeholder="Enter amount"
             className="w-full border border-gray-300 rounded p-2 mb-4"
           />
@@ -1174,8 +1191,8 @@ const CustomerAccountDashboard = () => {
     <form onSubmit={handleFDEditSubmit}>
       <input
         type="number"
-        value={fdamount}
-        onChange={(e) => setFdamount(e.target.value)}
+        value={editfdamount}
+        onChange={(e) => setEditFdamount(e.target.value)}
         // placeholder="Enter amount"
         className="w-full border border-gray-300 rounded p-2 mb-4"
       />
@@ -1184,8 +1201,8 @@ const CustomerAccountDashboard = () => {
     <Select
             label="Duration (Months)"
             options={duration}
-            value={durationMonths}
-            onChange={setDurationMonths}
+            value={editdurationMonths}
+            onChange={setEditDurationMonths}
           />
         </div>
  
