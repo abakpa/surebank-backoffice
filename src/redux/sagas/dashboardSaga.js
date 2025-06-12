@@ -1,6 +1,9 @@
 import {call, put, takeLatest} from 'redux-saga/effects'
 import axios from 'axios'
 import {
+    fetchAvailablaBalanceRequest,
+   fetchAvailablaBalanceSuccess,
+   fetchAvailablaBalanceFailure,
     fetchDSContributionRequest,
     fetchDSContributionSuccess,
     fetchDSContributionFailure,
@@ -68,6 +71,27 @@ import {
 } from '../slices/dashboardSlice'
 import { url } from './url'
 
+function* fetchAvailablaBalanceSaga(action) {
+    const { details21 = null } = action.payload; 
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const requestData = details21 ? details21 : {};
+        const dsresponse = yield call(axios.post, `${url}/api/admindashboard/availablebalance`, requestData,config);
+
+        yield put(fetchAvailablaBalanceSuccess(dsresponse.data));
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchAvailablaBalanceFailure(error.dsresponse?.data?.message || "An error occurred"));
+    }
+}
 function* fetchDSContributionSaga(action) {
     const { details = null } = action.payload; 
     try {
@@ -514,6 +538,7 @@ function* fetchTotalProfitSaga(action) {
 
 function* depositSaga(){
 
+    yield takeLatest(fetchAvailablaBalanceRequest.type, fetchAvailablaBalanceSaga)
     yield takeLatest(fetchDSContributionRequest.type, fetchDSContributionSaga)
     yield takeLatest(fetchSBContributionRequest.type, fetchSBContributionSaga)
     yield takeLatest(fetchFDContributionRequest.type, fetchFDContributionSaga)

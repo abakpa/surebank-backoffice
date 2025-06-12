@@ -2,6 +2,7 @@ import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
     dscontribution: null,
+    availablebalance:null,
     sbcontribution: null,
     fdcontribution: null,
     fdinterestincome: null,
@@ -30,6 +31,16 @@ const dashboardSlice = createSlice({
     name:'dashboard',
     initialState,
     reducers:{
+        fetchAvailablaBalanceRequest:(state)=>{
+            state.loading = true
+        },
+        fetchAvailablaBalanceSuccess:(state,action)=>{
+            state.availablebalance= action.payload;
+            state.loading=false
+        },
+        fetchAvailablaBalanceFailure:(state,action)=>{
+            state.error = action.payload
+        },
         fetchDSContributionRequest:(state)=>{
             state.loading = true
         },
@@ -245,6 +256,9 @@ const dashboardSlice = createSlice({
 })
 
 export const {
+    fetchAvailablaBalanceRequest,
+    fetchAvailablaBalanceSuccess,
+    fetchAvailablaBalanceFailure,
     fetchDSContributionRequest,
     fetchDSContributionSuccess,
     fetchDSContributionFailure,

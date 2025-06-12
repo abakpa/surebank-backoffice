@@ -580,15 +580,15 @@ if(selectedAccount){
             <p className="text-sm text-gray-600"><span className="bg-blue-500 text-white w-8 h-8 rounded-sm"> DS:</span> {account.DSAccountNumber || "N/A"}</p>
             <p className="text-sm text-gray-600">Balance: ₦{account.totalContribution || 0}</p>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex space-x-4">
             <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
-              <i className="fas fa-folder-open text-sm md:text-lg" title="View Transactions"></i>
+              <i className="fas fa-folder-open text-lg md:text-lg" title="View Transactions"></i>
             </button>
             <button onClick={() => { setSelectedAccount(account);setGetAmountPerDay(account.amountPerDay); setShowDepositModal(true); }} className="text-green-600 hover:text-green-800">
-              <i className="fas fa-plus-circle text-sm md:text-lg" title="Deposit"></i>
+              <i className="fas fa-plus-circle text-lg md:text-lg" title="Deposit"></i>
             </button>
             <button onClick={() => { setSelectedAccount(account); setShowWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
-              <i className="fas fa-minus-circle text-sm md:text-lg" title="Withdraw"></i>
+              <i className="fas fa-minus-circle text-lg md:text-lg" title="Withdraw"></i>
             </button>
           </div>
         </li>
@@ -633,15 +633,15 @@ if(selectedAccount){
           <p className="text-sm text-gray-600"><span className="bg-purple-500 text-white w-8 h-8 rounded-sm"> FD:</span> {account.FDAccountNumber || "N/A"}</p>
           <p className="text-sm text-gray-600">Interest: ₦{account.expenseInterest || 0}</p>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex space-x-4">
           <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
-            <i className="fas fa-folder-open text-sm md:text-lg" title="View Transactions"></i>
+            <i className="fas fa-folder-open text-lg md:text-lg" title="View Transactions"></i>
           </button>
           {/* <button onClick={() => { setSelectedAccount(account); setGetAmountPerDay(account.amountPerDay); setShowDepositModal(true); }} className="text-green-600 hover:text-green-800">
             <i className="fas fa-plus-circle text-sm md:text-lg" title="Deposit"></i>
           </button> */}
           <button onClick={() => { setSelectedAccount(account); setShowFDWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
-            <i className="fas fa-minus-circle text-sm md:text-lg" title="Withdraw"></i>
+            <i className="fas fa-minus-circle text-lg md:text-lg" title="Withdraw"></i>
           </button>
 
           {/* New Button for Withdrawing Matured Fixed Deposit */}
@@ -651,7 +651,7 @@ if(selectedAccount){
               onClick={() => { setSelectedAccount(account); setShowMaturedWithdrawalModal(true); }}
               className="text-yellow-600 hover:text-yellow-800"
             >
-              <i className="fas fa-unlock text-sm md:text-lg" title="Withdraw Matured FD"></i>
+              <i className="fas fa-unlock text-lg md:text-lg" title="Withdraw Matured FD"></i>
             </button>
           )}
         </div>
@@ -728,24 +728,24 @@ if(selectedAccount){
       </div>
 
       {/* Action Buttons */}
-      <div className="flex space-x-1">
+      <div className="flex space-x-4">
         {/* View Transactions */}
         <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
-          <i className="fas fa-folder-open text-sm md:text-lg" title="View Transactions"></i>
+          <i className="fas fa-folder-open text-lg md:text-lg" title="View Transactions"></i>
         </button>
         {/* Deposit Icon */}
         <button onClick={() => { setSelectedAccount(account); setShowSBDepositModal(true); }} className="text-green-600 hover:text-green-800">
-          <i className="fas fa-plus-circle text-sm md:text-lg" title="Deposit"></i>
+          <i className="fas fa-plus-circle text-lg md:text-lg" title="Deposit"></i>
         </button>
         {/* Withdrawal Icon */}
         {loggedInStaffRole === 'Admin' && (
           <button onClick={() => { setSelectedAccount(account); setShowSBWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
-            <i className="fas fa-minus-circle text-sm md:text-lg" title="Withdraw"></i>
+            <i className="fas fa-minus-circle text-lg md:text-lg" title="Withdraw"></i>
           </button>
         )}
         {/* Sell Icon */}
         <button onClick={() => { setSelectedAccount(account); setShowSellModal(true); }} className="text-yellow-600 hover:text-yellow-800">
-          <i className="fas fa-shopping-cart text-sm md:text-lg" title="Sell"></i>
+          <i className="fas fa-shopping-cart text-lg md:text-lg" title="Sell"></i>
         </button>
       </div>
     </li>

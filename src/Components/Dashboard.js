@@ -25,7 +25,8 @@ import {
   fetchSBincomeRequest,
   fetchTotalincomeRequest,
   fetchTotalExpenditureRequest,
-  fetchTotalProfitRequest
+  fetchTotalProfitRequest,
+  fetchAvailablaBalanceRequest
 } from '../redux/slices/dashboardSlice'
 import Loader from "./Loader";
 import Select2 from "./Select2";
@@ -60,6 +61,7 @@ const Dashboard = () => {
     const [date18, setDate18] = useState("");
     const [date19, setDate19] = useState("");
     const [date20, setDate20] = useState("");
+    const [date21, setDate21] = useState("");
     const [branchId, setBranchId] = useState("");
     const [branchId1, setBranchId1] = useState("");
     const [branchId2, setBranchId2] = useState("");
@@ -81,6 +83,7 @@ const Dashboard = () => {
     const [branchId18, setBranchId18] = useState("");
     const [branchId19, setBranchId19] = useState("");
     const [branchId20, setBranchId20] = useState("");
+    const [branchId21, setBranchId21] = useState("");
     const {
       loading,
       dscontribution,
@@ -103,7 +106,8 @@ const Dashboard = () => {
       fdincome,
       totalincome,
       totalexpenditure,
-      profit
+      profit,
+      availablebalance
     } = useSelector((state)=>state.dashboard)
       const newdsContribution = dscontribution || 0
       const newsbContribution = sbcontribution || 0
@@ -126,6 +130,7 @@ const Dashboard = () => {
       const newprofit = profit || 0
       const newinterestincome = fdinterestincome || 0
       const newinterestexpense = fdinterestexpense || 0
+      const newAvailableBalance = availablebalance || 0
 
 
 
@@ -155,6 +160,7 @@ const Dashboard = () => {
         const details18 = { branchId: branchId18, date: date18 };
         const details19 = { branchId: branchId19, date: date19 };
         const details20 = { branchId: branchId20, date: date20 };
+        const details21 = { branchId: branchId21, date: date21 };
         const data = {details}
         const data1 = {details1}
         const data2 = {details2}
@@ -176,6 +182,7 @@ const Dashboard = () => {
         const data18 = {details18}
         const data19 = {details19}
         const data20 = {details20}
+        const data21 = {details21}
     
         dispatch(fetchDSContributionRequest(data));
         dispatch(fetchSBContributionRequest(data1));
@@ -190,6 +197,7 @@ const Dashboard = () => {
         dispatch(fetchPackageRequest(data9)); 
         dispatch(fetchDSincomeRequest(data10)); 
         dispatch(fetchFDincomeRequest(data20)); 
+        dispatch(fetchAvailablaBalanceRequest(data21)); 
         dispatch(fetchSBincomeRequest(data11)); 
         dispatch(fetchTotalincomeRequest(data12)); 
         dispatch(fetchTotalExpenditureRequest(data13)); 
@@ -243,6 +251,8 @@ const Dashboard = () => {
       date19,
       branchId20,
       date20,
+      branchId21,
+      date21,
     ]);
     
   return (
@@ -250,6 +260,26 @@ const Dashboard = () => {
   {loading && <Loader />}
   <h1 className="text-2xl font-bold mb-4 mt-10 text-center">Admin Dashboard</h1>
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+  {/* Card 1 - Blue */}
+  <div className="p-4 rounded-lg shadow-md bg-blue-100">
+    <h3 className="text-sm font-semibold mb-2 text-blue-800">Available Balance</h3>
+    <p className="text-sm font-bold text-blue-800">{newAvailableBalance}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branchOptions}
+        value={branchId21}
+        onChange={(selectedId) => setBranchId21(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date21}
+        onChange={(e) => setDate21(e.target.value)}
+      />
+   
+    </form>
+  </div>
   {/* Card 1 - Blue */}
   <div className="p-4 rounded-lg shadow-md bg-blue-100">
     <h3 className="text-sm font-semibold mb-2 text-blue-800">Total DS Contribution</h3>

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logoutRequest } from "../redux/slices/loginSlice";
-import logo from "../images/easytobuylogo2.jpg";
+import logo from "../images/surebanklogo.png";
 
 const Topbar = ({ toggleSidebar }) => {
   const dispatch = useDispatch();
