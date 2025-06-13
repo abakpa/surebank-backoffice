@@ -55,6 +55,7 @@ import { url } from './url'
 }
 function* createStaffSaga(action){
     const {details,navigate} = action.payload
+    const role = localStorage.getItem("staffRole");
     try {
         const token = localStorage.getItem('authToken');
         const config = {
@@ -64,7 +65,11 @@ function* createStaffSaga(action){
         };
         const response = yield call(axios.post,`${url}/api/staff`, details,config);
         yield put(createStaffSuccess(response.data))
+        if(role === 'Admin'){
         navigate('/staff')
+        }else{
+          navigate('/branchstaff')
+        }
     } catch (error) {
         if (error.response && error.response.status === 401) {
             localStorage.removeItem('authToken');
