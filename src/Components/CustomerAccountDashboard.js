@@ -395,14 +395,13 @@ if(selectedAccount){
     const handleCreateAccount = (e) => {
       e.preventDefault();
       setErrors("");
-  
-      if (!deposit.account.accountNumber || !amountPerDay) {
-        setErrors("Both fields are required.");
+      if (!accountType) {
+        setErrors("Please select an Account Type");
         return;
       }
-  
-      if (isNaN(amountPerDay) || parseFloat(amountPerDay) <= 0) {
-        setErrors("Please enter a valid amount.");
+    
+      if (!amountPerDay) {
+        setErrors("Please enter the daily deposit amount");
         return;
       }
   
@@ -452,14 +451,13 @@ if(selectedAccount){
     const handleCreateFDAccount = (e) => {
       e.preventDefault();
       setErrors("");
-  
-      if (!deposit.account.accountNumber || !fdamount) {
-        setErrors("Both fields are required.");
+      if (!durationMonths) {
+        setErrors("Please select duration");
         return;
       }
-  
-      if (isNaN(fdamount) || parseFloat(fdamount) <= 0) {
-        setErrors("Please enter a valid amount.");
+    
+      if (!fdamount) {
+        setErrors("Please enter the amount");
         return;
       }
   
@@ -859,6 +857,7 @@ if(selectedAccount){
             value={costPrice}
             onChange={(e) => setCostPrice(e.target.value)}
             placeholder="Enter amount"
+            required
             className="w-full border border-gray-300 rounded p-2 mb-4"
           />
           <div className="flex justify-end space-x-4">
@@ -1232,6 +1231,7 @@ if(selectedAccount){
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded shadow-md w-96">
         <h3 className="text-lg font-bold mb-4">Create Account Package</h3>
+        {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
         <form onSubmit={handleCreateAccount}>
         
         <div className="mb-4">
@@ -1240,6 +1240,7 @@ if(selectedAccount){
             options={accountpackages}
             value={accountType}
             onChange={setAccountType}
+            required
           />
         </div>
         {/* <div className="mb-4">
@@ -1261,6 +1262,7 @@ if(selectedAccount){
               value={amountPerDay}
               onChange={(e) => setAmountPerDay(e.target.value)}
               placeholder="Enter amount"
+              required
               className="w-full border border-gray-300 rounded p-2 mt-1"
             />
           </div>
@@ -1308,6 +1310,7 @@ if(selectedAccount){
               value={productName}
               onChange={(e) => setProductName(e.target.value)}
               placeholder="Enter Product Name"
+              required
               className="w-full border border-gray-300 rounded p-2 mt-1"
             />
           </div>
@@ -1321,6 +1324,7 @@ if(selectedAccount){
               value={productDescription}
               onChange={(e) => setProductDescription(e.target.value)}
               placeholder="Enter Product Description"
+              required
               className="w-full border border-gray-300 rounded p-2 mt-1"
             />
           </div>
@@ -1334,6 +1338,7 @@ if(selectedAccount){
               value={sellingPrice}
               onChange={(e) => setSellingPrice(e.target.value)}
               placeholder="Enter amount"
+              required
               className="w-full border border-gray-300 rounded p-2 mt-1"
             />
           </div>
@@ -1360,6 +1365,7 @@ if(selectedAccount){
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div className="bg-white p-6 rounded shadow-md w-96">
       <h3 className="text-lg font-bold mb-4">Create Account Package</h3>
+      {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
       <form onSubmit={handleCreateFDAccount}>
         {/* Account Manager Select */}
         {/* {(loggedInStaffRole === "Admin" || loggedInStaffRole === "Manager") &&
@@ -1386,6 +1392,7 @@ if(selectedAccount){
             value={fdamount}
             onChange={(e) => setFdamount(e.target.value)}
             placeholder="Enter amount"
+            required
             className="w-full border border-gray-300 rounded p-2 mt-1"
           />
         </div>
@@ -1413,6 +1420,7 @@ if(selectedAccount){
             options={duration}
             value={durationMonths}
             onChange={setDurationMonths}
+            required
           />
         </div>
 
