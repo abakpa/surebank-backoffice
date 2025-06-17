@@ -17,7 +17,8 @@ const BranchOrder = () => {
   }, [dispatch]);
 
   // Ensure customers is always an array
-  const orderList = Array.isArray(branchorder) ? branchorder : [];
+  const orderList = Array.isArray(branchorder.orders) ? branchorder.orders : [];
+  const orderList2 = Array.isArray(branchorder.sbAccounts) ? branchorder.sbAccounts : [];
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -27,7 +28,10 @@ const BranchOrder = () => {
     (orderList?.status?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
     (orderList?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   );
-  console.log("component transaction",filteredorderList)
+  const filteredorderList2 = orderList2.filter((orderList) =>
+    (orderList2?.status?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (orderList2?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+  );
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -68,7 +72,7 @@ const BranchOrder = () => {
       <div className="flex flex-col md:flex-row items-center justify-between mb-4 gap-2">
         <input
           type="text"
-          placeholder="Search by branch or status..."
+          placeholder="Search by status..."
           value={searchTerm}
           onChange={handleSearch}
           className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md"
@@ -84,7 +88,7 @@ const BranchOrder = () => {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[600px] border-collapse border border-gray-300">
           <Tablehead />
-          <Tablebody customers={filteredorderList} branches={branches} />
+          <Tablebody customers={filteredorderList} customers2={filteredorderList2} branches={branches} />
         </table>
       </div>
     </div>

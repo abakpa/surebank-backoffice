@@ -17,17 +17,22 @@ const RepOrder = () => {
   }, [dispatch]);
 
   // Ensure customers is always an array
-  const orderList = Array.isArray(reporder) ? reporder : [];
+  const reporderList = Array.isArray(reporder.orders) ? reporder.orders : [];
+  const reporderList2 = Array.isArray(reporder.sbAccounts) ? reporder.sbAccounts : [];
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredorderList = orderList.filter((orderList) =>
-    (orderList?.status?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-    (orderList?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+  const filteredreporderList = reporderList.filter((reporderList) =>
+    (reporderList?.status?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (reporderList?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   );
-  console.log("component transaction",filteredorderList)
+  const filteredreporderList2 = reporderList2.filter((reporderList2) =>
+    (reporderList2?.status?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (reporderList2?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+  );
+  console.log("component transaction",reporder)
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -84,7 +89,7 @@ const RepOrder = () => {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[600px] border-collapse border border-gray-300">
           <Tablehead />
-          <Tablebody customers={filteredorderList} branches={branches} />
+          <Tablebody customers={filteredreporderList} customers2={filteredreporderList2} branches={branches} />
         </table>
       </div>
     </div>

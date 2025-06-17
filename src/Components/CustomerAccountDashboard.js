@@ -500,9 +500,9 @@ if(selectedAccount){
         <h1 className="text-2xl font-bold">Customer Account Dashboard</h1>
         <p className="text-gray-700"><strong>Name:</strong> {customerName}</p>
         <p className="text-gray-700"><strong>Account Number:</strong> {deposit?.account?.accountNumber}</p>
-        <p className="text-gray-700"><strong>Total Balance:</strong> ₦{deposit?.account?.ledgerBalance}</p>
+        {/* <p className="text-gray-700"><strong>Total Balance:</strong> ₦{deposit?.account?.ledgerBalance}</p> */}
         <p className="text-gray-700">
-          <strong>Available Balance:</strong> ₦{deposit?.account?.availableBalance} 
+          <strong>Free to withdraw:</strong> ₦{deposit?.account?.availableBalance} 
           <button
           onClick={() => accountTransaction(deposit?.account?._id)}
           className="text-blue-600 hover:underline ml-1"
@@ -585,9 +585,11 @@ if(selectedAccount){
             <button onClick={() => { setSelectedAccount(account);setGetAmountPerDay(account.amountPerDay); setShowDepositModal(true); }} className="text-green-600 hover:text-green-800">
               <i className="fas fa-plus-circle text-lg md:text-lg" title="Deposit"></i>
             </button>
+            {((loggedInStaffRole === 'Admin') || (loggedInStaffRole==='Manager')) && (
             <button onClick={() => { setSelectedAccount(account); setShowWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
               <i className="fas fa-minus-circle text-lg md:text-lg" title="Withdraw"></i>
             </button>
+            )}
           </div>
         </li>
       ))}
@@ -616,6 +618,7 @@ if(selectedAccount){
           >
             FD Account <strong>₦{account.fdamount}</strong>
             {/* {account.totalAmount === 0 &&( */}
+            {loggedInStaffRole === 'Admin' && (
             <button
               onClick={() => {
                 setSelectedAccount(account);
@@ -626,6 +629,7 @@ if(selectedAccount){
             >
               <i className="fas fa-edit text-sm" title="Edit"></i>
             </button>
+            )}
     {/* )} */}
           </div>
           <p className="text-sm text-gray-600"><span className="bg-purple-500 text-white w-8 h-8 rounded-sm"> FD:</span> {account.FDAccountNumber || "N/A"}</p>
@@ -638,20 +642,20 @@ if(selectedAccount){
           {/* <button onClick={() => { setSelectedAccount(account); setGetAmountPerDay(account.amountPerDay); setShowDepositModal(true); }} className="text-green-600 hover:text-green-800">
             <i className="fas fa-plus-circle text-sm md:text-lg" title="Deposit"></i>
           </button> */}
+           {((loggedInStaffRole === 'Admin') || (loggedInStaffRole==='Manager')) && (
           <button onClick={() => { setSelectedAccount(account); setShowFDWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
             <i className="fas fa-minus-circle text-lg md:text-lg" title="Withdraw"></i>
           </button>
-
+           )}
           {/* New Button for Withdrawing Matured Fixed Deposit */}
-          {isMatured && account.totalAmount > 0 && (
-           
-            <button
-              onClick={() => { setSelectedAccount(account); setShowMaturedWithdrawalModal(true); }}
-              className="text-yellow-600 hover:text-yellow-800"
-            >
-              <i className="fas fa-unlock text-lg md:text-lg" title="Withdraw Matured FD"></i>
-            </button>
-          )}
+          {(isMatured && account.totalAmount > 0 && (loggedInStaffRole === 'Admin' || loggedInStaffRole === 'Manager')) && (
+    <button
+      onClick={() => { setSelectedAccount(account); setShowMaturedWithdrawalModal(true); }}
+      className="text-yellow-600 hover:text-yellow-800"
+    >
+      <i className="fas fa-unlock text-lg md:text-lg" title="Withdraw Matured FD"></i>
+    </button>
+  )}
         </div>
       </li>
     );
@@ -742,9 +746,11 @@ if(selectedAccount){
           </button>
         )}
         {/* Sell Icon */}
+        {((loggedInStaffRole === 'Admin') || (loggedInStaffRole==='Manager')) && (
         <button onClick={() => { setSelectedAccount(account); setShowSellModal(true); }} className="text-yellow-600 hover:text-yellow-800">
           <i className="fas fa-shopping-cart text-lg md:text-lg" title="Sell"></i>
         </button>
+        )}
       </div>
     </li>
   ))}

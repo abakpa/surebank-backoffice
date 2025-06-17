@@ -15,9 +15,9 @@ const Order = () => {
     dispatch(fetchBranchRequest());
     dispatch(fetchOrderRequest());
   }, [dispatch]);
-
   // Ensure customers is always an array
-  const orderList = Array.isArray(order) ? order : [];
+  const orderList = Array.isArray(order.orders) ? order.orders : [];
+  const orderList2 = Array.isArray(order.sbAccounts) ? order.sbAccounts : [];
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -26,6 +26,10 @@ const Order = () => {
   const filteredorderList = orderList.filter((orderList) =>
     (orderList?.status?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
     (orderList?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+  );
+  const filteredorderList2 = orderList2.filter((orderList2) =>
+    (orderList2?.status?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (orderList2?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
   );
   console.log("component transaction",filteredorderList)
   if (loading) {
@@ -84,7 +88,7 @@ const Order = () => {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[600px] border-collapse border border-gray-300">
           <Tablehead />
-          <Tablebody customers={filteredorderList} branches={branches} />
+          <Tablebody customers={filteredorderList} customers2={filteredorderList2} branches={branches} />
         </table>
       </div>
     </div>
