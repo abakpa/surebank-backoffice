@@ -39,7 +39,7 @@ const Tablebody = ({ customers = [], branches = [] }) => {
               {customer.narration}
             </td>
             <td className="border border-gray-300 p-2">
-              {customer.amount}
+              {customer.amount?.toLocaleString('en-US')}
             </td>
             <td className="border border-gray-300 p-2">
               {customer.date}

@@ -502,7 +502,7 @@ if(selectedAccount){
         <p className="text-gray-700"><strong>Account Number:</strong> {deposit?.account?.accountNumber}</p>
         {/* <p className="text-gray-700"><strong>Total Balance:</strong> ₦{deposit?.account?.ledgerBalance}</p> */}
         <p className="text-gray-700">
-          <strong>Free to withdraw:</strong> ₦{deposit?.account?.availableBalance} 
+          <strong>Free to withdraw:</strong> ₦{deposit?.account?.availableBalance?.toLocaleString('en-US')} 
           <button
           onClick={() => accountTransaction(deposit?.account?._id)}
           className="text-blue-600 hover:underline ml-1"
@@ -563,7 +563,7 @@ if(selectedAccount){
                   : "bg-gray-100 text-blue-700"
               }`}
             >
-              {account.accountType} Account <strong>₦{account.amountPerDay}</strong>
+              {account.accountType} Account <strong>₦{account.amountPerDay?.toLocaleString('en-US')}</strong>
               <button
                 onClick={() => {
                   setSelectedAccount(account);
@@ -576,7 +576,7 @@ if(selectedAccount){
               </button>
             </div>
             <p className="text-sm text-gray-600"><span className="bg-blue-500 text-white w-8 h-8 rounded-sm"> DS:</span> {account.DSAccountNumber || "N/A"}</p>
-            <p className="text-sm text-gray-600">Balance: ₦{account.totalContribution || 0}</p>
+            <p className="text-sm text-gray-600">Balance: ₦{account.totalContribution?.toLocaleString('en-US') || 0}</p>
           </div>
           <div className="flex space-x-4">
             <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
@@ -616,7 +616,7 @@ if(selectedAccount){
                 : "bg-gray-100 text-blue-700"
             }`}
           >
-            FD Account <strong>₦{account.fdamount}</strong>
+            FD Account <strong>₦{account.fdamount?.toLocaleString('en-US')}</strong>
             {/* {account.totalAmount === 0 &&( */}
             {loggedInStaffRole === 'Admin' && (
             <button
@@ -633,7 +633,7 @@ if(selectedAccount){
     {/* )} */}
           </div>
           <p className="text-sm text-gray-600"><span className="bg-purple-500 text-white w-8 h-8 rounded-sm"> FD:</span> {account.FDAccountNumber || "N/A"}</p>
-          <p className="text-sm text-gray-600">Interest: ₦{account.expenseInterest || 0}</p>
+          <p className="text-sm text-gray-600">Interest: ₦{account.expenseInterest?.toLocaleString('en-US') || 0}</p>
         </div>
         <div className="flex space-x-4">
           <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
@@ -684,7 +684,7 @@ if(selectedAccount){
                 : "bg-gray-100 text-blue-700"
             }`}
           >
-            {account.productName} <strong>₦{account.sellingPrice}</strong>
+            {account.productName} <strong>₦{account.sellingPrice?.toLocaleString('en-US')}</strong>
           </span>
 
           {/* Tooltip & Edit - Same Row on Desktop, Below on Mobile */}
@@ -726,7 +726,7 @@ if(selectedAccount){
 
         {/* Account Details */}
         <p className="text-xs text-gray-600"><span className="bg-green-500 text-white w-8 h-8 rounded-sm"> SB:</span> {account.SBAccountNumber || "N/A"}</p>
-        <p className="text-xs text-gray-600">Balance: ₦{account.balance || 0}</p>
+        <p className="text-xs text-gray-600">Balance: ₦{account.balance?.toLocaleString('en-US') || 0}</p>
       </div>
 
       {/* Action Buttons */}

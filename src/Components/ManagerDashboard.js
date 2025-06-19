@@ -161,7 +161,7 @@ const ManagerDashboard = () => {
   {/* Card 4 - Yellow */}
   <div className="p-4 rounded-lg shadow-md bg-yellow-100">
     <h3 className="text-sm font-semibold mb-2 text-yellow-800">Total DS Daily Contribution</h3>
-    <p className="text-sm font-bold text-yellow-800">{newdailyds || 0}</p>
+    <p className="text-sm font-bold text-yellow-800">{newdailyds?.toLocaleString('en-US') || 0}</p>
     <form className="flex flex-col gap-2 mt-2">
       {/* <Select2
         label="Branch"
@@ -182,7 +182,7 @@ const ManagerDashboard = () => {
   {/* Card 5 - Purple */}
   <div className="p-4 rounded-lg shadow-md bg-purple-100">
     <h3 className="text-sm font-semibold mb-2 text-purple-800">Total SB Daily Contribution</h3>
-    <p className="text-sm font-bold text-purple-800">{newdailysb || 0}</p>
+    <p className="text-sm font-bold text-purple-800">{newdailysb?.toLocaleString('en-US') || 0}</p>
     <form className="flex flex-col gap-2 mt-2">
       {/* <Select2
         label="Branch"
@@ -202,7 +202,7 @@ const ManagerDashboard = () => {
   {/* Card 5 - Purple */}
   <div className="p-4 rounded-lg shadow-md bg-purple-100">
     <h3 className="text-sm font-semibold mb-2 text-purple-800">Total FD Daily Contribution</h3>
-    <p className="text-sm font-bold text-purple-800">{newdailyfd || 0}</p>
+    <p className="text-sm font-bold text-purple-800">{newdailyfd?.toLocaleString('en-US') || 0}</p>
     <form className="flex flex-col gap-2 mt-2">
       {/* <Select2
         label="Branch"
@@ -223,7 +223,7 @@ const ManagerDashboard = () => {
   {/* Card 6 - Indigo */}
   <div className="p-4 rounded-lg shadow-md bg-indigo-100">
     <h3 className="text-sm font-semibold mb-2 text-indigo-800">Total Daily Contribution</h3>
-    <p className="text-sm font-bold text-indigo-800">{newtotaldailysbandds || 0}</p>
+    <p className="text-sm font-bold text-indigo-800">{newtotaldailysbandds?.toLocaleString('en-US') || 0}</p>
     <form className="flex flex-col gap-2 mt-2">
       {/* <Select2
         label="Branch"
@@ -244,7 +244,7 @@ const ManagerDashboard = () => {
   {/* Card 7 - Pink */}
   <div className="p-4 rounded-lg shadow-md bg-pink-100">
     <h3 className="text-sm font-semibold mb-2 text-pink-800">DS Withdrawal</h3>
-    <p className="text-sm font-bold text-pink-800">{newdswithdrawal || 0}</p>
+    <p className="text-sm font-bold text-pink-800">{newdswithdrawal?.toLocaleString('en-US') || 0}</p>
     <form className="flex flex-col gap-2 mt-2">
       {/* <Select2
         label="Branch"
@@ -265,7 +265,7 @@ const ManagerDashboard = () => {
   {/* Card 8 - Teal */}
   <div className="p-4 rounded-lg shadow-md bg-teal-100">
     <h3 className="text-sm font-semibold mb-2 text-teal-800">DS Package</h3>
-    <p className="text-sm font-bold text-teal-800">{newdspackage || 0}</p>
+    <p className="text-sm font-bold text-teal-800">{newdspackage?.toLocaleString('en-US') || 0}</p>
     <form className="flex flex-col gap-2 mt-2">
       {/* <Select2
         label="Branch"
@@ -286,7 +286,7 @@ const ManagerDashboard = () => {
   {/* Card 9 - Orange */}
   <div className="p-4 rounded-lg shadow-md bg-orange-100">
     <h3 className="text-sm font-semibold mb-2 text-orange-800">SB Package</h3>
-    <p className="text-sm font-bold text-orange-800">{newsbpackage || 0}</p>
+    <p className="text-sm font-bold text-orange-800">{newsbpackage?.toLocaleString('en-US') || 0}</p>
     <form className="flex flex-col gap-2 mt-2">
       {/* <Select2
         label="Branch"
@@ -306,7 +306,7 @@ const ManagerDashboard = () => {
   {/* Card 16 - Fuchsia */}
   <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
     <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Package</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newfdpackage || 0}</p>
+    <p className="text-sm font-bold text-fuchsia-800">{ newfdpackage?.toLocaleString('en-US') || 0}</p>
     <form className="flex flex-col gap-2 mt-2">
       {/* <Select2
         label="Branch"
@@ -326,7 +326,7 @@ const ManagerDashboard = () => {
   {/* Card 10 - Cyan */}
   <div className="p-4 rounded-lg shadow-md bg-cyan-100">
     <h3 className="text-sm font-semibold mb-2 text-cyan-800">Total Packages</h3>
-    <p className="text-sm font-bold text-cyan-800">{newpackages || 0}</p>
+    <p className="text-sm font-bold text-cyan-800">{newpackages?.toLocaleString('en-US') || 0}</p>
     <form className="flex flex-col gap-2 mt-2">
       {/* <Select2
         label="Branch"
@@ -350,7 +350,7 @@ const ManagerDashboard = () => {
   <p className="text-sm md:text-sm">View Expenditure</p>
   </Link>
     <h3 className="text-sm font-semibold mb-2 text-violet-800">Total Expenses</h3>
-    <p className="text-sm font-bold text-violet-800">{ newtotalexpenditure || 0}</p>
+    <p className="text-sm font-bold text-violet-800">{ newtotalexpenditure?.toLocaleString('en-US') || 0}</p>
     <form className="flex flex-col gap-2 mt-2">
       {/* <Select2
         label="Branch"

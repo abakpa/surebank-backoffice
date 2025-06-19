@@ -18,7 +18,7 @@ const Tablebody = ({ customers = [], branches = [] }) => {
               <td className="border border-gray-300 p-2">{customer.createdBy.branchId?.name}</td>
             )}
             <td className="border border-gray-300 p-2">{customer.reason}</td>
-            <td className="border border-gray-300 p-2">{customer.amount}</td>
+            <td className="border border-gray-300 p-2">{customer.amount?.toLocaleString('en-US')}</td>
           </tr>
         )) 
       ) : (

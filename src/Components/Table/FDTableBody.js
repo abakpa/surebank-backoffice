@@ -36,11 +36,11 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
             onClick={() => handleRowClick(customer.customerId._id)}
           >
             <td className="border border-gray-300 p-2">{customer.customerId.firstName} {customer.customerId.lastName}</td>
-            <td className="border border-gray-300 p-2">{customer.fdamount}</td>
+            <td className="border border-gray-300 p-2">{customer.fdamount?.toLocaleString('en-US')}</td>
             <td className="border border-gray-300 p-2">{customer.durationMonths}</td>
             <td className="border border-gray-300 p-2">{formatDate(customer.maturityDate)}</td>
-            <td className="border border-gray-300 p-2">{customer.incomeInterest}</td>
-            <td className="border border-gray-300 p-2">{customer.expenseInterest}</td>
+            <td className="border border-gray-300 p-2">{customer.incomeInterest?.toLocaleString('en-US')}</td>
+            <td className="border border-gray-300 p-2">{customer.expenseInterest?.toLocaleString('en-US')}</td>
             <td className="border border-gray-300 p-2">{customer.status}</td>
             <td className="border border-gray-300 p-2">{customer.branchId.name}</td>
             <td className="border border-gray-300 p-2">{customer.createdBy.firstName} {customer.createdBy.lastName}</td>
