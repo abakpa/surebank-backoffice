@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { updateStaffRequest } from "../../redux/slices/staffSlice";
+import { updateStaffRequest,resetStaffPasswordRequest } from "../../redux/slices/staffSlice";
 
 // Helper to get branch name
 const getBranchName = (branchId, branches = []) => {
@@ -27,6 +27,12 @@ const Tablebody = ({ staffs, branches = [], onToggleStatus }) => {
     const newStatus = staff.status === "isActive" ? "inactive" : "isActive";
     const details = { staffId: staff._id, status: newStatus };
     dispatch(updateStaffRequest(details));
+  };
+  const resetPassword = (e, staff) => {
+    e.stopPropagation();
+    // const newStatus = staff.status === "isActive" ? "inactive" : "isActive";
+    const details = { staffId: staff._id};
+    dispatch(resetStaffPasswordRequest(details));
   };
 
   // Filter out self-role (Admin or Manager) and "Head office" branch
@@ -65,6 +71,17 @@ const Tablebody = ({ staffs, branches = [], onToggleStatus }) => {
               }`}
             >
               {staff.status === "isActive" ? "Deactivate" : "Activate"}
+            </button>
+            <button
+              onClick={(e) => resetPassword(e, staff)}
+              className={`px-3 py-1 ml-1 mt-1 rounded text-xs font-medium ${
+                staff.updatePassword === "false"
+                  ? "bg-green-600 text-white hover:bg-green-700"
+                  : "bg-red-600 text-white hover:bg-red-700"
+              }`}
+            >
+
+              {staff.updatePassword === "false" ? "Reset Password" : "Done"}
             </button>
           </td>
         </tr>

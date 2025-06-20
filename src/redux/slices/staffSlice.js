@@ -51,6 +51,26 @@ const staffSlice = createSlice({
         },
         updateStaffFailure:(state,action)=>{
             state.error = action.payload
+        },
+        resetStaffPasswordRequest:(state)=>{
+            state.loading = true
+        },
+       resetStaffPasswordSuccess:(state,action)=>{
+            state.staffs= action.payload;
+            state.loading=false
+        },
+       resetStaffPasswordFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        updatePasswordRequest:(state)=>{
+            state.loading = true
+        },
+       updatePasswordSuccess:(state,action)=>{
+            state.staffs= action.payload;
+            state.loading=false
+        },
+       updatePasswordFailure:(state,action)=>{
+            state.error = action.payload
         }
     }
 })
@@ -67,7 +87,13 @@ export const {
     createStaffFailure,
     updateStaffRequest,
     updateStaffSuccess,
-    updateStaffFailure
+    updateStaffFailure,
+    resetStaffPasswordRequest,
+    resetStaffPasswordSuccess,
+    resetStaffPasswordFailure,
+    updatePasswordRequest,
+   updatePasswordSuccess,
+   updatePasswordFailure
 } = staffSlice.actions
 
 export default staffSlice.reducer

@@ -27,6 +27,7 @@ import ViewCustomerAccount from "./Components/ViewCustomerAccount";
 import CustomerAccountDashboard from "./Components/CustomerAccountDashboard";
 import ManagerViewRepDashboard from "./Components/ManagerViewRepDashboard";
 import Login from "./Components/Stafflogin";
+import StaffForgotPassword from "./Components/StaffForgotPassword";
 import Footer from "./Components/Footer";
 import SBIncome from "./Components/SbIncome";
 import FDIncome from "./Components/FDincome";
@@ -142,6 +143,7 @@ function App() {
               )}
               {/* Login Route */}
               <Route path="/login" element={<Login />} />
+              <Route path="/forgotpassword" element={<StaffForgotPassword />} />
             </Routes>
           </div>
 

@@ -12,7 +12,13 @@ import {
     createStaffFailure,
     updateStaffRequest,
     updateStaffSuccess,
-    updateStaffFailure
+    updateStaffFailure,
+    resetStaffPasswordRequest,
+  resetStaffPasswordSuccess,
+  resetStaffPasswordFailure,
+  updatePasswordRequest,
+  updatePasswordSuccess,
+  updatePasswordFailure
 } from '../slices/staffSlice'
 import { url } from './url'
 
@@ -101,12 +107,61 @@ function* updateStaffSaga(action){
         yield put(updateStaffFailure(error.message))
     }
 }
+function* resetStaffPasswordSaga(action){
+    console.log(action.payload)
+    const {staffId} = action.payload
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = yield call(axios.put,`${url}/api/staff/password/${staffId}`,{},config );
+        yield put(resetStaffPasswordSuccess(response.data))
+        yield call (fetchBranchStaffSaga);
+        yield call (fetchStaffSaga);
+        // navigate('/staff')
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(resetStaffPasswordFailure(error.message))
+    }
+}
+function* updatePasswordSaga(action){
+    console.log("MMMMMM",action.payload)
+    const {staffId,email,newPassword} = action.payload
+    const details = {email,newPassword}
+    try {
+        // const token = localStorage.getItem('authToken');
+        // const config = {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // };
+        const response = yield call(axios.put,`${url}/api/staff/forgotpassword/${staffId}`,details );
+        yield put(updatePasswordSuccess(response.data))
+        yield call (fetchBranchStaffSaga);
+        yield call (fetchStaffSaga);
+        // navigate('/staff')
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(updatePasswordFailure(error.message))
+    }
+}
 
 function* staffSaga(){
     yield takeLatest(fetchStaffRequest.type, fetchStaffSaga)
     yield takeLatest(fetchBranchStaffRequest.type, fetchBranchStaffSaga)
     yield takeLatest(createStaffRequest.type, createStaffSaga)
     yield takeLatest(updateStaffRequest.type, updateStaffSaga)
+    yield takeLatest(resetStaffPasswordRequest.type, resetStaffPasswordSaga)
+    yield takeLatest(updatePasswordRequest.type, updatePasswordSaga)
 }
 
 export default staffSaga
