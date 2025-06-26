@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 
 const Viewcustomer = () => {
   const dispatch = useDispatch();
-  const { loading, customers, error } = useSelector((state) => state.customer);
+  const { loading, branchcustomers, error } = useSelector((state) => state.customer);
   const { branches } = useSelector((state) => state.branch);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -18,7 +18,7 @@ const Viewcustomer = () => {
   }, [dispatch]);
 
   // Ensure customers is always an array
-  const customerList = Array.isArray(customers) ? customers : [];
+  const customerList = Array.isArray(branchcustomers) ? branchcustomers : [];
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value.toLowerCase());

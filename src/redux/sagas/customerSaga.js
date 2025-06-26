@@ -22,6 +22,13 @@ import {
     transferAllCustomerRequest,
     transferAllCustomerSuccess,
     transferAllCustomerFailure,
+    resetCustomerPasswordRequest,
+    resetCustomerPasswordSuccess,
+    resetCustomerPasswordFailure,
+    updatePasswordRequest,
+   updatePasswordSuccess,
+   updatePasswordFailure,
+
 } from '../slices/customerSlice'
 import { url } from './url'
 
@@ -189,6 +196,53 @@ function* transferCustomerSaga(action) {
       yield put(transferCustomerFailure(error.message || "Transfer failed"));
     }
   }
+  function* resetCustomerPasswordSaga(action){
+    console.log(action.payload)
+    const {customerId} = action.payload
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = yield call(axios.put,`${url}/api/customer/password/${customerId}`,{},config );
+        yield put(resetCustomerPasswordSuccess(response.data))
+        yield call (fetchBranchCustomerSaga);
+        yield call (fetchCustomerSaga);
+        // navigate('/staff')
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(resetCustomerPasswordFailure(error.message))
+    }
+}
+function* updatePasswordSaga(action){
+    const {customerId,phone,newPassword} = action.payload
+    const details = {phone,newPassword}
+    try {
+        // const token = localStorage.getItem('authToken');
+        // const config = {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // };
+        const response = yield call(axios.put,`${url}/api/customer/forgotpassword/${customerId}`,details );
+        yield put(updatePasswordSuccess(response.data))
+        yield call (fetchBranchCustomerSaga);
+        yield call (fetchCustomerSaga);
+        // navigate('/staff')
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(updatePasswordFailure(error.message))
+    }
+}
+
 
 function* customerSaga(){
     yield takeLatest(fetchCustomerRequest.type, fetchCustomerSaga)
@@ -198,6 +252,9 @@ function* customerSaga(){
     yield takeLatest(createCustomerRequest.type, createCustomerSaga)
     yield takeLatest(transferAllCustomerRequest.type, transferAllCustomerSaga)
     yield takeLatest(transferCustomerRequest.type, transferCustomerSaga)
+    yield takeLatest(resetCustomerPasswordRequest.type, resetCustomerPasswordSaga)
+    yield takeLatest(updatePasswordRequest.type, updatePasswordSaga)
+    
 }
 
 export default customerSaga

@@ -10,6 +10,9 @@ const Tablehead = () => {
           {!isManagerOrAgent && (
           <th className="border border-gray-300 p-2">Branch</th>
           )}
+           {!isManagerOrAgent && (
+           <th className="border border-gray-300 p-2">Action</th>
+           )}
         </tr>
       </thead>
     );

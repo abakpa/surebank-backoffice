@@ -48,7 +48,6 @@ import { url } from './url'
                 Authorization: `Bearer ${token}`
             }
         }
-        console.log("config",config)
         const response = yield call(axios.get, `${url}/api/staff/branchstaff`,config)
         yield put(fetchBranchStaffSuccess(response.data))
     } catch (error) {
@@ -108,7 +107,6 @@ function* updateStaffSaga(action){
     }
 }
 function* resetStaffPasswordSaga(action){
-    console.log(action.payload)
     const {staffId} = action.payload
     try {
         const token = localStorage.getItem('authToken');
@@ -131,7 +129,6 @@ function* resetStaffPasswordSaga(action){
     }
 }
 function* updatePasswordSaga(action){
-    console.log("MMMMMM",action.payload)
     const {staffId,email,newPassword} = action.payload
     const details = {email,newPassword}
     try {

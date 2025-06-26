@@ -4,6 +4,7 @@ import { fetchAccountTransactionRequest } from "../redux/slices/createAccountSli
 import { createDepositRequest,createCostPriceRequest,createSBDepositRequest,createCustomerFDAccountRequest,createFDWithdrawalRequest,createFDMaturedWithdrawalRequest,editCustomerFDAccountRequest } from '../redux/slices/depositSlice';
 import { fetchCustomerAccountRequest,clearDepositError,createMainWithdrawalRequest,createWithdrawalRequest, createSBWithdrawalRequest,createSBSellProductRequest,editCustomerAccountRequest,editCustomerSBAccountRequest,createCustomerAccountRequest,createCustomerSBAccountRequest } from '../redux/slices/depositSlice';
 import {fetchStaffRequest} from '../redux/slices/staffSlice'
+import {updatePhoneRequest} from '../redux/slices/depositSlice'
 import NotificationPopup from './Notification'
 import Loader from "./Loader";
 import Tablebody from "./Table/TransactionTableBody";
@@ -16,6 +17,7 @@ import Select from "./Select";
 
 const CustomerAccountDashboard = () => {
   const { customerId } = useParams();
+
   const dispatch = useDispatch();
     const isLoggedIn = useSelector((state) => state.login.staff?.role);
     const loggedInStaffRole = isLoggedIn || localStorage.getItem("staffRole");
@@ -24,6 +26,7 @@ const CustomerAccountDashboard = () => {
     const { staffs } = useSelector((state) => state.staff);
     const {withdrawal,error:withdrawalError} = useSelector((state)=>state.withdrawal)
     const {loading,deposit,error:depositError} = useSelector((state)=>state.deposit)
+  const newPhone = deposit?.customer
     const newSubAccount = deposit?.subAccount
     const staffId = localStorage.getItem("staffId");
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -39,6 +42,7 @@ const CustomerAccountDashboard = () => {
   const [showFDWithdrawalModal, setShowFDWithdrawalModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSBEditModal, setShowSBEditModal] = useState(false);
+  const [showEditPhoneModal, setShowEditPhoneModal] = useState(false);
   const [showMobileModal, setShowMobileModal] = useState(false);
   const [showFDEditModal, setShowFDEditModal] = useState(false);
   const [showCreateAccountModal, setShowCreateAccountModal] = useState(false);
@@ -54,6 +58,7 @@ const CustomerAccountDashboard = () => {
   // const [editfdcharge, setEditFdcharge] = useState("");
   const [editdurationMonths, setEditDurationMonths] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
+  const [phone, setPhone] = useState("");
   const [productName, setProductName] = useState("");
   const [productDescription, setProductDescription] = useState("");
   const [accountType, setAccountType] = useState("");
@@ -364,6 +369,25 @@ if(selectedAccount){
     setSellingPrice("");
     setShowSBEditModal(false);
   };
+  const handleEditPhoneSubmit = (e) => {
+    e.preventDefault();
+    setErrors("");
+    if (!selectedAccount) {
+      setErrors("Field is required.");
+      return;
+    }
+
+    if (isNaN(phone) || parseFloat(phone) <= 0) {
+      setErrors("Please enter a valid number.");
+      return;
+    }
+
+    const details = { phone: phone,customerId:selectedAccount};
+    const data = {details}
+    dispatch(updatePhoneRequest(data));
+    setPhone("");
+    setShowEditPhoneModal(false);
+  };
   const handleFDEditSubmit = (e) => {
     e.preventDefault();
     setErrors("");
@@ -499,7 +523,25 @@ if(selectedAccount){
       <header className="mb-6 mt-6">
         <h1 className="text-2xl font-bold">Customer Account Dashboard</h1>
         <p className="text-gray-700"><strong>Name:</strong> {customerName}</p>
-        <p className="text-gray-700"><strong>Account Number:</strong> {deposit?.account?.accountNumber}</p>
+        <div className="flex items-center gap-2">
+        <p className="text-gray-700">
+    <strong>Account Number:</strong> {deposit?.account?.accountNumber}
+  </p>
+  {((loggedInStaffRole === 'Admin')) && (
+  <button
+    onClick={() => {
+      setSelectedAccount(newPhone._id);
+      setPhone(newPhone.phone)
+      setShowEditPhoneModal(true);
+    }}
+    className="text-blue-600 hover:text-blue-800"
+    title="Edit"
+  >
+    <i className="fas fa-edit text-sm"></i>
+  </button>
+
+)}
+</div>
         {/* <p className="text-gray-700"><strong>Total Balance:</strong> ₦{deposit?.account?.ledgerBalance}</p> */}
         <p className="text-gray-700">
           <strong>Free to withdraw:</strong> ₦{deposit?.account?.availableBalance?.toLocaleString('en-US')} 
@@ -1169,6 +1211,42 @@ if(selectedAccount){
       <div className="flex justify-end space-x-4">
         <button
           onClick={() => setShowSBEditModal(false)}
+          type="button"
+          className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="bg-green-500 text-white px-4 py-2 rounded"
+        >
+          Edit
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+  )}
+       {showEditPhoneModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div className="bg-white p-6 rounded shadow-md w-96">
+    <h3 className="text-lg font-bold mb-4">Edit</h3>
+
+    {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+
+    <form onSubmit={handleEditPhoneSubmit}>
+      <input
+        type="number"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        // placeholder="Enter amount"
+        className="w-full border border-gray-300 rounded p-2 mb-4"
+      />
+
+      <div className="flex justify-end space-x-4">
+        <button
+          onClick={() => setShowEditPhoneModal(false)}
           type="button"
           className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
         >

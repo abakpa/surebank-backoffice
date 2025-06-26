@@ -2,6 +2,7 @@ import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
     customers: [],
+    branchcustomers: [],
     loading: false,
     error:null,
 };
@@ -24,7 +25,7 @@ const customerSlice = createSlice({
             state.loading = true
         },
         fetchBranchCustomerSuccess:(state,action)=>{
-            state.customers= action.payload;
+            state.branchcustomers= action.payload;
             state.loading=false
         },
         fetchBranchCustomerFailure:(state,action)=>{
@@ -80,7 +81,28 @@ const customerSlice = createSlice({
         },
       transferCustomerFailure:(state,action)=>{
             state.error = action.payload
-        }
+        },
+        resetCustomerPasswordRequest:(state)=>{
+            state.loading = true
+        },
+       resetCustomerPasswordSuccess:(state,action)=>{
+            state.customers= action.payload;
+            state.loading=false
+        },
+       resetCustomerPasswordFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        updatePasswordRequest:(state)=>{
+            state.loading = true
+        },
+       updatePasswordSuccess:(state,action)=>{
+            state.customers= action.payload;
+            state.loading=false
+        },
+       updatePasswordFailure:(state,action)=>{
+            state.error = action.payload
+        },
+ 
     }
 })
 
@@ -106,6 +128,13 @@ export const {
     transferCustomerRequest,
     transferCustomerSuccess,
     transferCustomerFailure,
+    resetCustomerPasswordRequest,
+    resetCustomerPasswordSuccess,
+    resetCustomerPasswordFailure,
+    updatePasswordRequest,
+   updatePasswordSuccess,
+   updatePasswordFailure,
+   
 } = customerSlice.actions
 
 export default customerSlice.reducer

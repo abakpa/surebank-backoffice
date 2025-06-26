@@ -54,7 +54,10 @@ import {
     editCustomerSBAccountFailure,
     editCustomerFDAccountRequest,
     editCustomerFDAccountSuccess,
-    editCustomerFDAccountFailure
+    editCustomerFDAccountFailure,
+    updatePhoneRequest,
+    updatePhoneSuccess,
+    updatePhoneFailure
 } from '../slices/depositSlice'
 import { url } from './url'
 import {sendTemplateMessage} from '../../Components/WhatsappNotification'
@@ -502,7 +505,30 @@ function* fetchCustomerAccountSaga(action) {
     yield put(fetchCustomerAccountFailure(error.message));
   }
 }
-
+function* updatePhoneSaga(action){
+  const {customerId,phone} = action.payload.details
+  const details = {phone,customerId}
+  try {
+      const token = localStorage.getItem('authToken');
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = yield call(axios.put,`${url}/api/customer/updatephone/${customerId}`,details, config );
+      yield put(updatePhoneSuccess(response.data))
+      yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
+      // yield call (fetchBranchCustomerSaga);
+      // yield call (fetchCustomerSaga);
+      // navigate('/staff')
+  } catch (error) {
+      if (error.response && error.response.status === 401) {
+          localStorage.removeItem('authToken');
+          window.location.href = '/login';
+        }
+      yield put(updatePhoneFailure(error.message))
+  }
+}
 function* depositSaga(){
     yield takeLatest(fetchDepositRequest.type, fetchDepositSaga)
     yield takeLatest(createCostPriceRequest.type,createCostPriceSaga)
@@ -522,6 +548,7 @@ function* depositSaga(){
     yield takeLatest(editCustomerAccountRequest.type, editCustomerAccountSaga)
     yield takeLatest(editCustomerSBAccountRequest.type, editCustomerSBAccountSaga)
     yield takeLatest(editCustomerFDAccountRequest.type, editCustomerFDAccountSaga)
+    yield takeLatest(updatePhoneRequest.type, updatePhoneSaga)
 }
 
 export default depositSaga
