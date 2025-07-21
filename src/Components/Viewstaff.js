@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchStaffRequest } from "../redux/slices/staffSlice";
+import { fetchStaffRequest,disableAllStaffRequest,activateAllStaffRequest } from "../redux/slices/staffSlice";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import Tablehead from "./Table/StaffTableHead";
 import Tablebody from "./Table/StaffTableBody";
@@ -20,7 +20,12 @@ const Viewstaff = () => {
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
-
+  const handleDisableStaffLogin = () => {
+    dispatch(disableAllStaffRequest());
+  };
+    const handleActivateStaffLogin = () => {
+      dispatch(activateAllStaffRequest());
+    };
   // Ensure staffs is always an array
   const staffList = Array.isArray(staffs) ? staffs : [];
 
@@ -63,7 +68,17 @@ const Viewstaff = () => {
           onChange={handleSearch}
           className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md"
         />
-        <Link to="/createstaff" className="text-xs">
+        <Link className="text-xs">
+          <button  onClick={handleDisableStaffLogin} className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+            Disable Staff Login
+          </button>
+        </Link>
+        <Link className="text-xs">
+          <button  onClick={handleActivateStaffLogin} className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+           Activate Staff Login
+          </button>
+        </Link>
+        <Link to="/createstaff"  className="text-xs">
           <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
             Create Staff
           </button>

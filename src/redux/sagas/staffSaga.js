@@ -4,6 +4,12 @@ import {
     fetchStaffRequest,
     fetchStaffSuccess,
     fetchStaffFailure,
+    disableAllStaffRequest,
+    disableAllStaffSuccess,
+    disableAllStaffFailure,
+    activateAllStaffRequest,
+    activateAllStaffSuccess,
+    activateAllStaffFailure,
     fetchBranchStaffRequest,
     fetchBranchStaffSuccess,
     fetchBranchStaffFailure,
@@ -38,6 +44,44 @@ import { url } from './url'
             window.location.href = '/login';
           }
         yield put(fetchStaffFailure(error.response.data.message))
+    }
+}
+ function* disableAllStaffSaga(){
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = yield call(axios.post, `${url}/api/login/staff/block-all-users`,{},config)
+        yield put(disableAllStaffSuccess(response.data))
+        yield call (fetchStaffSaga)
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(disableAllStaffFailure(error.response.data.message))
+    }
+}
+ function* activateAllStaffSaga(){
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = yield call(axios.post, `${url}/api/login/staff/unblock-all-users`,{},config)
+        yield put(activateAllStaffSuccess(response.data))
+        yield call (fetchStaffSaga)
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(activateAllStaffFailure(error.response.data.message))
     }
 }
  function* fetchBranchStaffSaga(){
@@ -154,6 +198,8 @@ function* updatePasswordSaga(action){
 
 function* staffSaga(){
     yield takeLatest(fetchStaffRequest.type, fetchStaffSaga)
+    yield takeLatest(disableAllStaffRequest.type, disableAllStaffSaga)
+    yield takeLatest(activateAllStaffRequest.type, activateAllStaffSaga)
     yield takeLatest(fetchBranchStaffRequest.type, fetchBranchStaffSaga)
     yield takeLatest(createStaffRequest.type, createStaffSaga)
     yield takeLatest(updateStaffRequest.type, updateStaffSaga)

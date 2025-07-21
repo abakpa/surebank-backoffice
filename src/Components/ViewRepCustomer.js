@@ -131,9 +131,19 @@ const Viewcustomer = () => {
                     handleTransferClick(customers);
                   }}
                 >
-                  Transfer Customer
+                  Transfer All Customers
                 </button>
         )}
+            <Link to="/viewrepcustomerwithdrawalrequest" className="text-xs">
+                                  <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                    Withdrawal Request
+                                  </button>
+                                </Link>
+              <Link to="/viewrepcustomerusingapp" className="text-xs">
+                          <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                            Customers Analytics
+                          </button>
+                        </Link>
         <Link to="/branchcustomers" className="text-xs">
       <button className="w-full md:w-auto px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
         View Branch Customers

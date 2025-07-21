@@ -21,6 +21,26 @@ const staffSlice = createSlice({
         fetchStaffFailure:(state,action)=>{
             state.error = action.payload
         },
+       disableAllStaffRequest:(state)=>{
+            state.loading = true
+        },
+       disableAllStaffSuccess:(state,action)=>{
+            state.staffs= action.payload;
+            state.loading=false
+        },
+       disableAllStaffFailure:(state,action)=>{
+            state.error = action.payload
+        },
+      activateAllStaffRequest:(state)=>{
+            state.loading = true
+        },
+      activateAllStaffSuccess:(state,action)=>{
+            state.staffs= action.payload;
+            state.loading=false
+        },
+      activateAllStaffFailure:(state,action)=>{
+            state.error = action.payload
+        },
         fetchBranchStaffRequest:(state)=>{
             state.loading = true
         },
@@ -79,6 +99,12 @@ export const {
     fetchStaffRequest,
     fetchStaffSuccess,
     fetchStaffFailure,
+  disableAllStaffRequest,
+  disableAllStaffSuccess,
+  disableAllStaffFailure,
+  activateAllStaffRequest,
+  activateAllStaffSuccess,
+  activateAllStaffFailure,
     fetchBranchStaffRequest,
     fetchBranchStaffSuccess,
     fetchBranchStaffFailure,

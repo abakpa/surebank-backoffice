@@ -21,6 +21,66 @@ const customerSlice = createSlice({
         fetchCustomerFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchCustomerLoginCountRequest:(state)=>{
+            state.loading = true
+        },
+        fetchCustomerLoginCountSuccess:(state,action)=>{
+            state.customers= action.payload;
+            state.loading=false
+        },
+        fetchCustomerLoginCountFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchBranchCustomerLoginCountRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchCustomerLoginCountSuccess:(state,action)=>{
+            state.customers= action.payload;
+            state.loading=false
+        },
+        fetchBranchCustomerLoginCountFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchRepCustomerLoginCountRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepCustomerLoginCountSuccess:(state,action)=>{
+            state.customers= action.payload;
+            state.loading=false
+        },
+        fetchRepCustomerLoginCountFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchCustomerWithdrawalRequestRequest:(state)=>{
+            state.loading = true
+        },
+        fetchCustomerWithdrawalRequestSuccess:(state,action)=>{
+            state.customers= action.payload;
+            state.loading=false
+        },
+        fetchCustomerWithdrawalRequestFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchBranchCustomerWithdrawalRequestRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchCustomerWithdrawalRequestSuccess:(state,action)=>{
+            state.customers= action.payload;
+            state.loading=false
+        },
+        fetchBranchCustomerWithdrawalRequestFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchRepCustomerWithdrawalRequestRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepCustomerWithdrawalRequestSuccess:(state,action)=>{
+            state.customers= action.payload;
+            state.loading=false
+        },
+        fetchRepCustomerWithdrawalRequestFailure:(state,action)=>{
+            state.error = action.payload
+        },
         fetchBranchCustomerRequest:(state)=>{
             state.loading = true
         },
@@ -102,6 +162,17 @@ const customerSlice = createSlice({
        updatePasswordFailure:(state,action)=>{
             state.error = action.payload
         },
+        updateCustomerWithdrawalRequestRequest:(state)=>{
+            state.loading = true
+        },
+       updateCustomerWithdrawalRequestSuccess:(state,action)=>{
+            state.customers= action.payload;
+            state.loading=false
+        },
+       updateCustomerWithdrawalRequestFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading=false
+        },
  
     }
 })
@@ -110,6 +181,24 @@ export const {
     fetchCustomerRequest,
     fetchCustomerSuccess,
     fetchCustomerFailure,
+    fetchCustomerLoginCountRequest,
+    fetchCustomerLoginCountSuccess,
+    fetchCustomerLoginCountFailure,
+    fetchBranchCustomerLoginCountRequest,
+    fetchBranchCustomerLoginCountSuccess,
+    fetchBranchCustomerLoginCountFailure,
+    fetchRepCustomerLoginCountRequest,
+    fetchRepCustomerLoginCountSuccess,
+    fetchRepCustomerLoginCountFailure,
+    fetchCustomerWithdrawalRequestRequest,
+    fetchCustomerWithdrawalRequestSuccess,
+    fetchCustomerWithdrawalRequestFailure,
+    fetchBranchCustomerWithdrawalRequestRequest,
+    fetchBranchCustomerWithdrawalRequestSuccess,
+    fetchBranchCustomerWithdrawalRequestFailure,
+    fetchRepCustomerWithdrawalRequestRequest,
+    fetchRepCustomerWithdrawalRequestSuccess,
+    fetchRepCustomerWithdrawalRequestFailure,
     fetchBranchCustomerRequest,
     fetchBranchCustomerSuccess,
     fetchBranchCustomerFailure,
@@ -134,6 +223,9 @@ export const {
     updatePasswordRequest,
    updatePasswordSuccess,
    updatePasswordFailure,
+    updateCustomerWithdrawalRequestRequest,
+   updateCustomerWithdrawalRequestSuccess,
+   updateCustomerWithdrawalRequestFailure,
    
 } = customerSlice.actions
 

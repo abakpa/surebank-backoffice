@@ -44,6 +44,12 @@ import Order from "./Components/Order";
 import BranchOrder from "./Components/BranchOrder";
 import RepOrder from "./Components/RepOrder";
 import InterestRate from "./Components/InterestRate";
+import ViewCustomerUsingApp from "./Components/ViewCustomerUsingApp";
+import ViewBranchCustomerUsingApp from "./Components/ViewBranchCustomerUsingApp";
+import ViewRepCustomerUsingApp from "./Components/ViewRepCustomerUsingApp";
+import ViewCustomerWithdrawalRequest from "./Components/ViewCustomerWithdrawalRequest";
+import ViewBranchCustomerWithdrawalRequest from "./Components/ViewBranchCustomerWithdrawalRequest";
+import ViewRepCustomerWithdrawalRequest from "./Components/ViewRepCustomerWithdrawalRequest";
 
 
 function App() {
@@ -136,6 +142,12 @@ function App() {
                   <Route path="/interest" element={<InterestRate />} />
                   <Route path="/customeraccountdashboard/:customerId" element={<CustomerAccountDashboard />} />
                   <Route path="/managerviewdashboard/:staffId" element={<ManagerViewRepDashboard />} />
+                  <Route path="/viewcustomerusingapp" element={<ViewCustomerUsingApp />} />
+                  <Route path="/viewbranchcustomerusingapp" element={<ViewBranchCustomerUsingApp />} />
+                  <Route path="/viewrepcustomerusingapp" element={<ViewRepCustomerUsingApp />} />
+                  <Route path="/viewcustomerwithdrawalrequest" element={<ViewCustomerWithdrawalRequest />} />
+                  <Route path="/viewbranchcustomerwithdrawalrequest" element={<ViewBranchCustomerWithdrawalRequest />} />
+                  <Route path="/viewrepcustomerwithdrawalrequest" element={<ViewRepCustomerWithdrawalRequest />} />
                 </>
               ) : (
                 // Redirect unauthenticated users to Login

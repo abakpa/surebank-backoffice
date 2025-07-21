@@ -12,6 +12,7 @@ const Viewcustomer = () => {
   const { branches } = useSelector((state) => state.branch);
   const [searchTerm, setSearchTerm] = useState("");
 
+
   useEffect(() => {
     dispatch(fetchBranchRequest());
     dispatch(fetchCustomerRequest());
@@ -84,6 +85,17 @@ const Viewcustomer = () => {
           onChange={handleSearch}
           className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md"
         />
+        
+        <Link to="/viewcustomerusingapp" className="text-xs">
+          <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+            Customers Analytics
+          </button>
+        </Link>
+        <Link to="/viewcustomerwithdrawalrequest" className="text-xs">
+          <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+            Withdrawal Request
+          </button>
+        </Link>
         <Link to="/createcustomer" className="text-xs">
           <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
             Create Customer

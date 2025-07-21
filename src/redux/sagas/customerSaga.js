@@ -4,6 +4,27 @@ import {
     fetchCustomerRequest,
     fetchCustomerSuccess,
     fetchCustomerFailure,
+    fetchCustomerLoginCountRequest,
+    fetchCustomerLoginCountSuccess,
+    fetchCustomerLoginCountFailure,
+    fetchBranchCustomerLoginCountRequest,
+    fetchBranchCustomerLoginCountSuccess,
+    fetchBranchCustomerLoginCountFailure,
+    fetchRepCustomerLoginCountRequest,
+    fetchRepCustomerLoginCountSuccess,
+    fetchRepCustomerLoginCountFailure,
+    fetchCustomerWithdrawalRequestRequest,
+    fetchCustomerWithdrawalRequestSuccess,
+    fetchCustomerWithdrawalRequestFailure,
+    fetchBranchCustomerWithdrawalRequestRequest,
+    fetchBranchCustomerWithdrawalRequestSuccess,
+    fetchBranchCustomerWithdrawalRequestFailure,
+    fetchRepCustomerWithdrawalRequestRequest,
+    fetchRepCustomerWithdrawalRequestSuccess,
+    fetchRepCustomerWithdrawalRequestFailure,
+    updateCustomerWithdrawalRequestRequest,
+    updateCustomerWithdrawalRequestSuccess,
+    updateCustomerWithdrawalRequestFailure,
     fetchBranchCustomerRequest,
     fetchBranchCustomerSuccess,
     fetchBranchCustomerFailure,
@@ -48,6 +69,130 @@ import { url } from './url'
             window.location.href = '/login';
           }
         yield put(fetchCustomerFailure(error.response.data.message))
+    }
+}
+ function* fetchCustomerLoginCountSaga(){
+    try {
+        // const token = localStorage.getItem('authToken');
+        // const config = {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // };
+        const response = yield call(axios.get, `${url}/api/login/customercount`)
+        console.log("count",response)
+        yield put(fetchCustomerLoginCountSuccess(response.data))
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchCustomerLoginCountFailure(error.response.data.message))
+    }
+}
+ function* fetchBranchCustomerLoginCountSaga(){
+    try {
+      const branchId = localStorage.getItem('staffBranch');
+        // const token = localStorage.getItem('authToken');
+        // const config = {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // };
+        const response = yield call(axios.get, `${url}/api/login/branchcustomercount/${branchId}`)
+        console.log("branch count",response)
+        yield put(fetchBranchCustomerLoginCountSuccess(response.data))
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchBranchCustomerLoginCountFailure(error.response.data.message))
+    }
+}
+ function* fetchRepCustomerLoginCountSaga(){
+    try {
+      // const branchId = localStorage.getItem('staffBranch');
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = yield call(axios.get, `${url}/api/login/repcustomercount`,config)
+        console.log("branch count",response)
+        yield put(fetchRepCustomerLoginCountSuccess(response.data))
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchRepCustomerLoginCountFailure(error.response.data.message))
+    }
+}
+ function* fetchCustomerWithdrawalRequestSaga(){
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        console.log("request111",config)
+
+        const response = yield call(axios.get, `${url}/api/customerwithdrawalrequest`,config)
+        console.log("request",response)
+        yield put(fetchCustomerWithdrawalRequestSuccess(response.data))
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            // window.location.href = '/login';
+          }
+        yield put(fetchCustomerWithdrawalRequestFailure(error.response.data.message))
+    }
+}
+ function* fetchBranchCustomerWithdrawalRequestSaga(){
+    try {
+        const token = localStorage.getItem('authToken');
+        const branchId = localStorage.getItem('staffBranch');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        console.log("request111",config)
+
+        const response = yield call(axios.get, `${url}/api/customerwithdrawalrequest/branchcustomer/${branchId}`,config)
+        console.log("request",response)
+        yield put(fetchBranchCustomerWithdrawalRequestSuccess(response.data))
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            // window.location.href = '/login';
+          }
+        yield put(fetchBranchCustomerWithdrawalRequestFailure(error.response.data.message))
+    }
+}
+ function* fetchRepCustomerWithdrawalRequestSaga(){
+    try {
+        const token = localStorage.getItem('authToken');
+        // const branchId = localStorage.getItem('staffBranch');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        console.log("request111",config)
+
+        const response = yield call(axios.get, `${url}/api/customerwithdrawalrequest/repcustomer`,config)
+        console.log("request",response)
+        yield put(fetchRepCustomerWithdrawalRequestSuccess(response.data))
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            // window.location.href = '/login';
+          }
+        yield put(fetchRepCustomerWithdrawalRequestFailure(error.response.data.message))
     }
 }
  function* fetchBranchCustomerSaga(){
@@ -242,10 +387,38 @@ function* updatePasswordSaga(action){
         yield put(updatePasswordFailure(error.message))
     }
 }
+function*  updateCustomerWithdrawalRequestSaga(action){
+    const {withdrawalRequestId} = action.payload.details
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = yield call(axios.put,`${url}/api/customerwithdrawalrequest/${withdrawalRequestId}`,{},config );
+        yield put( updateCustomerWithdrawalRequestSuccess(response.data))
+        yield call (fetchCustomerWithdrawalRequestSaga);
+        // yield call (fetchCustomerSaga);
+        // navigate('/staff')
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put( updateCustomerWithdrawalRequestFailure(error.response.data.message))
+    }
+}
 
 
 function* customerSaga(){
     yield takeLatest(fetchCustomerRequest.type, fetchCustomerSaga)
+    yield takeLatest(fetchCustomerLoginCountRequest.type, fetchCustomerLoginCountSaga)
+    yield takeLatest(fetchBranchCustomerLoginCountRequest.type, fetchBranchCustomerLoginCountSaga)
+    yield takeLatest(fetchRepCustomerLoginCountRequest.type, fetchRepCustomerLoginCountSaga)
+    yield takeLatest(fetchCustomerWithdrawalRequestRequest.type, fetchCustomerWithdrawalRequestSaga)
+    yield takeLatest(fetchBranchCustomerWithdrawalRequestRequest.type, fetchBranchCustomerWithdrawalRequestSaga)
+    yield takeLatest(fetchRepCustomerWithdrawalRequestRequest.type, fetchRepCustomerWithdrawalRequestSaga)
     yield takeLatest(fetchBranchCustomerRequest.type, fetchBranchCustomerSaga)
     yield takeLatest(fetchRepCustomerRequest.type, fetchRepCustomerSaga)
     yield takeLatest(fetchCustomerByIdRequest.type, fetchCustomerByIdSaga)
@@ -254,6 +427,7 @@ function* customerSaga(){
     yield takeLatest(transferCustomerRequest.type, transferCustomerSaga)
     yield takeLatest(resetCustomerPasswordRequest.type, resetCustomerPasswordSaga)
     yield takeLatest(updatePasswordRequest.type, updatePasswordSaga)
+    yield takeLatest( updateCustomerWithdrawalRequestRequest.type,  updateCustomerWithdrawalRequestSaga)
     
 }
 
