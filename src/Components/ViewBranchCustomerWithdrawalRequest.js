@@ -75,6 +75,9 @@ const ViewBranchCustomerWithdrawalRequest = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Phone
                                     </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Package
+                                    </th>
                                     {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Branch
                                     </th> */}
@@ -135,6 +138,9 @@ const ViewBranchCustomerWithdrawalRequest = () => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {customer?.customerId?.phone || 'N/A'}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {customer?.package || 'N/A'}
                                         </td>
                                         {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {customer?.branchId?.name || 'N/A'}
