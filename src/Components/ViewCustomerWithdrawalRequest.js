@@ -13,7 +13,7 @@ const ViewCustomerWithdrawalRequest = () => {
     const [branchId, setBranchId] = useState('all');
     const [filteredCustomers, setFilteredCustomers] = useState([]);
       const [showError, setShowError] = useState(false);
-    
+    console.log("PPPPP",customers)
 
     useEffect(() => {
         dispatch(fetchBranchRequest());
@@ -110,7 +110,16 @@ const ViewCustomerWithdrawalRequest = () => {
                                         Package
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Package Number
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Branch
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Address
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Product
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                       Bank Name
@@ -174,7 +183,16 @@ const ViewCustomerWithdrawalRequest = () => {
                                             {customer?.package || 'N/A'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {customer?.packageNumber || 'N/A'}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {customer?.branchId?.name || 'N/A'}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {customer?.shippingAddress || 'N/A'}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {customer?.productName || 'N/A'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {customer?.bankName || 'N/A'}
