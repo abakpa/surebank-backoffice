@@ -26,6 +26,7 @@ const hasCustomers2 = Array.isArray(customers2) && customers2.length > 0;
         )}
         <td className="border border-gray-300 p-2">{customer.productName}</td>
         <td className="border border-gray-300 p-2">{customer.sellingPrice?.toLocaleString('en-US')}</td>
+        <td className="border border-gray-300 p-2">{new Date(customer?.createdAt).toLocaleDateString()}</td>
         <td className="border border-gray-300 p-2">{customer.status}</td>
         <td className="border border-gray-300 p-2">{customer.accountManagerId.firstName} {customer.accountManagerId.lastName}</td>
       </tr>
@@ -42,6 +43,7 @@ const hasCustomers2 = Array.isArray(customers2) && customers2.length > 0;
         )}
         <td className="border border-gray-300 p-2">{customer.productName}</td>
         <td className="border border-gray-300 p-2">{customer.sellingPrice?.toLocaleString('en-US')}</td>
+        <td className="border border-gray-300 p-2">{new Date(customer?.createdAt).toLocaleDateString()}</td>
         <td className="border border-gray-300 p-2">{customer.status}</td>
         <td className="border border-gray-300 p-2">{customer.accountManagerId.firstName} {customer.accountManagerId.lastName}</td>
       </tr>

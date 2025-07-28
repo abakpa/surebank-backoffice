@@ -17,6 +17,7 @@ const Tablebody = ({ staffs, branches = [], onToggleStatus }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const role = localStorage.getItem("staffRole");
+  const viewDeactivateAndResetPassword = role === 'Admin';
 
   const handleRowClick = (staffId) => {
     navigate(`/managerviewdashboard/${staffId}`);
@@ -58,9 +59,13 @@ const Tablebody = ({ staffs, branches = [], onToggleStatus }) => {
           <td className="border border-gray-300 p-2">
             {formatRoleDisplay(staff.role)}
           </td>
+          {viewDeactivateAndResetPassword && (
           <td className="border border-gray-300 p-2">
             {getBranchName(staff.branchId, branches)}
           </td>
+          )}
+
+          {viewDeactivateAndResetPassword && (
           <td className="border border-gray-300 p-2">
             <button
               onClick={(e) => handleToggle(e, staff)}
@@ -84,6 +89,7 @@ const Tablebody = ({ staffs, branches = [], onToggleStatus }) => {
               {staff.updatePassword === "false" ? "Reset Password" : "Done"}
             </button>
           </td>
+          )}
         </tr>
       ))}
     </tbody>

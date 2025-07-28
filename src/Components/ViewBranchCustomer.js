@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 
 const Viewcustomer = () => {
   const dispatch = useDispatch();
+  const loggedInStaffRole = localStorage.getItem("staffRole");
   const { loading, branchcustomers, error } = useSelector((state) => state.customer);
   const { branches } = useSelector((state) => state.branch);
   const [searchTerm, setSearchTerm] = useState("");
@@ -84,22 +85,27 @@ const Viewcustomer = () => {
           onChange={handleSearch}
           className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md"
         />
-          
+          {loggedInStaffRole === 'Manager'&&(
                 <Link to="/viewbranchcustomerusingapp" className="text-xs">
                   <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                     Customers Analytics
                   </button>
                 </Link>
+          )}
+          {loggedInStaffRole=== 'Manager'&&(
                    <Link to="/viewbranchcustomerwithdrawalrequest" className="text-xs">
                           <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                             Withdrawal Request
                           </button>
                         </Link>
+          )}
+          {loggedInStaffRole=== 'Manager'&&(
         <Link to="/createcustomer" className="text-xs">
           <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
             Create Customer
           </button>
         </Link>
+          )}
       </div>
       
       {/* Table */}
