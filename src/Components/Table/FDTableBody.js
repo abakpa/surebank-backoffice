@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 // };
 
 const Tablebody = ({ customers = [], branches = [] }) => { // Default values for props
-    console.log("checking",customers)
   const navigate = useNavigate();
 
   const handleRowClick = (customerId) => {
