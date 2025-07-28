@@ -80,7 +80,6 @@ import { url } from './url'
         //   },
         // };
         const response = yield call(axios.get, `${url}/api/login/customercount`)
-        console.log("count",response)
         yield put(fetchCustomerLoginCountSuccess(response.data))
     } catch (error) {
         if (error.response && error.response.status === 401) {
