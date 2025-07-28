@@ -2,7 +2,7 @@
 import axios from 'axios'
 
 async function sendTemplateMessage(amount,balance,direction){
-    console.log('333',amount,balance)
+    // console.log('333',amount,balance)
   
     const response = await axios({
         url:'https://graph.facebook.com/v22.0/588785547646955/messages',
