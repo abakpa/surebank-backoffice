@@ -145,7 +145,7 @@ import { url } from './url'
     } catch (error) {
         if (error.response && error.response.status === 401) {
             localStorage.removeItem('authToken');
-            // window.location.href = '/login';
+            window.location.href = '/login';
           }
         yield put(fetchCustomerWithdrawalRequestFailure(error.response.data.message))
     }
@@ -167,7 +167,7 @@ import { url } from './url'
     } catch (error) {
         if (error.response && error.response.status === 401) {
             localStorage.removeItem('authToken');
-            // window.location.href = '/login';
+            window.location.href = '/login';
           }
         yield put(fetchBranchCustomerWithdrawalRequestFailure(error.response.data.message))
     }
@@ -189,7 +189,7 @@ import { url } from './url'
     } catch (error) {
         if (error.response && error.response.status === 401) {
             localStorage.removeItem('authToken');
-            // window.location.href = '/login';
+            window.location.href = '/login';
           }
         yield put(fetchRepCustomerWithdrawalRequestFailure(error.response.data.message))
     }

@@ -327,7 +327,7 @@ function* createSBDepositSaga(action) {
             localStorage.removeItem('authToken');
             window.location.href = '/login';
           }
-        console.log("errrror",error)
+        // console.log("errrror",error)
         const errorMessage = error.response?.data?.message
         yield put(createMainWithdrawalFailure(errorMessage))
     }

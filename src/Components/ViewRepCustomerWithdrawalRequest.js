@@ -79,12 +79,15 @@ const ViewRepCustomerWithdrawalRequest = () => {
                                             </span>
                                         </div>
                                         <p className="text-sm text-gray-600">Product: {customer?.productName || 'N/A'}</p>
+                                        <p className="text-sm text-gray-600">Package: {customer?.package || 'N/A'}</p>
+                                        <p className="text-sm text-gray-600">Package Number: {customer?.packageNumber || 'N/A'}</p>
                                         <p className="text-sm text-gray-600">Amount: ₦{customer?.amount?.toLocaleString() || 'N/A'}</p>
                                         <p className="text-sm text-gray-600">Method: {customer?.channelOfWithdrawal || 'N/A'}</p>
                                         <p className="text-sm text-gray-600">Address: {customer?.shippingAddress || 'N/A'}</p>
                                         {customer?.bankName && (
                                             <div className="mt-2 pt-2 border-t">
                                                 <p className="text-sm text-gray-600">Bank: {customer?.bankName}</p>
+                                                <p className="text-sm text-gray-600">Account: {customer?.accountName}</p>
                                                 <p className="text-sm text-gray-600">
                                                         Number: {customer?.bankAccountNumber || 'N/A'}
                                                         {customer?.bankAccountNumber && (
@@ -124,6 +127,8 @@ const ViewRepCustomerWithdrawalRequest = () => {
                                     <tr>
                                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
                                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package Number</th>
                                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
                                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bank Details</th>
@@ -149,6 +154,12 @@ const ViewRepCustomerWithdrawalRequest = () => {
                                                 <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {customer?.productName || 'N/A'}
                                                 </td>
+                                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                        {customer?.package || 'N/A'}
+                                                    </td>
+                                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                        {customer?.packageNumber || 'N/A'}
+                                                    </td>
                                                 <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                     ₦{customer?.amount?.toLocaleString() || 'N/A'}
                                                 </td>
