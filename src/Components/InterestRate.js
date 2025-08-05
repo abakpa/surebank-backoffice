@@ -25,7 +25,7 @@ const InterestRate = () => {
 
   // 2. Watch Redux update
   useEffect(() => {
-    console.log('🔍 interestRate from Redux:', interestRate);
+    // console.log('🔍 interestRate from Redux:', interestRate);
   
     if (Array.isArray(interestRate) && interestRate.length > 0) {
       const rate = interestRate[0]; // ✅ get the first object
