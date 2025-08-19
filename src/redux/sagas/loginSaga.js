@@ -20,7 +20,7 @@ function* loginSaga(action){
         localStorage.setItem('staffRole', staff.role);
         localStorage.setItem('staffBranch', staff.branch);
         yield put(loginSuccess(response.data))
-        navigate('/landingpage')
+        navigate('/')
     } catch (error) {
         yield put(loginFailure(error.response.data.message))
     }
