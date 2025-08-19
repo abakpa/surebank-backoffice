@@ -104,7 +104,7 @@ function App() {
               {/* Protected Routes */}
               {token ? (
                 <>
-                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/branches" element={<Viewbranches />} />
                   <Route path="/createbranch" element={<Createbranch />} />
                   <Route path="/expenditure" element={<Expenditure />} />
@@ -125,7 +125,7 @@ function App() {
                   <Route path="/order" element={<Order />} />
                   <Route path="/branchorder" element={<BranchOrder />} />
                   <Route path="/reporder" element={<RepOrder />} />
-                  <Route path="/landingpage" element={<LandingPage />} />
+                  <Route path="/" element={<LandingPage />} />
                   <Route path="/deposit" element={<Deposit />} />
                   <Route path="/sbincome" element={<SBIncome />} />
                   <Route path="/fdincome" element={<FDIncome />} />
