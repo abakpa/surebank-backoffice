@@ -44,7 +44,6 @@ const CreateStaff = () => {
     loggedInStaffRole === "Admin"
       ? allRoles.filter((r) => r.value !== "Admin")
       : allRoles;
-
   const branchOptions = branches
     .filter((branch) => branch.name !== "Head office")
     .map((branch) => ({ label: branch.name, value: branch._id }));
@@ -56,6 +55,7 @@ const CreateStaff = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const details = { firstName,lastName, address, phone, email, role, branchId, password };
+
     const data = { details, navigate };
     dispatch(createStaffRequest(data));
 

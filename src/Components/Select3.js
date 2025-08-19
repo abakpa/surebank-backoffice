@@ -39,7 +39,7 @@ const Select3 = ({ options, value, onChange, label }) => {
             <li
               key={index}
               onClick={() => {
-                onChange(option.label);
+                onChange(option.value);
                 setIsOpen(false);
               }}
               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
