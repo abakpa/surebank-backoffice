@@ -26,7 +26,7 @@ const Viewcustomer = () => {
   };
 
   const filteredCustomers = customerList.filter((customer) => {
-    const customerName = customer?.name?.toLowerCase() || "";
+    const customerName = `${customer?.firstName || ""} ${customer?.lastName || ""}`.toLowerCase();
     const customerPhone = customer?.phone?.toLowerCase() || "";
     
     // Find branch name from branchId
