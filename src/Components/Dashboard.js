@@ -260,153 +260,7 @@ const Dashboard = () => {
   {loading && <Loader />}
   <h1 className="text-2xl font-bold mb-4 mt-10 text-center">Admin Dashboard</h1>
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-  {/* Card 1 - Blue */}
-  <div className="p-4 rounded-lg shadow-md bg-blue-100">
-    <h3 className="text-sm font-semibold mb-2 text-blue-800">Available Balance</h3>
-    <p className="text-sm font-bold text-blue-800">{newAvailableBalance?.toLocaleString('en-US')}</p>
-    <form className="flex flex-col gap-2 mt-2">
-      <Select2
-        label="Branch"
-        options={branchOptions}
-        value={branchId21}
-        onChange={(selectedId) => setBranchId21(selectedId)}
-      />
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date21}
-        onChange={(e) => setDate21(e.target.value)}
-      />
-   
-    </form>
-  </div>
-  {/* Card 1 - Blue */}
-  <div className="p-4 rounded-lg shadow-md bg-blue-100">
-    <h3 className="text-sm font-semibold mb-2 text-blue-800">Total DS Contribution</h3>
-    <p className="text-sm font-bold text-blue-800">{newdsContribution?.toLocaleString('en-US')}</p>
-    <form className="flex flex-col gap-2 mt-2">
-      <Select2
-        label="Branch"
-        options={branchOptions}
-        value={branchId}
-        onChange={(selectedId) => setBranchId(selectedId)}
-      />
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-      />
-   
-    </form>
-  </div>
-
-  {/* Card 2 - Green */}
-  <div className="p-4 rounded-lg shadow-md bg-green-100">
-    <h3 className="text-sm font-semibold mb-2 text-green-800">Total SB Contribution</h3>
-    <p className="text-sm font-bold text-green-800">{newsbContribution?.toLocaleString('en-US')}</p>
-    <form className="flex flex-col gap-2 mt-2">
-      <Select2
-        label="Branch"
-        options={branchOptions}
-        value={branchId1}
-        onChange={(selectedId) => setBranchId1(selectedId)}
-      />
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date1}
-        onChange={(e) => setDate1(e.target.value)}
-      />
-  
-    </form>
-  </div>
-    {/* Card 16 - Fuchsia */}
-    <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
-  <Link to="/fdreport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
-    <i className="fas fa-file-alt text-lg" title="View Transaction Statement"></i>
-  </Link>
-    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Contribution</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newfdContribution?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
-      <Select2
-        label="Branch"
-        options={branchOptions}
-        value={branchId15}
-        onChange={(selectedId) => setBranchId15(selectedId)}
-      />
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date15}
-        onChange={(e) => setDate15(e.target.value)}
-      />
-  
-    </form>
-  </div>
-  {/* Card 15 - Fuchsia */}
-  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
-    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Interest Icome</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newinterestincome?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
-      <Select2
-        label="Branch"
-        options={branchOptions}
-        value={branchId17}
-        onChange={(selectedId) => setBranchId17(selectedId)}
-      />
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date17}
-        onChange={(e) => setDate17(e.target.value)}
-      />
-  
-    </form>
-  </div>
-  {/* Card 15 - Fuchsia */}
-  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
-    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Interest Expense</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newinterestexpense?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
-      <Select2
-        label="Branch"
-        options={branchOptions}
-        value={branchId18}
-        onChange={(selectedId) => setBranchId18(selectedId)}
-      />
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date18}
-        onChange={(e) => setDate18(e.target.value)}
-      />
-  
-    </form>
-  </div>
-
-  {/* Card 3 - Red */}
-  <div className="p-4 rounded-lg shadow-md bg-red-100">
-    <h3 className="text-sm font-semibold mb-2 text-red-800">Total Contribution</h3>
-    <p className="text-sm font-bold text-red-800">{newtotalsbandds?.toLocaleString('en-US')}</p>
-    <form className="flex flex-col gap-2 mt-2">
-      <Select2
-        label="Branch"
-        options={branchOptions}
-        value={branchId2}
-        onChange={(selectedId) => setBranchId2(selectedId)}
-      />
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date2}
-        onChange={(e) => setDate2(e.target.value)}
-      />
-  
-    </form>
-  </div>
-
-  {/* Card 4 - Yellow */}
+      {/* Card 4 - Yellow */}
   <div className="p-4 rounded-lg shadow-md bg-yellow-100">
     <h3 className="text-sm font-semibold mb-2 text-yellow-800">Total DS Daily Contribution</h3>
     <p className="text-sm font-bold text-yellow-800">{newdailyds?.toLocaleString('en-US') || 0}</p>
@@ -467,8 +321,7 @@ const Dashboard = () => {
     
     </form>
   </div>
-
-  {/* Card 6 - Indigo */}
+    {/* Card 6 - Indigo */}
   <div className="p-4 rounded-lg shadow-md bg-indigo-100">
     <h3 className="text-sm font-semibold mb-2 text-indigo-800">Total Daily Contribution</h3>
     <p className="text-sm font-bold text-indigo-800">{newtotaldailysbandds?.toLocaleString('en-US') || 0}</p>
@@ -488,8 +341,27 @@ const Dashboard = () => {
   
     </form>
   </div>
-
-  {/* Card 7 - Pink */}
+  {/* Card 1 - Blue */}
+  <div className="p-4 rounded-lg shadow-md bg-blue-100">
+    <h3 className="text-sm font-semibold mb-2 text-blue-800">Free to Withdraw</h3>
+    <p className="text-sm font-bold text-blue-800">{newAvailableBalance?.toLocaleString('en-US')}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branchOptions}
+        value={branchId21}
+        onChange={(selectedId) => setBranchId21(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date21}
+        onChange={(e) => setDate21(e.target.value)}
+      />
+   
+    </form>
+  </div>
+   {/* Card 7 - Pink */}
   <div className="p-4 rounded-lg shadow-md bg-pink-100">
     <h3 className="text-sm font-semibold mb-2 text-pink-800">DS Withdrawal</h3>
     <p className="text-sm font-bold text-pink-800">{newdswithdrawal?.toLocaleString('en-US') || 0}</p>
@@ -509,8 +381,7 @@ const Dashboard = () => {
   
     </form>
   </div>
-
-  {/* Card 8 - Teal */}
+    {/* Card 8 - Teal */}
   <div className="p-4 rounded-lg shadow-md bg-teal-100">
     <h3 className="text-sm font-semibold mb-2 text-teal-800">DS Package</h3>
     <p className="text-sm font-bold text-teal-800">{newdspackage?.toLocaleString('en-US') || 0}</p>
@@ -571,8 +442,7 @@ const Dashboard = () => {
   
     </form>
   </div>
-
-  {/* Card 10 - Cyan */}
+   {/* Card 10 - Cyan */}
   <div className="p-4 rounded-lg shadow-md bg-cyan-100">
     <h3 className="text-sm font-semibold mb-2 text-cyan-800">Total Packages</h3>
     <p className="text-sm font-bold text-cyan-800">{newpackages?.toLocaleString('en-US') || 0}</p>
@@ -592,6 +462,142 @@ const Dashboard = () => {
  
     </form>
   </div>
+  {/* Card 1 - Blue */}
+  <div className="p-4 rounded-lg shadow-md bg-blue-100">
+    <h3 className="text-sm font-semibold mb-2 text-blue-800">Total DS Contribution</h3>
+    <p className="text-sm font-bold text-blue-800">{newdsContribution?.toLocaleString('en-US')}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branchOptions}
+        value={branchId}
+        onChange={(selectedId) => setBranchId(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
+      />
+   
+    </form>
+  </div>
+
+  {/* Card 2 - Green */}
+  <div className="p-4 rounded-lg shadow-md bg-green-100">
+    <h3 className="text-sm font-semibold mb-2 text-green-800">Total SB Contribution</h3>
+    <p className="text-sm font-bold text-green-800">{newsbContribution?.toLocaleString('en-US')}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branchOptions}
+        value={branchId1}
+        onChange={(selectedId) => setBranchId1(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date1}
+        onChange={(e) => setDate1(e.target.value)}
+      />
+  
+    </form>
+  </div>
+    {/* Card 16 - Fuchsia */}
+    <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
+  <Link to="/fdreport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
+    <i className="fas fa-file-alt text-lg" title="View Transaction Statement"></i>
+  </Link>
+    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">Total FD Contribution</h3>
+    <p className="text-sm font-bold text-fuchsia-800">{ newfdContribution?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branchOptions}
+        value={branchId15}
+        onChange={(selectedId) => setBranchId15(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date15}
+        onChange={(e) => setDate15(e.target.value)}
+      />
+  
+    </form>
+  </div>
+   {/* Card 3 - Red */}
+  <div className="p-4 rounded-lg shadow-md bg-red-100">
+    <h3 className="text-sm font-semibold mb-2 text-red-800">Total Contribution</h3>
+    <p className="text-sm font-bold text-red-800">{newtotalsbandds?.toLocaleString('en-US')}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branchOptions}
+        value={branchId2}
+        onChange={(selectedId) => setBranchId2(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date2}
+        onChange={(e) => setDate2(e.target.value)}
+      />
+  
+    </form>
+  </div>
+  {/* Card 15 - Fuchsia */}
+  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
+    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Interest Icome</h3>
+    <p className="text-sm font-bold text-fuchsia-800">{ newinterestincome?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branchOptions}
+        value={branchId17}
+        onChange={(selectedId) => setBranchId17(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date17}
+        onChange={(e) => setDate17(e.target.value)}
+      />
+  
+    </form>
+  </div>
+  {/* Card 15 - Fuchsia */}
+  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
+    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Interest Expense</h3>
+    <p className="text-sm font-bold text-fuchsia-800">{ newinterestexpense?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branchOptions}
+        value={branchId18}
+        onChange={(selectedId) => setBranchId18(selectedId)}
+      />
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date18}
+        onChange={(e) => setDate18(e.target.value)}
+      />
+  
+    </form>
+  </div>
+
+ 
+
+
+
+
+
+ 
+
+
+
+ 
 
   {/* Card 11 - Amber */}
   <div className="relative p-4 rounded-lg shadow-md bg-amber-100">
