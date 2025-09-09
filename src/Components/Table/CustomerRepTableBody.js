@@ -10,15 +10,15 @@ const getBranchName = (branchId, branches = []) => {
   return branch ? branch.name : "Unknown Branch";
 };
 
-// Define a palette of text colors
-const rowTextColors = [
-  "text-blue-700",
-  "text-green-700",
-  "text-purple-700",
-  "text-pink-700",
-  "text-indigo-700",
-  "text-teal-700",
-  "text-orange-700",
+// Define palettes of text + background colors
+const rowColors = [
+  { text: "text-blue-800", bg: "bg-blue-50" },
+  { text: "text-green-800", bg: "bg-green-50" },
+  { text: "text-purple-800", bg: "bg-purple-50" },
+  { text: "text-pink-800", bg: "bg-pink-50" },
+  { text: "text-indigo-800", bg: "bg-indigo-50" },
+  { text: "text-teal-800", bg: "bg-teal-50" },
+  { text: "text-orange-800", bg: "bg-orange-50" },
 ];
 
 const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) => {
@@ -53,7 +53,6 @@ const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) 
         oldStaff,
         customer: selectedCustomer._id,
       };
-      console.log("Transfer details:", transferDetails);
       dispatch(transferCustomerRequest(transferDetails));
       closeModal();
     }
@@ -61,7 +60,7 @@ const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) 
 
   const canTransfer = role === "Manager" || role === "Admin";
 
-  // Sort customers alphabetically by firstName + lastName
+  // Sort customers alphabetically
   const sortedCustomers = [...customers].sort((a, b) => {
     const nameA = `${a.firstName || ""} ${a.lastName || ""}`.toLowerCase();
     const nameB = `${b.firstName || ""} ${b.lastName || ""}`.toLowerCase();
@@ -73,12 +72,11 @@ const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) 
       <tbody className="text-sm">
         {sortedCustomers.length > 0 ? (
           sortedCustomers.map((customer, index) => {
-            const textColor = rowTextColors[index % rowTextColors.length]; // cycle through colors
+            const { text, bg } = rowColors[index % rowColors.length]; // pick matching colors
             return (
               <tr
                 key={index}
-                className={`cursor-pointer transition-colors duration-200 
-                  odd:bg-gray-50 even:bg-white hover:bg-blue-50 ${textColor}`}
+                className={`cursor-pointer transition-colors duration-200 ${bg} ${text} hover:opacity-90`}
                 onClick={() => handleRowClick(customer._id)}
               >
                 <td className="border border-gray-300 p-2">
@@ -94,9 +92,9 @@ const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) 
                 {canTransfer && (
                   <td className="border border-gray-300 p-2">
                     <button
-                      className="text-blue-600 hover:underline"
+                      className="text-blue-700 underline hover:text-blue-900"
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent row click
+                        e.stopPropagation();
                         openTransferModal(customer);
                       }}
                     >
