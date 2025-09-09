@@ -13,7 +13,9 @@ const Tablehead = () => {
          )}
           <th className="border border-gray-300 p-2">Narration</th>
           <th className="border border-gray-300 p-2">Amount</th>
+          {!isManagerOrAgent && (
           <th className="border border-gray-300 p-2">Action</th>
+          )}
         </tr>
       </thead>
     );

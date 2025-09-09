@@ -32,6 +32,7 @@ const Tablebody = ({
             </td>
 
             {/* Delete button column */}
+            {!isManagerOrAgent && (
             <td className="border border-gray-300 p-2">
               <button
                 onClick={() => onDeleteClick(customer._id)}
@@ -42,6 +43,7 @@ const Tablebody = ({
                 {loading ? "Deleting..." : "Delete"}
               </button>
             </td>
+            )}
           </tr>
         ))
       ) : (
