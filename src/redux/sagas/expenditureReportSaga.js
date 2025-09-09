@@ -10,6 +10,9 @@ import {
     fetchRepExpenditureRequest,
     fetchRepExpenditureSuccess,
     fetchRepExpenditureFailure,
+    deleteExpenditureRequest,
+    deleteExpenditureSuccess,
+    deleteExpenditureFailure,
 
 } from '../slices/expenditureReportSlice'
 import { url } from './url'
@@ -50,6 +53,39 @@ function* fetchBranchExpenditureSaga(){
         yield put(fetchBranchExpenditureFailure(error.response.data.message))
     }
 }
+// Saga: Delete Expenditure
+function* deleteExpenditureSaga(action) {
+    console.log("action",action.payload)
+  try {
+    const token = localStorage.getItem("authToken");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    // API call (soft delete)
+    const response = yield call(
+      axios.put,
+      `${url}/api/admindashboard/deleteexpenditure/${action.payload}`,{}, // expenditureId comes from action.payload
+      config
+    );
+
+    // Dispatch success with deleted record
+    yield put(deleteExpenditureSuccess(response.data));
+    yield call(fetchExpenditureSaga)
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem("authToken");
+      window.location.href = "/login";
+    }
+    yield put(
+      deleteExpenditureFailure(
+        error.response?.data?.message || "Failed to delete expenditure"
+      )
+    );
+  }
+}
 function* fetchRepExpenditureSaga(staffId){
 
     const role = localStorage.getItem('staffRole');
@@ -84,6 +120,7 @@ function* expenditurereportSaga(){
     yield takeLatest(fetchExpenditureRequest.type, fetchExpenditureSaga)
     yield takeLatest(fetchBranchExpenditureRequest.type, fetchBranchExpenditureSaga)
     yield takeLatest(fetchRepExpenditureRequest.type, fetchRepExpenditureSaga)
+    yield takeLatest(deleteExpenditureRequest.type, deleteExpenditureSaga)
   
 }
 

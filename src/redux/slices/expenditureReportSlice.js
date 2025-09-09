@@ -41,6 +41,16 @@ const expenditurereportSlice = createSlice({
         },
         fetchRepExpenditureFailure:(state,action)=>{
             state.error = action.payload
+        },
+        deleteExpenditureRequest:(state)=>{
+            state.loading = true
+        },
+        deleteExpenditureSuccess:(state,action)=>{
+            state.expenditurereport= action.payload;
+            state.loading=false
+        },
+        deleteExpenditureFailure:(state,action)=>{
+            state.error = action.payload
         }
 
      }
@@ -56,6 +66,9 @@ export const {
     fetchRepExpenditureRequest,
     fetchRepExpenditureSuccess,
     fetchRepExpenditureFailure,
+    deleteExpenditureRequest,
+    deleteExpenditureSuccess,
+    deleteExpenditureFailure,
     fetchBranchByIdRequest,
     fetchBranchByIdSuccess,
     fetchBranchByIdFailure,

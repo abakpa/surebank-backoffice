@@ -10,8 +10,18 @@ const getBranchName = (branchId, branches = []) => {
   return branch ? branch.name : "Unknown Branch";
 };
 
-const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) => {
+// Define a palette of text colors
+const rowTextColors = [
+  "text-blue-700",
+  "text-green-700",
+  "text-purple-700",
+  "text-pink-700",
+  "text-indigo-700",
+  "text-teal-700",
+  "text-orange-700",
+];
 
+const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const role = localStorage.getItem("staffRole");
@@ -51,39 +61,52 @@ const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) 
 
   const canTransfer = role === "Manager" || role === "Admin";
 
+  // Sort customers alphabetically by firstName + lastName
+  const sortedCustomers = [...customers].sort((a, b) => {
+    const nameA = `${a.firstName || ""} ${a.lastName || ""}`.toLowerCase();
+    const nameB = `${b.firstName || ""} ${b.lastName || ""}`.toLowerCase();
+    return nameA.localeCompare(nameB);
+  });
+
   return (
     <>
       <tbody className="text-sm">
-        {customers.length > 0 ? (
-          customers.map((customer, index) => (
-            <tr
-              key={index}
-              className="text-center hover:bg-gray-100 cursor-pointer"
-              onClick={() => handleRowClick(customer._id)}
-            >
-              <td className="border border-gray-300 p-2">{customer.firstName} {customer.lastName}</td>
-              <td className="border border-gray-300 p-2">{customer.address}</td>
-              <td className="border border-gray-300 p-2">{customer.phone}</td>
-              {!isManagerOrAgent && (
-              <td className="border border-gray-300 p-2">
-                {getBranchName(customer.branchId, branches)}
-              </td>
-              )}
-              {canTransfer && (
+        {sortedCustomers.length > 0 ? (
+          sortedCustomers.map((customer, index) => {
+            const textColor = rowTextColors[index % rowTextColors.length]; // cycle through colors
+            return (
+              <tr
+                key={index}
+                className={`cursor-pointer transition-colors duration-200 
+                  odd:bg-gray-50 even:bg-white hover:bg-blue-50 ${textColor}`}
+                onClick={() => handleRowClick(customer._id)}
+              >
                 <td className="border border-gray-300 p-2">
-                  <button
-                    className="text-blue-600 hover:underline"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent row click
-                      openTransferModal(customer);
-                    }}
-                  >
-                    Transfer Customer
-                  </button>
+                  {customer.firstName} {customer.lastName}
                 </td>
-              )}
-            </tr>
-          ))
+                <td className="border border-gray-300 p-2">{customer.address}</td>
+                <td className="border border-gray-300 p-2">{customer.phone}</td>
+                {!isManagerOrAgent && (
+                  <td className="border border-gray-300 p-2">
+                    {getBranchName(customer.branchId, branches)}
+                  </td>
+                )}
+                {canTransfer && (
+                  <td className="border border-gray-300 p-2">
+                    <button
+                      className="text-blue-600 hover:underline"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent row click
+                        openTransferModal(customer);
+                      }}
+                    >
+                      Transfer Customer
+                    </button>
+                  </td>
+                )}
+              </tr>
+            );
+          })
         ) : (
           <tr>
             <td colSpan="5" className="text-center p-4">
@@ -99,7 +122,10 @@ const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) 
           <div className="bg-white p-6 rounded shadow-md w-full max-w-md">
             <h2 className="text-lg font-bold mb-4">Transfer Customer</h2>
             <p className="mb-4">
-              Select a new staff for: <strong>{selectedCustomer?.name}</strong>
+              Select a new staff for:{" "}
+              <strong>
+                {selectedCustomer?.firstName} {selectedCustomer?.lastName}
+              </strong>
             </p>
 
             <Select2
