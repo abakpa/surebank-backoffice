@@ -551,14 +551,15 @@ if(selectedAccount){
         >
           <i className="fas fa-folder-open text-lg" title="View Transactions"></i>
         </button>
-          <button
-          onClick={() => {
-            setShowMainWithdrawalModal(true);
-          }}
-          className="text-red-600 hover:text-red-800 ml-1"
-        >
-          <i className="fas fa-minus-circle text-lg" title="Withdraw"></i>
-        </button>
+  {(loggedInStaffRole === 'Admin' || loggedInStaffRole === 'Manager') && (
+  <button
+    onClick={() => setShowMainWithdrawalModal(true)}
+    className="text-red-600 hover:text-red-800 ml-1"
+  >
+    <i className="fas fa-minus-circle text-lg" title="Withdraw"></i>
+  </button>
+)}
+
         </p>
       </header>
   {/* Add Account Section */}
