@@ -77,7 +77,9 @@ function App() {
   loggedInStaffRole === 'Admin' ? (
     <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
   ) :loggedInStaffRole === 'Agent' ? (
-    <RepSidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+    <RepSidebar isOpen={isSidebarOpen} role={loggedInStaffRole} toggleSidebar={toggleSidebar} />
+  ) :loggedInStaffRole === 'OnlineRep' ? (
+    <RepSidebar isOpen={isSidebarOpen} role={loggedInStaffRole} toggleSidebar={toggleSidebar} />
   ):( <ManagerSidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />)
 )}
 

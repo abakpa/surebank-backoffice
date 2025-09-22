@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logoutRequest } from "../redux/slices/loginSlice";
 import { useNavigate } from "react-router-dom";
 
-const ManagerSidebar = ({ isOpen, toggleSidebar }) => {
+const ManagerSidebar = ({ isOpen, toggleSidebar, role }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isLoggedIn = useSelector((state) => state.login.token);
@@ -71,11 +71,13 @@ const ManagerSidebar = ({ isOpen, toggleSidebar }) => {
           Expenditure
           </li>
         </Link>
+        {role === 'Agent' && (
         <Link to="/transaction" className="text-xs">
           <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
           Transaction
           </li>
         </Link>
+        )}
         <Link to="/reporder" className="text-xs">
           <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
           Order

@@ -222,7 +222,7 @@ import { url } from './url'
             }
         }
 
-        if(role==='Agent'){
+        if(role==='Agent' || 'OnlineRep'){
         const response = yield call(axios.get, `${url}/api/customer/repcustomer`,config)
         yield put(fetchRepCustomerSuccess(response.data))
         }else{
@@ -273,7 +273,7 @@ function* createCustomerSaga(action) {
       yield put(createCustomerSuccess(response.data));
   
       // Navigate based on role
-      if (role === 'Agent') {
+      if (role === 'Agent' || role === 'OnlineRep') {
         navigate('/repcustomers');
       } else if (role === 'Manager') {
         navigate('/branchcustomers');

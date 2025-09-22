@@ -60,7 +60,7 @@ import {
     updatePhoneFailure
 } from '../slices/depositSlice'
 import { url } from './url'
-import {sendTemplateMessage} from '../../Components/WhatsappNotification'
+// import {sendTemplateMessage} from '../../Components/WhatsappNotification'
 
  function* fetchDepositSaga(){
     try {
@@ -185,10 +185,10 @@ function* createSBDepositSaga(action) {
       );
   
       // Dispatch deposit success action
-      const amount = response.data.data.newTransaction.amount
-      const balance = response.data.data.newTransaction.balance
-      const direction = 'deposit'
-      sendTemplateMessage(amount,balance,direction)
+      // const amount = response.data.data.newTransaction.amount
+      // const balance = response.data.data.newTransaction.balance
+      // const direction = 'deposit'
+      // sendTemplateMessage(amount,balance,direction)
       yield put(createSBDepositSuccess(response.data));
       // After deposit, refresh customer account details
       yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });

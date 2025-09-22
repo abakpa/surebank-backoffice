@@ -25,6 +25,8 @@ import Loader from "./Loader";
 
 const RepDashboard = () => {
     const dispatch = useDispatch();
+  const loggedInStaffRole = localStorage.getItem("staffRole");
+
     // const { branches } = useSelector((state) => state.branch);
 
     const [date3, setDate3] = useState("");
@@ -129,6 +131,7 @@ const RepDashboard = () => {
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
   {/* Card 4 - Yellow */}
+  {loggedInStaffRole === 'Agent' && (
   <div className="p-4 rounded-lg shadow-md bg-yellow-100">
     <h3 className="text-sm font-semibold mb-2 text-yellow-800">Total DS Daily Contribution</h3>
     <p className="text-sm font-bold text-yellow-800">{newdailyds?.toLocaleString('en-US') || 0}</p>
@@ -149,7 +152,10 @@ const RepDashboard = () => {
     </form>
   </div>
 
+      )}
   {/* Card 5 - Purple */}
+  {loggedInStaffRole === 'Agent' && (
+
   <div className="p-4 rounded-lg shadow-md bg-purple-100">
     <h3 className="text-sm font-semibold mb-2 text-purple-800">Total SB Daily Contribution</h3>
     <p className="text-sm font-bold text-purple-800">{newdailysb?.toLocaleString('en-US') || 0}</p>
@@ -169,7 +175,10 @@ const RepDashboard = () => {
     
     </form>
   </div>
+  )}
   {/* Card 5 - Purple */}
+  {loggedInStaffRole === 'Agent' && (
+
   <div className="p-4 rounded-lg shadow-md bg-purple-100">
     <h3 className="text-sm font-semibold mb-2 text-purple-800">Total FD Daily Contribution</h3>
     <p className="text-sm font-bold text-purple-800">{newdailyfd?.toLocaleString('en-US') || 0}</p>
@@ -189,8 +198,10 @@ const RepDashboard = () => {
     
     </form>
   </div>
-
+  )}
   {/* Card 6 - Indigo */}
+  {loggedInStaffRole === 'Agent' && (
+
   <div className="p-4 rounded-lg shadow-md bg-indigo-100">
     <h3 className="text-sm font-semibold mb-2 text-indigo-800">Total Daily Contribution</h3>
     <p className="text-sm font-bold text-indigo-800">{newtotaldailysbandds?.toLocaleString('en-US') || 0}</p>
@@ -210,8 +221,10 @@ const RepDashboard = () => {
   
     </form>
   </div>
-
+  )}
   {/* Card 7 - Pink */}
+  {loggedInStaffRole === 'Agent' && (
+
   <div className="p-4 rounded-lg shadow-md bg-pink-100">
     <h3 className="text-sm font-semibold mb-2 text-pink-800">DS Withdrawal</h3>
     <p className="text-sm font-bold text-pink-800">{newdswithdrawal?.toLocaleString('en-US') || 0}</p>
@@ -231,8 +244,10 @@ const RepDashboard = () => {
   
     </form>
   </div>
-
+  )}
   {/* Card 8 - Teal */}
+  {loggedInStaffRole === 'Agent' && (
+
   <div className="p-4 rounded-lg shadow-md bg-teal-100">
     <h3 className="text-sm font-semibold mb-2 text-teal-800">DS Package</h3>
     <p className="text-sm font-bold text-teal-800">{newdspackage?.toLocaleString('en-US') || 0}</p>
@@ -252,8 +267,9 @@ const RepDashboard = () => {
 
     </form>
   </div>
-
+  )}
   {/* Card 9 - Orange */}
+
   <div className="p-4 rounded-lg shadow-md bg-orange-100">
     <h3 className="text-sm font-semibold mb-2 text-orange-800">SB Package</h3>
     <p className="text-sm font-bold text-orange-800">{newsbpackage?.toLocaleString('en-US') || 0}</p>
@@ -274,6 +290,8 @@ const RepDashboard = () => {
     </form>
   </div>
     {/* Card 16 - Fuchsia */}
+  {loggedInStaffRole === 'Agent' && (
+
     <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
     <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Package</h3>
     <p className="text-sm font-bold text-fuchsia-800">{ newfdpackage?.toLocaleString('en-US') || 0}</p>
@@ -293,7 +311,10 @@ const RepDashboard = () => {
   
     </form>
   </div>
+  )}
   {/* Card 10 - Cyan */}
+  {loggedInStaffRole === 'Agent' && (
+
   <div className="p-4 rounded-lg shadow-md bg-cyan-100">
     <h3 className="text-sm font-semibold mb-2 text-cyan-800">Total Packages</h3>
     <p className="text-sm font-bold text-cyan-800">{newpackages?.toLocaleString('en-US') || 0}</p>
@@ -313,7 +334,7 @@ const RepDashboard = () => {
  
     </form>
   </div>
-
+  )}
     {/* Card 16 - Fuchsia */}
     {/* <div className="relative p-4 rounded-lg shadow-md bg-violet-100"> */}
   {/* <Link to="/branchfdreport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">

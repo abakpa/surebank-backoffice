@@ -566,15 +566,20 @@ if(selectedAccount){
 <div className="mt-2">
   <h2 className="text-lg font-bold mb-2">Add New Package</h2>
   <div className="flex space-x-2 mb-2">
+    {loggedInStaffRole !== 'OnlineRep' && (
     <div className="cursor-pointer bg-blue-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => setShowCreateAccountModal(true)}>
       DS
     </div>
+    )}
     <div className="cursor-pointer bg-green-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => setShowCreateSBAccountModal(true)}>
       SB
     </div>
+    {loggedInStaffRole !== 'OnlineRep' && (
+
     <div className="cursor-pointer bg-purple-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => setShowCreateFDAccountModal(true)}>
       FD
     </div>
+    )}
   </div>
 </div>
 
@@ -779,9 +784,11 @@ if(selectedAccount){
           <i className="fas fa-folder-open text-lg md:text-lg" title="View Transactions"></i>
         </button>
         {/* Deposit Icon */}
+        {loggedInStaffRole !== 'OnlineRep' &&(
         <button onClick={() => { setSelectedAccount(account); setShowSBDepositModal(true); }} className="text-green-600 hover:text-green-800">
           <i className="fas fa-plus-circle text-lg md:text-lg" title="Deposit"></i>
         </button>
+        )}
         {/* Withdrawal Icon */}
         {loggedInStaffRole === 'Admin' && (
           <button onClick={() => { setSelectedAccount(account); setShowSBWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">

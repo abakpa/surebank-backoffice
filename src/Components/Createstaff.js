@@ -37,6 +37,7 @@ const CreateStaff = () => {
     { label: "Manager", value: "Manager" },
     { label: "Rep", value: "Agent" },
     { label: "Admin", value: "Admin" },
+    { label: "Online Rep", value: "OnlineRep" },
   ];
 
   // Remove "Admin" role if current user is an Admin

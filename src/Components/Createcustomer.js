@@ -54,7 +54,7 @@ const CreateCustomer = () => {
       phone,
       password,
       branchId: staffRole === "Admin" ? branchId : staffBranchId,
-      accountManagerId: staffRole === "Agent" ? loggedInStaff : accountManagerId,
+      accountManagerId: staffRole === "Agent" ? loggedInStaff : staffRole === "OnlineRep" ? loggedInStaff : accountManagerId,
     };
 
     dispatch(createCustomerRequest({ details, navigate }));
@@ -157,7 +157,7 @@ const CreateCustomer = () => {
         </div>
 
         {/* Branch */}
-        {staffRole === "Manager" || staffRole === "Agent" ? (
+        {staffRole === "Manager" || staffRole === "Agent" || staffRole === "OnlineRep" ? (
           <input type="hidden" name="branch" value={branchName} />
         ) : (
           <div className="mb-4">
@@ -172,6 +172,15 @@ const CreateCustomer = () => {
 
         {/* Account Rep */}
         {staffRole === "Agent" ? (
+          <input
+            type="hidden"
+            id="rep"
+            value={loggedInStaffName}
+            readOnly
+            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded bg-gray-100 focus:outline-none"
+          />
+        ) :
+        staffRole === "OnlineRep" ? (
           <input
             type="hidden"
             id="rep"
