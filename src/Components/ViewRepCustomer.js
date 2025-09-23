@@ -137,7 +137,7 @@ const Viewcustomer = () => {
         {/* {role === 'Agent' && ( */}
             <Link to="/viewrepcustomerwithdrawalrequest" className="text-xs">
                                   <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                                    Withdrawal Request
+                                    Customers Request
                                   </button>
                                 </Link>
         {/* )} */}
