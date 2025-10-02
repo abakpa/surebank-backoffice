@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAccountTransactionRequest } from "../redux/slices/createAccountSlice";
-import { createDepositRequest,createCostPriceRequest,createSBDepositRequest,createCustomerFDAccountRequest,createFDWithdrawalRequest,createFDMaturedWithdrawalRequest,editCustomerFDAccountRequest } from '../redux/slices/depositSlice';
+import { createDepositRequest,createCostPriceRequest,createSBDepositRequest,createCustomerFDAccountRequest,createFDWithdrawalRequest,createFDMaturedWithdrawalRequest,editCustomerFDAccountRequest, fetchReversalRequest,fetchDSReversalRequest,fetchFreeToWithdrawReversalRequest } from '../redux/slices/depositSlice';
 import { fetchCustomerAccountRequest,clearDepositError,createMainWithdrawalRequest,createWithdrawalRequest, createSBWithdrawalRequest,createSBSellProductRequest,editCustomerAccountRequest,editCustomerSBAccountRequest,createCustomerAccountRequest,createCustomerSBAccountRequest } from '../redux/slices/depositSlice';
 import {fetchStaffRequest} from '../redux/slices/staffSlice'
 import {updatePhoneRequest} from '../redux/slices/depositSlice'
@@ -32,6 +32,9 @@ const CustomerAccountDashboard = () => {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [getAmountPerDay, setGetAmountPerDay] = useState(null);
   const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showDSReversalModal, setShowDSReversalModal] = useState(false);
+  const [showDSChargeReversalModal, setShowDSChargeReversalModal] = useState(false);
+  const [showFreeToWithdrawReversalModal, setShowFreeToWithdrawReversalModal] = useState(false);
   const [showCostPriceModal, setShowCostPriceModal] = useState(false);
   const [showSBDepositModal, setShowSBDepositModal] = useState(false);
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
@@ -49,6 +52,8 @@ const CustomerAccountDashboard = () => {
   const [showCreateSBAccountModal, setShowCreateSBAccountModal] = useState(false);
   const [showCreateFDAccountModal, setShowCreateFDAccountModal] = useState(false);
   const [amountPerDay, setAmountPerDay] = useState("");
+  const [amountCharged, setAmountCharged] = useState("");
+  const [movedAmount, setMovedAmount] = useState("");
   const [costPrice, setCostPrice] = useState("");
   const [amount, setAmount] = useState("");
   const [fdamount, setFdamount] = useState("");
@@ -194,6 +199,73 @@ if(selectedAccount){
     dispatch(createDepositRequest(data));
     setAmountPerDay("");
     setShowDepositModal(false);
+  };
+
+  const handleDSReversalSubmit = (e) => {
+    e.preventDefault();
+    setErrors("");
+
+    if (!selectedAccount.DSAccountNumber || !amountPerDay) {
+      setErrors("Both fields are required.");
+      return;
+    }
+
+    if (isNaN(amountPerDay) || parseFloat(amountPerDay) <= 0) {
+      setErrors("Please enter a valid amount.");
+      return;
+    }
+
+    const details = { DSAccountNumber: selectedAccount.DSAccountNumber,accountType:selectedAccount.accountType,customerId:customerId, amountPerDay: parseFloat(amountPerDay) };
+    const data = {details}
+    dispatch(fetchReversalRequest(data));
+    setAmountPerDay("");
+    setShowDSReversalModal(false);
+  };
+
+  const handleDSChargeReversalSubmit = (e) => {
+    e.preventDefault();
+    setErrors("");
+
+    if (!selectedAccount.DSAccountNumber || !amountPerDay) {
+      setErrors("Both fields are required.");
+      return;
+    }
+
+    if (isNaN(amountPerDay) || parseFloat(amountPerDay) <= 0) {
+      setErrors("Please enter a valid amount.");
+      return;
+    }
+
+    const details = { DSAccountNumber: selectedAccount.DSAccountNumber,accountType:selectedAccount.accountType,customerId:customerId, amountPerDay: parseFloat(amountPerDay),amountCharged:parseFloat(amountCharged) };
+    const data = {details}
+    dispatch(fetchDSReversalRequest(data));
+    setAmountPerDay("");
+    setAmountCharged("")
+    setShowDSChargeReversalModal(false);
+  };
+  const handleFreeToWithdrawReversalSubmit = (e) => {
+    e.preventDefault();
+    setErrors("");
+
+    // if (!selectedAccount.DSAccountNumber || !amountPerDay) {
+    //   setErrors("Both fields are required.");
+    //   return;
+    // }
+
+    if (isNaN(amountPerDay) || parseFloat(amountPerDay) <= 0) {
+      setErrors("Please enter a valid amount.");
+      return;
+    }
+
+    const details = { DSAccountNumber: selectedAccount.DSAccountNumber,accountType:selectedAccount.accountType,customerId:customerId,accountNumber:deposit?.account?.accountNumber, amountPerDay: parseFloat(amountPerDay),movedAmount:parseFloat(movedAmount),amountCharged:parseFloat(amountCharged) };
+    const data = {details}
+    console.log('charged data',data)
+
+    dispatch(fetchFreeToWithdrawReversalRequest(data));
+    setAmountPerDay("");
+    setMovedAmount("");
+    setAmountCharged("");
+    setShowFreeToWithdrawReversalModal(false);
   };
   const handleCostPriceSubmit = (e) => {
     e.preventDefault();
@@ -560,6 +632,7 @@ if(selectedAccount){
   </button>
 )}
 
+
         </p>
       </header>
   {/* Add Account Section */}
@@ -593,54 +666,119 @@ if(selectedAccount){
  (Array.isArray(newSubAccount?.sbAccount) && newSubAccount.sbAccount.length > 0) ? (
   <ul className="space-y-4">
     {/* DS Accounts */}
-    {Array.isArray(newSubAccount?.dsAccount) &&
-      newSubAccount.dsAccount.map((account, index) => (
-        <li
-          key={`ds-${index}`}
-          className="flex justify-between items-center bg-gray-50 p-3 rounded hover:shadow-md"
+  {Array.isArray(newSubAccount?.dsAccount) &&
+  newSubAccount.dsAccount.map((account, index) => (
+    <li
+      key={`ds-${index}`}
+      className="flex flex-col md:flex-row md:justify-between md:items-center bg-gray-50 p-3 rounded hover:shadow-md mb-3"
+    >
+      {/* Account Info */}
+      <div className="flex-1">
+        <div
+          className={`inline-block px-2 py-1 rounded-full text-xs font-semibold mb-2 ${
+            account.accountType === "Rent"
+              ? "bg-blue-100 text-gray-700"
+              : account.accountType === "School fees"
+              ? "bg-green-100 text-green-700"
+              : account.accountType === "Food"
+              ? "bg-purple-100 text-purple-700"
+              : "bg-gray-100 text-blue-700"
+          }`}
         >
-          <div>
-            <div
-              className={`inline-block px-2 py-1 rounded-full text-xs font-semibold mb-1 ${
-                account.accountType === "Rent"
-                  ? "bg-blue-100 text-gray-700"
-                  : account.accountType === "School fees"
-                  ? "bg-green-100 text-green-700"
-                  : account.accountType === "Food"
-                  ? "bg-purple-100 text-purple-700"
-                  : "bg-gray-100 text-blue-700"
-              }`}
-            >
-              {account.accountType} Account <strong>₦{account.amountPerDay?.toLocaleString('en-US')}</strong>
-              <button
-                onClick={() => {
-                  setSelectedAccount(account);
-                  setGetAmountPerDay(account.amountPerDay);
-                  setShowEditModal(true);
-                }}
-                className="text-blue-600 hover:text-blue-800 ml-2"
-              >
-                <i className="fas fa-edit text-sm" title="Edit"></i>
-              </button>
-            </div>
-            <p className="text-sm text-gray-600"><span className="bg-blue-500 text-white w-8 h-8 rounded-sm"> DS:</span> {account.DSAccountNumber || "N/A"}</p>
-            <p className="text-sm text-gray-600">Balance: ₦{account.totalContribution?.toLocaleString('en-US') || 0}</p>
-          </div>
-          <div className="flex space-x-4">
-            <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
-              <i className="fas fa-folder-open text-lg md:text-lg" title="View Transactions"></i>
-            </button>
-            <button onClick={() => { setSelectedAccount(account);setGetAmountPerDay(account.amountPerDay); setShowDepositModal(true); }} className="text-green-600 hover:text-green-800">
-              <i className="fas fa-plus-circle text-lg md:text-lg" title="Deposit"></i>
-            </button>
-            {((loggedInStaffRole === 'Admin') || (loggedInStaffRole==='Manager')) && (
-            <button onClick={() => { setSelectedAccount(account); setShowWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
-              <i className="fas fa-minus-circle text-lg md:text-lg" title="Withdraw"></i>
-            </button>
-            )}
-          </div>
-        </li>
-      ))}
+          {account.accountType} Account{" "}
+          <strong>₦{account.amountPerDay?.toLocaleString("en-US")}</strong>
+          <button
+            onClick={() => {
+              setSelectedAccount(account);
+              setGetAmountPerDay(account.amountPerDay);
+              setShowEditModal(true);
+            }}
+            className="text-blue-600 hover:text-blue-800 ml-2"
+          >
+            <i className="fas fa-edit text-sm" title="Edit"></i>
+          </button>
+        </div>
+        <p className="text-sm text-gray-600">
+          <span className="bg-blue-500 text-white px-1 rounded-sm">DS:</span>{" "}
+          {account.DSAccountNumber || "N/A"}
+        </p>
+        <p className="text-sm text-gray-600">
+          Balance: ₦{account.totalContribution?.toLocaleString("en-US") || 0}
+        </p>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex flex-wrap md:flex-nowrap space-x-2 md:space-x-4 mt-3 md:mt-0">
+        <button
+          onClick={() => accountTransaction(account._id)}
+          className="text-blue-600 hover:underline"
+        >
+          <i className="fas fa-folder-open text-lg" title="View Transactions"></i>
+        </button>
+        {loggedInStaffRole === "Admin" && (
+   <button
+  onClick={() => {
+    setSelectedAccount(account);
+    setGetAmountPerDay(account.amountPerDay);
+    setShowDSReversalModal(true);
+  }}
+  className="text-indigo-600 hover:text-indigo-800"
+>
+  {/* DS Reversal */}
+  <i className="fas fa-history text-lg" title="DS Reversal"></i>
+</button>
+        )}
+        {loggedInStaffRole === "Admin" && (
+<button
+  onClick={() => {
+    setSelectedAccount(account);
+    setGetAmountPerDay(account.amountPerDay);
+    setShowFreeToWithdrawReversalModal(true);
+  }}
+  className="text-orange-600 hover:text-orange-800"
+>
+  {/* Free To Withdraw Reversal */}
+  <i className="fas fa-undo-alt text-lg" title="Free To Withdraw Reversal "></i>
+</button>
+        )}
+        {loggedInStaffRole === "Admin" && (
+<button
+  onClick={() => {
+    setSelectedAccount(account);
+    setGetAmountPerDay(account.amountPerDay);
+    setShowDSChargeReversalModal(true);
+  }}
+  className="text-red-600 hover:text-red-800"
+>
+  {/* Charge Reversal */}
+  <i className="fas fa-ban text-lg" title="Charge Reversal"></i>
+</button>
+        )}
+        <button
+          onClick={() => {
+            setSelectedAccount(account);
+            setGetAmountPerDay(account.amountPerDay);
+            setShowDepositModal(true);
+          }}
+          className="text-green-600 hover:text-green-800"
+        >
+          <i className="fas fa-plus-circle text-lg" title="Deposit"></i>
+        </button>
+        {(loggedInStaffRole === "Admin" || loggedInStaffRole === "Manager") && (
+          <button
+            onClick={() => {
+              setSelectedAccount(account);
+              setShowWithdrawalModal(true);
+            }}
+            className="text-red-600 hover:text-red-800"
+          >
+            <i className="fas fa-minus-circle text-lg" title="Withdraw"></i>
+          </button>
+        )}
+      </div>
+    </li>
+  ))}
+
 {/* FD Accounts */}
 {Array.isArray(newSubAccount?.fdAccount) &&
   newSubAccount.fdAccount.map((account, index) => {
@@ -893,6 +1031,130 @@ if(selectedAccount){
               className="bg-green-500 text-white px-4 py-2 rounded"
             >
               Deposit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+  
+       {showDSReversalModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+  
+      <div className="bg-white p-6 rounded shadow-md w-96">
+      <h3 className="text-lg font-bold mb-4">
+     Reverse Deposit
+     </h3>
+        <form onSubmit={handleDSReversalSubmit}>
+          <input
+            type="number"
+            value={amountPerDay}
+            onChange={(e) => setAmountPerDay(e.target.value)}
+            placeholder="Enter amount"
+            className="w-full border border-gray-300 rounded p-2 mb-4"
+          />
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => setShowDSReversalModal(false)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-green-500 text-white px-4 py-2 rounded"
+            >
+             Reverse
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+       {showDSChargeReversalModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+  
+      <div className="bg-white p-6 rounded shadow-md w-96">
+      <h3 className="text-lg font-bold mb-4">
+     Reverse DS Charge
+     </h3>
+        <form onSubmit={handleDSChargeReversalSubmit}>
+          <input
+            type="number"
+            value={amountPerDay}
+            onChange={(e) => setAmountPerDay(e.target.value)}
+            placeholder="Enter amount"
+            className="w-full border border-gray-300 rounded p-2 mb-4"
+          />
+          <input
+            type="number"
+            value={amountCharged}
+            onChange={(e) => setAmountCharged(e.target.value)}
+            placeholder="Enter charge"
+            className="w-full border border-gray-300 rounded p-2 mb-4"
+          />
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => setShowDSChargeReversalModal(false)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-green-500 text-white px-4 py-2 rounded"
+            >
+             Reverse
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+       {showFreeToWithdrawReversalModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+  
+      <div className="bg-white p-6 rounded shadow-md w-96">
+      <h3 className="text-lg font-bold mb-4">
+     Reverse DS Moved Amount
+     </h3>
+        <form onSubmit={handleFreeToWithdrawReversalSubmit}>
+          <input
+            type="number"
+            value={amountPerDay}
+            onChange={(e) => setAmountPerDay(e.target.value)}
+            placeholder="Enter total amount"
+            className="w-full border border-gray-300 rounded p-2 mb-4"
+          />
+          <input
+            type="number"
+            value={movedAmount}
+            onChange={(e) => setMovedAmount(e.target.value)}
+            placeholder="Enter moved amount"
+            className="w-full border border-gray-300 rounded p-2 mb-4"
+          />
+          <input
+            type="number"
+            value={amountCharged}
+            onChange={(e) => setAmountCharged(e.target.value)}
+            placeholder="Enter charged amount"
+            className="w-full border border-gray-300 rounded p-2 mb-4"
+          />
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => setShowDSChargeReversalModal(false)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-green-500 text-white px-4 py-2 rounded"
+            >
+             Reverse
             </button>
           </div>
         </form>

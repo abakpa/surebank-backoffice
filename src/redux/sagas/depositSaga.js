@@ -4,6 +4,15 @@ import {
     fetchDepositRequest,
     fetchDepositSuccess,
     fetchDepositFailure,
+      fetchReversalRequest,
+    fetchReversalSuccess,
+    fetchReversalFailure,
+      fetchDSReversalRequest,
+    fetchDSReversalSuccess,
+    fetchDSReversalFailure,
+      fetchFreeToWithdrawReversalRequest,
+    fetchFreeToWithdrawReversalSuccess,
+    fetchFreeToWithdrawReversalFailure,
     createCostPriceRequest,
     createCostPriceSuccess,
     createCostPriceFailure,
@@ -131,6 +140,99 @@ function* createDepositSaga(action) {
           }
       const errorMessage = error.response?.data?.message || "An error occurred";
       yield put(createDepositFailure(errorMessage));
+    }
+  }
+function* createDSReversalSaga(action) {
+    const { details } = action.payload;
+    try {
+      const token = localStorage.getItem("authToken");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+  
+      // Make deposit request
+      const response = yield call(
+        axios.post,
+        `${url}/api/dsaccount/reversal`,
+        details,
+        config
+      );
+  
+      // Dispatch deposit success action
+      yield put(fetchReversalSuccess(response.data));
+      // After deposit, refresh customer account details
+      yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
+  
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+      const errorMessage = error.response?.data?.message || "An error occurred";
+      yield put(fetchReversalFailure(errorMessage));
+    }
+  }
+function* createDSChargeReversalSaga(action) {
+    const { details } = action.payload;
+    try {
+      const token = localStorage.getItem("authToken");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+  
+      // Make deposit request
+      const response = yield call(
+        axios.post,
+        `${url}/api/dsaccount/chargereversal`,
+        details,
+        config
+      );
+  
+      // Dispatch deposit success action
+      yield put(fetchDSReversalSuccess(response.data));
+      // After deposit, refresh customer account details
+      yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
+  
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+      const errorMessage = error.response?.data?.message || "An error occurred";
+      yield put(fetchDSReversalFailure(errorMessage));
+    }
+  }
+function* createFreeToWithdrawReversalSaga(action) {
+    const { details } = action.payload;
+    try {
+      const token = localStorage.getItem("authToken");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+  
+      // Make deposit request
+      const response = yield call(
+        axios.post,
+        `${url}/api/dsaccount/freetowithdrawreversal`,
+        details,
+        config
+      );
+  
+      // Dispatch deposit success action
+      yield put(fetchFreeToWithdrawReversalSuccess(response.data));
+      // After deposit, refresh customer account details
+      yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
+  
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+      const errorMessage = error.response?.data?.message || "An error occurred";
+      yield put(fetchFreeToWithdrawReversalFailure(errorMessage));
     }
   }
 function* createCostPriceSaga(action) {
@@ -534,6 +636,9 @@ function* depositSaga(){
     yield takeLatest(createCostPriceRequest.type,createCostPriceSaga)
     yield takeLatest(fetchSubAccountDepositRequest.type, fetchSubAccountDepositSaga)
     yield takeLatest(createDepositRequest.type, createDepositSaga)
+    yield takeLatest(fetchReversalRequest.type, createDSReversalSaga)
+    yield takeLatest(fetchDSReversalRequest.type, createDSChargeReversalSaga)
+    yield takeLatest(fetchFreeToWithdrawReversalRequest.type, createFreeToWithdrawReversalSaga)
     yield takeLatest(createSBDepositRequest.type, createSBDepositSaga)
     yield takeLatest(fetchCustomerAccountRequest.type, fetchCustomerAccountSaga)
     yield takeLatest(createMainWithdrawalRequest.type, createMainWithdrawalSaga)

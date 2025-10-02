@@ -213,6 +213,7 @@ import { url } from './url'
     }
 }
  function* fetchRepCustomerSaga(action){
+
     try {
         const role = localStorage.getItem('staffRole');
         const token = localStorage.getItem('authToken');
@@ -222,8 +223,11 @@ import { url } from './url'
             }
         }
 
-        if(role==='Agent' || 'OnlineRep'){
+        if(role==='Agent'){
         const response = yield call(axios.get, `${url}/api/customer/repcustomer`,config)
+        yield put(fetchRepCustomerSuccess(response.data))
+        }else if(role==='OnlineRep'){
+       const response = yield call(axios.get, `${url}/api/customer/repcustomer`,config)
         yield put(fetchRepCustomerSuccess(response.data))
         }else{
             const response = yield call(axios.get, `${url}/api/mvrepdashboard/repcustomer/${action.payload}`,config)

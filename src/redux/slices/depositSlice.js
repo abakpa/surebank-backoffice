@@ -18,7 +18,41 @@ const depositSlice = createSlice({
             state.loading=false
         },
         fetchDepositFailure:(state,action)=>{
-            state.error = action.payload
+             state.error=action.payload
+            state.loading=false
+        },
+        fetchReversalRequest:(state)=>{
+            state.loading = true
+        },
+        fetchReversalSuccess:(state,action)=>{
+            state.deposit= action.payload;
+            state.loading=false
+        },
+        fetchReversalFailure:(state,action)=>{
+             state.error=action.payload
+            state.loading=false
+        },
+        fetchDSReversalRequest:(state)=>{
+            state.loading = true
+        },
+        fetchDSReversalSuccess:(state,action)=>{
+            state.deposit= action.payload;
+            state.loading=false
+        },
+        fetchDSReversalFailure:(state,action)=>{
+             state.error=action.payload
+            state.loading=false
+        },
+        fetchFreeToWithdrawReversalRequest:(state)=>{
+            state.loading = true
+        },
+        fetchFreeToWithdrawReversalSuccess:(state,action)=>{
+            state.deposit= action.payload;
+            state.loading=false
+        },
+        fetchFreeToWithdrawReversalFailure:(state,action)=>{
+             state.error=action.payload
+            state.loading=false
         },
         createCostPriceRequest:(state)=>{
             state.loading = true
@@ -255,6 +289,15 @@ export const {
     fetchDepositRequest,
     fetchDepositSuccess,
     fetchDepositFailure,
+    fetchReversalRequest,
+    fetchReversalSuccess,
+    fetchReversalFailure,
+    fetchDSReversalRequest,
+    fetchDSReversalSuccess,
+    fetchDSReversalFailure,
+    fetchFreeToWithdrawReversalRequest,
+    fetchFreeToWithdrawReversalSuccess,
+    fetchFreeToWithdrawReversalFailure,
     createCostPriceRequest,
     createCostPriceSuccess,
     createCostPriceFailure,

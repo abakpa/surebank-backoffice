@@ -587,18 +587,6 @@ const Dashboard = () => {
     </form>
   </div>
 
- 
-
-
-
-
-
- 
-
-
-
- 
-
   {/* Card 11 - Amber */}
   <div className="relative p-4 rounded-lg shadow-md bg-amber-100">
       {/* Transaction Statement Icon (Top-right Corner) */}
