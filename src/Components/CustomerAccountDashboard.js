@@ -1145,7 +1145,7 @@ if(selectedAccount){
           />
           <div className="flex justify-end space-x-4">
             <button
-              onClick={() => setShowDSChargeReversalModal(false)}
+              onClick={() => setShowFreeToWithdrawReversalModal(false)}
               className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
             >
               Cancel
