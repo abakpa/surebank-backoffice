@@ -37,6 +37,12 @@ import {
     fetchMVTransactionRequest,
     fetchMVTransactionSuccess,
     fetchMVTransactionFailure,
+     fetchMVReferralRequest,
+    fetchMVReferralSuccess,
+    fetchMVReferralFailure,
+    fetchMVReferralDetailsRequest,
+    fetchMVReferralDetailsSuccess,
+    fetchMVReferralDetailsFailure,
   
 } from '../slices/managerviewrepdashboardSlice'
 import { url } from './url'
@@ -280,6 +286,44 @@ function* fetchMVTransactionSaga(action){
         yield put(fetchMVTransactionFailure(error.response.data.message))
     }
 }
+function* fetchMVReferralSaga(action){
+     const { details17 = null } = action.payload;
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+         const requestData = details17 ? details17 : {};
+        const response = yield call(axios.post, `${url}/api/mvrepdashboard/referral/${details17.staffId}`, requestData,config)
+        yield put(fetchMVReferralSuccess(response.data))
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchMVReferralFailure(error.response.data.message))
+    }
+}
+function* fetchMVReferralDetailsSaga(action){
+    //  const { details17 = null } = action.payload;
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        //  const requestData = details17 ? details17 : {};
+        const response = yield call(axios.post, `${url}/api/mvrepdashboard/referraldetails/${action.payload}`, {},config)
+        yield put(fetchMVReferralDetailsSuccess(response.data))
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchMVReferralDetailsFailure(error.response.data.message))
+    }
+}
 
 
 
@@ -297,6 +341,8 @@ function* depositSaga(){
     yield takeLatest(fetchMVRepFDpackageRequest.type, fetchMVRepFDpackageSaga)
     yield takeLatest(fetchMVRepPackageRequest.type, fetchMVRepPackageSaga)
     yield takeLatest(fetchMVTransactionRequest.type, fetchMVTransactionSaga)
+    yield takeLatest(fetchMVReferralRequest.type, fetchMVReferralSaga)
+    yield takeLatest(fetchMVReferralDetailsRequest.type, fetchMVReferralDetailsSaga)
     yield takeLatest(fetchMVRepTotalExpenditureRequest.type, fetchMVRepTotalExpenditureSaga)
     
 

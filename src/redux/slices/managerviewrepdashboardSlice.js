@@ -15,6 +15,8 @@ const initialState = {
     fdcontribution: null,
     reptotalexpenditure: null,
     transaction:null,
+    referral:null,
+    referralstaff:null,
     loading: false,
     error:null,
 };
@@ -143,6 +145,26 @@ const managerviewrepdashboardSlice = createSlice({
         },
         fetchMVTransactionFailure:(state,action)=>{
             state.error = action.payload
+        },
+        fetchMVReferralRequest:(state)=>{
+            state.loading = true
+        },
+        fetchMVReferralSuccess:(state,action)=>{
+            state.referral= action.payload;
+            state.loading=false
+        },
+        fetchMVReferralFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchMVReferralDetailsRequest:(state)=>{
+            state.loading = true
+        },
+        fetchMVReferralDetailsSuccess:(state,action)=>{
+            state.referralstaff= action.payload;
+            state.loading=false
+        },
+        fetchMVReferralDetailsFailure:(state,action)=>{
+            state.error = action.payload
         }
         
     }
@@ -186,6 +208,12 @@ export const {
     fetchMVTransactionRequest,
     fetchMVTransactionSuccess,
     fetchMVTransactionFailure,
+    fetchMVReferralRequest,
+    fetchMVReferralSuccess,
+    fetchMVReferralFailure,
+    fetchMVReferralDetailsRequest,
+    fetchMVReferralDetailsSuccess,
+    fetchMVReferralDetailsFailure,
  
 } = managerviewrepdashboardSlice.actions
 

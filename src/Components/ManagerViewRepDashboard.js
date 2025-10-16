@@ -21,6 +21,7 @@ import {
   fetchMVRepTotalExpenditureRequest,
   fetchBranchStaffRequest,
   fetchMVTransactionRequest,
+  fetchMVReferralRequest,
 
 } from '../redux/slices/managerviewrepdashboardSlice'
 import Loader from "./Loader";
@@ -44,6 +45,7 @@ const ManagerViewRepDashboard = () => {
     const [date13, setDate13] = useState("");
     const [date15, setDate15] = useState("");
     const [date16, setDate16] = useState("");
+    const [date17, setDate17] = useState("");
     const {
       loading,
      repdailyds,
@@ -58,6 +60,7 @@ const ManagerViewRepDashboard = () => {
      fdpackage,
      reptotalexpenditure,
      transaction,
+     referral
   
     } = useSelector((state)=>state.mvrepdashboard)
       const newdailyds = repdailyds || 0
@@ -70,6 +73,7 @@ const ManagerViewRepDashboard = () => {
       const newpackages = reppackages || 0
       const newfdpackage = fdpackage || 0
       const newrepexpenditure = reptotalexpenditure || 0
+      const newreferral = referral || 0
       
 
 
@@ -90,6 +94,7 @@ const ManagerViewRepDashboard = () => {
         const details13 = { date: date13,staffId };
         const details15 = { date: date15,staffId };
         const details16 = { date: date16,staffId };
+        const details17 = { date: date17,staffId };
    
         const data3 = {details3}
         const data4 = {details4}
@@ -101,6 +106,7 @@ const ManagerViewRepDashboard = () => {
         const data13 = {details13}
         const data15 = {details15}
         const data16 = {details16}
+        const data17 = {details17}
   
         dispatch(fetchMVRepDSDailyContributionRequest(data3)); 
         dispatch(fetchMVRepSBDailyContributionRequest(data4)); 
@@ -114,6 +120,7 @@ const ManagerViewRepDashboard = () => {
         dispatch(fetchMVRepTotalExpenditureRequest(data13)); 
         dispatch(fetchBranchStaffRequest(staffId))
         dispatch(fetchMVTransactionRequest(staffId))
+        dispatch(fetchMVReferralRequest(data17))
  
     }, [
       dispatch,
@@ -128,6 +135,7 @@ const ManagerViewRepDashboard = () => {
       date13,
       date15,
       date16,
+      date17,
 
     ]);
     const transactionList = Array.isArray(transaction) ? transaction : [];
@@ -301,6 +309,25 @@ const ManagerViewRepDashboard = () => {
         className="p-2 border rounded-md" 
         value={date13}
         onChange={(e) => setDate13(e.target.value)}
+      />
+  
+    </form>
+  </div>
+    {/* Card 14 - Violet */}
+    <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
+         {/* Transaction Statement Icon (Top-right Corner) */}
+  <Link to={`/staffreferral?staffId=${staffId}`}className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
+    <p className="text-sm md:text-sm">View Referral</p>
+  </Link>
+    <h3 className="text-sm font-semibold mb-2 text-violet-800">Staff Referral</h3>
+    <p className="text-sm font-bold text-violet-800">{ newreferral?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+   
+      <input 
+        type="date" 
+        className="p-2 border rounded-md" 
+        value={date17}
+        onChange={(e) => setDate17(e.target.value)}
       />
   
     </form>

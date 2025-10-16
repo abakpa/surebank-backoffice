@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createStaffRequest } from "../redux/slices/staffSlice";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
+import { fetchStaffRequest } from "../redux/slices/staffSlice";
+
 import Select from "./Select3";
 import Select2 from "./Select2";
 
@@ -12,6 +14,7 @@ const CreateStaff = () => {
 
   const { branches } = useSelector((state) => state.branch);
   const { error, loading } = useSelector((state) => state.staff);
+    const {  staffs } = useSelector((state) => state.staff);
 
   const isLoggedIn = useSelector((state) => state.login.staff?.role);
   const loggedInStaffRole = isLoggedIn || localStorage.getItem("staffRole");
@@ -28,6 +31,7 @@ const CreateStaff = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState(loggedInStaffRole === "Manager" ? "Agent" : "");
+  const [staffId, setStaffId] = useState("");
   const [branchId, setBranchId] = useState(
     loggedInStaffRole === "Manager" ? loggedInStaffBranch : ""
   );
@@ -49,13 +53,27 @@ const CreateStaff = () => {
     .filter((branch) => branch.name !== "Head office")
     .map((branch) => ({ label: branch.name, value: branch._id }));
 
+   // ✅ Staff options filtered based on branch if not Admin
+  const filteredStaffs =
+    loggedInStaffRole === "Admin"
+      ? staffs // Admin sees all
+      : staffs.filter((staff) => staff.branchId === loggedInStaffBranch); // Non-admin sees only same-branch staff
+
+  const staffOptions = filteredStaffs.map((staff) => ({
+    label: `${staff.firstName} ${staff.lastName}`,
+    value: staff._id,
+  }));
+
   useEffect(() => {
     dispatch(fetchBranchRequest());
   }, [dispatch]);
+    useEffect(() => {
+      dispatch(fetchStaffRequest());
+    }, [dispatch]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const details = { firstName,lastName, address, phone, email, role, branchId, password };
+    const details = { firstName,lastName, address, phone, email, role, branchId,referral:staffId, password };
 
     const data = { details, navigate };
     dispatch(createStaffRequest(data));
@@ -66,6 +84,7 @@ const CreateStaff = () => {
     setPhone("");
     setEmail("");
     setPassword("");
+    setStaffId("");
     setRole(loggedInStaffRole === "Manager" ? "Agent" : "");
     setBranchId(loggedInStaffRole === "Manager" ? loggedInStaffBranch : "");
   };
@@ -163,6 +182,14 @@ const CreateStaff = () => {
             required
           />
         </div>
+
+        {/* Referral */}
+        <Select2
+            label="Referral"
+            options={staffOptions}
+            value={staffId}
+            onChange={setStaffId}
+          />
 
         {/* Role */}
         {loggedInStaffRole === "Manager" ? (

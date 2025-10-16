@@ -39,6 +39,7 @@ import FDReport from "./Components/FDTransaction";
 import BranchFDReport from "./Components/BranchFDTransaction";
 import BranchExpenditureReport from "./Components/BranchExpenditureReport";
 import RepExpenditureReport from "./Components/RepExpenditureReport";
+import StaffReferral from "./Components/StaffReferralDetails";
 import Transaction from "./Components/Transaction";
 import Order from "./Components/Order";
 import BranchOrder from "./Components/BranchOrder";
@@ -135,6 +136,7 @@ function App() {
                   <Route path="/dsincome" element={<DSIncome />} />
                   <Route path="/branchdsincome" element={<BranchDSIncome />} />
                   <Route path="/expenditurereport" element={<ExpenditureReport />} />
+                  <Route path="/staffreferral" element={<StaffReferral />} />
                   <Route path="/fdreport" element={<FDReport />} />
                   <Route path="/branchfdreport" element={<BranchFDReport />} />
                   <Route path="/branchexpenditurereport" element={<BranchExpenditureReport />} />

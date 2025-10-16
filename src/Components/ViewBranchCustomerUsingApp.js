@@ -55,7 +55,7 @@ const ViewBranchCustomerUsingApp = () => {
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
                                                         <div className="text-sm font-medium text-gray-900">
-                                                            {customer?.customerId?.firstName} {customer?.customerId?.firstName} 
+                                                            {customer?.customerId?.firstName} {customer?.customerId?.lastName} 
                                                         </div>
                                                     </div>
                                             </td>
