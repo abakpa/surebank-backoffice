@@ -43,6 +43,9 @@ import {
     fetchMVReferralDetailsRequest,
     fetchMVReferralDetailsSuccess,
     fetchMVReferralDetailsFailure,
+    fetchMVReferralCountRequest,
+    fetchMVReferralCountSuccess,
+    fetchMVReferralCountFailure,
   
 } from '../slices/managerviewrepdashboardSlice'
 import { url } from './url'
@@ -324,6 +327,26 @@ function* fetchMVReferralDetailsSaga(action){
         yield put(fetchMVReferralDetailsFailure(error.response.data.message))
     }
 }
+function* fetchMVReferralCountSaga(action){
+     const { referralId,startDate,endDate } = action.payload;
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const referralCount = {startDate,endDate}
+        //  const requestData = details17 ? details17 : {};
+        const response = yield call(axios.post, `${url}/api/mvrepdashboard/referral/orders/${referralId}`, referralCount,config)
+        yield put(fetchMVReferralCountSuccess(response.data))
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchMVReferralCountFailure(error.response.data.message))
+    }
+}
 
 
 
@@ -343,6 +366,7 @@ function* depositSaga(){
     yield takeLatest(fetchMVTransactionRequest.type, fetchMVTransactionSaga)
     yield takeLatest(fetchMVReferralRequest.type, fetchMVReferralSaga)
     yield takeLatest(fetchMVReferralDetailsRequest.type, fetchMVReferralDetailsSaga)
+    yield takeLatest(fetchMVReferralCountRequest.type, fetchMVReferralCountSaga)
     yield takeLatest(fetchMVRepTotalExpenditureRequest.type, fetchMVRepTotalExpenditureSaga)
     
 
