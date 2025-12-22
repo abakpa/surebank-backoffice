@@ -1,5 +1,8 @@
 import React, { useState,useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
+
+// import { useParams } from "react-router-dom";
 // import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import { Link } from "react-router-dom"; // Import Link from react-router-dom
 
@@ -15,7 +18,8 @@ import {
   fetchRepSBpackageRequest,
   fetchRepFDpackageRequest,
   fetchRepPackageRequest,
-  fetchRepTotalExpenditureRequest
+  fetchRepTotalExpenditureRequest,
+  fetchReferralRequest
 
 } from '../redux/slices/repdashboardSlice'
 import Loader from "./Loader";
@@ -25,8 +29,11 @@ import Loader from "./Loader";
 
 const RepDashboard = () => {
     const dispatch = useDispatch();
+    //  const { staffId } = useParams();
+      const { search } = useLocation();
+      const query = new URLSearchParams(search);
+      const staffId = query.get("staffId");
   const loggedInStaffRole = localStorage.getItem("staffRole");
-
     // const { branches } = useSelector((state) => state.branch);
 
     const [date3, setDate3] = useState("");
@@ -39,6 +46,7 @@ const RepDashboard = () => {
     const [date13, setDate13] = useState("");
     const [date15, setDate15] = useState("");
     const [date16, setDate16] = useState("");
+    const [date17, setDate17] = useState("");
     const {
       loading,
      repdailyds,
@@ -50,7 +58,8 @@ const RepDashboard = () => {
      repsbpackage,
      reppackages,
      fdpackage,
-     reptotalexpenditure
+     reptotalexpenditure,
+     referral
   
     } = useSelector((state)=>state.repdashboard)
   
@@ -64,6 +73,7 @@ const RepDashboard = () => {
       const newpackages = reppackages || 0
       const newfdpackage = fdpackage || 0
       const newrepexpenditure = reptotalexpenditure || 0
+      const newreferral = referral || 0
       
 
 
@@ -84,6 +94,7 @@ const RepDashboard = () => {
         const details13 = { date: date13 };
         const details15 = { date: date15 };
         const details16 = { date: date16 };
+        const details17 = { date: date17,staffId:staffId };
     
    
         const data3 = {details3}
@@ -96,6 +107,8 @@ const RepDashboard = () => {
         const data13 = {details13}
         const data15 = {details15}
         const data16 = {details16}
+        const data17 = {details17}
+        dispatch(fetchReferralRequest(data17)); 
   
         dispatch(fetchRepDSDailyContributionRequest(data3)); 
         dispatch(fetchRepSBDailyContributionRequest(data4)); 
@@ -121,7 +134,8 @@ const RepDashboard = () => {
       date13,
       date15,
       date16,
-
+      date17,
+      staffId
     ]);
     
   return (
@@ -382,6 +396,25 @@ const RepDashboard = () => {
   
     </form>
   </div>
+     {/* Card 14 - Violet */}
+      <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
+           {/* Transaction Statement Icon (Top-right Corner) */}
+    <Link to={`/staffreferral?staffId=${staffId}`}className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
+      <p className="text-sm md:text-sm">View Referral</p>
+    </Link>
+      <h3 className="text-sm font-semibold mb-2 text-violet-800">Staff Referral</h3>
+      <p className="text-sm font-bold text-violet-800">{ newreferral?.toLocaleString('en-US') || 0}</p>
+      <form className="flex flex-col gap-2 mt-2">
+     
+        <input 
+          type="date" 
+          className="p-2 border rounded-md" 
+          value={date17}
+          onChange={(e) => setDate17(e.target.value)}
+        />
+    
+      </form>
+    </div>
 </div>
 </div>
 

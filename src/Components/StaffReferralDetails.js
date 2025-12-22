@@ -15,6 +15,7 @@ const StaffReferralDetails = () => {
   const { search } = useLocation();
   const query = new URLSearchParams(search);
   const staffId = query.get("staffId");
+  console.log('sssssssss',staffId)
 
   const { loading, referralstaff, referralCount, error } = useSelector(
     (state) => state.mvrepdashboard

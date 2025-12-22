@@ -9,6 +9,7 @@ const ManagerSidebar = ({ isOpen, toggleSidebar, role }) => {
   const navigate = useNavigate();
   const isLoggedIn = useSelector((state) => state.login.token);
   const token = isLoggedIn || localStorage.getItem("authToken");
+  const staffId = localStorage.getItem("staffId");
   // const loggedInStaffRole = useSelector((state) => state.login.staff?.role) || localStorage.getItem("staffRole");
 
   const handleLogout = () => {
@@ -35,7 +36,7 @@ const ManagerSidebar = ({ isOpen, toggleSidebar, role }) => {
       </button>
       <h2 className="text-xl font-bold mb-6">Sidebar</h2>
       <ul>
-        <Link to="/repdashboard">
+        <Link to={`/repdashboard?staffId=${staffId}`}>
         <li
           className="hover:bg-gray-700 p-2 rounded cursor-pointer text-xs"
           onClick={() => handleMenuClick("Dashboard")}

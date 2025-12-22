@@ -31,6 +31,9 @@ import {
     fetchRepTotalExpenditureRequest,
     fetchRepTotalExpenditureSuccess,
     fetchRepTotalExpenditureFailure,
+        fetchReferralRequest,
+    fetchReferralSuccess,
+    fetchReferralFailure,
   
 } from '../slices/repdashboardSlice'
 import { url } from './url'
@@ -237,6 +240,27 @@ function* fetchRepTotalExpenditureSaga(action) {
     }
 }
 
+function* fetchrerralSaga(action){
+     const { details17 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+         const requestData = details17 ? details17 : {};
+        const response = yield call(axios.post, `${url}/api/mvrepdashboard/referral/${details17.staffId}`, requestData,config)
+        yield put(fetchReferralSuccess(response.data))
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchReferralFailure(error.response.data.message))
+    }
+}
+
 
 function* depositSaga(){
 
@@ -251,6 +275,7 @@ function* depositSaga(){
     yield takeLatest(fetchRepFDpackageRequest.type, fetchRepFDpackageSaga)
     yield takeLatest(fetchRepPackageRequest.type, fetchRepPackageSaga)
     yield takeLatest(fetchRepTotalExpenditureRequest.type, fetchRepTotalExpenditureSaga)
+    yield takeLatest(fetchReferralRequest.type, fetchrerralSaga)
     
 
 }

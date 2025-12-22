@@ -15,6 +15,7 @@ const initialState = {
     reptotalexpenditure: null,
     loading: false,
     error:null,
+    referral:null
 };
 
 const dashboardSlice = createSlice({
@@ -122,6 +123,16 @@ const dashboardSlice = createSlice({
         fetchRepTotalExpenditureFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchReferralRequest:(state)=>{
+            state.loading = true
+        },
+        fetchReferralSuccess:(state,action)=>{
+            state.referral= action.payload;
+            state.loading=false
+        },
+        fetchReferralFailure:(state,action)=>{
+            state.error = action.payload
+        },
     
     }
 })
@@ -158,6 +169,9 @@ export const {
     fetchRepTotalExpenditureRequest,
     fetchRepTotalExpenditureSuccess,
     fetchRepTotalExpenditureFailure,
+    fetchReferralRequest,
+    fetchReferralSuccess,
+    fetchReferralFailure,
  
 } = dashboardSlice.actions
 
