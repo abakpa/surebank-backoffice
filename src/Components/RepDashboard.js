@@ -402,7 +402,7 @@ const RepDashboard = () => {
     <Link to={`/staffreferral?staffId=${staffId}`}className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
       <p className="text-sm md:text-sm">View Referral</p>
     </Link>
-      <h3 className="text-sm font-semibold mb-2 text-violet-800">Staff Referral</h3>
+      <h3 className="text-sm font-semibold mb-2 text-violet-800">Staff Referrals</h3>
       <p className="text-sm font-bold text-violet-800">{ newreferral?.toLocaleString('en-US') || 0}</p>
       <form className="flex flex-col gap-2 mt-2">
      
