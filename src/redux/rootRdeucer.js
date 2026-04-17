@@ -20,6 +20,10 @@ import dsincome from './slices/dsincomeSlice'
 import fdincome from './slices/FDincomeSllice'
 import transactions from './slices/transactionSlice'
 import orders from './slices/orderSlice'
+import products from './slices/productSlice'
+import productCategories from './slices/productCategorySlice'
+import ecommerceOrders from './slices/ecommerceOrderSlice'
+import ecommerceIncomeReport from './slices/ecommerceIncomeReportSlice'
 
 const rootReducer = combineReducers({
     branch:branchReducer,
@@ -42,7 +46,11 @@ const rootReducer = combineReducers({
     fdincomereport:fdincome,
     transaction:transactions,
     order:orders,
-    fd:fdreport
+    fd:fdreport,
+    products:products,
+    productCategories:productCategories,
+    ecommerceOrders:ecommerceOrders,
+    ecommerceIncomeReport:ecommerceIncomeReport
 });
 
 export default rootReducer;

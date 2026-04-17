@@ -31,6 +31,12 @@ import {
     createMainWithdrawalRequest,
     createMainWithdrawalSuccess,
     createMainWithdrawalFailure,
+    createMainDepositRequest,
+    createMainDepositSuccess,
+    createMainDepositFailure,
+    createWalletToSBTransferRequest,
+    createWalletToSBTransferSuccess,
+    createWalletToSBTransferFailure,
     createWithdrawalRequest,
     createWithdrawalSuccess,
     createWithdrawalFailure,
@@ -434,6 +440,46 @@ function* createSBDepositSaga(action) {
         yield put(createMainWithdrawalFailure(errorMessage))
     }
 }
+function* createMainDepositSaga(action){
+    const {details} = action.payload
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const response = yield call(axios.post,`${url}/api/dsaccount/maindeposit`, details,config);
+        yield put(createMainDepositSuccess(response.data))
+        yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        const errorMessage = error.response?.data?.message
+        yield put(createMainDepositFailure(errorMessage))
+    }
+}
+  function* createWalletToSBTransferSaga(action){
+    const {details} = action.payload
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const response = yield call(axios.post,`${url}/api/dsaccount/wallet-transfer`, details,config);
+        yield put(createWalletToSBTransferSuccess(response.data))
+        yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        const errorMessage = error.response?.data?.message || "An error occurred"
+        yield put(createWalletToSBTransferFailure(errorMessage))
+    }
+}
 function* createCustomerAccountSaga(action){
     const {details,navigate} = action.payload
     try {
@@ -642,6 +688,8 @@ function* depositSaga(){
     yield takeLatest(createSBDepositRequest.type, createSBDepositSaga)
     yield takeLatest(fetchCustomerAccountRequest.type, fetchCustomerAccountSaga)
     yield takeLatest(createMainWithdrawalRequest.type, createMainWithdrawalSaga)
+    yield takeLatest(createMainDepositRequest.type, createMainDepositSaga)
+    yield takeLatest(createWalletToSBTransferRequest.type, createWalletToSBTransferSaga)
     yield takeLatest(createWithdrawalRequest.type, createWithdrawalSaga)
     yield takeLatest(createSBWithdrawalRequest.type, createSBWithdrawalSaga)
     yield takeLatest(createFDWithdrawalRequest.type, createFDWithdrawalSaga)

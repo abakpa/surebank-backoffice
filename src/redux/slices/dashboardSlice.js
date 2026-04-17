@@ -23,6 +23,9 @@ const initialState = {
     totalincome: null,
     totalexpenditure: null,
     profit: null,
+    ecommerceIncome: null,
+    ecommerceDeposit: null,
+    ecommerceDepositReport: [],
     loading: false,
     error:null,
 };
@@ -251,7 +254,37 @@ const dashboardSlice = createSlice({
         fetchTotalProfitFailure:(state,action)=>{
             state.error = action.payload
         },
-    
+        fetchEcommerceIncomeRequest:(state)=>{
+            state.loading = true
+        },
+        fetchEcommerceIncomeSuccess:(state,action)=>{
+            state.ecommerceIncome= action.payload;
+            state.loading=false
+        },
+        fetchEcommerceIncomeFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchEcommerceDepositRequest:(state)=>{
+            state.loading = true
+        },
+        fetchEcommerceDepositSuccess:(state,action)=>{
+            state.ecommerceDeposit = action.payload;
+            state.loading = false
+        },
+        fetchEcommerceDepositFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchEcommerceDepositReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchEcommerceDepositReportSuccess:(state,action)=>{
+            state.ecommerceDepositReport = action.payload;
+            state.loading = false
+        },
+        fetchEcommerceDepositReportFailure:(state,action)=>{
+            state.error = action.payload
+        },
+
     }
 })
 
@@ -322,7 +355,16 @@ export const {
     fetchTotalProfitRequest,
     fetchTotalProfitSuccess,
     fetchTotalProfitFailure,
- 
+    fetchEcommerceIncomeRequest,
+    fetchEcommerceIncomeSuccess,
+    fetchEcommerceIncomeFailure,
+    fetchEcommerceDepositRequest,
+    fetchEcommerceDepositSuccess,
+    fetchEcommerceDepositFailure,
+    fetchEcommerceDepositReportRequest,
+    fetchEcommerceDepositReportSuccess,
+    fetchEcommerceDepositReportFailure,
+
 } = dashboardSlice.actions
 
 export default dashboardSlice.reducer

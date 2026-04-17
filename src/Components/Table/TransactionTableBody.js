@@ -2,7 +2,7 @@
 // Mock function to get branch name from branchId
 const getBranchName = (staffId, staffs = []) => {
   const staff = staffs.find((staff) => staff._id === staffId);
-  return staff ? staff.firstName : "Unknown Branch";
+  return staff ? `${staff.firstName} ${staff.lastName || ""}`.trim() : "Unknown Staff";
 };
 
 
@@ -78,7 +78,9 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
 
             <td ><p className={`ml-2 ${customer.direction === 'Credit' ?  "text-green-600":customer.direction ==='Transfer'? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>{customer.balance?.toLocaleString('en-US')}</p></td>
             <td >
-              <p className={`${customer.direction === 'Credit' ?  "text-green-600":customer.direction ==='Transfer'? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>{getBranchName(customer.createdBy, branches)}</p>
+              <p className={`${customer.direction === 'Credit' ?  "text-green-600":customer.direction ==='Transfer'? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>
+                {customer.createdByName || getBranchName(customer.createdBy, branches)}
+              </p>
             </td>
           </tr>
         ))

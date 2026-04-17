@@ -34,6 +34,12 @@ import {
         fetchReferralRequest,
     fetchReferralSuccess,
     fetchReferralFailure,
+    fetchRepEcommerceDepositRequest,
+    fetchRepEcommerceDepositSuccess,
+    fetchRepEcommerceDepositFailure,
+    fetchRepEcommerceDepositReportRequest,
+    fetchRepEcommerceDepositReportSuccess,
+    fetchRepEcommerceDepositReportFailure,
   
 } from '../slices/repdashboardSlice'
 import { url } from './url'
@@ -261,6 +267,48 @@ function* fetchrerralSaga(action){
     }
 }
 
+function* fetchRepEcommerceDepositSaga(action) {
+    const { details18 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details18 ? details18 : {};
+        const response = yield call(axios.post, `${url}/api/repdashboard/repecommercedeposit`, requestData, config);
+        yield put(fetchRepEcommerceDepositSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchRepEcommerceDepositFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+
+function* fetchRepEcommerceDepositReportSaga(action) {
+    const { details19 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details19 ? details19 : {};
+        const response = yield call(axios.post, `${url}/api/repdashboard/repecommercedepositreport`, requestData, config);
+        yield put(fetchRepEcommerceDepositReportSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchRepEcommerceDepositReportFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+
 
 function* depositSaga(){
 
@@ -276,6 +324,8 @@ function* depositSaga(){
     yield takeLatest(fetchRepPackageRequest.type, fetchRepPackageSaga)
     yield takeLatest(fetchRepTotalExpenditureRequest.type, fetchRepTotalExpenditureSaga)
     yield takeLatest(fetchReferralRequest.type, fetchrerralSaga)
+    yield takeLatest(fetchRepEcommerceDepositRequest.type, fetchRepEcommerceDepositSaga)
+    yield takeLatest(fetchRepEcommerceDepositReportRequest.type, fetchRepEcommerceDepositReportSaga)
     
 
 }

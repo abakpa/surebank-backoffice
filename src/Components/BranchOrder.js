@@ -1,66 +1,49 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBranchOrderRequest } from "../redux/slices/orderSlice";
-import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import Tablehead from "./Table/OrderTableHead";
 import Tablebody from "./Table/OrderTableBody";
 // import { Link } from "react-router-dom";
+import TableLoadingNotice from "./TableLoadingNotice";
 
 const BranchOrder = () => {
   const dispatch = useDispatch();
   const { loading, branchorder, error } = useSelector((state) => state.order);
-  const { branches } = useSelector((state) => state.branch);
   const [searchTerm, setSearchTerm] = useState("");
   useEffect(() => {
-    dispatch(fetchBranchRequest());
     dispatch(fetchBranchOrderRequest());
   }, [dispatch]);
 
-  // Ensure customers is always an array
-  const orderList = Array.isArray(branchorder.orders) ? branchorder.orders : [];
-  const orderList2 = Array.isArray(branchorder.sbAccounts) ? branchorder.sbAccounts : [];
+  const branchOrderItems = useMemo(() => {
+    if (Array.isArray(branchorder.items)) {
+      return branchorder.items;
+    }
+
+    const legacyOrders = Array.isArray(branchorder.orders) ? branchorder.orders : [];
+    const legacySbAccounts = Array.isArray(branchorder.sbAccounts) ? branchorder.sbAccounts : [];
+    const legacyEcommerceOrders = Array.isArray(branchorder.ecommerceOrders) ? branchorder.ecommerceOrders : [];
+
+    return [...legacyEcommerceOrders, ...legacySbAccounts, ...legacyOrders];
+  }, [branchorder]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredorderList = orderList.filter((orderList) =>
-    (orderList?.status?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-    (orderList?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-  );
-  const filteredorderList2 = orderList2.filter((orderList) =>
-    (orderList2?.status?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-    (orderList2?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-  );
-  if (loading) {
+  const items = useMemo(() => branchOrderItems.filter((orderItem) => {
+    const normalizedSearch = searchTerm.toLowerCase();
+    const customerName = `${orderItem?.customerId?.firstName || ""} ${orderItem?.customerId?.lastName || ""}`.toLowerCase();
+    const branchName = (orderItem?.branchId?.name?.toLowerCase() || "");
+    const productName = (orderItem?.productName?.toLowerCase() || "");
+    const status = (orderItem?.status?.toLowerCase() || "");
+
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <svg
-          className="animate-spin h-10 w-10 text-blue-500"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          role="img"
-          aria-label="Loading"
-        >
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-            className="opacity-25"
-          />
-          <path
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-            className="opacity-75"
-          />
-        </svg>
-        <p className="text-blue-500 ml-4">Loading Transaction Statement...</p>
-      </div>
+      customerName.includes(normalizedSearch) ||
+      branchName.includes(normalizedSearch) ||
+      productName.includes(normalizedSearch) ||
+      status.includes(normalizedSearch)
     );
-  }
+  }), [branchOrderItems, searchTerm]);
 
   if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
 
@@ -72,7 +55,7 @@ const BranchOrder = () => {
       <div className="flex flex-col md:flex-row items-center justify-between mb-4 gap-2">
         <input
           type="text"
-          placeholder="Search by status..."
+          placeholder="Search by customer, branch, product, or status..."
           value={searchTerm}
           onChange={handleSearch}
           className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md"
@@ -88,9 +71,10 @@ const BranchOrder = () => {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[600px] border-collapse border border-gray-300">
           <Tablehead />
-          <Tablebody customers={filteredorderList} customers2={filteredorderList2} branches={branches} />
+          <Tablebody items={items} />
         </table>
       </div>
+      {loading && <TableLoadingNotice message="Loading transaction statement..." />}
     </div>
   );
 };

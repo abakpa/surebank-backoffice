@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAccountTransactionRequest } from "../redux/slices/createAccountSlice";
 import { createDepositRequest,createCostPriceRequest,createSBDepositRequest,createCustomerFDAccountRequest,createFDWithdrawalRequest,createFDMaturedWithdrawalRequest,editCustomerFDAccountRequest, fetchReversalRequest,fetchDSReversalRequest,fetchFreeToWithdrawReversalRequest } from '../redux/slices/depositSlice';
-import { fetchCustomerAccountRequest,clearDepositError,createMainWithdrawalRequest,createWithdrawalRequest, createSBWithdrawalRequest,createSBSellProductRequest,editCustomerAccountRequest,editCustomerSBAccountRequest,createCustomerAccountRequest,createCustomerSBAccountRequest } from '../redux/slices/depositSlice';
+import { fetchCustomerAccountRequest,clearDepositError,createMainWithdrawalRequest,createMainDepositRequest,createWalletToSBTransferRequest,createWithdrawalRequest, createSBWithdrawalRequest,createSBSellProductRequest,editCustomerAccountRequest,editCustomerSBAccountRequest,createCustomerAccountRequest,createCustomerSBAccountRequest } from '../redux/slices/depositSlice';
 import {fetchStaffRequest} from '../redux/slices/staffSlice'
 import {updatePhoneRequest} from '../redux/slices/depositSlice'
 import NotificationPopup from './Notification'
@@ -25,10 +25,11 @@ const CustomerAccountDashboard = () => {
   const { subAccount } = useSelector((state) => state.subAccount);
     const { staffs } = useSelector((state) => state.staff);
     const {withdrawal,error:withdrawalError} = useSelector((state)=>state.withdrawal)
-    const {loading,deposit,error:depositError} = useSelector((state)=>state.deposit)
+  const {loading,deposit,error:depositError} = useSelector((state)=>state.deposit)
   const newPhone = deposit?.customer
     const newSubAccount = deposit?.subAccount
     const staffId = localStorage.getItem("staffId");
+  const canTransferWalletToPackage = ['Admin', 'Manager', 'Agent'].includes(loggedInStaffRole);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [getAmountPerDay, setGetAmountPerDay] = useState(null);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -42,6 +43,8 @@ const CustomerAccountDashboard = () => {
   const [showSellModal, setShowSellModal] = useState(false);
   const [showMaturedWithdrawalModal, setShowMaturedWithdrawalModal] = useState(false);
   const [showMainWithdrawalModal, setShowMainWithdrawalModal] = useState(false);
+  const [showMainDepositModal, setShowMainDepositModal] = useState(false);
+  const [showWalletToSBTransferModal, setShowWalletToSBTransferModal] = useState(false);
   const [showFDWithdrawalModal, setShowFDWithdrawalModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSBEditModal, setShowSBEditModal] = useState(false);
@@ -54,6 +57,7 @@ const CustomerAccountDashboard = () => {
   const [amountPerDay, setAmountPerDay] = useState("");
   const [amountCharged, setAmountCharged] = useState("");
   const [movedAmount, setMovedAmount] = useState("");
+  const [walletTransferTargetAccountNumber, setWalletTransferTargetAccountNumber] = useState("");
   const [costPrice, setCostPrice] = useState("");
   const [amount, setAmount] = useState("");
   const [fdamount, setFdamount] = useState("");
@@ -401,6 +405,56 @@ if(selectedAccount){
     setAmountPerDay("");
     setShowMainWithdrawalModal(false);
   };
+  const handleMainDepositSubmit = (e) => {
+    e.preventDefault();
+    setErrors("");
+
+    if (!deposit?.account?.accountNumber || !amountPerDay) {
+      setErrors("Amount is required.");
+      return;
+    }
+
+    if (isNaN(amountPerDay) || parseFloat(amountPerDay) <= 0) {
+      setErrors("Please enter a valid amount.");
+      return;
+    }
+
+    const details = {
+      accountNumber: deposit?.account?.accountNumber,
+      customerId,
+      amountPerDay: parseFloat(amountPerDay)
+    };
+    const data = { details };
+    dispatch(createMainDepositRequest(data));
+    setAmountPerDay("");
+    setShowMainDepositModal(false);
+  };
+  const handleWalletToSBTransferSubmit = (e) => {
+    e.preventDefault();
+    setErrors("");
+
+    if (!deposit?.account?.accountNumber || !walletTransferTargetAccountNumber || !amountPerDay) {
+      setErrors("Amount and target account number are required.");
+      return;
+    }
+
+    if (isNaN(amountPerDay) || parseFloat(amountPerDay) <= 0) {
+      setErrors("Please enter a valid amount.");
+      return;
+    }
+
+    const details = {
+      accountNumber: deposit?.account?.accountNumber,
+      targetAccountNumber: walletTransferTargetAccountNumber,
+      customerId,
+      amountPerDay: parseFloat(amountPerDay)
+    };
+    const data = { details };
+    dispatch(createWalletToSBTransferRequest(data));
+    setAmountPerDay("");
+    setWalletTransferTargetAccountNumber("");
+    setShowWalletToSBTransferModal(false);
+  };
   const handleEditSubmit = (e) => {
     e.preventDefault();
     setErrors("");
@@ -625,10 +679,26 @@ if(selectedAccount){
         </button>
   {(loggedInStaffRole === 'Admin' || loggedInStaffRole === 'Manager') && (
   <button
+    onClick={() => setShowMainDepositModal(true)}
+    className="text-green-600 hover:text-green-800 ml-1"
+  >
+    <i className="fas fa-plus-circle text-lg" title="Deposit"></i>
+  </button>
+)}
+  {(loggedInStaffRole === 'Admin' || loggedInStaffRole === 'Manager') && (
+  <button
     onClick={() => setShowMainWithdrawalModal(true)}
     className="text-red-600 hover:text-red-800 ml-1"
   >
     <i className="fas fa-minus-circle text-lg" title="Withdraw"></i>
+  </button>
+)}
+  {canTransferWalletToPackage && (
+  <button
+    onClick={() => setShowWalletToSBTransferModal(true)}
+    className="text-amber-600 hover:text-amber-800 ml-1"
+  >
+    <i className="fas fa-exchange-alt text-lg" title="Transfer wallet to SB or DS account"></i>
   </button>
 )}
 
@@ -1354,6 +1424,40 @@ if(selectedAccount){
       </div>
     </div>
   )}
+       {showMainDepositModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+  
+      <div className="bg-white p-6 rounded shadow-md w-96">
+      <h3 className="text-lg font-bold mb-4">
+      Deposit
+     </h3>
+        <form onSubmit={handleMainDepositSubmit}>
+          <input
+            type="number"
+            value={amountPerDay}
+            onChange={(e) => setAmountPerDay(e.target.value)}
+            placeholder="Enter amount"
+            className="w-full border border-gray-300 rounded p-2 mb-4"
+          />
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => setShowMainDepositModal(false)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-green-600 text-white px-4 py-2 rounded"
+            >
+              Deposit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
        {showMainWithdrawalModal && (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
@@ -1382,6 +1486,53 @@ if(selectedAccount){
               className="bg-red-600 text-white px-4 py-2 rounded"
             >
               Withdraw
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+       {showWalletToSBTransferModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+
+      <div className="bg-white p-6 rounded shadow-md w-96">
+      <h3 className="text-lg font-bold mb-4">
+      Transfer Wallet To Account
+     </h3>
+        <form onSubmit={handleWalletToSBTransferSubmit}>
+          <input
+            type="text"
+            value={walletTransferTargetAccountNumber}
+            onChange={(e) => setWalletTransferTargetAccountNumber(e.target.value)}
+            placeholder="Enter SB or DS account number"
+            className="w-full border border-gray-300 rounded p-2 mb-4"
+          />
+          <input
+            type="number"
+            value={amountPerDay}
+            onChange={(e) => setAmountPerDay(e.target.value)}
+            placeholder="Enter amount"
+            className="w-full border border-gray-300 rounded p-2 mb-4"
+          />
+          <p className="text-xs text-gray-500 mb-4">
+            This debits the customer wallet and credits the specified SB or DS account.
+          </p>
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => {
+                setShowWalletToSBTransferModal(false);
+                setWalletTransferTargetAccountNumber("");
+              }}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-amber-600 text-white px-4 py-2 rounded"
+            >
+              Transfer
             </button>
           </div>
         </form>
