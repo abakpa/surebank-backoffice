@@ -7,7 +7,7 @@ import { fetchCategoriesRequest } from "../redux/slices/productCategorySlice";
 const CreateProduct = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error, success } = useSelector((state) => state.products);
+  const { loading, error } = useSelector((state) => state.products);
   const { categories } = useSelector((state) => state.productCategories);
 
   const [formData, setFormData] = useState({
