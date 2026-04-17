@@ -3,6 +3,7 @@ import {createSlice} from '@reduxjs/toolkit';
 const initialState = {
     branches: [],
     loading: false,
+    lastFetched: null,
     error:null,
 };
 
@@ -16,9 +17,11 @@ const branchSlice = createSlice({
         fetchBranchSuccess:(state,action)=>{
             state.branches= action.payload;
             state.loading=false
+            state.lastFetched = Date.now()
         },
         fetchBranchFailure:(state,action)=>{
             state.error = action.payload
+            state.loading = false
         },
         fetchBranchByIdRequest:(state)=>{
             state.loading = true
@@ -29,6 +32,7 @@ const branchSlice = createSlice({
         },
         fetchBranchByIdFailure:(state,action)=>{
             state.error = action.payload
+            state.loading = false
         },
         createBranchRequest:(state)=>{
             state.loading=true

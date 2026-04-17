@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchRepCustomerRequest } from "../redux/slices/customerSlice";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
@@ -9,6 +9,7 @@ import Tablebody from "./Table/CustomerRepTableBody";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import Select2 from "../Components/Select2";
+import TableLoadingNotice from "./TableLoadingNotice";
 
 
 const Viewcustomer = () => {
@@ -34,13 +35,13 @@ const Viewcustomer = () => {
   }, [dispatch,staffId]);
 
   // Ensure customers is always an array
-  const customerList = Array.isArray(customers) ? customers : [];
+  const customerList = useMemo(() => (Array.isArray(customers) ? customers : []), [customers]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value.toLowerCase());
   };
 
-  const filteredCustomers = customerList.filter((customer) => {
+  const filteredCustomers = useMemo(() => customerList.filter((customer) => {
     const customerName = `${customer?.firstName || ""} ${customer?.lastName || ""}`.toLowerCase();
     const customerPhone = customer?.phone?.toLowerCase() || "";
     
@@ -53,7 +54,7 @@ const Viewcustomer = () => {
       customerPhone.includes(searchTerm) || 
       branchName.includes(searchTerm) // Search by branch name
     );
-  });
+  }), [branches, customerList, searchTerm]);
   const handleTransferClick = (customer) => {
     setSelectedCustomer(customer);
     setShowModal(true);
@@ -71,36 +72,6 @@ const Viewcustomer = () => {
     }
   };
   const canTransfer = role === "Manager" || role === "Admin";
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <svg
-          className="animate-spin h-10 w-10 text-blue-500"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          role="img"
-          aria-label="Loading"
-        >
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-            className="opacity-25"
-          />
-          <path
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-            className="opacity-75"
-          />
-        </svg>
-        <p className="text-blue-500 ml-4">Loading customers...</p>
-      </div>
-    );
-  }
 
   if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
   const staffList = role === "Manager" ? branchstaffs : staffs;
@@ -166,6 +137,7 @@ const Viewcustomer = () => {
           <Tablebody customers={filteredCustomers} branches={branches} oldStaff={staffId} staffList={staffList} />
         </table>
       </div>
+      {loading && <TableLoadingNotice message="Loading customers..." />}
          {/* Modal */}
             {showModal && (
               <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">

@@ -203,6 +203,28 @@ const depositSlice = createSlice({
             state.error=action.payload
             state.loading=false
         },
+        createMainDepositRequest:(state)=>{
+            state.loading=true
+        },
+        createMainDepositSuccess:(state,action)=>{
+            state.deposit=action.payload
+            state.loading=false
+        },
+        createMainDepositFailure:(state,action)=>{
+            state.error=action.payload
+            state.loading=false
+        },
+        createWalletToSBTransferRequest:(state)=>{
+            state.loading=true
+        },
+        createWalletToSBTransferSuccess:(state,action)=>{
+            state.deposit=action.payload
+            state.loading=false
+        },
+        createWalletToSBTransferFailure:(state,action)=>{
+            state.error=action.payload
+            state.loading=false
+        },
         createCustomerAccountRequest:(state)=>{
             state.loading=true
         },
@@ -340,6 +362,12 @@ export const {
     createMainWithdrawalRequest,
     createMainWithdrawalSuccess,
     createMainWithdrawalFailure,
+    createMainDepositRequest,
+    createMainDepositSuccess,
+    createMainDepositFailure,
+    createWalletToSBTransferRequest,
+    createWalletToSBTransferSuccess,
+    createWalletToSBTransferFailure,
     createCustomerAccountRequest,
     createCustomerAccountSuccess,
     createCustomerAccountFailure,

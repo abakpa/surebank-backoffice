@@ -1,11 +1,12 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBranchStaffRequest } from "../redux/slices/staffSlice";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import Tablehead from "./Table/StaffTableHead";
 import Tablebody from "./Table/StaffTableBody";
 import { Link } from "react-router-dom";
+import TableLoadingNotice from "./TableLoadingNotice";
 
 const ViewBranchStaff = () => {
   const dispatch = useDispatch();
@@ -22,31 +23,12 @@ const ViewBranchStaff = () => {
   };
 
   // Ensure staffs is always an array
-  const staffList = Array.isArray(branchstaffs) ? branchstaffs : [];
+  const staffList = useMemo(() => (Array.isArray(branchstaffs) ? branchstaffs : []), [branchstaffs]);
 
   // Filter staff safely
-  const filteredStaff = staffList.filter((staff) =>
+  const filteredStaff = useMemo(() => staffList.filter((staff) =>
     (staff?.name?.toLowerCase() || "").includes((searchTerm || "").toLowerCase())
-  );
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <svg
-          className="animate-spin h-10 w-10 text-blue-500"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          role="img"
-          aria-label="Loading"
-        >
-          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" />
-          <path fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" className="opacity-75" />
-        </svg>
-        <p className="text-blue-500 ml-4">Loading staff...</p>
-      </div>
-    );
-  }
+  ), [searchTerm, staffList]);
 
   if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
 
@@ -77,6 +59,7 @@ const ViewBranchStaff = () => {
           <Tablebody staffs={filteredStaff} branches={branches} />
         </table>
       </div>
+      {loading && <TableLoadingNotice message="Loading staff..." />}
     </div>
   );
 };

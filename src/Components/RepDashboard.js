@@ -1,6 +1,7 @@
 import React, { useState,useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+import { FaEye } from "react-icons/fa";
 
 // import { useParams } from "react-router-dom";
 // import { fetchBranchRequest } from "../redux/slices/branchSlice";
@@ -19,11 +20,18 @@ import {
   fetchRepFDpackageRequest,
   fetchRepPackageRequest,
   fetchRepTotalExpenditureRequest,
-  fetchReferralRequest
+  fetchReferralRequest,
+  fetchRepEcommerceDepositRequest,
+  fetchRepEcommerceDepositReportRequest
 
 } from '../redux/slices/repdashboardSlice'
 import Loader from "./Loader";
 // import Select2 from "./Select2";
+import EcommerceDepositDetailsModal from "./EcommerceDepositDetailsModal";
+import DashboardDateRangeFields from "./DashboardDateRangeFields";
+
+const getDateRangeValue = (dateRanges, key) =>
+  dateRanges[key] || { startDate: "", endDate: "" };
 
 
 
@@ -36,17 +44,8 @@ const RepDashboard = () => {
   const loggedInStaffRole = localStorage.getItem("staffRole");
     // const { branches } = useSelector((state) => state.branch);
 
-    const [date3, setDate3] = useState("");
-    const [date4, setDate4] = useState("");
-    const [date5, setDate5] = useState("");
-    const [date6, setDate6] = useState("");
-    const [date7, setDate7] = useState("");
-    const [date8, setDate8] = useState("");
-    const [date9, setDate9] = useState("");
-    const [date13, setDate13] = useState("");
-    const [date15, setDate15] = useState("");
-    const [date16, setDate16] = useState("");
-    const [date17, setDate17] = useState("");
+    const [dateRanges, setDateRanges] = useState({});
+    const [isEcommerceDepositModalOpen, setIsEcommerceDepositModalOpen] = useState(false);
     const {
       loading,
      repdailyds,
@@ -59,7 +58,9 @@ const RepDashboard = () => {
      reppackages,
      fdpackage,
      reptotalexpenditure,
-     referral
+     referral,
+     repEcommerceDeposit,
+     repEcommerceDepositReport
   
     } = useSelector((state)=>state.repdashboard)
   
@@ -71,9 +72,16 @@ const RepDashboard = () => {
       const newdspackage = repdspackage || 0
       const newsbpackage = repsbpackage || 0
       const newpackages = reppackages || 0
-      const newfdpackage = fdpackage || 0
+      const newfdpackage = Number(fdpackage) || 0
       const newrepexpenditure = reptotalexpenditure || 0
-      const newreferral = referral || 0
+      const newreferral = Number(referral) || 0
+      const newRepEcommerceDeposit = repEcommerceDeposit || 0
+
+      const openEcommerceDepositModal = () => {
+        const details19 = { date: getDateRangeValue(dateRanges, "date18") };
+        dispatch(fetchRepEcommerceDepositReportRequest({ details19 }));
+        setIsEcommerceDepositModalOpen(true);
+      };
       
 
 
@@ -84,17 +92,19 @@ const RepDashboard = () => {
 
       useEffect(() => {
     
-        const details3 = { date: date3 };
-        const details4 = { date: date4 };
-        const details5 = { date: date5 };
-        const details6 = { date: date6 };
-        const details7 = { date: date7 };
-        const details8 = { date: date8 };
-        const details9 = { date: date9 };
-        const details13 = { date: date13 };
-        const details15 = { date: date15 };
-        const details16 = { date: date16 };
-        const details17 = { date: date17,staffId:staffId };
+        const details3 = { date: getDateRangeValue(dateRanges, "date3") };
+        const details4 = { date: getDateRangeValue(dateRanges, "date4") };
+        const details5 = { date: getDateRangeValue(dateRanges, "date5") };
+        const details6 = { date: getDateRangeValue(dateRanges, "date6") };
+        const details7 = { date: getDateRangeValue(dateRanges, "date7") };
+        const details8 = { date: getDateRangeValue(dateRanges, "date8") };
+        const details9 = { date: getDateRangeValue(dateRanges, "date9") };
+        const details13 = { date: getDateRangeValue(dateRanges, "date13") };
+        const details15 = { date: getDateRangeValue(dateRanges, "date15") };
+        const details16 = { date: getDateRangeValue(dateRanges, "date16") };
+        const details17 = { date: getDateRangeValue(dateRanges, "date17"),staffId:staffId };
+        const details18 = { date: getDateRangeValue(dateRanges, "date18") };
+        const details19 = { date: getDateRangeValue(dateRanges, "date18") };
     
    
         const data3 = {details3}
@@ -108,8 +118,10 @@ const RepDashboard = () => {
         const data15 = {details15}
         const data16 = {details16}
         const data17 = {details17}
+        const data18 = {details18}
+        const data19 = {details19}
         dispatch(fetchReferralRequest(data17)); 
-  
+ 
         dispatch(fetchRepDSDailyContributionRequest(data3)); 
         dispatch(fetchRepSBDailyContributionRequest(data4)); 
         dispatch(fetchRepFDDailyContributionRequest(data16)); 
@@ -120,21 +132,12 @@ const RepDashboard = () => {
         dispatch(fetchRepFDpackageRequest(data15)); 
         dispatch(fetchRepPackageRequest(data9)); 
         dispatch(fetchRepTotalExpenditureRequest(data13)); 
+        dispatch(fetchRepEcommerceDepositRequest(data18)); 
+        dispatch(fetchRepEcommerceDepositReportRequest(data19)); 
  
     }, [
       dispatch,
- 
-      date3,
-      date4,
-      date5,
-      date6,
-      date7,
-      date8,
-      date9,
-      date13,
-      date15,
-      date16,
-      date17,
+      dateRanges,
       staffId
     ]);
     
@@ -156,12 +159,7 @@ const RepDashboard = () => {
         value={branchId3}
         onChange={(selectedId) => setBranchId3(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date3}
-        onChange={(e) => setDate3(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date3" dateRanges={dateRanges} setDateRanges={setDateRanges} />
     
     </form>
   </div>
@@ -180,12 +178,7 @@ const RepDashboard = () => {
         value={branchId4}
         onChange={(selectedId) => setBranchId4(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date4}
-        onChange={(e) => setDate4(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date4" dateRanges={dateRanges} setDateRanges={setDateRanges} />
     
     </form>
   </div>
@@ -203,12 +196,7 @@ const RepDashboard = () => {
         value={branchId4}
         onChange={(selectedId) => setBranchId4(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date16}
-        onChange={(e) => setDate16(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date16" dateRanges={dateRanges} setDateRanges={setDateRanges} />
     
     </form>
   </div>
@@ -226,12 +214,7 @@ const RepDashboard = () => {
         value={branchId5}
         onChange={(selectedId) => setBranchId5(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date5}
-        onChange={(e) => setDate5(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date5" dateRanges={dateRanges} setDateRanges={setDateRanges} />
   
     </form>
   </div>
@@ -249,12 +232,7 @@ const RepDashboard = () => {
         value={branchId6}
         onChange={(selectedId) => setBranchId6(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date6}
-        onChange={(e) => setDate6(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date6" dateRanges={dateRanges} setDateRanges={setDateRanges} />
   
     </form>
   </div>
@@ -272,12 +250,7 @@ const RepDashboard = () => {
         value={branchId7}
         onChange={(selectedId) => setBranchId7(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date7}
-        onChange={(e) => setDate7(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date7" dateRanges={dateRanges} setDateRanges={setDateRanges} />
 
     </form>
   </div>
@@ -294,13 +267,23 @@ const RepDashboard = () => {
         value={branchId8}
         onChange={(selectedId) => setBranchId8(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date8}
-        onChange={(e) => setDate8(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date8" dateRanges={dateRanges} setDateRanges={setDateRanges} />
   
+    </form>
+  </div>
+  <div className="relative p-4 rounded-lg shadow-md bg-emerald-100">
+    <button
+      type="button"
+      onClick={openEcommerceDepositModal}
+      className="absolute right-3 top-3 text-emerald-800 hover:text-emerald-900"
+      title="View ecommerce deposit details"
+    >
+      <FaEye className="text-lg" />
+    </button>
+    <h3 className="text-sm font-semibold mb-2 text-emerald-800">Ecommerce Deposit</h3>
+    <p className="text-sm font-bold text-emerald-800">{newRepEcommerceDeposit?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <DashboardDateRangeFields rangeKey="date18" dateRanges={dateRanges} setDateRanges={setDateRanges} />
     </form>
   </div>
     {/* Card 16 - Fuchsia */}
@@ -316,12 +299,7 @@ const RepDashboard = () => {
         value={branchId16}
         onChange={(selectedId) => setBranchId16(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date15}
-        onChange={(e) => setDate15(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date15" dateRanges={dateRanges} setDateRanges={setDateRanges} />
   
     </form>
   </div>
@@ -339,12 +317,7 @@ const RepDashboard = () => {
         value={branchId9}
         onChange={(selectedId) => setBranchId9(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date9}
-        onChange={(e) => setDate9(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date9" dateRanges={dateRanges} setDateRanges={setDateRanges} />
  
     </form>
   </div>
@@ -363,14 +336,8 @@ const RepDashboard = () => {
         value={branchId15}
         onChange={(selectedId) => setBranchId15(selectedId)}
       /> */}
-      {/* <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date16}
-        onChange={(e) => setDate16(e.target.value)}
-      />
-  
-    </form>
+      {/* Date range input intentionally omitted for the archived FD contribution card. */}
+    {/* </form>
   </div> */}
     {/* Card 14 - Violet */}
     <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
@@ -387,12 +354,7 @@ const RepDashboard = () => {
         value={branchId13}
         onChange={(selectedId) => setBranchId13(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date13}
-        onChange={(e) => setDate13(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date13" dateRanges={dateRanges} setDateRanges={setDateRanges} />
   
     </form>
   </div>
@@ -406,16 +368,18 @@ const RepDashboard = () => {
       <p className="text-sm font-bold text-violet-800">{ newreferral?.toLocaleString('en-US') || 0}</p>
       <form className="flex flex-col gap-2 mt-2">
      
-        <input 
-          type="date" 
-          className="p-2 border rounded-md" 
-          value={date17}
-          onChange={(e) => setDate17(e.target.value)}
-        />
+        <DashboardDateRangeFields rangeKey="date17" dateRanges={dateRanges} setDateRanges={setDateRanges} />
     
       </form>
     </div>
 </div>
+
+<EcommerceDepositDetailsModal
+  isOpen={isEcommerceDepositModalOpen}
+  onClose={() => setIsEcommerceDepositModalOpen(false)}
+  title="Rep Ecommerce Deposit Details"
+  transactions={repEcommerceDepositReport}
+/>
 </div>
 
   );

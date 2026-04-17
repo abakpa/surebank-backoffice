@@ -22,13 +22,13 @@ const ManagerSidebar = ({ isOpen, toggleSidebar }) => {
 
   return (
     <div
-      className={`fixed inset-y-0 left-0 w-64 bg-gray-800 text-white p-4 mt-12 transform ${
+      className={`app-sidebar fixed inset-y-0 left-0 w-64 p-4 mt-12 transform ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       } transition-transform lg:translate-x-0 lg:relative lg:block z-20`}
     >
       {/* Close Button */}
       <button
-        className="lg:hidden absolute top-4 right-4 text-white bg-gray-700 rounded-full p-2"
+        className="theme-icon-button lg:hidden absolute top-4 right-4 rounded-full p-2"
         onClick={toggleSidebar}
       >
         ✕
@@ -79,6 +79,26 @@ const ManagerSidebar = ({ isOpen, toggleSidebar }) => {
         <Link to="/branchorder" className="text-xs">
           <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
           Order
+          </li>
+        </Link>
+
+        {/* E-Commerce Section */}
+        <li className="theme-sidebar-section mt-4 mb-2 text-xs uppercase tracking-wider">
+          E-Commerce
+        </li>
+        <Link to="/products" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            Products
+          </li>
+        </Link>
+        <Link to="/categories" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            Categories
+          </li>
+        </Link>
+        <Link to="/ecommerce-orders" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            E-Commerce Orders
           </li>
         </Link>
 

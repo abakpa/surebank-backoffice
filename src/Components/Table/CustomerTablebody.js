@@ -17,6 +17,12 @@ const Tablebody = ({ customers = [], branches = [] }) => {
   const dispatch = useDispatch();
   const role = localStorage.getItem("staffRole");
   const isManagerOrAgent = role === "Manager" || role === "Agent";
+  const branchLookup = Array.isArray(branches)
+    ? branches.reduce((acc, branch) => {
+        acc[branch._id] = branch.name;
+        return acc;
+      }, {})
+    : branches;
 
   const handleRowClick = (customerId) => {
     navigate(`/customeraccountdashboard/${customerId}`);
@@ -31,17 +37,10 @@ const Tablebody = ({ customers = [], branches = [] }) => {
     dispatch(resetCustomerPasswordRequest(details));
   };
 
-  // Sort customers alphabetically by firstName + lastName
-  const sortedCustomers = [...customers].sort((a, b) => {
-    const nameA = `${a.firstName || ""} ${a.lastName || ""}`.toLowerCase();
-    const nameB = `${b.firstName || ""} ${b.lastName || ""}`.toLowerCase();
-    return nameA.localeCompare(nameB);
-  });
-
   return (
     <tbody className="text-sm">
-      {Array.isArray(sortedCustomers) && sortedCustomers.length > 0 ? (
-        sortedCustomers.map((customer, index) => {
+      {Array.isArray(customers) && customers.length > 0 ? (
+        customers.map((customer, index) => {
           const rowStyle = rowColors[index % rowColors.length]; // cycle colors
           return (
             <tr
@@ -71,7 +70,7 @@ const Tablebody = ({ customers = [], branches = [] }) => {
                   className="border border-gray-300 p-2"
                   onClick={() => handleRowClick(customer._id)}
                 >
-                  {branches.find(b => b._id === customer.branchId)?.name || "Unknown Branch"}
+                  {branchLookup?.[customer.branchId] || "Unknown Branch"}
                 </td>
               )}
               {!isManagerOrAgent && (

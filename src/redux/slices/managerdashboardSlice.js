@@ -21,6 +21,8 @@ const initialState = {
     fdinterestincome: null,
     fdinterestexpense: null,
     fdpackage: null,
+    branchEcommerceDeposit: null,
+    branchEcommerceDepositReport: [],
     loading: false,
     error:null,
 };
@@ -229,6 +231,28 @@ const dashboardSlice = createSlice({
         fetchBranchTotalProfitFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchBranchEcommerceDepositRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchEcommerceDepositSuccess:(state,action)=>{
+            state.branchEcommerceDeposit = action.payload;
+            state.loading = false
+        },
+        fetchBranchEcommerceDepositFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
+        fetchBranchEcommerceDepositReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchEcommerceDepositReportSuccess:(state,action)=>{
+            state.branchEcommerceDepositReport = action.payload;
+            state.loading = false
+        },
+        fetchBranchEcommerceDepositReportFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
     
     }
 })
@@ -294,7 +318,13 @@ export const {
     fetchBranchTotalProfitRequest,
     fetchBranchTotalProfitSuccess,
     fetchBranchTotalProfitFailure,
- 
+    fetchBranchEcommerceDepositRequest,
+    fetchBranchEcommerceDepositSuccess,
+    fetchBranchEcommerceDepositFailure,
+    fetchBranchEcommerceDepositReportRequest,
+    fetchBranchEcommerceDepositReportSuccess,
+    fetchBranchEcommerceDepositReportFailure,
+    
 } = dashboardSlice.actions
 
 export default dashboardSlice.reducer

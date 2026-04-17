@@ -61,6 +61,12 @@ import {
     fetchBranchTotalProfitRequest,
     fetchBranchTotalProfitSuccess,
     fetchBranchTotalProfitFailure,
+    fetchBranchEcommerceDepositRequest,
+    fetchBranchEcommerceDepositSuccess,
+    fetchBranchEcommerceDepositFailure,
+    fetchBranchEcommerceDepositReportRequest,
+    fetchBranchEcommerceDepositReportSuccess,
+    fetchBranchEcommerceDepositReportFailure,
   
 } from '../slices/managerdashboardSlice'
 import { url } from './url'
@@ -464,6 +470,48 @@ function* fetchBranchTotalProfitSaga(action) {
     }
 }
 
+function* fetchBranchEcommerceDepositSaga(action) {
+    const { details17 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details17 ? details17 : {};
+        const response = yield call(axios.post, `${url}/api/managerdashboard/branchecommercedeposit`, requestData, config);
+        yield put(fetchBranchEcommerceDepositSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchBranchEcommerceDepositFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+
+function* fetchBranchEcommerceDepositReportSaga(action) {
+    const { details18 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details18 ? details18 : {};
+        const response = yield call(axios.post, `${url}/api/managerdashboard/branchecommercedepositreport`, requestData, config);
+        yield put(fetchBranchEcommerceDepositReportSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchBranchEcommerceDepositReportFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+
 
 
 
@@ -489,6 +537,8 @@ function* depositSaga(){
     yield takeLatest(fetchBranchFDInterestIncomeRequest.type, fetchBranchFDInterestIncomeSaga)
     yield takeLatest(fetchBranchFDInterestExpenseRequest.type, fetchBranchFDInterestExpenseSaga)
     yield takeLatest(fetchBranchFDpackageRequest.type, fetchBranchFDpackageSaga)
+    yield takeLatest(fetchBranchEcommerceDepositRequest.type, fetchBranchEcommerceDepositSaga)
+    yield takeLatest(fetchBranchEcommerceDepositReportRequest.type, fetchBranchEcommerceDepositReportSaga)
 
 }
 

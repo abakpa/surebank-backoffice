@@ -20,6 +20,10 @@ import fdincomeSaga from './fdincomeSaga'
 import dsincomeSaga from './dsincomeSaga'
 import transactionSaga from './transactionSaga'
 import orderSaga from './orderSaga'
+import productSaga from './productSaga'
+import productCategorySaga from './productCategorySaga'
+import ecommerceOrderSaga from './ecommerceOrderSaga'
+import ecommerceIncomeReportSaga from './ecommerceIncomeReportSaga'
 
 export default function* rootSaga(){
     yield all([
@@ -43,6 +47,10 @@ export default function* rootSaga(){
         managerdashboardSaga(),
         repdashboardSaga(),
         managerviewrepdashboardSaga(),
-        fdReportSaga()
+        fdReportSaga(),
+        productSaga(),
+        productCategorySaga(),
+        ecommerceOrderSaga(),
+        ecommerceIncomeReportSaga()
     ])
 }

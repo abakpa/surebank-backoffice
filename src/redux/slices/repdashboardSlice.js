@@ -13,6 +13,8 @@ const initialState = {
     fdpackage: null,
     fdcontribution: null,
     reptotalexpenditure: null,
+    repEcommerceDeposit: null,
+    repEcommerceDepositReport: [],
     loading: false,
     error:null,
     referral:null
@@ -133,6 +135,26 @@ const dashboardSlice = createSlice({
         fetchReferralFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchRepEcommerceDepositRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepEcommerceDepositSuccess:(state,action)=>{
+            state.repEcommerceDeposit = action.payload;
+            state.loading = false
+        },
+        fetchRepEcommerceDepositFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchRepEcommerceDepositReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepEcommerceDepositReportSuccess:(state,action)=>{
+            state.repEcommerceDepositReport = action.payload;
+            state.loading = false
+        },
+        fetchRepEcommerceDepositReportFailure:(state,action)=>{
+            state.error = action.payload
+        },
     
     }
 })
@@ -172,6 +194,12 @@ export const {
     fetchReferralRequest,
     fetchReferralSuccess,
     fetchReferralFailure,
+    fetchRepEcommerceDepositRequest,
+    fetchRepEcommerceDepositSuccess,
+    fetchRepEcommerceDepositFailure,
+    fetchRepEcommerceDepositReportRequest,
+    fetchRepEcommerceDepositReportSuccess,
+    fetchRepEcommerceDepositReportFailure,
  
 } = dashboardSlice.actions
 

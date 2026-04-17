@@ -1,4 +1,4 @@
-import {call, put, takeLatest} from 'redux-saga/effects'
+import {call, put, select, takeLatest} from 'redux-saga/effects'
 import axios from 'axios'
 import {
     fetchBranchRequest,
@@ -13,8 +13,19 @@ import {
 } from '../slices/branchSlice'
 import { url } from './url'
 
- function* fetchBranchSaga(){
+ function* fetchBranchSaga(action){
     try {
+        const branchState = yield select((state) => state.branch);
+        const forceRefresh = Boolean(action?.payload?.force);
+        const isFresh =
+          branchState?.lastFetched &&
+          Date.now() - branchState.lastFetched < 10 * 60 * 1000;
+
+        if (!forceRefresh && branchState?.branches?.length > 0 && isFresh) {
+          yield put(fetchBranchSuccess(branchState.branches));
+          return;
+        }
+
         const token = localStorage.getItem('authToken');
         const config = {
           headers: {

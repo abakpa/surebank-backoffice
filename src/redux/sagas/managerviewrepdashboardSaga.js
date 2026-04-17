@@ -37,6 +37,12 @@ import {
     fetchMVTransactionRequest,
     fetchMVTransactionSuccess,
     fetchMVTransactionFailure,
+    fetchMVRepEcommerceDepositRequest,
+    fetchMVRepEcommerceDepositSuccess,
+    fetchMVRepEcommerceDepositFailure,
+    fetchMVRepEcommerceDepositReportRequest,
+    fetchMVRepEcommerceDepositReportSuccess,
+    fetchMVRepEcommerceDepositReportFailure,
      fetchMVReferralRequest,
     fetchMVReferralSuccess,
     fetchMVReferralFailure,
@@ -289,6 +295,46 @@ function* fetchMVTransactionSaga(action){
         yield put(fetchMVTransactionFailure(error.response.data.message))
     }
 }
+function* fetchMVRepEcommerceDepositSaga(action) {
+    const { details18 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details18 ? details18 : {};
+        const response = yield call(axios.post, `${url}/api/mvrepdashboard/repecommercedeposit/${details18.staffId}`, requestData, config);
+        yield put(fetchMVRepEcommerceDepositSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchMVRepEcommerceDepositFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+function* fetchMVRepEcommerceDepositReportSaga(action) {
+    const { details19 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details19 ? details19 : {};
+        const response = yield call(axios.post, `${url}/api/mvrepdashboard/repecommercedepositreport/${details19.staffId}`, requestData, config);
+        yield put(fetchMVRepEcommerceDepositReportSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchMVRepEcommerceDepositReportFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
 function* fetchMVReferralSaga(action){
      const { details17 = null } = action.payload;
     try {
@@ -364,6 +410,8 @@ function* depositSaga(){
     yield takeLatest(fetchMVRepFDpackageRequest.type, fetchMVRepFDpackageSaga)
     yield takeLatest(fetchMVRepPackageRequest.type, fetchMVRepPackageSaga)
     yield takeLatest(fetchMVTransactionRequest.type, fetchMVTransactionSaga)
+    yield takeLatest(fetchMVRepEcommerceDepositRequest.type, fetchMVRepEcommerceDepositSaga)
+    yield takeLatest(fetchMVRepEcommerceDepositReportRequest.type, fetchMVRepEcommerceDepositReportSaga)
     yield takeLatest(fetchMVReferralRequest.type, fetchMVReferralSaga)
     yield takeLatest(fetchMVReferralDetailsRequest.type, fetchMVReferralDetailsSaga)
     yield takeLatest(fetchMVReferralCountRequest.type, fetchMVReferralCountSaga)

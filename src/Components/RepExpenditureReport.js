@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchRepExpenditureRequest } from "../redux/slices/expenditureReportSlice";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
@@ -6,6 +6,7 @@ import Tablehead from "./Table/ExpenditureTableHead";
 import Tablebody from "./Table/ExpenditureTableBody";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import TableLoadingNotice from "./TableLoadingNotice";
 
 const RepExpenditureReport = () => {
   const { search } = useLocation();
@@ -24,45 +25,16 @@ const RepExpenditureReport = () => {
 
 
   // Ensure customers is always an array
-  const expenditureList = Array.isArray(repexpenditurereport) ? repexpenditurereport : [];
+  const expenditureList = useMemo(() => (Array.isArray(repexpenditurereport) ? repexpenditurereport : []), [repexpenditurereport]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredexpenditureList = expenditureList.filter((expenditureList) =>
-    (expenditureList?.createdBy?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-    (expenditureList?.createdBy?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-  );
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <svg
-          className="animate-spin h-10 w-10 text-blue-500"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          role="img"
-          aria-label="Loading"
-        >
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-            className="opacity-25"
-          />
-          <path
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-            className="opacity-75"
-          />
-        </svg>
-        <p className="text-blue-500 ml-4">Loading Expenditure Statement...</p>
-      </div>
-    );
-  }
+  const filteredexpenditureList = useMemo(() => expenditureList.filter((expenditureItem) =>
+    (expenditureItem?.createdBy?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+    (expenditureItem?.createdBy?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+  ), [expenditureList, searchTerm]);
 
   if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
 
@@ -93,6 +65,7 @@ const RepExpenditureReport = () => {
           <Tablebody customers={filteredexpenditureList} branches={branches} />
         </table>
       </div>
+      {loading && <TableLoadingNotice message="Loading expenditure statement..." />}
     </div>
   );
 };

@@ -49,16 +49,25 @@ import {
     updatePasswordRequest,
    updatePasswordSuccess,
    updatePasswordFailure,
+   fetchEcommerceCustomersRequest,
+   fetchEcommerceCustomersSuccess,
+   fetchEcommerceCustomersFailure,
 
 } from '../slices/customerSlice'
 import { url } from './url'
 
- function* fetchCustomerSaga(){
+ function* fetchCustomerSaga(action){
     try {
+        const params = action?.payload || {};
         const token = localStorage.getItem('authToken');
         const config = {
           headers: {
             Authorization: `Bearer ${token}`,
+          },
+          params: {
+            page: params.page || 1,
+            limit: params.limit || 25,
+            search: params.search || '',
           },
         };
         const response = yield call(axios.get, `${url}/api/customer`,config)
@@ -414,7 +423,27 @@ function*  updateCustomerWithdrawalRequestSaga(action){
 }
 
 
+function* fetchEcommerceCustomersSaga() {
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        };
+        const response = yield call(axios.get, `${url}/api/customer/ecommerce`, config);
+        yield put(fetchEcommerceCustomersSuccess(response.data));
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+        }
+        yield put(fetchEcommerceCustomersFailure(error.response?.data?.message || 'Failed to fetch ecommerce customers'));
+    }
+}
+
 function* customerSaga(){
+    yield takeLatest(fetchEcommerceCustomersRequest.type, fetchEcommerceCustomersSaga)
     yield takeLatest(fetchCustomerRequest.type, fetchCustomerSaga)
     yield takeLatest(fetchCustomerLoginCountRequest.type, fetchCustomerLoginCountSaga)
     yield takeLatest(fetchBranchCustomerLoginCountRequest.type, fetchBranchCustomerLoginCountSaga)

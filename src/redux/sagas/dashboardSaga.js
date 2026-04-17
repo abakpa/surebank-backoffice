@@ -67,7 +67,16 @@ import {
     fetchTotalProfitRequest,
     fetchTotalProfitSuccess,
     fetchTotalProfitFailure,
-  
+    fetchEcommerceIncomeRequest,
+    fetchEcommerceIncomeSuccess,
+    fetchEcommerceIncomeFailure,
+    fetchEcommerceDepositRequest,
+    fetchEcommerceDepositSuccess,
+    fetchEcommerceDepositFailure,
+    fetchEcommerceDepositReportRequest,
+    fetchEcommerceDepositReportSuccess,
+    fetchEcommerceDepositReportFailure,
+
 } from '../slices/dashboardSlice'
 import { url } from './url'
 
@@ -533,7 +542,71 @@ function* fetchTotalProfitSaga(action) {
     }
 }
 
+function* fetchEcommerceIncomeSaga(action) {
+    const { details22 = null } = action.payload;
 
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const requestData = details22 ? details22 : {};
+        const response = yield call(axios.post, `${url}/api/admindashboard/ecommerceincome`, requestData, config);
+        yield put(fetchEcommerceIncomeSuccess(response.data));
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchEcommerceIncomeFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+
+function* fetchEcommerceDepositSaga(action) {
+    const { details23 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const requestData = details23 ? details23 : {};
+        const response = yield call(axios.post, `${url}/api/admindashboard/ecommercedeposit`, requestData, config);
+        yield put(fetchEcommerceDepositSuccess(response.data));
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchEcommerceDepositFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+
+function* fetchEcommerceDepositReportSaga(action) {
+    const { details24 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const requestData = details24 ? details24 : {};
+        const response = yield call(axios.post, `${url}/api/admindashboard/ecommercedepositreport`, requestData, config);
+        yield put(fetchEcommerceDepositReportSuccess(response.data));
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchEcommerceDepositReportFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
 
 
 function* depositSaga(){
@@ -560,6 +633,9 @@ function* depositSaga(){
     yield takeLatest(fetchTotalincomeRequest.type, fetchTotalincomeSaga)
     yield takeLatest(fetchTotalExpenditureRequest.type, fetchTotalExpenditureSaga)
     yield takeLatest(fetchTotalProfitRequest.type, fetchTotalProfitSaga)
+    yield takeLatest(fetchEcommerceIncomeRequest.type, fetchEcommerceIncomeSaga)
+    yield takeLatest(fetchEcommerceDepositRequest.type, fetchEcommerceDepositSaga)
+    yield takeLatest(fetchEcommerceDepositReportRequest.type, fetchEcommerceDepositReportSaga)
 
 }
 

@@ -9,14 +9,14 @@ const Select = ({ options, value, onChange, label }) => {
   return (
     <div className="relative mb-4">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="select2-label block text-sm font-medium mb-1">
           {label}
         </label>
       )}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="mt-1 flex justify-between items-center w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600 bg-white text-left"
+        className="select2-trigger mt-1 flex justify-between items-center w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600 text-left"
       >
         <span>{selectedLabel}</span>
         <svg
@@ -37,7 +37,7 @@ const Select = ({ options, value, onChange, label }) => {
         </svg>
       </button>
       {isOpen && (
-        <ul className="absolute w-full bg-white border border-gray-300 rounded shadow-lg z-20 mt-1 max-h-48 overflow-y-auto">
+        <ul className="select2-menu absolute w-full border rounded shadow-lg z-20 mt-1 max-h-48 overflow-y-auto">
           {options.map((option) => (
             <li
               key={option.value}
@@ -45,7 +45,7 @@ const Select = ({ options, value, onChange, label }) => {
                 onChange(option.value); // Pass the value of the selected option
                 setIsOpen(false);
               }}
-              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              className="select2-option px-4 py-2 cursor-pointer"
             >
               {option.label} {/* Display the label */}
             </li>

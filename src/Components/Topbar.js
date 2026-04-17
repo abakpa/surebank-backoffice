@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { logoutRequest } from "../redux/slices/loginSlice";
 import logo from "../images/surebanklogo.png";
 
-const Topbar = ({ toggleSidebar }) => {
+const Topbar = ({ toggleSidebar, theme, toggleTheme }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isLoggedIn = useSelector((state) => state.login.token);
@@ -16,12 +16,12 @@ const Topbar = ({ toggleSidebar }) => {
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full bg-gray-900 text-white p-3 shadow-lg z-50">
+    <div className="app-topbar fixed top-0 left-0 w-full p-3 shadow-lg z-50">
       <div className="flex items-center justify-between">
         {/* Sidebar Toggle Button (small screens) */}
         {token && (
           <button
-            className="lg:hidden text-white bg-gray-700 p-2 rounded"
+            className="theme-icon-button lg:hidden p-2 rounded"
             onClick={toggleSidebar}
           >
             ☰
@@ -37,6 +37,13 @@ const Topbar = ({ toggleSidebar }) => {
 
         {/* Login/Logout Buttons (only on larger screens) */}
         <div className="hidden lg:flex items-center space-x-4">
+          <button
+            className="theme-toggle-button"
+            onClick={toggleTheme}
+            type="button"
+          >
+            {theme === "dark" ? "Light mode" : "Dark mode"}
+          </button>
           {token ? (
             <button
               className="bg-red-600 px-3 py-1.5 rounded hover:bg-red-500"
@@ -51,6 +58,16 @@ const Topbar = ({ toggleSidebar }) => {
               </button>
             </Link>
           )}
+        </div>
+
+        <div className="flex items-center gap-2 lg:hidden">
+          <button
+            className="theme-toggle-button text-xs"
+            onClick={toggleTheme}
+            type="button"
+          >
+            {theme === "dark" ? "Light" : "Dark"}
+          </button>
         </div>
       </div>
     </div>
