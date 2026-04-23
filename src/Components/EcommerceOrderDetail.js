@@ -244,19 +244,17 @@ const EcommerceOrderDetail = () => {
               </p>
             </div>
             <div className="bg-white rounded-lg p-3 shadow-sm">
-              <span className="text-gray-600 text-xs">Next Payment Due</span>
+              <span className="text-gray-600 text-xs">Payment Mode</span>
               <p className="font-medium text-gray-800">
-                {order.installmentPlan?.payments?.find(p => p.status === 'pending')
-                  ? new Date(order.installmentPlan.payments.find(p => p.status === 'pending').date).toLocaleDateString()
-                  : "All Paid"}
+                Flexible pay small small
               </p>
               <p className="text-xs text-gray-500">
-                ₦{order.installmentPlan?.amountPerPeriod?.toLocaleString() || "0"} per period
+                Customer can pay any amount until fully paid
               </p>
             </div>
           </div>
           <div className="mt-3 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
-            <strong>How it works:</strong> When the customer's wallet Account has sufficient balance, scheduled payments are automatically deducted on their due date. Credit this account to add funds for installment payments.
+            <strong>How it works:</strong> Credit this account to add funds to the customer's wallet. The system immediately debits the wallet and credits this order's SB Account, reducing the remaining balance.
           </div>
         </div>
       )}
@@ -266,16 +264,16 @@ const EcommerceOrderDetail = () => {
           <h3 className="font-semibold mb-3">Installment Plan</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
             <div>
-              <span className="text-gray-600">Frequency:</span>
-              <p className="font-medium capitalize">{order.installmentPlan.frequency}</p>
+              <span className="text-gray-600">Payment Mode:</span>
+              <p className="font-medium capitalize">Flexible</p>
             </div>
             <div>
-              <span className="text-gray-600">Duration:</span>
-              <p className="font-medium">{order.installmentPlan.duration} payments</p>
+              <span className="text-gray-600">Total Paid:</span>
+              <p className="font-medium text-green-600">₦{order.installmentPlan.totalPaid?.toLocaleString() || "0"}</p>
             </div>
             <div>
-              <span className="text-gray-600">Amount per Period:</span>
-              <p className="font-medium">₦{order.installmentPlan.amountPerPeriod?.toLocaleString()}</p>
+              <span className="text-gray-600">Payments Made:</span>
+              <p className="font-medium">{order.installmentPlan.payments?.filter((payment) => payment.status === "paid").length || 0}</p>
             </div>
             <div>
               <span className="text-gray-600">Remaining Balance:</span>
@@ -283,18 +281,25 @@ const EcommerceOrderDetail = () => {
             </div>
           </div>
 
-          <h4 className="font-medium mb-2">Payment Schedule</h4>
+          <h4 className="font-medium mb-2">Payment History</h4>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-3 py-2 text-left">Due Date</th>
+                  <th className="px-3 py-2 text-left">Date</th>
                   <th className="px-3 py-2 text-left">Amount</th>
                   <th className="px-3 py-2 text-left">Status</th>
                   <th className="px-3 py-2 text-left">Paid At</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
+                {(!order.installmentPlan.payments || order.installmentPlan.payments.length === 0) && (
+                  <tr>
+                    <td colSpan="4" className="px-3 py-6 text-center text-gray-500">
+                      No payment has been recorded for this order yet.
+                    </td>
+                  </tr>
+                )}
                 {order.installmentPlan.payments?.map((payment, index) => (
                   <tr key={index}>
                     <td className="px-3 py-2">{new Date(payment.date).toLocaleDateString()}</td>
@@ -339,7 +344,7 @@ const EcommerceOrderDetail = () => {
           <option value="cancelled">Cancelled</option>
         </select>
 
-        {order.paymentStatus !== "paid" && order.status !== "cancelled" && (
+        {order.paymentType !== "installment" && order.paymentStatus !== "paid" && order.status !== "cancelled" && (
           <button
             onClick={() => setShowPaymentModal(true)}
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
@@ -473,7 +478,7 @@ const EcommerceOrderDetail = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Amount to Credit (₦)</label>
+              <label className="block text-sm font-medium mb-1">Amount to Deposit for Order (₦)</label>
               <input
                 type="number"
                 value={creditAmount}
@@ -485,7 +490,7 @@ const EcommerceOrderDetail = () => {
             </div>
 
             <div className="mb-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
-              <strong>Note:</strong> After crediting the customer's main wallet, any due installment payments will be processed automatically whenever the wallet has sufficient balance.
+              <strong>Note:</strong> This will credit the customer's wallet, then immediately debit the wallet and credit this order's SB Account.
             </div>
 
             <div className="flex gap-2">
@@ -494,7 +499,7 @@ const EcommerceOrderDetail = () => {
                 disabled={!creditAmount || parseFloat(creditAmount) <= 0}
                 className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                Credit Account
+                Deposit for Order
               </button>
               <button
                 onClick={() => {
