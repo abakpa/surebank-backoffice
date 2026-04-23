@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { createProductRequest, clearProductState } from "../redux/slices/productSlice";
+import { useNavigate, useParams } from "react-router-dom";
+import { createProductRequest, updateProductRequest, fetchProductByIdRequest, clearProductState } from "../redux/slices/productSlice";
 import { fetchCategoriesRequest } from "../redux/slices/productCategorySlice";
+import { url } from "../redux/sagas/url";
 
 const CreateProduct = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error } = useSelector((state) => state.products);
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
+  const { loading, error, product } = useSelector((state) => state.products);
   const { categories } = useSelector((state) => state.productCategories);
 
   const [formData, setFormData] = useState({
@@ -20,6 +23,7 @@ const CreateProduct = () => {
     sku: "",
     allowInstallment: true,
     minInstallmentAmount: "",
+    isActive: true,
   });
 
   // Calculate profit
@@ -28,13 +32,36 @@ const CreateProduct = () => {
     : 0;
   const [images, setImages] = useState([]);
   const [imagePreview, setImagePreview] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
 
   useEffect(() => {
     dispatch(fetchCategoriesRequest());
+    if (isEditMode) {
+      dispatch(fetchProductByIdRequest({ productId: id }));
+    }
+
     return () => {
       dispatch(clearProductState());
     };
-  }, [dispatch]);
+  }, [dispatch, id, isEditMode]);
+
+  useEffect(() => {
+    if (!isEditMode || !product || product._id !== id) return;
+
+    setFormData({
+      name: product.name || "",
+      description: product.description || "",
+      categoryId: product.categoryId || "",
+      costPrice: product.costPrice ?? "",
+      price: product.price ?? "",
+      stock: product.stock ?? "",
+      sku: product.sku || "",
+      allowInstallment: product.allowInstallment !== false,
+      minInstallmentAmount: product.minInstallmentAmount ?? "",
+      isActive: product.isActive !== false,
+    });
+    setExistingImages(Array.isArray(product.images) ? product.images : []);
+  }, [id, isEditMode, product]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -65,20 +92,23 @@ const CreateProduct = () => {
     data.append("stock", formData.stock);
     if (formData.sku) data.append("sku", formData.sku);
     data.append("allowInstallment", formData.allowInstallment);
-    if (formData.minInstallmentAmount) {
-      data.append("minInstallmentAmount", formData.minInstallmentAmount);
-    }
+    data.append("isActive", formData.isActive);
+    data.append("minInstallmentAmount", formData.allowInstallment ? formData.minInstallmentAmount || 0 : 0);
 
     images.forEach((image) => {
       data.append("images", image);
     });
 
-    dispatch(createProductRequest({ formData: data, navigate }));
+    if (isEditMode) {
+      dispatch(updateProductRequest({ productId: id, formData: data, navigate }));
+    } else {
+      dispatch(createProductRequest({ formData: data, navigate }));
+    }
   };
 
   return (
     <div className="p-6 bg-white rounded shadow-md max-w-2xl mx-auto mt-12 mb-6">
-      <h2 className="text-xl font-bold mb-4">Create New Product</h2>
+      <h2 className="text-xl font-bold mb-4">{isEditMode ? "Edit Product" : "Create New Product"}</h2>
 
       {error && (
         <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>
@@ -233,10 +263,61 @@ const CreateProduct = () => {
           </div>
         )}
 
+        {isEditMode && (
+          <div className="mb-4 rounded border border-gray-200 p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-gray-700">Product Status</p>
+                <p className="text-xs text-gray-500">
+                  Inactive products will not show on the ecommerce storefront.
+                </p>
+              </div>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <span className={`text-sm font-semibold ${formData.isActive ? "text-green-600" : "text-gray-500"}`}>
+                  {formData.isActive ? "Active" : "Inactive"}
+                </span>
+                <input
+                  type="checkbox"
+                  name="isActive"
+                  checked={formData.isActive}
+                  onChange={handleChange}
+                  className="sr-only"
+                />
+                <span
+                  className={`relative inline-flex h-6 w-12 items-center rounded-full transition ${
+                    formData.isActive ? "bg-green-500" : "bg-gray-300"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 rounded-full bg-white shadow transition ${
+                      formData.isActive ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </span>
+              </label>
+            </div>
+          </div>
+        )}
+
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Product Images (Max 5)
           </label>
+          {isEditMode && existingImages.length > 0 && imagePreview.length === 0 && (
+            <div className="mb-3">
+              <p className="text-sm text-gray-500 mb-2">Current Images:</p>
+              <div className="flex gap-2 flex-wrap">
+                {existingImages.map((image, index) => (
+                  <img
+                    key={`${image}-${index}`}
+                    src={`${url}${image}`}
+                    alt={`Current product ${index + 1}`}
+                    className="w-20 h-20 object-cover rounded border"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
           <input
             type="file"
             accept="image/*"
@@ -284,14 +365,14 @@ const CreateProduct = () => {
                   className="opacity-75"
                 />
               </svg>
-              Creating...
+              {isEditMode ? "Updating..." : "Creating..."}
             </button>
           ) : (
             <button
               type="submit"
               className="flex-1 bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700"
             >
-              Create Product
+              {isEditMode ? "Update Product" : "Create Product"}
             </button>
           )}
           <button

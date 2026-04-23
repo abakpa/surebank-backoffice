@@ -86,6 +86,7 @@ const productSlice = createSlice({
       state.loading = false;
     },
     clearProductState: (state) => {
+      state.product = null;
       state.success = false;
       state.error = null;
       state.message = '';
