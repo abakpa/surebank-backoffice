@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { createCategoryRequest, updateCategoryRequest, fetchCategoryByIdRequest, clearCategoryState } from "../redux/slices/productCategorySlice";
-import { url } from "../redux/sagas/url";
+import { resolveImageUrl } from "../utils/image";
 
 const CreateCategory = () => {
   const dispatch = useDispatch();
@@ -14,10 +14,12 @@ const CreateCategory = () => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    subcategories: [],
   });
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [existingImage, setExistingImage] = useState(null);
+  const [subCategoryName, setSubCategoryName] = useState("");
 
   useEffect(() => {
     if (isEditMode) {
@@ -33,6 +35,7 @@ const CreateCategory = () => {
       setFormData({
         name: category.name || "",
         description: category.description || "",
+        subcategories: Array.isArray(category.subcategories) ? category.subcategories : [],
       });
       if (category.image) {
         setExistingImage(category.image);
@@ -56,12 +59,39 @@ const CreateCategory = () => {
     }
   };
 
+  const handleAddSubCategory = () => {
+    const trimmedName = subCategoryName.trim();
+    if (!trimmedName) return;
+
+    const alreadyExists = formData.subcategories.some(
+      (subCategory) => subCategory.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+
+    if (alreadyExists) {
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      subcategories: [...prev.subcategories, { name: trimmedName, isActive: true }],
+    }));
+    setSubCategoryName("");
+  };
+
+  const handleRemoveSubCategory = (indexToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      subcategories: prev.subcategories.filter((_, index) => index !== indexToRemove),
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const data = new FormData();
     data.append("name", formData.name);
     data.append("description", formData.description);
+    data.append("subcategories", JSON.stringify(formData.subcategories));
     if (image) {
       data.append("image", image);
     }
@@ -117,7 +147,7 @@ const CreateCategory = () => {
             <div className="mb-2">
               <p className="text-sm text-gray-500 mb-1">Current Image:</p>
               <img
-                src={`${url}${existingImage}`}
+                src={resolveImageUrl(existingImage)}
                 alt="Current"
                 className="w-24 h-24 object-cover rounded border"
               />
@@ -137,6 +167,56 @@ const CreateCategory = () => {
                 alt="Preview"
                 className="w-24 h-24 object-cover rounded"
               />
+            </div>
+          )}
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Subcategories
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={subCategoryName}
+              onChange={(e) => setSubCategoryName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddSubCategory();
+                }
+              }}
+              placeholder="Add a subcategory"
+              className="flex-1 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            />
+            <button
+              type="button"
+              onClick={handleAddSubCategory}
+              className="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700"
+            >
+              Add
+            </button>
+          </div>
+          <p className="mt-2 text-xs text-gray-500">
+            Products inside this category can be assigned to one of these subcategories.
+          </p>
+          {formData.subcategories.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {formData.subcategories.map((subCategory, index) => (
+                <span
+                  key={`${subCategory._id || subCategory.name}-${index}`}
+                  className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-sm text-indigo-700"
+                >
+                  {subCategory.name}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveSubCategory(index)}
+                    className="text-indigo-500 hover:text-indigo-700"
+                  >
+                    x
+                  </button>
+                </span>
+              ))}
             </div>
           )}
         </div>
