@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { fetchProductsRequest, deleteProductRequest } from "../redux/slices/productSlice";
 import { fetchCategoriesRequest } from "../redux/slices/productCategorySlice";
 import Loader from "./Loader";
-import { url } from "../redux/sagas/url";
+import { resolveImageUrl } from "../utils/image";
 
 const Products = () => {
   const dispatch = useDispatch();
@@ -12,6 +12,7 @@ const Products = () => {
   const { categories } = useSelector((state) => state.productCategories);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
+  const [filterSubCategory, setFilterSubCategory] = useState("");
 
   useEffect(() => {
     dispatch(fetchProductsRequest());
@@ -29,11 +30,21 @@ const Products = () => {
     return category ? category.name : "Unknown";
   };
 
+  const getSubCategoryName = (categoryId, subCategoryId) => {
+    const category = categories.find((c) => c._id === categoryId);
+    const subCategory = category?.subcategories?.find((item) => item._id === subCategoryId);
+    return subCategory ? subCategory.name : "Unassigned";
+  };
+
+  const selectedCategory = categories.find((category) => category._id === filterCategory);
+  const availableSubCategories = selectedCategory?.subcategories || [];
+
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory === "" || product.categoryId === filterCategory;
-    return matchesSearch && matchesCategory;
+    const matchesSubCategory = filterSubCategory === "" || product.subCategoryId === filterSubCategory;
+    return matchesSearch && matchesCategory && matchesSubCategory;
   });
 
   if (loading) return <Loader />;
@@ -60,13 +71,29 @@ const Products = () => {
         />
         <select
           value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
+          onChange={(e) => {
+            setFilterCategory(e.target.value);
+            setFilterSubCategory("");
+          }}
           className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
         >
           <option value="">All Categories</option>
           {categories.map((category) => (
             <option key={category._id} value={category._id}>
               {category.name}
+            </option>
+          ))}
+        </select>
+        <select
+          value={filterSubCategory}
+          onChange={(e) => setFilterSubCategory(e.target.value)}
+          className="px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
+          disabled={!filterCategory}
+        >
+          <option value="">{filterCategory ? "All Subcategories" : "Select Category First"}</option>
+          {availableSubCategories.map((subCategory) => (
+            <option key={subCategory._id} value={subCategory._id}>
+              {subCategory.name}
             </option>
           ))}
         </select>
@@ -79,6 +106,7 @@ const Products = () => {
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subcategory</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -91,7 +119,7 @@ const Products = () => {
                 <td className="px-4 py-3">
                   {product.images && product.images.length > 0 ? (
                     <img
-                      src={`${url}${product.images[0]}`}
+                      src={resolveImageUrl(product.images[0])}
                       alt={product.name}
                       className="w-12 h-12 object-cover rounded"
                     />
@@ -103,6 +131,7 @@ const Products = () => {
                 </td>
                 <td className="px-4 py-3 text-sm">{product.name}</td>
                 <td className="px-4 py-3 text-sm">{getCategoryName(product.categoryId)}</td>
+                <td className="px-4 py-3 text-sm">{getSubCategoryName(product.categoryId, product.subCategoryId)}</td>
                 <td className="px-4 py-3 text-sm font-medium">₦{product.price?.toLocaleString()}</td>
                 <td className="px-4 py-3 text-sm">{product.stock}</td>
                 <td className="px-4 py-3">

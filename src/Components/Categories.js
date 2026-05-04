@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { fetchCategoriesRequest, deleteCategoryRequest, toggleCategoryStatusRequest } from "../redux/slices/productCategorySlice";
 import Loader from "./Loader";
-import { url } from "../redux/sagas/url";
+import { resolveImageUrl } from "../utils/image";
 
 const Categories = () => {
   const dispatch = useDispatch();
@@ -64,7 +64,7 @@ const Categories = () => {
             <div className="flex items-start gap-4">
               {category.image ? (
                 <img
-                  src={`${url}${category.image}`}
+                  src={resolveImageUrl(category.image)}
                   alt={category.name}
                   className="w-16 h-16 object-cover rounded"
                 />
@@ -78,6 +78,26 @@ const Categories = () => {
                 <p className="text-sm text-gray-600 line-clamp-2">
                   {category.description || "No description"}
                 </p>
+                <div className="mt-2">
+                  <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                    Subcategories ({category.subcategories?.length || 0})
+                  </p>
+                  <div className="mt-1 flex flex-wrap gap-2">
+                    {(category.subcategories || []).slice(0, 4).map((subCategory) => (
+                      <span
+                        key={subCategory._id}
+                        className="rounded-full bg-indigo-50 px-2 py-1 text-xs text-indigo-700"
+                      >
+                        {subCategory.name}
+                      </span>
+                    ))}
+                    {(category.subcategories || []).length > 4 && (
+                      <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-500">
+                        +{category.subcategories.length - 4} more
+                      </span>
+                    )}
+                  </div>
+                </div>
                 {/* Toggle Switch */}
                 <div className="flex items-center gap-2 mt-2">
                   <button
