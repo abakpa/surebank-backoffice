@@ -111,6 +111,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             Ecommerce Customers
           </li>
         </Link>
+        <Link to="/product-reviews" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            Platform Reviews
+          </li>
+        </Link>
 
         <li
           className="hover:bg-gray-700 p-2 rounded cursor-pointer text-xs"
