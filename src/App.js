@@ -59,6 +59,7 @@ import EcommerceOrders from "./Components/EcommerceOrders";
 import EcommerceOrderDetail from "./Components/EcommerceOrderDetail";
 import EcommerceCustomers from "./Components/EcommerceCustomers";
 import EcommerceIncomeReport from "./Components/EcommerceIncomeReport";
+import ProductReviews from "./Components/ProductReviews";
 
 const THEME_STORAGE_KEY = "backofficeTheme";
 
@@ -194,6 +195,7 @@ function App() {
                   <Route path="/ecommerce-orders" element={<EcommerceOrders />} />
                   <Route path="/ecommerce-order/:id" element={<EcommerceOrderDetail />} />
                   <Route path="/ecommerce-customers" element={<EcommerceCustomers />} />
+                  <Route path="/product-reviews" element={<ProductReviews />} />
                   <Route path="/ecommerce-income" element={<EcommerceIncomeReport />} />
                 </>
               ) : (

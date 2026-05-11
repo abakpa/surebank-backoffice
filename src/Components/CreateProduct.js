@@ -22,6 +22,7 @@ const CreateProduct = () => {
     price: "",
     stock: "",
     sku: "",
+    hasVariations: false,
     allowInstallment: true,
     minInstallmentAmount: "",
     isActive: true,
@@ -34,6 +35,8 @@ const CreateProduct = () => {
   const [images, setImages] = useState([]);
   const [imagePreview, setImagePreview] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
+  const [variationOptions, setVariationOptions] = useState([]);
+  const [variations, setVariations] = useState([]);
 
   useEffect(() => {
     dispatch(fetchCategoriesRequest());
@@ -58,11 +61,37 @@ const CreateProduct = () => {
       price: product.price ?? "",
       stock: product.stock ?? "",
       sku: product.sku || "",
+      hasVariations: product.hasVariations === true,
       allowInstallment: product.allowInstallment !== false,
       minInstallmentAmount: product.minInstallmentAmount ?? "",
       isActive: product.isActive !== false,
     });
     setExistingImages(Array.isArray(product.images) ? product.images : []);
+    setVariationOptions(
+      Array.isArray(product.variationOptions)
+        ? product.variationOptions.map((option) => ({
+          name: option.name || "",
+          valueText: Array.isArray(option.values) ? option.values.join(", ") : "",
+        }))
+        : []
+    );
+    setVariations(
+      Array.isArray(product.variations)
+        ? product.variations.map((variation) => ({
+          id: variation._id,
+          name: variation.name || "",
+          optionValues: variation.optionValues || {},
+          costPrice: variation.costPrice ?? "",
+          price: variation.price ?? "",
+          stock: variation.stock ?? "",
+          sku: variation.sku || "",
+          image: variation.image || "",
+          imageFile: null,
+          imagePreview: "",
+          isActive: variation.isActive !== false,
+        }))
+        : []
+    );
   }, [id, isEditMode, product]);
 
   const handleChange = (e) => {
@@ -82,8 +111,96 @@ const CreateProduct = () => {
     setImagePreview(previews);
   };
 
+  const handleAddVariationOption = () => {
+    setVariationOptions((prev) => [...prev, { name: "", valueText: "" }]);
+  };
+
+  const handleVariationOptionChange = (index, field, value) => {
+    setVariationOptions((prev) =>
+      prev.map((option, optionIndex) =>
+        optionIndex === index ? { ...option, [field]: value } : option
+      )
+    );
+  };
+
+  const handleRemoveVariationOption = (index) => {
+    setVariationOptions((prev) => prev.filter((_, optionIndex) => optionIndex !== index));
+  };
+
+  const handleAddVariation = () => {
+    const optionValues = variationOptions.reduce((values, option) => {
+      if (option.name.trim()) {
+        values[option.name.trim()] = "";
+      }
+      return values;
+    }, {});
+
+    setVariations((prev) => [
+      ...prev,
+      {
+        name: "",
+        optionValues,
+        costPrice: "",
+        price: "",
+        stock: "",
+        sku: "",
+        image: "",
+        imageFile: null,
+        imagePreview: "",
+        isActive: true,
+      },
+    ]);
+  };
+
+  const handleVariationChange = (index, field, value) => {
+    setVariations((prev) =>
+      prev.map((variation, variationIndex) =>
+        variationIndex === index ? { ...variation, [field]: value } : variation
+      )
+    );
+  };
+
+  const handleVariationImageChange = (index, file) => {
+    setVariations((prev) =>
+      prev.map((variation, variationIndex) =>
+        variationIndex === index
+          ? {
+            ...variation,
+            imageFile: file || null,
+            imagePreview: file ? URL.createObjectURL(file) : "",
+          }
+          : variation
+      )
+    );
+  };
+
+  const handleVariationOptionValueChange = (variationIndex, optionName, value) => {
+    setVariations((prev) =>
+      prev.map((variation, index) =>
+        index === variationIndex
+          ? {
+            ...variation,
+            optionValues: {
+              ...variation.optionValues,
+              [optionName]: value,
+            },
+          }
+          : variation
+      )
+    );
+  };
+
+  const handleRemoveVariation = (index) => {
+    setVariations((prev) => prev.filter((_, variationIndex) => variationIndex !== index));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    const normalizedVariationOptions = variationOptions.map((option) => ({
+      name: option.name.trim(),
+      values: option.valueText.split(",").map((value) => value.trim()).filter(Boolean),
+    }));
+    const variationOptionNames = normalizedVariationOptions.map((option) => option.name).filter(Boolean);
 
     const data = new FormData();
     data.append("name", formData.name);
@@ -95,6 +212,38 @@ const CreateProduct = () => {
     data.append("profit", calculatedProfit);
     data.append("stock", formData.stock);
     if (formData.sku) data.append("sku", formData.sku);
+    data.append("hasVariations", formData.hasVariations);
+    data.append(
+      "variationOptions",
+      JSON.stringify(normalizedVariationOptions)
+    );
+    data.append(
+      "variations",
+      JSON.stringify(
+        variations.map((variation) => {
+          const optionValues = variationOptionNames.reduce((values, optionName) => {
+            values[optionName] = variation.optionValues?.[optionName] || "";
+            return values;
+          }, {});
+
+          return {
+            name: variation.name.trim() || Object.values(optionValues).filter(Boolean).join(" / "),
+            optionValues,
+            costPrice: variation.costPrice || 0,
+            price: variation.price || 0,
+            stock: variation.stock || 0,
+            sku: variation.sku,
+            image: variation.image,
+            isActive: variation.isActive,
+          };
+        })
+      )
+    );
+    variations.forEach((variation, index) => {
+      if (variation.imageFile) {
+        data.append(`variationImage_${index}`, variation.imageFile);
+      }
+    });
     data.append("allowInstallment", formData.allowInstallment);
     data.append("isActive", formData.isActive);
     data.append("minInstallmentAmount", formData.allowInstallment ? formData.minInstallmentAmount || 0 : 0);
@@ -209,7 +358,7 @@ const CreateProduct = () => {
               value={formData.costPrice}
               onChange={handleChange}
               className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
-              required
+              required={!formData.hasVariations}
               min="0"
             />
           </div>
@@ -223,7 +372,7 @@ const CreateProduct = () => {
               value={formData.price}
               onChange={handleChange}
               className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
-              required
+              required={!formData.hasVariations}
               min="0"
             />
           </div>
@@ -240,7 +389,7 @@ const CreateProduct = () => {
               value={formData.stock}
               onChange={handleChange}
               className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
-              required
+              required={!formData.hasVariations}
               min="0"
             />
           </div>
@@ -266,6 +415,182 @@ const CreateProduct = () => {
             className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
           />
         </div>
+
+        <div className="mb-4 rounded border border-gray-200 p-4">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              name="hasVariations"
+              checked={formData.hasVariations}
+              onChange={handleChange}
+              className="w-4 h-4"
+            />
+            <span className="text-sm font-medium text-gray-700">
+              This product has variations
+            </span>
+          </label>
+        </div>
+
+        {formData.hasVariations && (
+          <div className="mb-4 rounded border border-gray-200 p-4">
+            <div className="flex items-center justify-between gap-4 mb-3">
+              <div>
+                <p className="text-sm font-semibold text-gray-800">Variation Options</p>
+                <p className="text-xs text-gray-500">Examples: Color with Red, Blue or Size with Small, Medium.</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleAddVariationOption}
+                className="px-3 py-2 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700"
+              >
+                Add Option
+              </button>
+            </div>
+
+            {variationOptions.map((option, index) => (
+              <div key={index} className="grid grid-cols-1 md:grid-cols-[1fr_2fr_auto] gap-3 mb-3">
+                <input
+                  type="text"
+                  value={option.name}
+                  onChange={(event) => handleVariationOptionChange(index, "name", event.target.value)}
+                  placeholder="Option name"
+                  className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                  required={formData.hasVariations}
+                />
+                <input
+                  type="text"
+                  value={option.valueText}
+                  onChange={(event) => handleVariationOptionChange(index, "valueText", event.target.value)}
+                  placeholder="Values separated by commas"
+                  className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                  required={formData.hasVariations}
+                />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveVariationOption(index)}
+                  className="px-3 py-2 border rounded text-red-600 hover:bg-red-50"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+
+            <div className="flex items-center justify-between gap-4 mt-5 mb-3">
+              <div>
+                <p className="text-sm font-semibold text-gray-800">Variation Rows</p>
+                <p className="text-xs text-gray-500">Add the sellable versions customers will choose from.</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleAddVariation}
+                className="px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Add Variation
+              </button>
+            </div>
+
+            {variations.map((variation, variationIndex) => (
+              <div key={variation.id || variationIndex} className="mb-4 rounded border border-gray-100 bg-gray-50 p-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    value={variation.name}
+                    onChange={(event) => handleVariationChange(variationIndex, "name", event.target.value)}
+                    placeholder="Variation name"
+                    className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                  />
+                  <input
+                    type="text"
+                    value={variation.sku}
+                    onChange={(event) => handleVariationChange(variationIndex, "sku", event.target.value)}
+                    placeholder="Variation SKU"
+                    className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                  />
+                  {variationOptions.map((option) => {
+                    const optionName = option.name.trim();
+                    if (!optionName) return null;
+
+                    const values = option.valueText.split(",").map((value) => value.trim()).filter(Boolean);
+                    return (
+                      <select
+                        key={optionName}
+                        value={variation.optionValues?.[optionName] || ""}
+                        onChange={(event) => handleVariationOptionValueChange(variationIndex, optionName, event.target.value)}
+                        className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                        required={formData.hasVariations}
+                      >
+                        <option value="">Select {optionName}</option>
+                        {values.map((value) => (
+                          <option key={value} value={value}>{value}</option>
+                        ))}
+                      </select>
+                    );
+                  })}
+                  <input
+                    type="number"
+                    value={variation.costPrice}
+                    onChange={(event) => handleVariationChange(variationIndex, "costPrice", event.target.value)}
+                    placeholder="Cost price"
+                    className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                    min="0"
+                  />
+                  <input
+                    type="number"
+                    value={variation.price}
+                    onChange={(event) => handleVariationChange(variationIndex, "price", event.target.value)}
+                    placeholder="Selling price"
+                    className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                    min="0"
+                    required={formData.hasVariations}
+                  />
+                  <input
+                    type="number"
+                    value={variation.stock}
+                    onChange={(event) => handleVariationChange(variationIndex, "stock", event.target.value)}
+                    placeholder="Stock"
+                    className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                    min="0"
+                    required={formData.hasVariations}
+                  />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Variation Image
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) => handleVariationImageChange(variationIndex, event.target.files?.[0])}
+                      className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600 bg-white"
+                    />
+                    {(variation.imagePreview || variation.image) && (
+                      <img
+                        src={variation.imagePreview || resolveImageUrl(variation.image)}
+                        alt={`${variation.name || "Variation"} preview`}
+                        className="mt-2 w-20 h-20 object-cover rounded border"
+                      />
+                    )}
+                  </div>
+                  <label className="flex items-center gap-2 text-sm text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={variation.isActive}
+                      onChange={(event) => handleVariationChange(variationIndex, "isActive", event.target.checked)}
+                      className="w-4 h-4"
+                    />
+                    Active
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveVariation(variationIndex)}
+                  className="mt-3 px-3 py-2 border rounded text-red-600 hover:bg-red-50"
+                >
+                  Remove Variation
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="mb-4">
           <label className="flex items-center gap-2">

@@ -107,6 +107,14 @@ const EcommerceOrderDetail = () => {
     return colors[status] || "bg-gray-100 text-gray-800";
   };
 
+  const getSelectedOptionsText = (item) => {
+    if (!item?.selectedOptions) return "";
+    return Object.entries(item.selectedOptions)
+      .filter(([, value]) => value)
+      .map(([name, value]) => `${name}: ${value}`)
+      .join(" • ");
+  };
+
   if (loading) return <Loader />;
   if (!order) return <div className="p-4">Order not found</div>;
 
@@ -202,7 +210,16 @@ const EcommerceOrderDetail = () => {
           <tbody className="divide-y">
             {order.items?.map((item, index) => (
               <tr key={index}>
-                <td className="px-4 py-3 text-sm">{item.productName}</td>
+                <td className="px-4 py-3 text-sm">
+                  <div className="font-medium text-gray-800">{item.productName}</div>
+                  {(item.variationName || getSelectedOptionsText(item)) && (
+                    <div className="mt-1 text-xs text-gray-500">
+                      {item.variationName && <span>{item.variationName}</span>}
+                      {item.variationName && getSelectedOptionsText(item) && <span> • </span>}
+                      {getSelectedOptionsText(item) && <span>{getSelectedOptionsText(item)}</span>}
+                    </div>
+                  )}
+                </td>
                 <td className="px-4 py-3 text-sm">₦{item.price?.toLocaleString()}</td>
                 <td className="px-4 py-3 text-sm">{item.quantity}</td>
                 <td className="px-4 py-3 text-sm font-medium">₦{item.subtotal?.toLocaleString()}</td>
