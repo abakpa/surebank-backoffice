@@ -1,6 +1,6 @@
 const Tablehead = () => {
   const role = localStorage.getItem("staffRole");
-  const isManagerOrAgent = role === "Manager" || role === "Agent";
+  const isManagerOrAgent = role === "Manager" || role === "SubAdmin" || role === "Agent";
     return (
       <thead className="text-sm">
         <tr className="bg-gray-100">

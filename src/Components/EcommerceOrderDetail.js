@@ -18,6 +18,8 @@ const EcommerceOrderDetail = () => {
   const { order, sbAccount, loading, success, error, message } = useSelector(
     (state) => state.ecommerceOrders
   );
+  const staffRole = localStorage.getItem("staffRole");
+  const canManageEcommerce = ["Admin", "SubAdmin"].includes(staffRole);
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState("");
@@ -44,10 +46,12 @@ const EcommerceOrderDetail = () => {
   }, [success, dispatch]);
 
   const handleStatusChange = (status) => {
+    if (!canManageEcommerce) return;
     dispatch(updateOrderStatusRequest({ orderId: id, status }));
   };
 
   const handleRecordPayment = () => {
+    if (!canManageEcommerce) return;
     if (!paymentAmount || !transactionRef) {
       alert("Please fill in all fields");
       return;
@@ -67,6 +71,7 @@ const EcommerceOrderDetail = () => {
   };
 
   const handleCancelOrder = () => {
+    if (!canManageEcommerce) return;
     if (!cancelReason) {
       alert("Please provide a cancellation reason");
       return;
@@ -78,6 +83,7 @@ const EcommerceOrderDetail = () => {
   };
 
   const handleCreditSBAccount = () => {
+    if (!canManageEcommerce) return;
     if (!creditAmount || parseFloat(creditAmount) <= 0) {
       alert("Please enter a valid amount");
       return;
@@ -239,15 +245,17 @@ const EcommerceOrderDetail = () => {
         <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg shadow p-4 mb-6">
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-semibold text-green-800">Wallet Account</h3>
-            <button
-              onClick={() => setShowCreditModal(true)}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm font-medium flex items-center gap-2"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Credit Account
-            </button>
+            {canManageEcommerce && (
+              <button
+                onClick={() => setShowCreditModal(true)}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm font-medium flex items-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Credit Account
+              </button>
+            )}
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
             <div className="bg-white rounded-lg p-3 shadow-sm">
@@ -345,40 +353,42 @@ const EcommerceOrderDetail = () => {
         </div>
       )}
 
-      <div className="flex gap-4 flex-wrap">
-        <select
-          value={order.status}
-          onChange={(e) => handleStatusChange(e.target.value)}
-          className="px-4 py-2 border rounded"
-        >
-          <option value="pending">Pending</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="paid">Paid</option>
-          <option value="partially_paid">Partially Paid</option>
-          <option value="processing">Processing</option>
-          <option value="shipped">Shipped</option>
-          <option value="delivered">Delivered</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-
-        {order.paymentType !== "installment" && order.paymentStatus !== "paid" && order.status !== "cancelled" && (
-          <button
-            onClick={() => setShowPaymentModal(true)}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+      {canManageEcommerce && (
+        <div className="flex gap-4 flex-wrap">
+          <select
+            value={order.status}
+            onChange={(e) => handleStatusChange(e.target.value)}
+            className="px-4 py-2 border rounded"
           >
-            Record Payment
-          </button>
-        )}
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="paid">Paid</option>
+            <option value="partially_paid">Partially Paid</option>
+            <option value="processing">Processing</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
 
-        {order.status !== "delivered" && order.status !== "cancelled" && (
-          <button
-            onClick={() => setShowCancelModal(true)}
-            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-          >
-            Cancel Order
-          </button>
-        )}
-      </div>
+          {order.paymentType !== "installment" && order.paymentStatus !== "paid" && order.status !== "cancelled" && (
+            <button
+              onClick={() => setShowPaymentModal(true)}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              Record Payment
+            </button>
+          )}
+
+          {order.status !== "delivered" && order.status !== "cancelled" && (
+            <button
+              onClick={() => setShowCancelModal(true)}
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            >
+              Cancel Order
+            </button>
+          )}
+        </div>
+      )}
 
       {showPaymentModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

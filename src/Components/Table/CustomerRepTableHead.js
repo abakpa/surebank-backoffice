@@ -1,7 +1,7 @@
 const Tablehead = () => {
     const role = localStorage.getItem("staffRole");
-    const isManagerOrAgent = role === "Manager" || role === "Agent";
-    const canTransfer = role === "Manager" || role === "Admin";
+    const isManagerOrAgent = role === "Manager" || role === "SubAdmin" || role === "Agent";
+    const canTransfer = role === "Manager" || role === "SubAdmin" || role === "Admin";
   
     return (
       <thead className="text-sm">

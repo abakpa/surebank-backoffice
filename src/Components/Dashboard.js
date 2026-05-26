@@ -30,7 +30,9 @@ import {
   fetchAvailablaBalanceRequest,
   fetchEcommerceIncomeRequest,
   fetchEcommerceDepositRequest,
-  fetchEcommerceDepositReportRequest
+  fetchEcommerceDepositReportRequest,
+  fetchFWWithdrawalRequest,
+  fetchFWWithdrawalReportRequest
 } from '../redux/slices/dashboardSlice'
 import Loader from "./Loader";
 import Select2 from "./Select2";
@@ -74,7 +76,9 @@ const Dashboard = () => {
     const [branchId21, setBranchId21] = useState("");
     const [branchId22, setBranchId22] = useState("");
     const [branchId23, setBranchId23] = useState("");
+    const [branchId24, setBranchId24] = useState("");
     const [isEcommerceDepositModalOpen, setIsEcommerceDepositModalOpen] = useState(false);
+    const [isFWWithdrawalModalOpen, setIsFWWithdrawalModalOpen] = useState(false);
     const {
       loading,
       dscontribution,
@@ -101,7 +105,9 @@ const Dashboard = () => {
       availablebalance,
       ecommerceIncome,
       ecommerceDeposit,
-      ecommerceDepositReport
+      ecommerceDepositReport,
+      fwWithdrawal,
+      fwWithdrawalReport
     } = useSelector((state)=>state.dashboard)
       const newdsContribution = dscontribution || 0
       const newsbContribution = sbcontribution || 0
@@ -127,11 +133,18 @@ const Dashboard = () => {
       const newAvailableBalance = availablebalance || 0
       const newEcommerceIncome = ecommerceIncome || 0
       const newEcommerceDeposit = ecommerceDeposit || 0
+      const newFWWithdrawal = fwWithdrawal || 0
 
       const openEcommerceDepositModal = () => {
         const details24 = { branchId: branchId23, date: getDateRangeValue(dateRanges, "date23") };
         dispatch(fetchEcommerceDepositReportRequest({ details24 }));
         setIsEcommerceDepositModalOpen(true);
+      };
+
+      const openFWWithdrawalModal = () => {
+        const details26 = { branchId: branchId24, date: getDateRangeValue(dateRanges, "date24") };
+        dispatch(fetchFWWithdrawalReportRequest({ details26 }));
+        setIsFWWithdrawalModalOpen(true);
       };
 
 
@@ -166,6 +179,7 @@ const Dashboard = () => {
         const details22 = { branchId: branchId22, date: getDateRangeValue(dateRanges, "date22") };
         const details23 = { branchId: branchId23, date: getDateRangeValue(dateRanges, "date23") };
         const details24 = { branchId: branchId23, date: getDateRangeValue(dateRanges, "date23") };
+        const details25 = { branchId: branchId24, date: getDateRangeValue(dateRanges, "date24") };
         const data = {details}
         const data1 = {details1}
         const data2 = {details2}
@@ -191,6 +205,7 @@ const Dashboard = () => {
         const data22 = {details22}
         const data23 = {details23}
         const data24 = {details24}
+        const data25 = {details25}
 
         dispatch(fetchDSContributionRequest(data));
         dispatch(fetchSBContributionRequest(data1));
@@ -217,6 +232,7 @@ const Dashboard = () => {
         dispatch(fetchEcommerceIncomeRequest(data22));
         dispatch(fetchEcommerceDepositRequest(data23));
         dispatch(fetchEcommerceDepositReportRequest(data24));
+        dispatch(fetchFWWithdrawalRequest(data25));
 
     }, [
       dispatch,
@@ -245,6 +261,7 @@ const Dashboard = () => {
       branchId21,
       branchId22,
       branchId23,
+      branchId24,
     ]);
     
   return (
@@ -326,6 +343,27 @@ const Dashboard = () => {
       />
       <DashboardDateRangeFields rangeKey="date21" dateRanges={dateRanges} setDateRanges={setDateRanges} />
    
+    </form>
+  </div>
+  <div className="relative p-4 rounded-lg shadow-md bg-rose-100">
+    <button
+      type="button"
+      onClick={openFWWithdrawalModal}
+      className="absolute top-2 right-2 text-rose-800 hover:text-rose-900"
+      title="View FW withdrawal details"
+    >
+      <FaEye />
+    </button>
+    <h3 className="text-sm font-semibold mb-2 text-rose-800">FW Withdrawal</h3>
+    <p className="text-sm font-bold text-rose-800">{newFWWithdrawal?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branchOptions}
+        value={branchId24}
+        onChange={(selectedId) => setBranchId24(selectedId)}
+      />
+      <DashboardDateRangeFields rangeKey="date24" dateRanges={dateRanges} setDateRanges={setDateRanges} />
     </form>
   </div>
    {/* Card 7 - Pink */}
@@ -661,6 +699,14 @@ const Dashboard = () => {
   onClose={() => setIsEcommerceDepositModalOpen(false)}
   title="Ecommerce Deposit Details"
   transactions={ecommerceDepositReport}
+  showBranch
+  showStaff
+/>
+<EcommerceDepositDetailsModal
+  isOpen={isFWWithdrawalModalOpen}
+  onClose={() => setIsFWWithdrawalModalOpen(false)}
+  title="FW Withdrawal Details"
+  transactions={fwWithdrawalReport}
   showBranch
   showStaff
 />

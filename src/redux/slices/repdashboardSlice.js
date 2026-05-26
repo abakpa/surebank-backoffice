@@ -7,6 +7,7 @@ const initialState = {
     repdailysb: null,
     reptotaldailysbandds: null,
     repdswithdrawal: null,
+    repFWWithdrawal: null,
     repdspackage: null,
     repsbpackage: null,
     reppackages: null,
@@ -15,6 +16,7 @@ const initialState = {
     reptotalexpenditure: null,
     repEcommerceDeposit: null,
     repEcommerceDepositReport: [],
+    repFWWithdrawalReport: [],
     loading: false,
     error:null,
     referral:null
@@ -73,6 +75,26 @@ const dashboardSlice = createSlice({
             state.loading=false
         },
         fetchRepDSWithdrawalFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchRepFWWithdrawalRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepFWWithdrawalSuccess:(state,action)=>{
+            state.repFWWithdrawal= action.payload;
+            state.loading=false
+        },
+        fetchRepFWWithdrawalFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchRepFWWithdrawalReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepFWWithdrawalReportSuccess:(state,action)=>{
+            state.repFWWithdrawalReport= action.payload;
+            state.loading=false
+        },
+        fetchRepFWWithdrawalReportFailure:(state,action)=>{
             state.error = action.payload
         },
         fetchRepDSpackageRequest:(state)=>{
@@ -176,6 +198,12 @@ export const {
     fetchRepDSWithdrawalRequest,
     fetchRepDSWithdrawalSuccess,
     fetchRepDSWithdrawalFailure,
+    fetchRepFWWithdrawalRequest,
+    fetchRepFWWithdrawalSuccess,
+    fetchRepFWWithdrawalFailure,
+    fetchRepFWWithdrawalReportRequest,
+    fetchRepFWWithdrawalReportSuccess,
+    fetchRepFWWithdrawalReportFailure,
     fetchRepDSpackageRequest,
     fetchRepDSpackageSuccess,
     fetchRepDSpackageFailure,

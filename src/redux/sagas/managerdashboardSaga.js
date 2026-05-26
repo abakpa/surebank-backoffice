@@ -37,6 +37,12 @@ import {
     fetchBranchDSWithdrawalRequest,
     fetchBranchDSWithdrawalSuccess,
     fetchBranchDSWithdrawalFailure,
+    fetchBranchFWWithdrawalRequest,
+    fetchBranchFWWithdrawalSuccess,
+    fetchBranchFWWithdrawalFailure,
+    fetchBranchFWWithdrawalReportRequest,
+    fetchBranchFWWithdrawalReportSuccess,
+    fetchBranchFWWithdrawalReportFailure,
     fetchBranchDSpackageRequest,
     fetchBranchDSpackageSuccess,
     fetchBranchDSpackageFailure,
@@ -309,6 +315,44 @@ function* fetchBranchDSWithdrawalSaga(action) {
         yield put(fetchBranchDSWithdrawalFailure(error.response?.data?.message || "An error occurred"));
     }
 }
+function* fetchBranchFWWithdrawalSaga(action) {
+    const { details19 = null } = action.payload;
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details19 ? details19 : {};
+        const response = yield call(axios.post, `${url}/api/managerdashboard/branchfwwithdrawal`, requestData,config);
+        yield put(fetchBranchFWWithdrawalSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchBranchFWWithdrawalFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+function* fetchBranchFWWithdrawalReportSaga(action) {
+    const { details20 = null } = action.payload;
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details20 ? details20 : {};
+        const response = yield call(axios.post, `${url}/api/managerdashboard/branchfwwithdrawalreport`, requestData,config);
+        yield put(fetchBranchFWWithdrawalReportSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchBranchFWWithdrawalReportFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
 function* fetchBranchDSpackageSaga(action) {
     const { details7 = null } = action.payload;
 
@@ -525,6 +569,8 @@ function* depositSaga(){
     yield takeLatest(fetchBranchSBDailyContributionRequest.type, fetchBranchSBDailyContributionSaga)
     yield takeLatest(fetchBranchTotalSBandDSDailyRequest.type, fetchBranchTotalSBandDSDailySaga)
     yield takeLatest(fetchBranchDSWithdrawalRequest.type, fetchBranchDSWithdrawalSaga)
+    yield takeLatest(fetchBranchFWWithdrawalRequest.type, fetchBranchFWWithdrawalSaga)
+    yield takeLatest(fetchBranchFWWithdrawalReportRequest.type, fetchBranchFWWithdrawalReportSaga)
     yield takeLatest(fetchBranchDSpackageRequest.type, fetchBranchDSpackageSaga)
     yield takeLatest(fetchBranchSBpackageRequest.type, fetchBranchSBpackageSaga)
     yield takeLatest(fetchBranchPackageRequest.type, fetchBranchPackageSaga)

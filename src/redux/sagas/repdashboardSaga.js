@@ -16,6 +16,12 @@ import {
     fetchRepDSWithdrawalRequest,
     fetchRepDSWithdrawalSuccess,
     fetchRepDSWithdrawalFailure,
+    fetchRepFWWithdrawalRequest,
+    fetchRepFWWithdrawalSuccess,
+    fetchRepFWWithdrawalFailure,
+    fetchRepFWWithdrawalReportRequest,
+    fetchRepFWWithdrawalReportSuccess,
+    fetchRepFWWithdrawalReportFailure,
     fetchRepDSpackageRequest,
     fetchRepDSpackageSuccess,
     fetchRepDSpackageFailure,
@@ -142,6 +148,44 @@ function* fetchRepDSWithdrawalSaga(action) {
             window.location.href = '/login';
           }
         yield put(fetchRepDSWithdrawalFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+function* fetchRepFWWithdrawalSaga(action) {
+    const { details20 = null } = action.payload;
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details20 ? details20 : {};
+        const response = yield call(axios.post, `${url}/api/repdashboard/repfwwithdrawal`, requestData,config);
+        yield put(fetchRepFWWithdrawalSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchRepFWWithdrawalFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+function* fetchRepFWWithdrawalReportSaga(action) {
+    const { details21 = null } = action.payload;
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details21 ? details21 : {};
+        const response = yield call(axios.post, `${url}/api/repdashboard/repfwwithdrawalreport`, requestData,config);
+        yield put(fetchRepFWWithdrawalReportSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchRepFWWithdrawalReportFailure(error.response?.data?.message || "An error occurred"));
     }
 }
 function* fetchRepDSpackageSaga(action) {
@@ -318,6 +362,8 @@ function* depositSaga(){
     yield takeLatest(fetchRepFDDailyContributionRequest.type, fetchReFDDailyContributionSaga)
     yield takeLatest(fetchRepTotalSBandDSDailyRequest.type, fetchRepTotalSBandDSDailySaga)
     yield takeLatest(fetchRepDSWithdrawalRequest.type, fetchRepDSWithdrawalSaga)
+    yield takeLatest(fetchRepFWWithdrawalRequest.type, fetchRepFWWithdrawalSaga)
+    yield takeLatest(fetchRepFWWithdrawalReportRequest.type, fetchRepFWWithdrawalReportSaga)
     yield takeLatest(fetchRepDSpackageRequest.type, fetchRepDSpackageSaga)
     yield takeLatest(fetchRepSBpackageRequest.type, fetchRepSBpackageSaga)
     yield takeLatest(fetchRepFDpackageRequest.type, fetchRepFDpackageSaga)

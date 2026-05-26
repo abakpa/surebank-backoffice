@@ -20,6 +20,7 @@ const CreateStaff = () => {
   const loggedInStaffRole = isLoggedIn || localStorage.getItem("staffRole");
   const isLoggedInBranch = useSelector((state) => state.login?.staff?.branch);
   const loggedInStaffBranch = isLoggedInBranch || localStorage.getItem("staffBranch");
+  const isBranchManagerRole = ["Manager", "SubAdmin"].includes(loggedInStaffRole);
 
   const loggedInBranchName =
     branches.find((branch) => branch._id === loggedInStaffBranch)?.name || "";
@@ -30,15 +31,16 @@ const CreateStaff = () => {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState(loggedInStaffRole === "Manager" ? "Agent" : "");
+  const [role, setRole] = useState(isBranchManagerRole ? "Agent" : "");
   const [staffId, setStaffId] = useState("");
   const [branchId, setBranchId] = useState(
-    loggedInStaffRole === "Manager" ? loggedInStaffBranch : ""
+    isBranchManagerRole ? loggedInStaffBranch : ""
   );
 
   // Role options
   const allRoles = [
     { label: "Manager", value: "Manager" },
+    { label: "Sub Admin", value: "SubAdmin" },
     { label: "Rep", value: "Agent" },
     { label: "Admin", value: "Admin" },
     { label: "Online Rep", value: "OnlineRep" },
@@ -85,8 +87,8 @@ const CreateStaff = () => {
     setEmail("");
     setPassword("");
     setStaffId("");
-    setRole(loggedInStaffRole === "Manager" ? "Agent" : "");
-    setBranchId(loggedInStaffRole === "Manager" ? loggedInStaffBranch : "");
+    setRole(isBranchManagerRole ? "Agent" : "");
+    setBranchId(isBranchManagerRole ? loggedInStaffBranch : "");
   };
 
   return (
@@ -192,7 +194,7 @@ const CreateStaff = () => {
           />
 
         {/* Role */}
-        {loggedInStaffRole === "Manager" ? (
+        {isBranchManagerRole ? (
           <div className="mb-4">
             {/* <label htmlFor="role" className="block text-sm font-medium text-gray-700">
               Role
@@ -210,7 +212,7 @@ const CreateStaff = () => {
         ) : null}
 
         {/* Branch */}
-        {loggedInStaffRole === "Manager" ? (
+        {isBranchManagerRole ? (
           <div className="mb-4">
             {/* <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
               Branch

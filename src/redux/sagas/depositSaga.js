@@ -513,7 +513,9 @@ function* createCustomerSBAccountSaga(action){
         const response = yield call(axios.post,`${url}/api/sbaccount`, details,config);
         yield put(createCustomerSBAccountSuccess(response.data))
         yield call(fetchCustomerAccountSaga, { payload: { customerId: details.customerId } });
-        navigate('/deposit')
+        if (navigate) {
+            navigate('/deposit')
+        }
     } catch (error) {  if (error.response && error.response.status === 401) {
             localStorage.removeItem('authToken');
             window.location.href = '/login';

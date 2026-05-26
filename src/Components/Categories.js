@@ -8,6 +8,8 @@ import { resolveImageUrl } from "../utils/image";
 const Categories = () => {
   const dispatch = useDispatch();
   const { categories, loading } = useSelector((state) => state.productCategories);
+  const staffRole = localStorage.getItem("staffRole");
+  const canManageEcommerce = ["Admin", "SubAdmin"].includes(staffRole);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -15,12 +17,14 @@ const Categories = () => {
   }, [dispatch]);
 
   const handleDelete = (categoryId) => {
+    if (!canManageEcommerce) return;
     if (window.confirm("Are you sure you want to delete this category?")) {
       dispatch(deleteCategoryRequest({ categoryId }));
     }
   };
 
   const handleToggleStatus = (categoryId, currentStatus) => {
+    if (!canManageEcommerce) return;
     const action = currentStatus ? "deactivate" : "activate";
     if (window.confirm(`Are you sure you want to ${action} this category?`)) {
       dispatch(toggleCategoryStatusRequest({ categoryId }));
@@ -37,12 +41,14 @@ const Categories = () => {
     <div className="p-4">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6">
         <h1 className="text-2xl font-bold mb-4 md:mb-0">Product Categories</h1>
-        <Link
-          to="/createcategory"
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          Add New Category
-        </Link>
+        {canManageEcommerce && (
+          <Link
+            to="/createcategory"
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Add New Category
+          </Link>
+        )}
       </div>
 
       <div className="mb-6">
@@ -98,20 +104,21 @@ const Categories = () => {
                     )}
                   </div>
                 </div>
-                {/* Toggle Switch */}
                 <div className="flex items-center gap-2 mt-2">
-                  <button
-                    onClick={() => handleToggleStatus(category._id, category.isActive)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
-                      category.isActive ? "bg-green-500" : "bg-gray-300"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        category.isActive ? "translate-x-6" : "translate-x-1"
+                  {canManageEcommerce ? (
+                    <button
+                      onClick={() => handleToggleStatus(category._id, category.isActive)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                        category.isActive ? "bg-green-500" : "bg-gray-300"
                       }`}
-                    />
-                  </button>
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          category.isActive ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  ) : null}
                   <span
                     className={`text-xs font-medium ${
                       category.isActive ? "text-green-600" : "text-gray-500"
@@ -122,20 +129,22 @@ const Categories = () => {
                 </div>
               </div>
             </div>
-            <div className="flex gap-2 mt-4 pt-4 border-t">
-              <Link
-                to={`/editcategory/${category._id}`}
-                className="flex-1 text-center text-blue-600 hover:text-blue-800 text-sm py-2 border rounded hover:bg-blue-50"
-              >
-                Edit
-              </Link>
-              <button
-                onClick={() => handleDelete(category._id)}
-                className="flex-1 text-center text-red-600 hover:text-red-800 text-sm py-2 border rounded hover:bg-red-50"
-              >
-                Delete
-              </button>
-            </div>
+            {canManageEcommerce && (
+              <div className="flex gap-2 mt-4 pt-4 border-t">
+                <Link
+                  to={`/editcategory/${category._id}`}
+                  className="flex-1 text-center text-blue-600 hover:text-blue-800 text-sm py-2 border rounded hover:bg-blue-50"
+                >
+                  Edit
+                </Link>
+                <button
+                  onClick={() => handleDelete(category._id)}
+                  className="flex-1 text-center text-red-600 hover:text-red-800 text-sm py-2 border rounded hover:bg-red-50"
+                >
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>

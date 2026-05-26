@@ -8,7 +8,7 @@ const Tablebody = ({ customers = [], branches = [] }) => {
     navigate(`/customeraccountdashboard/${customerId}`);
   };
 
-  const hideSensitiveInfo = role === "Manager" || role === "Agent";
+  const hideSensitiveInfo = role === "Manager" || role === "SubAdmin" || role === "Agent";
 
   const filteredCustomers = customers.filter((customer) => {
     const narration = customer.narration?.toLowerCase();

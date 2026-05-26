@@ -15,6 +15,7 @@ const EcommerceDepositDetailsModal = ({
   transactions = [],
   showBranch = false,
   showStaff = false,
+  emptyMessage = "No transactions found.",
 }) => {
   if (!isOpen) return null;
 
@@ -72,7 +73,7 @@ const EcommerceDepositDetailsModal = ({
                     colSpan={4 + (showBranch ? 1 : 0) + (showStaff ? 1 : 0)}
                     className="px-3 py-8 text-center text-gray-500"
                   >
-                    No ecommerce deposit transactions found.
+                    {emptyMessage}
                   </td>
                 </tr>
               )}

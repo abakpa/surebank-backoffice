@@ -37,6 +37,12 @@ import {
     fetchDSWithdrawalRequest,
     fetchDSWithdrawalSuccess,
     fetchDSWithdrawalFailure,
+    fetchFWWithdrawalRequest,
+    fetchFWWithdrawalSuccess,
+    fetchFWWithdrawalFailure,
+    fetchFWWithdrawalReportRequest,
+    fetchFWWithdrawalReportSuccess,
+    fetchFWWithdrawalReportFailure,
     fetchDSpackageRequest,
     fetchDSpackageSuccess,
     fetchDSpackageFailure,
@@ -331,6 +337,46 @@ function* fetchDSWithdrawalSaga(action) {
         yield put(fetchDSWithdrawalFailure(error.response?.data?.message || "An error occurred"));
     }
 }
+function* fetchFWWithdrawalSaga(action) {
+    const { details25 = null } = action.payload;
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const requestData = details25 ? details25 : {};
+        const response = yield call(axios.post, `${url}/api/admindashboard/fwwithdrawal`, requestData,config);
+        yield put(fetchFWWithdrawalSuccess(response.data));
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchFWWithdrawalFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+function* fetchFWWithdrawalReportSaga(action) {
+    const { details26 = null } = action.payload;
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const requestData = details26 ? details26 : {};
+        const response = yield call(axios.post, `${url}/api/admindashboard/fwwithdrawalreport`, requestData,config);
+        yield put(fetchFWWithdrawalReportSuccess(response.data));
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchFWWithdrawalReportFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
 function* fetchDSpackageSaga(action) {
     const { details7 = null } = action.payload;
 
@@ -623,6 +669,8 @@ function* depositSaga(){
     yield takeLatest(fetchSBDailyContributionRequest.type, fetchSBDailyContributionSaga)
     yield takeLatest(fetchTotalSBandDSDailyRequest.type, fetchTotalSBandDSDailySaga)
     yield takeLatest(fetchDSWithdrawalRequest.type, fetchDSWithdrawalSaga)
+    yield takeLatest(fetchFWWithdrawalRequest.type, fetchFWWithdrawalSaga)
+    yield takeLatest(fetchFWWithdrawalReportRequest.type, fetchFWWithdrawalReportSaga)
     yield takeLatest(fetchDSpackageRequest.type, fetchDSpackageSaga)
     yield takeLatest(fetchSBpackageRequest.type, fetchSBpackageSaga)
     yield takeLatest(fetchFDpackageRequest.type, fetchFDpackageSaga)

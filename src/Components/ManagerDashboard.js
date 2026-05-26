@@ -21,7 +21,9 @@ import {
   // fetchBranchFDContributionRequest,
   fetchBranchTotalExpenditureRequest,
   fetchBranchEcommerceDepositRequest,
-  fetchBranchEcommerceDepositReportRequest
+  fetchBranchEcommerceDepositReportRequest,
+  fetchBranchFWWithdrawalRequest,
+  fetchBranchFWWithdrawalReportRequest
 } from '../redux/slices/managerdashboardSlice'
 import Loader from "./Loader";
 // import Select2 from "./Select2";
@@ -38,6 +40,7 @@ const ManagerDashboard = () => {
     // const { branches } = useSelector((state) => state.branch);
     const [dateRanges, setDateRanges] = useState({});
     const [isEcommerceDepositModalOpen, setIsEcommerceDepositModalOpen] = useState(false);
+    const [isFWWithdrawalModalOpen, setIsFWWithdrawalModalOpen] = useState(false);
 
     // const [branchId, setBranchId] = useState("");
     // const [branchId1, setBranchId1] = useState("");
@@ -72,6 +75,8 @@ const ManagerDashboard = () => {
       fdpackage,
       branchEcommerceDeposit,
       branchEcommerceDepositReport,
+      branchFWWithdrawal,
+      branchFWWithdrawalReport,
     } = useSelector((state)=>state.managerdashboard)
       // const newdsContribution = branchdscontribution || 0
       // const newsbContribution = branchsbcontribution || 0
@@ -87,11 +92,17 @@ const ManagerDashboard = () => {
       const newtotalexpenditure =  branchtotalexpenditure || 0
       const newfdpackage = fdpackage || 0
       const newBranchEcommerceDeposit = branchEcommerceDeposit || 0
+      const newBranchFWWithdrawal = branchFWWithdrawal || 0
 
       const openEcommerceDepositModal = () => {
         const details18 = { date: getDateRangeValue(dateRanges, "date17") };
         dispatch(fetchBranchEcommerceDepositReportRequest({ details18 }));
         setIsEcommerceDepositModalOpen(true);
+      };
+      const openFWWithdrawalModal = () => {
+        const details20 = { date: getDateRangeValue(dateRanges, "date18") };
+        dispatch(fetchBranchFWWithdrawalReportRequest({ details20 }));
+        setIsFWWithdrawalModalOpen(true);
       };
       // const newfdContribution = fdcontribution || 0
     //   useEffect(() => {
@@ -114,6 +125,7 @@ const ManagerDashboard = () => {
         const details16 = { date: getDateRangeValue(dateRanges, "date16")};
         const details17 = { date: getDateRangeValue(dateRanges, "date17") };
         const details18 = { date: getDateRangeValue(dateRanges, "date17") };
+        const details19 = { date: getDateRangeValue(dateRanges, "date18") };
         // const data = {details}
         // const data1 = {details1}
         const data2 = {details2}
@@ -129,6 +141,7 @@ const ManagerDashboard = () => {
         const data16 = {details16}
         const data17 = {details17}
         const data18 = {details18}
+        const data19 = {details19}
         // dispatch(fetchBranchDSContributionRequest(data));
         // dispatch(fetchBranchSBContributionRequest(data1));
         // dispatch(fetcBranchTotalSBandDSRequest(data2)); 
@@ -145,6 +158,7 @@ const ManagerDashboard = () => {
         dispatch(fetchBranchFDpackageRequest(data16));
         dispatch(fetchBranchEcommerceDepositRequest(data17));
         dispatch(fetchBranchEcommerceDepositReportRequest(data18));
+        dispatch(fetchBranchFWWithdrawalRequest(data19));
    
     }, [
       dispatch,
@@ -234,6 +248,22 @@ const ManagerDashboard = () => {
       /> */}
       <DashboardDateRangeFields rangeKey="date6" dateRanges={dateRanges} setDateRanges={setDateRanges} />
   
+    </form>
+  </div>
+
+  <div className="relative p-4 rounded-lg shadow-md bg-rose-100">
+    <button
+      type="button"
+      onClick={openFWWithdrawalModal}
+      className="absolute top-2 right-2 text-rose-800 hover:text-rose-900"
+      title="View FW withdrawal details"
+    >
+      <FaEye />
+    </button>
+    <h3 className="text-sm font-semibold mb-2 text-rose-800">FW Withdrawal</h3>
+    <p className="text-sm font-bold text-rose-800">{newBranchFWWithdrawal?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <DashboardDateRangeFields rangeKey="date18" dateRanges={dateRanges} setDateRanges={setDateRanges} />
     </form>
   </div>
 
@@ -342,6 +372,13 @@ const ManagerDashboard = () => {
   onClose={() => setIsEcommerceDepositModalOpen(false)}
   title="Branch Ecommerce Deposit Details"
   transactions={branchEcommerceDepositReport}
+  showStaff
+/>
+<EcommerceDepositDetailsModal
+  isOpen={isFWWithdrawalModalOpen}
+  onClose={() => setIsFWWithdrawalModalOpen(false)}
+  title="Branch FW Withdrawal Details"
+  transactions={branchFWWithdrawalReport}
   showStaff
 />
 </div>

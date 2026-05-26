@@ -6,6 +6,8 @@ const ProductReviews = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const staffRole = localStorage.getItem("staffRole");
+  const canManageEcommerce = ["Admin", "SubAdmin"].includes(staffRole);
 
   const fetchReviews = async () => {
     setLoading(true);
@@ -29,6 +31,7 @@ const ProductReviews = () => {
   }, []);
 
   const handleToggleVisibility = async (review) => {
+    if (!canManageEcommerce) return;
     try {
       const token = localStorage.getItem("authToken");
       const response = await axios.put(
@@ -67,17 +70,19 @@ const ProductReviews = () => {
               <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Rating</th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Review</th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Action</th>
+              {canManageEcommerce && (
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Action</th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {loading ? (
               <tr>
-                <td colSpan="6" className="px-4 py-8 text-center text-gray-500">Loading reviews...</td>
+                <td colSpan={canManageEcommerce ? "6" : "5"} className="px-4 py-8 text-center text-gray-500">Loading reviews...</td>
               </tr>
             ) : reviews.length === 0 ? (
               <tr>
-                <td colSpan="6" className="px-4 py-8 text-center text-gray-500">No reviews yet</td>
+                <td colSpan={canManageEcommerce ? "6" : "5"} className="px-4 py-8 text-center text-gray-500">No reviews yet</td>
               </tr>
             ) : (
               reviews.map((review) => (
@@ -100,19 +105,21 @@ const ProductReviews = () => {
                       {review.showOnEcommerce ? "Showing" : "Hidden"}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleVisibility(review)}
-                      className={`rounded px-3 py-2 text-sm text-white ${
-                        review.showOnEcommerce
-                          ? "bg-red-600 hover:bg-red-700"
-                          : "bg-green-600 hover:bg-green-700"
-                      }`}
-                    >
-                      {review.showOnEcommerce ? "Hide" : "Show"}
-                    </button>
-                  </td>
+                  {canManageEcommerce && (
+                    <td className="px-4 py-3">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleVisibility(review)}
+                        className={`rounded px-3 py-2 text-sm text-white ${
+                          review.showOnEcommerce
+                            ? "bg-red-600 hover:bg-red-700"
+                            : "bg-green-600 hover:bg-green-700"
+                        }`}
+                      >
+                        {review.showOnEcommerce ? "Hide" : "Show"}
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))
             )}
