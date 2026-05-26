@@ -2,7 +2,7 @@ const Tablehead = ({ customers = [] }) => {
   const role = localStorage.getItem("staffRole");
   
   // Check if we should hide sensitive columns
-  const shouldHideSensitiveColumns = role === "Manager" || role === "Agent";
+  const shouldHideSensitiveColumns = role === "Manager" || role === "SubAdmin" || role === "Agent";
 
 
   return (

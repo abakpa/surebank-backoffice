@@ -10,6 +10,8 @@ const Products = () => {
   const dispatch = useDispatch();
   const { products, loading } = useSelector((state) => state.products);
   const { categories } = useSelector((state) => state.productCategories);
+  const staffRole = localStorage.getItem("staffRole");
+  const canManageEcommerce = ["Admin", "SubAdmin"].includes(staffRole);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSubCategory, setFilterSubCategory] = useState("");
@@ -20,6 +22,7 @@ const Products = () => {
   }, [dispatch]);
 
   const handleDelete = (productId) => {
+    if (!canManageEcommerce) return;
     if (window.confirm("Are you sure you want to delete this product?")) {
       dispatch(deleteProductRequest({ productId }));
     }
@@ -53,12 +56,14 @@ const Products = () => {
     <div className="p-4">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6">
         <h1 className="text-2xl font-bold mb-4 md:mb-0">Products</h1>
-        <Link
-          to="/createproduct"
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          Add New Product
-        </Link>
+        {canManageEcommerce && (
+          <Link
+            to="/createproduct"
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Add New Product
+          </Link>
+        )}
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -110,7 +115,9 @@ const Products = () => {
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              {canManageEcommerce && (
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -145,22 +152,24 @@ const Products = () => {
                     {product.isActive !== false ? "Active" : "Inactive"}
                   </span>
                 </td>
-                <td className="px-4 py-3">
-                  <div className="flex gap-2">
-                    <Link
-                      to={`/editproduct/${product._id}`}
-                      className="text-blue-600 hover:text-blue-800 text-sm"
-                    >
-                      Edit
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(product._id)}
-                      className="text-red-600 hover:text-red-800 text-sm"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
+                {canManageEcommerce && (
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
+                      <Link
+                        to={`/editproduct/${product._id}`}
+                        className="text-blue-600 hover:text-blue-800 text-sm"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(product._id)}
+                        className="text-red-600 hover:text-red-800 text-sm"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

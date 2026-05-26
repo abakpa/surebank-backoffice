@@ -10,6 +10,8 @@ const CreateCategory = () => {
   const { id } = useParams();
   const isEditMode = Boolean(id);
   const { loading, error, category } = useSelector((state) => state.productCategories);
+  const staffRole = localStorage.getItem("staffRole");
+  const canManageEcommerce = ["Admin", "SubAdmin"].includes(staffRole);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -87,6 +89,7 @@ const CreateCategory = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!canManageEcommerce) return;
 
     const data = new FormData();
     data.append("name", formData.name);
@@ -102,6 +105,15 @@ const CreateCategory = () => {
       dispatch(createCategoryRequest({ formData: data, navigate }));
     }
   };
+
+  if (!canManageEcommerce) {
+    return (
+      <div className="p-6 bg-white rounded shadow-md max-w-xl mx-auto mt-12">
+        <h2 className="text-xl font-bold mb-2">View Only</h2>
+        <p className="text-gray-600">Only admin and sub admin can create or edit ecommerce categories.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-white rounded shadow-md max-w-xl mx-auto mt-12 mb-6">

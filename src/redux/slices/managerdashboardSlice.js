@@ -9,6 +9,7 @@ const initialState = {
     branchdailysb: null,
     branchtotaldailysbandds: null,
     branchdswithdrawal: null,
+    branchFWWithdrawal: null,
     branchdspackage: null,
     branchsbpackage: null,
     branchpackages: null,
@@ -23,6 +24,7 @@ const initialState = {
     fdpackage: null,
     branchEcommerceDeposit: null,
     branchEcommerceDepositReport: [],
+    branchFWWithdrawalReport: [],
     loading: false,
     error:null,
 };
@@ -149,6 +151,26 @@ const dashboardSlice = createSlice({
             state.loading=false
         },
         fetchBranchDSWithdrawalFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchBranchFWWithdrawalRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchFWWithdrawalSuccess:(state,action)=>{
+            state.branchFWWithdrawal= action.payload;
+            state.loading=false
+        },
+        fetchBranchFWWithdrawalFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchBranchFWWithdrawalReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchFWWithdrawalReportSuccess:(state,action)=>{
+            state.branchFWWithdrawalReport= action.payload;
+            state.loading=false
+        },
+        fetchBranchFWWithdrawalReportFailure:(state,action)=>{
             state.error = action.payload
         },
         fetchBranchDSpackageRequest:(state)=>{
@@ -294,6 +316,12 @@ export const {
     fetchBranchDSWithdrawalRequest,
     fetchBranchDSWithdrawalSuccess,
     fetchBranchDSWithdrawalFailure,
+    fetchBranchFWWithdrawalRequest,
+    fetchBranchFWWithdrawalSuccess,
+    fetchBranchFWWithdrawalFailure,
+    fetchBranchFWWithdrawalReportRequest,
+    fetchBranchFWWithdrawalReportSuccess,
+    fetchBranchFWWithdrawalReportFailure,
     fetchBranchDSpackageRequest,
     fetchBranchDSpackageSuccess,
     fetchBranchDSpackageFailure,

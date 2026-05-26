@@ -10,8 +10,18 @@ const getBranchName = (branchId, branches = []) => {
 
 // Helper to format role display
 const formatRoleDisplay = (role) => {
-  return role === "Agent" ? "Rep" : role;
+  if (role === "Agent") return "Rep";
+  if (role === "SubAdmin") return "Sub Admin";
+  if (role === "OnlineRep") return "Online Rep";
+  return role;
 };
+
+const roleOptions = [
+  { label: "Manager", value: "Manager" },
+  { label: "Sub Admin", value: "SubAdmin" },
+  { label: "Rep", value: "Agent" },
+  { label: "Online Rep", value: "OnlineRep" },
+];
 
 const Tablebody = ({ staffs, branches = [], onToggleStatus }) => {
   const navigate = useNavigate();
@@ -36,12 +46,22 @@ const Tablebody = ({ staffs, branches = [], onToggleStatus }) => {
     dispatch(resetStaffPasswordRequest(details));
   };
 
+  const handleRoleChange = (e, staff) => {
+    e.stopPropagation();
+    const newRole = e.target.value;
+    if (!newRole || newRole === staff.role) return;
+
+    if (window.confirm(`Change ${staff.firstName} ${staff.lastName}'s role to ${formatRoleDisplay(newRole)}?`)) {
+      dispatch(updateStaffRequest({ staffId: staff._id, role: newRole }));
+    }
+  };
+
   // Filter out self-role (Admin or Manager) and "Head office" branch
   const filteredStaffs = staffs.filter((staff) => {
     const branchName = getBranchName(staff.branchId, branches);
     if (branchName === "Head office") return false;
     if (role === "Admin" && staff.role === "Admin") return false;
-    if (role === "Manager" && staff.role === "Manager") return false;
+    if ((role === "Manager" || role === "SubAdmin") && (staff.role === "Manager" || staff.role === "SubAdmin")) return false;
     return true;
   });
 
@@ -59,6 +79,21 @@ const Tablebody = ({ staffs, branches = [], onToggleStatus }) => {
           <td className="border border-gray-300 p-2">
             {formatRoleDisplay(staff.role)}
           </td>
+          {viewDeactivateAndResetPassword && (
+          <td className="border border-gray-300 p-2" onClick={(e) => e.stopPropagation()}>
+            <select
+              value={staff.role}
+              onChange={(e) => handleRoleChange(e, staff)}
+              className="w-full min-w-[120px] rounded border border-gray-300 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              {roleOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </td>
+          )}
           {viewDeactivateAndResetPassword && (
           <td className="border border-gray-300 p-2">
             {getBranchName(staff.branchId, branches)}

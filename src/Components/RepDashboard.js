@@ -22,7 +22,9 @@ import {
   fetchRepTotalExpenditureRequest,
   fetchReferralRequest,
   fetchRepEcommerceDepositRequest,
-  fetchRepEcommerceDepositReportRequest
+  fetchRepEcommerceDepositReportRequest,
+  fetchRepFWWithdrawalRequest,
+  fetchRepFWWithdrawalReportRequest
 
 } from '../redux/slices/repdashboardSlice'
 import Loader from "./Loader";
@@ -46,6 +48,7 @@ const RepDashboard = () => {
 
     const [dateRanges, setDateRanges] = useState({});
     const [isEcommerceDepositModalOpen, setIsEcommerceDepositModalOpen] = useState(false);
+    const [isFWWithdrawalModalOpen, setIsFWWithdrawalModalOpen] = useState(false);
     const {
       loading,
      repdailyds,
@@ -60,7 +63,9 @@ const RepDashboard = () => {
      reptotalexpenditure,
      referral,
      repEcommerceDeposit,
-     repEcommerceDepositReport
+     repEcommerceDepositReport,
+     repFWWithdrawal,
+     repFWWithdrawalReport
   
     } = useSelector((state)=>state.repdashboard)
   
@@ -76,11 +81,17 @@ const RepDashboard = () => {
       const newrepexpenditure = reptotalexpenditure || 0
       const newreferral = Number(referral) || 0
       const newRepEcommerceDeposit = repEcommerceDeposit || 0
+      const newRepFWWithdrawal = repFWWithdrawal || 0
 
       const openEcommerceDepositModal = () => {
         const details19 = { date: getDateRangeValue(dateRanges, "date18") };
         dispatch(fetchRepEcommerceDepositReportRequest({ details19 }));
         setIsEcommerceDepositModalOpen(true);
+      };
+      const openFWWithdrawalModal = () => {
+        const details21 = { date: getDateRangeValue(dateRanges, "date19") };
+        dispatch(fetchRepFWWithdrawalReportRequest({ details21 }));
+        setIsFWWithdrawalModalOpen(true);
       };
       
 
@@ -105,6 +116,7 @@ const RepDashboard = () => {
         const details17 = { date: getDateRangeValue(dateRanges, "date17"),staffId:staffId };
         const details18 = { date: getDateRangeValue(dateRanges, "date18") };
         const details19 = { date: getDateRangeValue(dateRanges, "date18") };
+        const details20 = { date: getDateRangeValue(dateRanges, "date19") };
     
    
         const data3 = {details3}
@@ -120,6 +132,7 @@ const RepDashboard = () => {
         const data17 = {details17}
         const data18 = {details18}
         const data19 = {details19}
+        const data20 = {details20}
         dispatch(fetchReferralRequest(data17)); 
  
         dispatch(fetchRepDSDailyContributionRequest(data3)); 
@@ -134,6 +147,7 @@ const RepDashboard = () => {
         dispatch(fetchRepTotalExpenditureRequest(data13)); 
         dispatch(fetchRepEcommerceDepositRequest(data18)); 
         dispatch(fetchRepEcommerceDepositReportRequest(data19)); 
+        dispatch(fetchRepFWWithdrawalRequest(data20)); 
  
     }, [
       dispatch,
@@ -234,6 +248,24 @@ const RepDashboard = () => {
       /> */}
       <DashboardDateRangeFields rangeKey="date6" dateRanges={dateRanges} setDateRanges={setDateRanges} />
   
+    </form>
+  </div>
+  )}
+  {loggedInStaffRole === 'Agent' && (
+
+  <div className="relative p-4 rounded-lg shadow-md bg-rose-100">
+    <button
+      type="button"
+      onClick={openFWWithdrawalModal}
+      className="absolute top-2 right-2 text-rose-800 hover:text-rose-900"
+      title="View FW withdrawal details"
+    >
+      <FaEye />
+    </button>
+    <h3 className="text-sm font-semibold mb-2 text-rose-800">FW Withdrawal</h3>
+    <p className="text-sm font-bold text-rose-800">{newRepFWWithdrawal?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <DashboardDateRangeFields rangeKey="date19" dateRanges={dateRanges} setDateRanges={setDateRanges} />
     </form>
   </div>
   )}
@@ -379,6 +411,13 @@ const RepDashboard = () => {
   onClose={() => setIsEcommerceDepositModalOpen(false)}
   title="Rep Ecommerce Deposit Details"
   transactions={repEcommerceDepositReport}
+/>
+<EcommerceDepositDetailsModal
+  isOpen={isFWWithdrawalModalOpen}
+  onClose={() => setIsFWWithdrawalModalOpen(false)}
+  title="Rep FW Withdrawal Details"
+  transactions={repFWWithdrawalReport}
+  showStaff
 />
 </div>
 

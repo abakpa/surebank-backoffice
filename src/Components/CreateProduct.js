@@ -12,6 +12,8 @@ const CreateProduct = () => {
   const isEditMode = Boolean(id);
   const { loading, error, product } = useSelector((state) => state.products);
   const { categories } = useSelector((state) => state.productCategories);
+  const staffRole = localStorage.getItem("staffRole");
+  const canManageEcommerce = ["Admin", "SubAdmin"].includes(staffRole);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -196,6 +198,7 @@ const CreateProduct = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!canManageEcommerce) return;
     const normalizedVariationOptions = variationOptions.map((option) => ({
       name: option.name.trim(),
       values: option.valueText.split(",").map((value) => value.trim()).filter(Boolean),
@@ -261,6 +264,15 @@ const CreateProduct = () => {
 
   const selectedCategory = categories.find((category) => category._id === formData.categoryId);
   const subcategories = Array.isArray(selectedCategory?.subcategories) ? selectedCategory.subcategories : [];
+
+  if (!canManageEcommerce) {
+    return (
+      <div className="p-6 bg-white rounded shadow-md max-w-2xl mx-auto mt-12">
+        <h2 className="text-xl font-bold mb-2">View Only</h2>
+        <p className="text-gray-600">Only admin and sub admin can create or edit ecommerce products.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-white rounded shadow-md max-w-2xl mx-auto mt-12 mb-6">

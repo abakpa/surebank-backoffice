@@ -13,6 +13,8 @@ const PAGE_SIZE = 25;
 const EcommerceOrders = () => {
   const dispatch = useDispatch();
   const { orders, loading } = useSelector((state) => state.ecommerceOrders);
+  const staffRole = localStorage.getItem("staffRole");
+  const canManageEcommerce = ["Admin", "SubAdmin"].includes(staffRole);
   const [filterStatus, setFilterStatus] = useState("");
   const [filterPayment, setFilterPayment] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,6 +29,7 @@ const EcommerceOrders = () => {
   }, [filterPayment, filterStatus, searchTerm]);
 
   const handleStatusChange = (orderId, status) => {
+    if (!canManageEcommerce) return;
     dispatch(updateOrderStatusRequest({ orderId, status }));
   };
 
@@ -82,12 +85,6 @@ const EcommerceOrders = () => {
     <div className="p-4">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6">
         <h1 className="text-2xl font-bold mb-4 md:mb-0">E-Commerce Orders</h1>
-        <Link
-          to="/ecommerce-orders/overdue"
-          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm"
-        >
-          View Overdue Installments
-        </Link>
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -193,22 +190,28 @@ const EcommerceOrders = () => {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <select
-                    value={order.status}
-                    onChange={(e) => handleStatusChange(order._id, e.target.value)}
-                    className={`px-2 py-1 text-xs rounded border ${getStatusColor(
-                      order.status
-                    )}`}
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="paid">Paid</option>
-                    <option value="partially_paid">Partially Paid</option>
-                    <option value="processing">Processing</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
+                  {canManageEcommerce ? (
+                    <select
+                      value={order.status}
+                      onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                      className={`px-2 py-1 text-xs rounded border ${getStatusColor(
+                        order.status
+                      )}`}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="confirmed">Confirmed</option>
+                      <option value="paid">Paid</option>
+                      <option value="partially_paid">Partially Paid</option>
+                      <option value="processing">Processing</option>
+                      <option value="shipped">Shipped</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  ) : (
+                    <span className={`px-2 py-1 text-xs rounded ${getStatusColor(order.status)}`}>
+                      {order.status}
+                    </span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-sm text-gray-500 dark:text-slate-400">
                   {new Date(order.createdAt).toLocaleDateString()}

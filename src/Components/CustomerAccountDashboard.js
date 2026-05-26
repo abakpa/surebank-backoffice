@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
 import { fetchAccountTransactionRequest } from "../redux/slices/createAccountSlice";
 import { createDepositRequest,createCostPriceRequest,createSBDepositRequest,createCustomerFDAccountRequest,createFDWithdrawalRequest,createFDMaturedWithdrawalRequest,editCustomerFDAccountRequest, fetchReversalRequest,fetchDSReversalRequest,fetchFreeToWithdrawReversalRequest } from '../redux/slices/depositSlice';
 import { fetchCustomerAccountRequest,clearDepositError,createMainWithdrawalRequest,createMainDepositRequest,createWalletToSBTransferRequest,createWithdrawalRequest, createSBWithdrawalRequest,createSBSellProductRequest,editCustomerAccountRequest,editCustomerSBAccountRequest,createCustomerAccountRequest,createCustomerSBAccountRequest } from '../redux/slices/depositSlice';
 import {fetchStaffRequest} from '../redux/slices/staffSlice'
 import {updatePhoneRequest} from '../redux/slices/depositSlice'
+import { url } from "../redux/sagas/url";
+import { resolveImageUrl } from "../utils/image";
 import NotificationPopup from './Notification'
 import Loader from "./Loader";
 import Tablebody from "./Table/TransactionTableBody";
@@ -29,7 +32,8 @@ const CustomerAccountDashboard = () => {
   const newPhone = deposit?.customer
     const newSubAccount = deposit?.subAccount
     const staffId = localStorage.getItem("staffId");
-  const canTransferWalletToPackage = ['Admin', 'Manager', 'Agent'].includes(loggedInStaffRole);
+  const canTransferWalletToPackage = ['Admin', 'SubAdmin', 'Manager', 'Agent'].includes(loggedInStaffRole);
+  const canManageCustomerFunds = ['Admin', 'SubAdmin', 'Manager'].includes(loggedInStaffRole);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [getAmountPerDay, setGetAmountPerDay] = useState(null);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -70,6 +74,10 @@ const CustomerAccountDashboard = () => {
   const [phone, setPhone] = useState("");
   const [productName, setProductName] = useState("");
   const [productDescription, setProductDescription] = useState("");
+  const [ecommerceProducts, setEcommerceProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [productsError, setProductsError] = useState("");
+  const [selectedProductId, setSelectedProductId] = useState("");
   const [accountType, setAccountType] = useState("");
     // const [accountManagerId, setAccountManagerId] = useState("");
   
@@ -78,6 +86,7 @@ const CustomerAccountDashboard = () => {
   const [showError, setShowError] = useState(false);
   
   const duration = [6, 9, 12, 18, 24]
+  const formatCurrency = (value) => `₦${Number(value || 0).toLocaleString("en-US")}`;
 
   useEffect(() => {
 if(selectedAccount){
@@ -155,6 +164,39 @@ if(selectedAccount){
       dispatch(clearDepositError()); // Reset error immediately when showError is false
     }
   }, [showError, dispatch]);
+
+  useEffect(() => {
+    if (!showCreateSBAccountModal || ecommerceProducts.length > 0) {
+      return;
+    }
+
+    let isMounted = true;
+    const fetchEcommerceProducts = async () => {
+      setProductsLoading(true);
+      setProductsError("");
+
+      try {
+        const response = await axios.get(`${url}/api/products`);
+        if (isMounted) {
+          setEcommerceProducts(Array.isArray(response.data) ? response.data : []);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setProductsError(error.response?.data?.message || "Unable to load products.");
+        }
+      } finally {
+        if (isMounted) {
+          setProductsLoading(false);
+        }
+      }
+    };
+
+    fetchEcommerceProducts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [showCreateSBAccountModal, ecommerceProducts.length]);
 
 
   // useEffect(() => {
@@ -569,12 +611,30 @@ if(selectedAccount){
       // setAccountManagerId("");
       setShowCreateAccountModal(false);
     };
+
+    const handleSelectSBProduct = (product) => {
+      setSelectedProductId(product._id);
+      setProductName(product.name || "");
+      setProductDescription(product.description || "");
+      setSellingPrice(product.price !== undefined ? String(product.price) : "");
+      setErrors("");
+    };
+
+    const handleCloseCreateSBAccountModal = () => {
+      setShowCreateSBAccountModal(false);
+      setSelectedProductId("");
+      setSellingPrice("");
+      setProductName("");
+      setProductDescription("");
+      setErrors("");
+    };
+
     const handleCreateSBAccount = (e) => {
       e.preventDefault();
       setErrors("");
   
-      if (!deposit.account.accountNumber || !sellingPrice) {
-        setErrors("Both fields are required.");
+      if (!deposit?.account?.accountNumber || !selectedProductId || !productName || !productDescription || !sellingPrice) {
+        setErrors("Please select a product to create the SB package.");
         return;
       }
   
@@ -591,10 +651,12 @@ if(selectedAccount){
             accountNumber:deposit?.account?.accountNumber, 
             sellingPrice: parseFloat(sellingPrice) 
           }
-          const data ={details}
+          const data = { details }
           dispatch(createCustomerSBAccountRequest(data))
       setSellingPrice("");
       setProductName("");
+      setProductDescription("");
+      setSelectedProductId("");
       // setAccountManagerId("");
       setShowCreateSBAccountModal(false);
     };
@@ -677,7 +739,7 @@ if(selectedAccount){
         >
           <i className="fas fa-folder-open text-lg" title="View Transactions"></i>
         </button>
-  {(loggedInStaffRole === 'Admin' || loggedInStaffRole === 'Manager') && (
+  {canManageCustomerFunds && (
   <button
     onClick={() => setShowMainDepositModal(true)}
     className="text-green-600 hover:text-green-800 ml-1"
@@ -685,7 +747,7 @@ if(selectedAccount){
     <i className="fas fa-plus-circle text-lg" title="Deposit"></i>
   </button>
 )}
-  {(loggedInStaffRole === 'Admin' || loggedInStaffRole === 'Manager') && (
+  {canManageCustomerFunds && (
   <button
     onClick={() => setShowMainWithdrawalModal(true)}
     className="text-red-600 hover:text-red-800 ml-1"
@@ -714,7 +776,10 @@ if(selectedAccount){
       DS
     </div>
     )}
-    <div className="cursor-pointer bg-green-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => setShowCreateSBAccountModal(true)}>
+    <div className="cursor-pointer bg-green-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => {
+      setErrors("");
+      setShowCreateSBAccountModal(true);
+    }}>
       SB
     </div>
     {loggedInStaffRole !== 'OnlineRep' && (
@@ -834,7 +899,7 @@ if(selectedAccount){
         >
           <i className="fas fa-plus-circle text-lg" title="Deposit"></i>
         </button>
-        {(loggedInStaffRole === "Admin" || loggedInStaffRole === "Manager") && (
+        {canManageCustomerFunds && (
           <button
             onClick={() => {
               setSelectedAccount(account);
@@ -898,13 +963,13 @@ if(selectedAccount){
           {/* <button onClick={() => { setSelectedAccount(account); setGetAmountPerDay(account.amountPerDay); setShowDepositModal(true); }} className="text-green-600 hover:text-green-800">
             <i className="fas fa-plus-circle text-sm md:text-lg" title="Deposit"></i>
           </button> */}
-           {((loggedInStaffRole === 'Admin') || (loggedInStaffRole==='Manager')) && (
+           {canManageCustomerFunds && (
           <button onClick={() => { setSelectedAccount(account); setShowFDWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
             <i className="fas fa-minus-circle text-lg md:text-lg" title="Withdraw"></i>
           </button>
            )}
           {/* New Button for Withdrawing Matured Fixed Deposit */}
-          {(isMatured && account.totalAmount > 0 && (loggedInStaffRole === 'Admin' || loggedInStaffRole === 'Manager')) && (
+          {(isMatured && account.totalAmount > 0 && canManageCustomerFunds) && (
     <button
       onClick={() => { setSelectedAccount(account); setShowMaturedWithdrawalModal(true); }}
       className="text-yellow-600 hover:text-yellow-800"
@@ -1004,7 +1069,7 @@ if(selectedAccount){
           </button>
         )}
         {/* Sell Icon */}
-        {((loggedInStaffRole === 'Admin') || (loggedInStaffRole==='Manager')) && (
+        {canManageCustomerFunds && (
         <button onClick={() => { setSelectedAccount(account); setShowSellModal(true); }} className="text-yellow-600 hover:text-yellow-800">
           <i className="fas fa-shopping-cart text-lg md:text-lg" title="Sell"></i>
         </button>
@@ -1793,70 +1858,142 @@ if(selectedAccount){
   {/* Create SB Account Package Modal */}
   {showCreateSBAccountModal && (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded shadow-md w-96">
-        <h3 className="text-lg font-bold mb-4">Create Account Package</h3>
-        <form onSubmit={handleCreateSBAccount}>
-        {/* <div className="mb-4">
-         <Select2
-  label="Account Manager"
-  options={staffs.map((staff) => ({ label: `${staff.firstName} ${staff.lastName}`, value: staff._id }))}
-  value={accountManagerId}
-  onChange={(selectedId) => setAccountManagerId(selectedId)}
-/>
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-5 py-3">
+          <h3 className="text-lg font-bold text-gray-900">Create SB Package</h3>
+          <p className="text-xs text-gray-600 mt-1">Select a product to supply the package name, description, and selling price.</p>
+        </div>
 
-        </div> */}
-          <div className="mb-4">
-            <label htmlFor="amountPerDay" className="block text-sm font-medium text-gray-700">
-              Product Name
-            </label>
-            <input
-              id="productName"
-              type="text"
-              value={productName}
-              onChange={(e) => setProductName(e.target.value)}
-              placeholder="Enter Product Name"
-              required
-              className="w-full border border-gray-300 rounded p-2 mt-1"
-            />
+        <form onSubmit={handleCreateSBAccount} className="p-5">
+          {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
+
+          <div className="mb-5">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-xs font-semibold text-gray-800">Products</h4>
+              {productsLoading && <span className="text-xs text-gray-500">Loading products...</span>}
+            </div>
+
+            {productsError && (
+              <div className="border border-red-200 bg-red-50 text-red-700 rounded-md px-4 py-3 text-sm mb-4">
+                {productsError}
+              </div>
+            )}
+
+            {!productsLoading && !productsError && ecommerceProducts.length === 0 && (
+              <div className="border border-gray-200 bg-gray-50 text-gray-600 rounded-md px-4 py-6 text-center text-sm">
+                No ecommerce products are available.
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
+              {ecommerceProducts.map((product) => {
+                const productImage = Array.isArray(product.images) && product.images.length > 0
+                  ? resolveImageUrl(product.images[0])
+                  : "";
+                const isSelected = selectedProductId === product._id;
+
+                return (
+                  <button
+                    type="button"
+                    key={product._id}
+                    onClick={() => handleSelectSBProduct(product)}
+                    className={`text-left border rounded-md overflow-hidden transition shadow-sm hover:shadow-md ${
+                      isSelected ? "border-green-600 ring-2 ring-green-200" : "border-gray-200"
+                    }`}
+                  >
+                    <div className="h-28 bg-gray-100">
+                      {productImage ? (
+                        <img
+                          src={productImage}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                          No image
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <h5 className="font-semibold text-gray-900 text-xs leading-snug line-clamp-1">{product.name}</h5>
+                        {isSelected && (
+                          <span className="shrink-0 text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
+                            Selected
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-gray-600 mt-0.5 line-clamp-1">{product.description}</p>
+                      <p className="text-xs font-bold text-green-700 mt-1">{formatCurrency(product.price)}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <div className="mb-4">
-            <label htmlFor="amountPerDay" className="block text-sm font-medium text-gray-700">
-              Product Description
-            </label>
-            <input
-              id="productDescription"
-              type="text"
-              value={productDescription}
-              onChange={(e) => setProductDescription(e.target.value)}
-              placeholder="Enter Product Description"
-              required
-              className="w-full border border-gray-300 rounded p-2 mt-1"
-            />
+
+          <div className="border border-gray-200 rounded-md p-3 mb-5 bg-gray-50">
+            <h4 className="text-xs font-semibold text-gray-800 mb-2">Selected Product Details</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="productName" className="block text-xs font-medium text-gray-700">
+                  Product Name
+                </label>
+                <input
+                  id="productName"
+                  type="text"
+                  value={productName}
+                  onChange={(e) => setProductName(e.target.value)}
+                  placeholder="Select a product"
+                  required
+                  className="w-full border border-gray-300 rounded p-2 mt-1 bg-white text-sm"
+                />
+              </div>
+              <div>
+                <label htmlFor="sellingPrice" className="block text-xs font-medium text-gray-700">
+                  Selling Price
+                </label>
+                <input
+                  id="sellingPrice"
+                  type="number"
+                  value={sellingPrice}
+                  onChange={(e) => setSellingPrice(e.target.value)}
+                  placeholder="Select a product"
+                  required
+                  className="w-full border border-gray-300 rounded p-2 mt-1 bg-white text-sm"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label htmlFor="productDescription" className="block text-xs font-medium text-gray-700">
+                  Product Description
+                </label>
+                <textarea
+                  id="productDescription"
+                  value={productDescription}
+                  onChange={(e) => setProductDescription(e.target.value)}
+                  placeholder="Select a product"
+                  required
+                  rows="2"
+                  className="w-full border border-gray-300 rounded p-2 mt-1 bg-white text-sm"
+                />
+              </div>
+            </div>
           </div>
-          <div className="mb-4">
-            <label htmlFor="amountPerDay" className="block text-sm font-medium text-gray-700">
-              Seling Price
-            </label>
-            <input
-              id="sellingPrice"
-              type="number"
-              value={sellingPrice}
-              onChange={(e) => setSellingPrice(e.target.value)}
-              placeholder="Enter amount"
-              required
-              className="w-full border border-gray-300 rounded p-2 mt-1"
-            />
-          </div>
-          <div className="flex justify-end space-x-4">
+
+          <div className="flex justify-end space-x-3">
             <button
-              onClick={() => setShowCreateSBAccountModal(false)}
-              className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
+              type="button"
+              onClick={handleCloseCreateSBAccountModal}
+              className="bg-gray-200 text-gray-800 px-3 py-2 rounded text-sm"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded"
+              disabled={!selectedProductId}
+              className={`px-3 py-2 rounded text-white text-sm ${
+                selectedProductId ? "bg-green-600 hover:bg-green-700" : "bg-gray-400 cursor-not-allowed"
+              }`}
             >
               Create Account
             </button>

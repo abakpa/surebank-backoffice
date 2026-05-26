@@ -5,7 +5,7 @@ const Tablebody = ({
   loading 
 }) => {
   const role = localStorage.getItem("staffRole");
-  const isManagerOrAgent = role === "Manager" || role === "Agent";
+  const isManagerOrAgent = role === "Manager" || role === "SubAdmin" || role === "Agent";
   const isRep = role === "Agent";
 
   return (
