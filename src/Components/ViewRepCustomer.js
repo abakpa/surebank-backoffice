@@ -71,10 +71,10 @@ const Viewcustomer = () => {
       setSelectedCustomer(null);
     }
   };
-  const canTransfer = role === "Manager" || role === "SubAdmin" || role === "Admin";
+  const canTransfer = role === "Manager" || role === "Admin";
 
   if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
-  const staffList = role === "Manager" || role === "SubAdmin" ? branchstaffs : staffs;
+  const staffList = role === "Manager" ? branchstaffs : staffs;
 
   return (
     <div className="flex flex-col p-4 bg-gray-100 min-h-screen w-full mt-10">

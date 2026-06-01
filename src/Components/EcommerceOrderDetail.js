@@ -19,7 +19,7 @@ const EcommerceOrderDetail = () => {
     (state) => state.ecommerceOrders
   );
   const staffRole = localStorage.getItem("staffRole");
-  const canManageEcommerce = ["Admin", "SubAdmin"].includes(staffRole);
+  const canManageEcommerce = ["Admin"].includes(staffRole);
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState("");

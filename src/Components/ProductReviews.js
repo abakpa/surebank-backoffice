@@ -7,7 +7,7 @@ const ProductReviews = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const staffRole = localStorage.getItem("staffRole");
-  const canManageEcommerce = ["Admin", "SubAdmin"].includes(staffRole);
+  const canManageEcommerce = ["Admin"].includes(staffRole);
 
   const fetchReviews = async () => {
     setLoading(true);

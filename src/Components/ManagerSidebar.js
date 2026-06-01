@@ -4,11 +4,14 @@ import { useSelector, useDispatch } from "react-redux";
 import { logoutRequest } from "../redux/slices/loginSlice";
 import { useNavigate } from "react-router-dom";
 
-const ManagerSidebar = ({ isOpen, toggleSidebar }) => {
+const ManagerSidebar = ({ isOpen, toggleSidebar, role }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isLoggedIn = useSelector((state) => state.login.token);
   const token = isLoggedIn || localStorage.getItem("authToken");
+  const normalizedRole = role === "Product Manager" || role === "ProductManager" || role === "SubAdmin"
+    ? "ProductManager"
+    : role;
   // const loggedInStaffRole = useSelector((state) => state.login.staff?.role) || localStorage.getItem("staffRole");
 
   const handleLogout = () => {
@@ -35,6 +38,24 @@ const ManagerSidebar = ({ isOpen, toggleSidebar }) => {
       </button>
       <h2 className="text-xl font-bold mb-6">Sidebar</h2>
       <ul>
+        {normalizedRole === "ProductManager" ? (
+          <>
+            <li className="theme-sidebar-section mt-4 mb-2 text-xs uppercase tracking-wider">
+              Product Management
+            </li>
+            <Link to="/products" className="text-xs">
+              <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+                Products
+              </li>
+            </Link>
+            <Link to="/categories" className="text-xs">
+              <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+                Categories
+              </li>
+            </Link>
+          </>
+        ) : (
+          <>
         <Link to="/managerdashboard">
         <li
           className="hover:bg-gray-700 p-2 rounded cursor-pointer text-xs"
@@ -101,6 +122,8 @@ const ManagerSidebar = ({ isOpen, toggleSidebar }) => {
             E-Commerce Orders
           </li>
         </Link>
+          </>
+        )}
 
         {/* Login/Logout Buttons (only on small screens) */}
         <div className="block lg:hidden">

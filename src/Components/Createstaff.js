@@ -20,7 +20,7 @@ const CreateStaff = () => {
   const loggedInStaffRole = isLoggedIn || localStorage.getItem("staffRole");
   const isLoggedInBranch = useSelector((state) => state.login?.staff?.branch);
   const loggedInStaffBranch = isLoggedInBranch || localStorage.getItem("staffBranch");
-  const isBranchManagerRole = ["Manager", "SubAdmin"].includes(loggedInStaffRole);
+  const isBranchManagerRole = loggedInStaffRole === "Manager";
 
   const loggedInBranchName =
     branches.find((branch) => branch._id === loggedInStaffBranch)?.name || "";
@@ -40,7 +40,7 @@ const CreateStaff = () => {
   // Role options
   const allRoles = [
     { label: "Manager", value: "Manager" },
-    { label: "Sub Admin", value: "SubAdmin" },
+    { label: "Product Manager", value: "ProductManager" },
     { label: "Rep", value: "Agent" },
     { label: "Admin", value: "Admin" },
     { label: "Online Rep", value: "OnlineRep" },

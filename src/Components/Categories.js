@@ -9,7 +9,7 @@ const Categories = () => {
   const dispatch = useDispatch();
   const { categories, loading } = useSelector((state) => state.productCategories);
   const staffRole = localStorage.getItem("staffRole");
-  const canManageEcommerce = ["Admin", "SubAdmin"].includes(staffRole);
+  const canManageEcommerce = ["Admin", "ProductManager", "Product Manager", "SubAdmin"].includes(staffRole);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {

@@ -32,7 +32,7 @@ const Tablebody = ({ staffs = [], branches = [], count = {}, onToggleStatus }) =
     const branchName = getBranchName(staff.branchId, branches);
     if (branchName === "Head office") return false;
     if (role === "Admin" && staff.role === "Admin") return false;
-    if ((role === "Manager" || role === "SubAdmin") && (staff.role === "Manager" || staff.role === "SubAdmin")) return false;
+    if (role === "Manager" && staff.role === "Manager") return false;
     return true;
   });
 

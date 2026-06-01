@@ -11,7 +11,7 @@ const Products = () => {
   const { products, loading } = useSelector((state) => state.products);
   const { categories } = useSelector((state) => state.productCategories);
   const staffRole = localStorage.getItem("staffRole");
-  const canManageEcommerce = ["Admin", "SubAdmin"].includes(staffRole);
+  const canManageEcommerce = ["Admin", "ProductManager", "Product Manager", "SubAdmin"].includes(staffRole);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [filterSubCategory, setFilterSubCategory] = useState("");

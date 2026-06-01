@@ -9,17 +9,26 @@ import {
     logoutFailure
 } from '../slices/loginSlice';
 import { url } from './url';
+const normalizeStaffRole = (role) => {
+    if (role === 'Product Manager' || role === 'ProductManager' || role === 'SubAdmin') {
+        return 'ProductManager';
+    }
+
+    return role;
+};
+
 function* loginSaga(action){
     const {credentials,navigate} = action.payload
     try {
         const response = yield call(axios.post,`${url}/api/login/staff`, credentials);
         const { token,staff } = response.data;
+        const normalizedStaff = { ...staff, role: normalizeStaffRole(staff.role) };
         localStorage.setItem('authToken', token);
-        localStorage.setItem('staffId', staff.id);
-        localStorage.setItem('staffPhone', staff.phone);
-        localStorage.setItem('staffRole', staff.role);
-        localStorage.setItem('staffBranch', staff.branch);
-        yield put(loginSuccess(response.data))
+        localStorage.setItem('staffId', normalizedStaff.id);
+        localStorage.setItem('staffPhone', normalizedStaff.phone);
+        localStorage.setItem('staffRole', normalizedStaff.role);
+        localStorage.setItem('staffBranch', normalizedStaff.branch);
+        yield put(loginSuccess({ ...response.data, staff: normalizedStaff }))
         navigate('/')
     } catch (error) {
         yield put(loginFailure(error.response.data.message))

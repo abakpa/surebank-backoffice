@@ -72,10 +72,18 @@ const getInitialTheme = () => {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 };
 
+const normalizeStaffRole = (role) => {
+  if (role === "Product Manager" || role === "ProductManager" || role === "SubAdmin") {
+    return "ProductManager";
+  }
+
+  return role;
+};
+
 function App() {
   const isLoggedIn = useSelector((state) => state.login.token);
   const token = isLoggedIn || localStorage.getItem("authToken");
- const loggedInStaffRole = useSelector((state) => state.login.staff?.role) || localStorage.getItem("staffRole");
+ const loggedInStaffRole = normalizeStaffRole(useSelector((state) => state.login.staff?.role) || localStorage.getItem("staffRole"));
   const [theme, setTheme] = React.useState(getInitialTheme);
 
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false); // Track sidebar state
@@ -112,7 +120,7 @@ function App() {
     <RepSidebar isOpen={isSidebarOpen} role={loggedInStaffRole} toggleSidebar={toggleSidebar} />
   ) :loggedInStaffRole === 'OnlineRep' ? (
     <RepSidebar isOpen={isSidebarOpen} role={loggedInStaffRole} toggleSidebar={toggleSidebar} />
-  ):( <ManagerSidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />)
+  ):( <ManagerSidebar isOpen={isSidebarOpen} role={loggedInStaffRole} toggleSidebar={toggleSidebar} />)
 )}
 
         {/* Overlay for small screens */}
@@ -139,6 +147,18 @@ function App() {
             <Routes>
               {/* Protected Routes */}
               {token ? (
+                loggedInStaffRole === "ProductManager" ? (
+                  <>
+                    <Route path="/products" element={<Products />} />
+                    <Route path="/createproduct" element={<CreateProduct />} />
+                    <Route path="/editproduct/:id" element={<CreateProduct />} />
+                    <Route path="/categories" element={<Categories />} />
+                    <Route path="/createcategory" element={<CreateCategory />} />
+                    <Route path="/editcategory/:id" element={<CreateCategory />} />
+                    <Route path="/" element={<Navigate to="/products" />} />
+                    <Route path="*" element={<Navigate to="/products" />} />
+                  </>
+                ) : (
                 <>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/branches" element={<Viewbranches />} />
@@ -198,6 +218,7 @@ function App() {
                   <Route path="/product-reviews" element={<ProductReviews />} />
                   <Route path="/ecommerce-income" element={<EcommerceIncomeReport />} />
                 </>
+                )
               ) : (
                 // Redirect unauthenticated users to Login
                 <Route path="*" element={<Navigate to="/login" />} />

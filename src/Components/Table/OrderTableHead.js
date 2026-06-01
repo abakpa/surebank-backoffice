@@ -12,7 +12,7 @@ const Tablehead = () => {
     <thead className="text-sm">
       <tr className="bg-gray-100">
         <th className="border border-gray-300 p-2">Name</th>
-        {role !== "Manager" && role !== "SubAdmin" && (
+        {role !== "Manager" && (
           <th className="border border-gray-300 p-2">Branch</th>
         )}
         <th className="border border-gray-300 p-2">Product</th>

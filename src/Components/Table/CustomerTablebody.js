@@ -16,7 +16,7 @@ const Tablebody = ({ customers = [], branches = [] }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const role = localStorage.getItem("staffRole");
-  const isManagerOrAgent = role === "Manager" || role === "SubAdmin" || role === "Agent";
+  const isManagerOrAgent = role === "Manager" || role === "Agent";
   const branchLookup = Array.isArray(branches)
     ? branches.reduce((acc, branch) => {
         acc[branch._id] = branch.name;

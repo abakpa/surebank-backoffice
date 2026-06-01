@@ -30,7 +30,7 @@ const Tablebody = ({ items = [] }) => {
         onClick={() => handleRowClick(customer.customerId?._id)}
       >
         <td className="border border-gray-300 p-2">{customer.customerId?.firstName} {customer.customerId?.lastName}</td>
-        {role !== "Manager" && role !== "SubAdmin" && (
+        {role !== "Manager" && (
           <td className="border border-gray-300 p-2">{customer.branchId?.name || 'N/A'}</td>
         )}
         <td className="border border-gray-300 p-2">{customer.productName}</td>
@@ -42,7 +42,7 @@ const Tablebody = ({ items = [] }) => {
     ))}
     {!hasItems && (
       <tr>
-        <td colSpan={role !== "Manager" && role !== "SubAdmin" ? "7" : "6"} className="text-center p-4">
+        <td colSpan={role !== "Manager" ? "7" : "6"} className="text-center p-4">
           No order found.
         </td>
       </tr>

@@ -20,7 +20,7 @@ const CreateCustomer = () => {
   const loggedInStaffName = useSelector((state) => state.login.staff?.name);
 
   const staffRole = loggedInRole || localStorage.getItem("staffRole");
-  const isBranchManagerRole = ["Manager", "SubAdmin"].includes(staffRole);
+  const isBranchManagerRole = ["Manager"].includes(staffRole);
   const loggedInStaff = localStorage.getItem("staffId")
   const staffBranchId = loggedInBranchId || localStorage.getItem("staffBranch");
   const branchName = branches.find((branch) => branch._id === staffBranchId)?.name || "";
