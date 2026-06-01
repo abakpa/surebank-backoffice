@@ -25,7 +25,7 @@ const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const role = localStorage.getItem("staffRole");
-  const isManagerOrAgent = role === "Manager" || role === "SubAdmin" || role === "Agent";
+  const isManagerOrAgent = role === "Manager" || role === "Agent";
 
   const [showModal, setShowModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -58,7 +58,7 @@ const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) 
     }
   };
 
-  const canTransfer = role === "Manager" || role === "SubAdmin" || role === "Admin";
+  const canTransfer = role === "Manager" || role === "Admin";
 
   // Sort customers alphabetically
   const sortedCustomers = [...customers].sort((a, b) => {

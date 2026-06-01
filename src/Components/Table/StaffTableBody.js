@@ -11,14 +11,14 @@ const getBranchName = (branchId, branches = []) => {
 // Helper to format role display
 const formatRoleDisplay = (role) => {
   if (role === "Agent") return "Rep";
-  if (role === "SubAdmin") return "Sub Admin";
+  if (role === "ProductManager") return "Product Manager";
   if (role === "OnlineRep") return "Online Rep";
   return role;
 };
 
 const roleOptions = [
   { label: "Manager", value: "Manager" },
-  { label: "Sub Admin", value: "SubAdmin" },
+  { label: "Product Manager", value: "ProductManager" },
   { label: "Rep", value: "Agent" },
   { label: "Online Rep", value: "OnlineRep" },
 ];
@@ -61,7 +61,7 @@ const Tablebody = ({ staffs, branches = [], onToggleStatus }) => {
     const branchName = getBranchName(staff.branchId, branches);
     if (branchName === "Head office") return false;
     if (role === "Admin" && staff.role === "Admin") return false;
-    if ((role === "Manager" || role === "SubAdmin") && (staff.role === "Manager" || staff.role === "SubAdmin")) return false;
+    if ((role === "Manager" || role === "ProductManager") && (staff.role === "Manager" || staff.role === "ProductManager")) return false;
     return true;
   });
 

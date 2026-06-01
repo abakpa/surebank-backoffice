@@ -288,7 +288,7 @@ function* createCustomerSaga(action) {
       // Navigate based on role
       if (role === 'Agent' || role === 'OnlineRep') {
         navigate('/repcustomers');
-      } else if (role === 'Manager' || role === 'SubAdmin') {
+      } else if (role === 'Manager') {
         navigate('/branchcustomers');
       } else {
         navigate('/customers');

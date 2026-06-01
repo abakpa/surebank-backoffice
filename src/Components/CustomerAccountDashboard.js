@@ -32,8 +32,8 @@ const CustomerAccountDashboard = () => {
   const newPhone = deposit?.customer
     const newSubAccount = deposit?.subAccount
     const staffId = localStorage.getItem("staffId");
-  const canTransferWalletToPackage = ['Admin', 'SubAdmin', 'Manager', 'Agent'].includes(loggedInStaffRole);
-  const canManageCustomerFunds = ['Admin', 'SubAdmin', 'Manager'].includes(loggedInStaffRole);
+  const canTransferWalletToPackage = ['Admin', 'Manager', 'Agent'].includes(loggedInStaffRole);
+  const canManageCustomerFunds = ['Admin', 'Manager'].includes(loggedInStaffRole);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [getAmountPerDay, setGetAmountPerDay] = useState(null);
   const [showDepositModal, setShowDepositModal] = useState(false);

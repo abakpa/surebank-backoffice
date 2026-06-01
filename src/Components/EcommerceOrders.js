@@ -14,7 +14,7 @@ const EcommerceOrders = () => {
   const dispatch = useDispatch();
   const { orders, loading } = useSelector((state) => state.ecommerceOrders);
   const staffRole = localStorage.getItem("staffRole");
-  const canManageEcommerce = ["Admin", "SubAdmin"].includes(staffRole);
+  const canManageEcommerce = ["Admin"].includes(staffRole);
   const [filterStatus, setFilterStatus] = useState("");
   const [filterPayment, setFilterPayment] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
