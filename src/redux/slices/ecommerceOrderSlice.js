@@ -84,6 +84,28 @@ const ecommerceOrderSlice = createSlice({
       state.loading = false;
       state.success = false;
     },
+    updateOrderItemFulfillmentRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+      state.success = false;
+    },
+    updateOrderItemFulfillmentSuccess: (state, action) => {
+      const index = state.orders.findIndex(o => o._id === action.payload.order._id);
+      if (index !== -1) {
+        state.orders[index] = action.payload.order;
+      }
+      if (state.order && state.order._id === action.payload.order._id) {
+        state.order = action.payload.order;
+      }
+      state.loading = false;
+      state.success = true;
+      state.message = action.payload.message;
+    },
+    updateOrderItemFulfillmentFailure: (state, action) => {
+      state.error = action.payload;
+      state.loading = false;
+      state.success = false;
+    },
     recordPaymentRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -174,6 +196,9 @@ export const {
   updateOrderStatusRequest,
   updateOrderStatusSuccess,
   updateOrderStatusFailure,
+  updateOrderItemFulfillmentRequest,
+  updateOrderItemFulfillmentSuccess,
+  updateOrderItemFulfillmentFailure,
   recordPaymentRequest,
   recordPaymentSuccess,
   recordPaymentFailure,

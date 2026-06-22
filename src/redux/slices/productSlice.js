@@ -3,6 +3,10 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   products: [],
   product: null,
+  productDemand: {},
+  productDemandDetail: null,
+  productDemandLoading: false,
+  productDemandError: null,
   loading: false,
   error: null,
   success: false,
@@ -72,6 +76,26 @@ const productSlice = createSlice({
       state.loading = false;
       state.success = false;
     },
+    updateProductStockRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+      state.success = false;
+    },
+    updateProductStockSuccess: (state, action) => {
+      const index = state.products.findIndex(p => p._id === action.payload.product._id);
+      if (index !== -1) {
+        state.products[index] = action.payload.product;
+      }
+      state.product = action.payload.product;
+      state.loading = false;
+      state.success = true;
+      state.message = action.payload.message;
+    },
+    updateProductStockFailure: (state, action) => {
+      state.error = action.payload;
+      state.loading = false;
+      state.success = false;
+    },
     deleteProductRequest: (state) => {
       state.loading = true;
       state.error = null;
@@ -84,6 +108,38 @@ const productSlice = createSlice({
     deleteProductFailure: (state, action) => {
       state.error = action.payload;
       state.loading = false;
+    },
+    fetchProductDemandRequest: (state) => {
+      state.productDemandLoading = true;
+      state.productDemandError = null;
+    },
+    fetchProductDemandSuccess: (state, action) => {
+      state.productDemand = (action.payload || []).reduce((acc, item) => {
+        acc[item.productId] = item;
+        return acc;
+      }, {});
+      state.productDemandLoading = false;
+    },
+    fetchProductDemandFailure: (state, action) => {
+      state.productDemandError = action.payload;
+      state.productDemandLoading = false;
+    },
+    fetchProductDemandDetailRequest: (state) => {
+      state.productDemandLoading = true;
+      state.productDemandError = null;
+      state.productDemandDetail = null;
+    },
+    fetchProductDemandDetailSuccess: (state, action) => {
+      state.productDemandDetail = action.payload;
+      state.productDemandLoading = false;
+    },
+    fetchProductDemandDetailFailure: (state, action) => {
+      state.productDemandError = action.payload;
+      state.productDemandLoading = false;
+    },
+    clearProductDemandDetail: (state) => {
+      state.productDemandDetail = null;
+      state.productDemandError = null;
     },
     clearProductState: (state) => {
       state.product = null;
@@ -107,9 +163,19 @@ export const {
   updateProductRequest,
   updateProductSuccess,
   updateProductFailure,
+  updateProductStockRequest,
+  updateProductStockSuccess,
+  updateProductStockFailure,
   deleteProductRequest,
   deleteProductSuccess,
   deleteProductFailure,
+  fetchProductDemandRequest,
+  fetchProductDemandSuccess,
+  fetchProductDemandFailure,
+  fetchProductDemandDetailRequest,
+  fetchProductDemandDetailSuccess,
+  fetchProductDemandDetailFailure,
+  clearProductDemandDetail,
   clearProductState
 } = productSlice.actions;
 

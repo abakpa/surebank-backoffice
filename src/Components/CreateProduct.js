@@ -22,7 +22,6 @@ const CreateProduct = () => {
     subCategoryId: "",
     costPrice: "",
     price: "",
-    stock: "",
     sku: "",
     hasVariations: false,
     allowInstallment: true,
@@ -61,7 +60,6 @@ const CreateProduct = () => {
       subCategoryId: product.subCategoryId || "",
       costPrice: product.costPrice ?? "",
       price: product.price ?? "",
-      stock: product.stock ?? "",
       sku: product.sku || "",
       hasVariations: product.hasVariations === true,
       allowInstallment: product.allowInstallment !== false,
@@ -85,7 +83,6 @@ const CreateProduct = () => {
           optionValues: variation.optionValues || {},
           costPrice: variation.costPrice ?? "",
           price: variation.price ?? "",
-          stock: variation.stock ?? "",
           sku: variation.sku || "",
           image: variation.image || "",
           imageFile: null,
@@ -144,7 +141,6 @@ const CreateProduct = () => {
         optionValues,
         costPrice: "",
         price: "",
-        stock: "",
         sku: "",
         image: "",
         imageFile: null,
@@ -213,7 +209,6 @@ const CreateProduct = () => {
     data.append("costPrice", formData.costPrice || 0);
     data.append("price", formData.price);
     data.append("profit", calculatedProfit);
-    data.append("stock", formData.stock);
     if (formData.sku) data.append("sku", formData.sku);
     data.append("hasVariations", formData.hasVariations);
     data.append(
@@ -230,11 +225,11 @@ const CreateProduct = () => {
           }, {});
 
           return {
+            _id: variation.id,
             name: variation.name.trim() || Object.values(optionValues).filter(Boolean).join(" / "),
             optionValues,
             costPrice: variation.costPrice || 0,
             price: variation.price || 0,
-            stock: variation.stock || 0,
             sku: variation.sku,
             image: variation.image,
             isActive: variation.isActive,
@@ -390,28 +385,12 @@ const CreateProduct = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Stock *
-            </label>
-            <input
-              type="number"
-              name="stock"
-              value={formData.stock}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
-              required={!formData.hasVariations}
-              min="0"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Profit per Unit (₦)
-            </label>
-            <div className={`w-full px-4 py-2 border rounded bg-gray-100 font-bold ${calculatedProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              ₦{calculatedProfit.toLocaleString('en-US')}
-            </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Profit per Unit (₦)
+          </label>
+          <div className={`w-full px-4 py-2 border rounded bg-gray-100 font-bold ${calculatedProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            ₦{calculatedProfit.toLocaleString('en-US')}
           </div>
         </div>
 
@@ -551,15 +530,6 @@ const CreateProduct = () => {
                     value={variation.price}
                     onChange={(event) => handleVariationChange(variationIndex, "price", event.target.value)}
                     placeholder="Selling price"
-                    className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                    min="0"
-                    required={formData.hasVariations}
-                  />
-                  <input
-                    type="number"
-                    value={variation.stock}
-                    onChange={(event) => handleVariationChange(variationIndex, "stock", event.target.value)}
-                    placeholder="Stock"
                     className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
                     min="0"
                     required={formData.hasVariations}

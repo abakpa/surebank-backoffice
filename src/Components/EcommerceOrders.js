@@ -14,7 +14,9 @@ const EcommerceOrders = () => {
   const dispatch = useDispatch();
   const { orders, loading } = useSelector((state) => state.ecommerceOrders);
   const staffRole = localStorage.getItem("staffRole");
-  const canManageEcommerce = ["Admin"].includes(staffRole);
+  const isAdmin = staffRole === "Admin";
+  const isManager = staffRole === "Manager";
+  const canUpdateOrderStatus = isAdmin || isManager;
   const [filterStatus, setFilterStatus] = useState("");
   const [filterPayment, setFilterPayment] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,8 +31,25 @@ const EcommerceOrders = () => {
   }, [filterPayment, filterStatus, searchTerm]);
 
   const handleStatusChange = (orderId, status) => {
-    if (!canManageEcommerce) return;
+    if (!canUpdateOrderStatus) return;
+    if (isManager && status !== "delivered") return;
     dispatch(updateOrderStatusRequest({ orderId, status }));
+  };
+
+  const getStatusOptions = () => {
+    if (isManager) {
+      return [{ value: "delivered", label: "Delivered" }];
+    }
+
+    return [
+      { value: "pending", label: "Pending" },
+      { value: "confirmed", label: "Confirmed" },
+      { value: "processing", label: "Processing" },
+      { value: "shipped", label: "Shipped" },
+      { value: "delivered", label: "Delivered" },
+      { value: "completed", label: "Completed" },
+      ...(isAdmin ? [{ value: "cancelled", label: "Cancelled" }] : [])
+    ];
   };
 
   const getStatusColor = (status) => {
@@ -42,6 +61,7 @@ const EcommerceOrders = () => {
       processing: "bg-purple-100 text-purple-800",
       shipped: "bg-indigo-100 text-indigo-800",
       delivered: "bg-green-200 text-green-900",
+      completed: "bg-emerald-200 text-emerald-900",
       cancelled: "bg-red-100 text-red-800",
     };
     return colors[status] || "bg-gray-100 text-gray-800";
@@ -108,6 +128,7 @@ const EcommerceOrders = () => {
           <option value="processing">Processing</option>
           <option value="shipped">Shipped</option>
           <option value="delivered">Delivered</option>
+          <option value="completed">Completed</option>
           <option value="cancelled">Cancelled</option>
         </select>
         <select
@@ -190,7 +211,7 @@ const EcommerceOrders = () => {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  {canManageEcommerce ? (
+                  {canUpdateOrderStatus ? (
                     <select
                       value={order.status}
                       onChange={(e) => handleStatusChange(order._id, e.target.value)}
@@ -198,14 +219,12 @@ const EcommerceOrders = () => {
                         order.status
                       )}`}
                     >
-                      <option value="pending">Pending</option>
-                      <option value="confirmed">Confirmed</option>
-                      <option value="paid">Paid</option>
-                      <option value="partially_paid">Partially Paid</option>
-                      <option value="processing">Processing</option>
-                      <option value="shipped">Shipped</option>
-                      <option value="delivered">Delivered</option>
-                      <option value="cancelled">Cancelled</option>
+                      <option value={order.status}>{order.status}</option>
+                      {getStatusOptions()
+                        .filter((option) => option.value !== order.status)
+                        .map((option) => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
                     </select>
                   ) : (
                     <span className={`px-2 py-1 text-xs rounded ${getStatusColor(order.status)}`}>

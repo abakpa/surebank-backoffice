@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   fetchOrderByIdRequest,
   updateOrderStatusRequest,
+  updateOrderItemFulfillmentRequest,
   recordPaymentRequest,
   cancelOrderRequest,
   creditSBAccountRequest,
@@ -19,7 +20,10 @@ const EcommerceOrderDetail = () => {
     (state) => state.ecommerceOrders
   );
   const staffRole = localStorage.getItem("staffRole");
-  const canManageEcommerce = ["Admin"].includes(staffRole);
+  const isAdmin = staffRole === "Admin";
+  const isManager = staffRole === "Manager";
+  const canManageEcommerce = ["Admin", "Manager", "Agent", "OnlineRep"].includes(staffRole);
+  const canUpdateOrderStatus = isAdmin || isManager;
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState("");
@@ -46,8 +50,30 @@ const EcommerceOrderDetail = () => {
   }, [success, dispatch]);
 
   const handleStatusChange = (status) => {
-    if (!canManageEcommerce) return;
+    if (!canUpdateOrderStatus) return;
+    if (isManager && status !== "delivered") return;
     dispatch(updateOrderStatusRequest({ orderId: id, status }));
+  };
+
+  const handleItemFulfillment = (itemId, status = "delivered") => {
+    if (!canUpdateOrderStatus) return;
+    dispatch(updateOrderItemFulfillmentRequest({ orderId: id, itemId, status }));
+  };
+
+  const getStatusOptions = () => {
+    if (isManager) {
+      return [{ value: "delivered", label: "Delivered" }];
+    }
+
+    return [
+      { value: "pending", label: "Pending" },
+      { value: "confirmed", label: "Confirmed" },
+      { value: "processing", label: "Processing" },
+      { value: "shipped", label: "Shipped" },
+      { value: "delivered", label: "Delivered" },
+      { value: "completed", label: "Completed" },
+      ...(isAdmin ? [{ value: "cancelled", label: "Cancelled" }] : [])
+    ];
   };
 
   const handleRecordPayment = () => {
@@ -71,7 +97,7 @@ const EcommerceOrderDetail = () => {
   };
 
   const handleCancelOrder = () => {
-    if (!canManageEcommerce) return;
+    if (!isAdmin) return;
     if (!cancelReason) {
       alert("Please provide a cancellation reason");
       return;
@@ -108,6 +134,7 @@ const EcommerceOrderDetail = () => {
       processing: "bg-purple-100 text-purple-800",
       shipped: "bg-indigo-100 text-indigo-800",
       delivered: "bg-green-200 text-green-900",
+      completed: "bg-emerald-200 text-emerald-900",
       cancelled: "bg-red-100 text-red-800",
     };
     return colors[status] || "bg-gray-100 text-gray-800";
@@ -119,6 +146,18 @@ const EcommerceOrderDetail = () => {
       .filter(([, value]) => value)
       .map(([name, value]) => `${name}: ${value}`)
       .join(" • ");
+  };
+
+  const getItemStatusColor = (status) => {
+    const colors = {
+      unpaid: "bg-red-100 text-red-800",
+      partial: "bg-orange-100 text-orange-800",
+      paid: "bg-green-100 text-green-800",
+      pending: "bg-yellow-100 text-yellow-800",
+      delivered: "bg-green-200 text-green-900",
+      completed: "bg-emerald-200 text-emerald-900",
+    };
+    return colors[status] || "bg-gray-100 text-gray-800";
   };
 
   if (loading) return <Loader />;
@@ -211,6 +250,11 @@ const EcommerceOrderDetail = () => {
               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Price</th>
               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Qty</th>
               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Subtotal</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Paid</th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Fulfillment</th>
+              {canUpdateOrderStatus && (
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Action</th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -229,6 +273,32 @@ const EcommerceOrderDetail = () => {
                 <td className="px-4 py-3 text-sm">₦{item.price?.toLocaleString()}</td>
                 <td className="px-4 py-3 text-sm">{item.quantity}</td>
                 <td className="px-4 py-3 text-sm font-medium">₦{item.subtotal?.toLocaleString()}</td>
+                <td className="px-4 py-3 text-sm">
+                  <div className="font-medium">₦{Number(item.paidAmount || 0).toLocaleString()}</div>
+                  <span className={`mt-1 inline-flex rounded px-2 py-1 text-xs ${getItemStatusColor(item.paymentStatus)}`}>
+                    {item.paymentStatus || "unpaid"}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-sm">
+                  <span className={`inline-flex rounded px-2 py-1 text-xs ${getItemStatusColor(item.fulfillmentStatus || "pending")}`}>
+                    {item.fulfillmentStatus || "pending"}
+                  </span>
+                </td>
+                {canUpdateOrderStatus && (
+                  <td className="px-4 py-3 text-sm">
+                    {!["delivered", "completed"].includes(item.fulfillmentStatus || "pending") ? (
+                      <button
+                        type="button"
+                        onClick={() => handleItemFulfillment(item._id, "delivered")}
+                        className="rounded bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700"
+                      >
+                        Mark Delivered
+                      </button>
+                    ) : (
+                      <span className="text-xs text-gray-400">No action</span>
+                    )}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -236,6 +306,9 @@ const EcommerceOrderDetail = () => {
             <tr>
               <td colSpan="3" className="px-4 py-3 text-right font-semibold">Total:</td>
               <td className="px-4 py-3 font-bold">₦{order.totalAmount?.toLocaleString()}</td>
+              <td />
+              <td />
+              {canUpdateOrderStatus && <td />}
             </tr>
           </tfoot>
         </table>
@@ -353,22 +426,35 @@ const EcommerceOrderDetail = () => {
         </div>
       )}
 
-      {canManageEcommerce && (
+      {(canManageEcommerce || canUpdateOrderStatus) && (
         <div className="flex gap-4 flex-wrap">
-          <select
-            value={order.status}
-            onChange={(e) => handleStatusChange(e.target.value)}
-            className="px-4 py-2 border rounded"
-          >
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="paid">Paid</option>
-            <option value="partially_paid">Partially Paid</option>
-            <option value="processing">Processing</option>
-            <option value="shipped">Shipped</option>
-            <option value="delivered">Delivered</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
+          {canUpdateOrderStatus ? (
+            <select
+              value={order.status}
+              onChange={(e) => handleStatusChange(e.target.value)}
+              className="px-4 py-2 border rounded"
+            >
+              <option value={order.status}>{order.status}</option>
+              {getStatusOptions()
+                .filter((option) => option.value !== order.status)
+                .map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+            </select>
+          ) : (
+            <span className={`px-3 py-2 rounded text-sm ${getStatusColor(order.status)}`}>
+              {order.status}
+            </span>
+          )}
+
+          {order.paymentStatus === "paid" && order.status !== "completed" && order.status !== "cancelled" && (
+            <button
+              onClick={() => handleStatusChange("completed")}
+              className="bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700"
+            >
+              Mark Completed
+            </button>
+          )}
 
           {order.paymentType !== "installment" && order.paymentStatus !== "paid" && order.status !== "cancelled" && (
             <button
@@ -379,7 +465,7 @@ const EcommerceOrderDetail = () => {
             </button>
           )}
 
-          {order.status !== "delivered" && order.status !== "cancelled" && (
+          {isAdmin && !["delivered", "completed", "cancelled"].includes(order.status) && (
             <button
               onClick={() => setShowCancelModal(true)}
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
@@ -457,7 +543,7 @@ const EcommerceOrderDetail = () => {
         </div>
       )}
 
-      {showCancelModal && (
+      {isAdmin && showCancelModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96">
             <h3 className="font-semibold text-lg mb-4">Cancel Order</h3>
