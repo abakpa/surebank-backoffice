@@ -60,6 +60,7 @@ import EcommerceOrderDetail from "./Components/EcommerceOrderDetail";
 import EcommerceCustomers from "./Components/EcommerceCustomers";
 import EcommerceIncomeReport from "./Components/EcommerceIncomeReport";
 import ProductReviews from "./Components/ProductReviews";
+import Analytics from "./Components/Analytics";
 
 const THEME_STORAGE_KEY = "backofficeTheme";
 
@@ -161,6 +162,7 @@ function App() {
                 ) : (
                 <>
                   <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/analytics" element={<Analytics />} />
                   <Route path="/branches" element={<Viewbranches />} />
                   <Route path="/createbranch" element={<Createbranch />} />
                   <Route path="/expenditure" element={<Expenditure />} />

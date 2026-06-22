@@ -43,6 +43,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           Dashboard
         </li>
         </Link>
+        <Link to="/analytics" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            Analytics
+          </li>
+        </Link>
         <Link to="/branches" className="text-xs">
           <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
             Branches

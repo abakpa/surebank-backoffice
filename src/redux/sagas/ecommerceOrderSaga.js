@@ -16,6 +16,9 @@ import {
   updateOrderStatusRequest,
   updateOrderStatusSuccess,
   updateOrderStatusFailure,
+  updateOrderItemFulfillmentRequest,
+  updateOrderItemFulfillmentSuccess,
+  updateOrderItemFulfillmentFailure,
   recordPaymentRequest,
   recordPaymentSuccess,
   recordPaymentFailure,
@@ -129,6 +132,31 @@ function* updateOrderStatusSaga(action) {
   }
 }
 
+function* updateOrderItemFulfillmentSaga(action) {
+  const { orderId, itemId, status } = action.payload;
+  try {
+    const token = localStorage.getItem('authToken');
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = yield call(
+      axios.put,
+      `${url}/api/ecommerce/orders/${orderId}/items/${itemId}/fulfillment`,
+      { status },
+      config
+    );
+    yield put(updateOrderItemFulfillmentSuccess(response.data));
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('authToken');
+      window.location.href = '/login';
+    }
+    yield put(updateOrderItemFulfillmentFailure(error.response?.data?.message || error.message));
+  }
+}
+
 function* recordPaymentSaga(action) {
   const { orderId, amount, transactionRef, paymentType } = action.payload;
   try {
@@ -204,6 +232,7 @@ function* ecommerceOrderSaga() {
   yield takeLatest(fetchSBAccountRequest.type, fetchSBAccountSaga);
   yield takeLatest(fetchOverdueOrdersRequest.type, fetchOverdueOrdersSaga);
   yield takeLatest(updateOrderStatusRequest.type, updateOrderStatusSaga);
+  yield takeLatest(updateOrderItemFulfillmentRequest.type, updateOrderItemFulfillmentSaga);
   yield takeLatest(recordPaymentRequest.type, recordPaymentSaga);
   yield takeLatest(creditSBAccountRequest.type, creditSBAccountSaga);
   yield takeLatest(cancelOrderRequest.type, cancelOrderSaga);

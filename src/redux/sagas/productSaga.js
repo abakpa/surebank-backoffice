@@ -13,9 +13,18 @@ import {
   updateProductRequest,
   updateProductSuccess,
   updateProductFailure,
+  updateProductStockRequest,
+  updateProductStockSuccess,
+  updateProductStockFailure,
   deleteProductRequest,
   deleteProductSuccess,
-  deleteProductFailure
+  deleteProductFailure,
+  fetchProductDemandRequest,
+  fetchProductDemandSuccess,
+  fetchProductDemandFailure,
+  fetchProductDemandDetailRequest,
+  fetchProductDemandDetailSuccess,
+  fetchProductDemandDetailFailure
 } from '../slices/productSlice';
 import { url } from './url';
 
@@ -106,6 +115,39 @@ function* updateProductSaga(action) {
   }
 }
 
+function* updateProductStockSaga(action) {
+  const { productId, quantity, variationId, stockItems } = action.payload;
+  try {
+    const token = localStorage.getItem('authToken');
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const updates = Array.isArray(stockItems) && stockItems.length > 0
+      ? stockItems
+      : [{ quantity, variationId: variationId || '' }];
+    let response;
+
+    for (const item of updates) {
+      response = yield call(
+        axios.put,
+        `${url}/api/products/${productId}/stock`,
+        { quantity: item.quantity, operation: 'set', variationId: item.variationId || '' },
+        config
+      );
+    }
+
+    yield put(updateProductStockSuccess(response.data));
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('authToken');
+      window.location.href = '/login';
+    }
+    yield put(updateProductStockFailure(error.response?.data?.message || error.message));
+  }
+}
+
 function* deleteProductSaga(action) {
   const { productId } = action.payload;
   try {
@@ -126,12 +168,54 @@ function* deleteProductSaga(action) {
   }
 }
 
+function* fetchProductDemandSaga() {
+  try {
+    const token = localStorage.getItem('authToken');
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = yield call(axios.get, `${url}/api/ecommerce/orders/product-demand`, config);
+    yield put(fetchProductDemandSuccess(response.data));
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('authToken');
+      window.location.href = '/login';
+    }
+    yield put(fetchProductDemandFailure(error.response?.data?.message || error.message));
+  }
+}
+
+function* fetchProductDemandDetailSaga(action) {
+  const { productId } = action.payload;
+  try {
+    const token = localStorage.getItem('authToken');
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = yield call(axios.get, `${url}/api/ecommerce/orders/product-demand/${productId}`, config);
+    yield put(fetchProductDemandDetailSuccess(response.data));
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('authToken');
+      window.location.href = '/login';
+    }
+    yield put(fetchProductDemandDetailFailure(error.response?.data?.message || error.message));
+  }
+}
+
 function* productSaga() {
   yield takeLatest(fetchProductsRequest.type, fetchProductsSaga);
   yield takeLatest(fetchProductByIdRequest.type, fetchProductByIdSaga);
   yield takeLatest(createProductRequest.type, createProductSaga);
   yield takeLatest(updateProductRequest.type, updateProductSaga);
+  yield takeLatest(updateProductStockRequest.type, updateProductStockSaga);
   yield takeLatest(deleteProductRequest.type, deleteProductSaga);
+  yield takeLatest(fetchProductDemandRequest.type, fetchProductDemandSaga);
+  yield takeLatest(fetchProductDemandDetailRequest.type, fetchProductDemandDetailSaga);
 }
 
 export default productSaga;
