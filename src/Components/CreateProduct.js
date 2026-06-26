@@ -38,6 +38,7 @@ const CreateProduct = () => {
   const [existingImages, setExistingImages] = useState([]);
   const [variationOptions, setVariationOptions] = useState([]);
   const [variations, setVariations] = useState([]);
+  const [formError, setFormError] = useState("");
 
   useEffect(() => {
     dispatch(fetchCategoriesRequest());
@@ -195,11 +196,33 @@ const CreateProduct = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!canManageEcommerce) return;
+    setFormError("");
+
+    if (!formData.hasVariations) {
+      const price = Number(formData.price || 0);
+      const costPrice = Number(formData.costPrice || 0);
+      if (costPrice > price) {
+        setFormError("Cost price cannot be greater than selling price.");
+        return;
+      }
+    }
+
     const normalizedVariationOptions = variationOptions.map((option) => ({
       name: option.name.trim(),
       values: option.valueText.split(",").map((value) => value.trim()).filter(Boolean),
     }));
     const variationOptionNames = normalizedVariationOptions.map((option) => option.name).filter(Boolean);
+
+    if (formData.hasVariations) {
+      const invalidVariation = variations.find((variation) =>
+        Number(variation.costPrice || 0) > Number(variation.price || 0)
+      );
+
+      if (invalidVariation) {
+        setFormError(`Cost price cannot be greater than selling price for ${invalidVariation.name || "a variation"}.`);
+        return;
+      }
+    }
 
     const data = new FormData();
     data.append("name", formData.name);
@@ -273,8 +296,8 @@ const CreateProduct = () => {
     <div className="p-6 bg-white rounded shadow-md max-w-2xl mx-auto mt-12 mb-6">
       <h2 className="text-xl font-bold mb-4">{isEditMode ? "Edit Product" : "Create New Product"}</h2>
 
-      {error && (
-        <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>
+      {(error || formError) && (
+        <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{formError || error}</div>
       )}
 
       <form onSubmit={handleSubmit}>

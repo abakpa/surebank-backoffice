@@ -7,6 +7,16 @@ const Tablebody = ({ items = [] }) => {
   const handleRowClick = (customerId) => {
     navigate(`/customeraccountdashboard/${customerId}`);
   };
+  const getItemStatus = (item) => item.itemFulfillmentStatus || "N/A";
+  const getItemStatusClass = (status) => {
+    if (["delivered", "completed"].includes(String(status).toLowerCase())) {
+      return "bg-green-100 text-green-700";
+    }
+    if (String(status).toLowerCase() === "pending") {
+      return "bg-yellow-100 text-yellow-700";
+    }
+    return "bg-gray-100 text-gray-600";
+  };
   const hasItems = Array.isArray(items) && items.length > 0;
 
   return (
@@ -22,11 +32,16 @@ const Tablebody = ({ items = [] }) => {
         <td className="border border-gray-300 p-2">{customer.sellingPrice?.toLocaleString('en-US')}</td>
         <td className="border border-gray-300 p-2">{new Date(customer?.createdAt).toLocaleDateString()}</td>
         <td className="border border-gray-300 p-2">{customer.status}</td>
+        <td className="border border-gray-300 p-2">
+          <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getItemStatusClass(getItemStatus(customer))}`}>
+            {getItemStatus(customer)}
+          </span>
+        </td>
       </tr>
     ))}
     {!hasItems && (
       <tr>
-        <td colSpan={role !== "Manager" ? "6" : "5"} className="text-center p-4">
+        <td colSpan={role !== "Manager" ? "7" : "6"} className="text-center p-4">
           No order found.
         </td>
       </tr>

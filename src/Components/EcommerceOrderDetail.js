@@ -109,7 +109,7 @@ const EcommerceOrderDetail = () => {
   };
 
   const handleCreditSBAccount = () => {
-    if (!canManageEcommerce) return;
+    if (!isAdmin) return;
     if (!creditAmount || parseFloat(creditAmount) <= 0) {
       alert("Please enter a valid amount");
       return;
@@ -290,9 +290,10 @@ const EcommerceOrderDetail = () => {
                       <button
                         type="button"
                         onClick={() => handleItemFulfillment(item._id, "delivered")}
-                        className="rounded bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700"
+                        disabled={loading}
+                        className="rounded bg-green-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-400"
                       >
-                        Mark Delivered
+                        {loading ? "Processing..." : "Mark Delivered"}
                       </button>
                     ) : (
                       <span className="text-xs text-gray-400">No action</span>
@@ -318,7 +319,7 @@ const EcommerceOrderDetail = () => {
         <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg shadow p-4 mb-6">
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-semibold text-green-800">Wallet Account</h3>
-            {canManageEcommerce && (
+            {isAdmin && (
               <button
                 onClick={() => setShowCreditModal(true)}
                 className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm font-medium flex items-center gap-2"
@@ -574,7 +575,7 @@ const EcommerceOrderDetail = () => {
         </div>
       )}
 
-      {showCreditModal && (
+      {showCreditModal && isAdmin && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96">
             <h3 className="font-semibold text-lg mb-4">Credit Wallet Account</h3>
