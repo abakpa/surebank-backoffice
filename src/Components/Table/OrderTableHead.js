@@ -19,6 +19,7 @@ const Tablehead = () => {
         <th className="border border-gray-300 p-2">Price</th>
         <th className="border border-gray-300 p-2">Date</th>
         <th className="border border-gray-300 p-2">Status</th>
+        <th className="border border-gray-300 p-2">Item Status</th>
         <th className="border border-gray-300 p-2">Rep</th>
       </tr>
     </thead>

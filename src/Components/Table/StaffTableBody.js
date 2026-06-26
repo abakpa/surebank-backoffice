@@ -56,11 +56,11 @@ const Tablebody = ({ staffs, branches = [], onToggleStatus }) => {
     }
   };
 
-  // Filter out self-role (Admin or Manager) and "Head office" branch
+  // Filter out admin accounts, self-role peers, and "Head office" branch
   const filteredStaffs = staffs.filter((staff) => {
     const branchName = getBranchName(staff.branchId, branches);
+    if (staff.role === "Admin") return false;
     if (branchName === "Head office") return false;
-    if (role === "Admin" && staff.role === "Admin") return false;
     if ((role === "Manager" || role === "ProductManager") && (staff.role === "Manager" || staff.role === "ProductManager")) return false;
     return true;
   });

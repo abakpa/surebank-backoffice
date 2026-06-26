@@ -45,6 +45,8 @@ const CustomerAccountDashboard = () => {
   const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
   const [showSBWithdrawalModal, setShowSBWithdrawalModal] = useState(false);
   const [showSellModal, setShowSellModal] = useState(false);
+  const [showSBItemFulfillmentModal, setShowSBItemFulfillmentModal] = useState(false);
+  const [fulfillingSBItemId, setFulfillingSBItemId] = useState("");
   const [showMaturedWithdrawalModal, setShowMaturedWithdrawalModal] = useState(false);
   const [showMainWithdrawalModal, setShowMainWithdrawalModal] = useState(false);
   const [showMainDepositModal, setShowMainDepositModal] = useState(false);
@@ -77,7 +79,9 @@ const CustomerAccountDashboard = () => {
   const [ecommerceProducts, setEcommerceProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(false);
   const [productsError, setProductsError] = useState("");
-  const [selectedProductId, setSelectedProductId] = useState("");
+  const [selectedSBProducts, setSelectedSBProducts] = useState([]);
+  const [sbItemCostInputs, setSbItemCostInputs] = useState({});
+  const [approvingSBItemId, setApprovingSBItemId] = useState("");
   const [accountType, setAccountType] = useState("");
     // const [accountManagerId, setAccountManagerId] = useState("");
   
@@ -87,6 +91,7 @@ const CustomerAccountDashboard = () => {
   
   const duration = [6, 9, 12, 18, 24]
   const formatCurrency = (value) => `₦${Number(value || 0).toLocaleString("en-US")}`;
+  const isAdmin = loggedInStaffRole === "Admin";
 
   useEffect(() => {
 if(selectedAccount){
@@ -176,7 +181,10 @@ if(selectedAccount){
       setProductsError("");
 
       try {
-        const response = await axios.get(`${url}/api/products`);
+        const token = localStorage.getItem("authToken");
+        const response = await axios.get(`${url}/api/products/admin/all`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         if (isMounted) {
           setEcommerceProducts(Array.isArray(response.data) ? response.data : []);
         }
@@ -326,6 +334,10 @@ if(selectedAccount){
       setErrors("Please enter a valid amount.");
       return;
     }
+    if (parseFloat(costPrice) > Number(selectedAccount.sellingPrice || 0)) {
+      setErrors("Cost price cannot be greater than selling price.");
+      return;
+    }
 
     const details = { SBAccountNumber: selectedAccount.SBAccountNumber,customerId:customerId,productName:selectedAccount.productName, costPrice: parseFloat(costPrice) };
     const data = {details}
@@ -422,6 +434,75 @@ if(selectedAccount){
     const data = {details}
     dispatch(createSBSellProductRequest(data));
     setShowSellModal(false);
+  };
+  const handleSellIconClick = (account) => {
+    setSelectedAccount(account);
+    if (Array.isArray(account.items) && account.items.length > 1) {
+      setShowSBItemFulfillmentModal(true);
+      return;
+    }
+    setShowSellModal(true);
+  };
+
+  const handleMarkSBItemDelivered = async (item, index) => {
+    if (!selectedAccount?.SBAccountNumber) return;
+    const itemId = index;
+    setErrors("");
+    setFulfillingSBItemId(String(itemId));
+
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await axios.post(
+        `${url}/api/sbaccount/${encodeURIComponent(selectedAccount.SBAccountNumber)}/items/${encodeURIComponent(itemId)}/mark-delivered`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data?.sbAccount) {
+        setSelectedAccount(response.data.sbAccount);
+      }
+      dispatch(fetchCustomerAccountRequest({ customerId }));
+    } catch (error) {
+      setErrors(error.response?.data?.message || "Failed to mark item delivered.");
+    } finally {
+      setFulfillingSBItemId("");
+    }
+  };
+
+  const handleApproveSBItemCostPrice = async (item, index) => {
+    if (!selectedAccount?.SBAccountNumber) return;
+    const itemId = index;
+    const nextCostPrice = Number(sbItemCostInputs[itemId] || 0);
+    if (nextCostPrice <= 0) {
+      setErrors("Enter a valid cost price for this item.");
+      return;
+    }
+    const quantity = Math.max(1, Number(item?.quantity || 1));
+    const itemAmount = Number(item?.subtotal || item?.price || 0);
+    if (nextCostPrice * quantity > itemAmount) {
+      setErrors("Cost price cannot be greater than item selling price.");
+      return;
+    }
+
+    setErrors("");
+    setApprovingSBItemId(String(itemId));
+
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await axios.put(
+        `${url}/api/sbaccount/${encodeURIComponent(selectedAccount.SBAccountNumber)}/items/${encodeURIComponent(itemId)}/costprice`,
+        { costPrice: nextCostPrice },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data?.sbAccount) {
+        setSelectedAccount(response.data.sbAccount);
+      }
+      setSbItemCostInputs((current) => ({ ...current, [itemId]: "" }));
+      dispatch(fetchCustomerAccountRequest({ customerId }));
+    } catch (error) {
+      setErrors(error.response?.data?.message || "Failed to approve item cost price.");
+    } finally {
+      setApprovingSBItemId("");
+    }
   };
   const handleMaturedFDSubmit = (e) => {
     e.preventDefault();
@@ -612,17 +693,100 @@ if(selectedAccount){
       setShowCreateAccountModal(false);
     };
 
+    const updateSBPackageSummary = (items) => {
+      setProductName(items.map((item) => item.productName).join(", "));
+      setProductDescription(items.map((item) => item.productDescription).filter(Boolean).join(" | "));
+      setSellingPrice(items.reduce((sum, item) => sum + Number(item.subtotal || 0), 0).toString());
+    };
+
+    const getActiveProductVariations = (product) => (
+      product?.hasVariations && Array.isArray(product.variations)
+        ? product.variations.filter((variation) => variation.isActive !== false)
+        : []
+    );
+
+    const getVariationLabel = (variation) => {
+      if (!variation) return "";
+      const optionValues = variation.optionValues && typeof variation.optionValues === "object"
+        ? Object.values(variation.optionValues).filter(Boolean)
+        : [];
+      return optionValues.length > 0 ? optionValues.join(" / ") : variation.name;
+    };
+
     const handleSelectSBProduct = (product) => {
-      setSelectedProductId(product._id);
-      setProductName(product.name || "");
-      setProductDescription(product.description || "");
-      setSellingPrice(product.price !== undefined ? String(product.price) : "");
+      const activeVariations = getActiveProductVariations(product);
+      const requiresVariation = activeVariations.length > 0;
+      const nextItems = selectedSBProducts.some((item) => item.productId === product._id)
+        ? selectedSBProducts
+        : [
+            ...selectedSBProducts,
+            {
+              productId: product._id,
+              productName: product.name || "",
+              productDescription: product.description || "",
+              hasVariations: requiresVariation,
+              variations: activeVariations,
+              variationId: "",
+              variationName: "",
+              quantity: 1,
+              price: Number(product.price || 0),
+              subtotal: Number(product.price || 0)
+            }
+          ];
+
+      setSelectedSBProducts(nextItems);
+      updateSBPackageSummary(nextItems);
+      setErrors("");
+    };
+
+    const handleUpdateSBProductVariation = (productId, variationId) => {
+      const nextItems = selectedSBProducts.map((item) => {
+        if (item.productId !== productId) return item;
+        const variation = (item.variations || []).find((entry) => String(entry._id || "") === String(variationId));
+        const price = Number(variation?.price || 0);
+        const quantity = Math.max(1, Number(item.quantity || 1));
+
+        return {
+          ...item,
+          variationId,
+          variationName: getVariationLabel(variation),
+          price,
+          subtotal: price * quantity
+        };
+      });
+
+      setSelectedSBProducts(nextItems);
+      updateSBPackageSummary(nextItems);
+      setErrors("");
+    };
+
+    const handleRemoveSBProduct = (productId) => {
+      const nextItems = selectedSBProducts.filter((item) => item.productId !== productId);
+      setSelectedSBProducts(nextItems);
+      updateSBPackageSummary(nextItems);
+      setErrors("");
+    };
+
+    const handleUpdateSBProductQuantity = (productId, quantity) => {
+      const normalizedQuantity = Math.max(1, Number(quantity || 1));
+      const nextItems = selectedSBProducts.map((item) => (
+        item.productId === productId
+          ? {
+              ...item,
+              quantity: normalizedQuantity,
+              subtotal: Number(item.price || 0) * normalizedQuantity
+            }
+          : item
+      ));
+
+      setSelectedSBProducts(nextItems);
+      updateSBPackageSummary(nextItems);
       setErrors("");
     };
 
     const handleCloseCreateSBAccountModal = () => {
       setShowCreateSBAccountModal(false);
-      setSelectedProductId("");
+      setSelectedSBProducts([]);
       setSellingPrice("");
       setProductName("");
       setProductDescription("");
@@ -633,13 +797,19 @@ if(selectedAccount){
       e.preventDefault();
       setErrors("");
   
-      if (!deposit?.account?.accountNumber || !selectedProductId || !productName || !productDescription || !sellingPrice) {
-        setErrors("Please select a product to create the SB package.");
+      if (!deposit?.account?.accountNumber || selectedSBProducts.length === 0) {
+        setErrors("Please select at least one product to create the SB package.");
         return;
       }
   
       if (isNaN(sellingPrice) || parseFloat(sellingPrice) <= 0) {
         setErrors("Please enter a valid selling price.");
+        return;
+      }
+
+      const missingVariationItem = selectedSBProducts.find((item) => item.hasVariations && !item.variationId);
+      if (missingVariationItem) {
+        setErrors(`Please select a variation for ${missingVariationItem.productName}.`);
         return;
       }
   
@@ -649,6 +819,7 @@ if(selectedAccount){
             productDescription, 
             customerId:customerId, 
             accountNumber:deposit?.account?.accountNumber, 
+            items: selectedSBProducts.map(({ variations, hasVariations, ...item }) => item),
             sellingPrice: parseFloat(sellingPrice) 
           }
           const data = { details }
@@ -656,7 +827,7 @@ if(selectedAccount){
       setSellingPrice("");
       setProductName("");
       setProductDescription("");
-      setSelectedProductId("");
+      setSelectedSBProducts([]);
       // setAccountManagerId("");
       setShowCreateSBAccountModal(false);
     };
@@ -731,27 +902,28 @@ if(selectedAccount){
 )}
 </div>
         {/* <p className="text-gray-700"><strong>Total Balance:</strong> ₦{deposit?.account?.ledgerBalance}</p> */}
-        <p className="text-gray-700">
-          <strong>Free to withdraw:</strong> ₦{deposit?.account?.availableBalance?.toLocaleString('en-US')} 
+        <p className="text-gray-700 flex flex-wrap items-center gap-x-1 gap-y-2 min-w-0 break-words">
+          <strong>Free to withdraw:</strong>
+          <span className="break-words">₦{deposit?.account?.availableBalance?.toLocaleString('en-US')}</span>
           <button
           onClick={() => accountTransaction(deposit?.account?._id)}
-          className="text-blue-600 hover:underline ml-1"
+          className="text-blue-600 hover:underline ml-1 shrink-0"
         >
           <i className="fas fa-folder-open text-lg" title="View Transactions"></i>
         </button>
   {canManageCustomerFunds && (
-  <button
-    onClick={() => setShowMainDepositModal(true)}
-    className="text-green-600 hover:text-green-800 ml-1"
-  >
+	  <button
+	    onClick={() => setShowMainDepositModal(true)}
+	    className="text-green-600 hover:text-green-800 ml-1 shrink-0"
+	  >
     <i className="fas fa-plus-circle text-lg" title="Deposit"></i>
   </button>
 )}
   {canManageCustomerFunds && (
-  <button
-    onClick={() => setShowMainWithdrawalModal(true)}
-    className="text-red-600 hover:text-red-800 ml-1"
-  >
+	  <button
+	    onClick={() => setShowMainWithdrawalModal(true)}
+	    className="text-red-600 hover:text-red-800 ml-1 shrink-0"
+	  >
     <i className="fas fa-minus-circle text-lg" title="Withdraw"></i>
   </button>
 )}
@@ -1011,13 +1183,14 @@ if(selectedAccount){
           {/* Tooltip & Edit - Same Row on Desktop, Below on Mobile */}
           <div className="flex items-center space-x-2 mt-1 md:mt-0">
             {/* Info Icon with Tooltip */}
-            <div className="relative group">
-              <button className="text-gray-600 hover:text-gray-800">
-                <i className="fas fa-info-circle text-sm" title="Product description"></i>
+            <div>
+              <button
+                type="button"
+                className="text-gray-600 hover:text-gray-800"
+                title={account.productDescription || "No description available"}
+              >
+                <i className="fas fa-info-circle text-sm"></i>
               </button>
-              <div className="absolute left-14 transform -translate-x-1/2 bottom-full mb-2 w-48 bg-green-700 text-white text-xs p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                {account.productDescription || "No description available"}
-              </div>
             </div>
 
             {/* Edit Button */}
@@ -1070,7 +1243,7 @@ if(selectedAccount){
         )}
         {/* Sell Icon */}
         {canManageCustomerFunds && (
-        <button onClick={() => { setSelectedAccount(account); setShowSellModal(true); }} className="text-yellow-600 hover:text-yellow-800">
+        <button onClick={() => handleSellIconClick(account)} className="text-yellow-600 hover:text-yellow-800">
           <i className="fas fa-shopping-cart text-lg md:text-lg" title="Sell"></i>
         </button>
         )}
@@ -1083,19 +1256,21 @@ if(selectedAccount){
 )}
   </div>
      {/* Desktop Right Panel */}
-     <div className="hidden md:block bg-white p-4 rounded shadow-md">
-        <h2 className="text-lg font-bold mb-4">Transaction History</h2>
-        {selectedAccount ? (
-          <div>
-            <h3 className="text-md font-semibold mb-2">Account: {subAccount.DSAccountNumber}</h3>
-            {transactionHistory.length > 0 ? (
-              <table className="md:min-w-[500px] md:ml-4">
-                <Tablehead />
-                <Tablebody customers={transactionHistory} branches={staffs} />
-              </table>
-            ) : (
-              <p className="text-gray-600">No transactions found.</p>
-            )}
+	     <div className="hidden md:block bg-white p-4 rounded shadow-md min-w-0 overflow-hidden">
+	        <h2 className="text-lg font-bold mb-4">Transaction History</h2>
+	        {selectedAccount ? (
+	          <div className="min-w-0">
+	            <h3 className="text-md font-semibold mb-2 break-words">Account: {subAccount.DSAccountNumber}</h3>
+	            {transactionHistory.length > 0 ? (
+                <div className="max-w-full overflow-x-auto">
+  	              <table className="w-full table-fixed">
+  	                <Tablehead />
+  	                <Tablebody customers={transactionHistory} branches={staffs} />
+  	              </table>
+                </div>
+	            ) : (
+	              <p className="text-gray-600">No transactions found.</p>
+	            )}
           </div>
         ) : (
           <p className="text-gray-600">Select an account to view transactions.</p>
@@ -1107,7 +1282,7 @@ if(selectedAccount){
       {/* Mobile Modal */}
       {showMobileModal && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center md:hidden">
-          <div className="bg-white w-[90%] max-h-[80%] overflow-auto p-4 rounded shadow-lg">
+	          <div className="bg-white w-[90%] max-w-[95vw] max-h-[80%] overflow-auto p-4 rounded shadow-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold">Transaction History</h2>
               <button
@@ -1118,14 +1293,16 @@ if(selectedAccount){
               </button>
             </div>
             {selectedAccount ? (
-              <div>
-                <h3 className="text-md font-semibold mb-2">Account: {subAccount.DSAccountNumber}</h3>
-                {transactionHistory.length > 0 ? (
-                  <table className="min-w-full">
-                    <Tablehead />
-                    <Tablebody customers={transactionHistory} branches={staffs} />
-                  </table>
-                ) : (
+	              <div className="min-w-0">
+	                <h3 className="text-md font-semibold mb-2 break-words">Account: {subAccount.DSAccountNumber}</h3>
+	                {transactionHistory.length > 0 ? (
+                    <div className="max-w-full overflow-x-auto">
+  	                  <table className="w-full table-fixed">
+  	                    <Tablehead />
+  	                    <Tablebody customers={transactionHistory} branches={staffs} />
+  	                  </table>
+                    </div>
+	                ) : (
                   <p className="text-gray-600">No transactions found.</p>
                 )}
               </div>
@@ -1458,6 +1635,106 @@ if(selectedAccount){
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  )}
+       {showSBItemFulfillmentModal && selectedAccount && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white p-6 rounded shadow-md w-full max-w-3xl">
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <div>
+            <h5 className="text-base font-bold">SB Account Items</h5>
+            <p className="text-xs text-gray-500">{selectedAccount.SBAccountNumber}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setShowSBItemFulfillmentModal(false);
+              setErrors("");
+            }}
+            className="text-gray-500 hover:text-gray-800"
+          >
+            ×
+          </button>
+        </div>
+
+        {errors && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{errors}</p>}
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full border border-gray-200 text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="border p-2 text-left">Product</th>
+                <th className="border p-2 text-left">Qty</th>
+                <th className="border p-2 text-left">Amount</th>
+                {isAdmin && <th className="border p-2 text-left">Cost</th>}
+                <th className="border p-2 text-left">Status</th>
+                <th className="border p-2 text-left">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(selectedAccount.items || []).map((item, index) => {
+                const itemId = index;
+                const delivered = ["delivered", "completed"].includes(item.fulfillmentStatus);
+                const needsCostApproval = !delivered && (item.requiresCostApproval || (isAdmin && Number(item.costSubtotal || 0) <= 0));
+                return (
+                  <tr key={`${itemId}-${index}`}>
+                    <td className="border p-2">{item.productName}</td>
+                    <td className="border p-2">{item.quantity || 1}</td>
+                    <td className="border p-2">₦{Number(item.subtotal || 0).toLocaleString("en-US")}</td>
+                    {isAdmin && (
+                      <td className="border p-2">
+                        {needsCostApproval ? (
+                          <div className="flex min-w-[190px] gap-2">
+                            <input
+                              type="number"
+                              min="1"
+                              value={sbItemCostInputs[itemId] || ""}
+                              onChange={(event) => setSbItemCostInputs((current) => ({ ...current, [itemId]: event.target.value }))}
+                              placeholder="Cost each"
+                              className="w-24 rounded border border-gray-300 px-2 py-1 text-xs"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleApproveSBItemCostPrice(item, index)}
+                              disabled={approvingSBItemId === String(itemId)}
+                              className="rounded bg-blue-600 px-2 py-1 text-xs font-semibold text-white hover:bg-blue-700 disabled:bg-gray-400"
+                            >
+                              {approvingSBItemId === String(itemId) ? "Saving..." : "Approve"}
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-700">₦{Number(item.costSubtotal || 0).toLocaleString("en-US")}</span>
+                        )}
+                      </td>
+                    )}
+                    <td className="border p-2">
+                      <span className={`rounded-full px-2 py-1 text-xs font-semibold ${delivered ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
+                        {item.fulfillmentStatus || "pending"}
+                      </span>
+                    </td>
+                    <td className="border p-2">
+                      {delivered ? (
+                        <span className="text-xs text-gray-400">No action</span>
+                      ) : needsCostApproval ? (
+                        <span className="text-xs text-gray-400">Approve cost first</span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleMarkSBItemDelivered(item, index)}
+                          disabled={fulfillingSBItemId === String(itemId)}
+                          className="rounded bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 disabled:bg-gray-400"
+                        >
+                          {fulfillingSBItemId === String(itemId) ? "Processing..." : "Mark Delivered"}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )}
@@ -1861,7 +2138,7 @@ if(selectedAccount){
       <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-5 py-3">
           <h3 className="text-lg font-bold text-gray-900">Create SB Package</h3>
-          <p className="text-xs text-gray-600 mt-1">Select a product to supply the package name, description, and selling price.</p>
+          <p className="text-xs text-gray-600 mt-1">Select one or more products to create a single SB package order for this customer.</p>
         </div>
 
         <form onSubmit={handleCreateSBAccount} className="p-5">
@@ -1890,7 +2167,7 @@ if(selectedAccount){
                 const productImage = Array.isArray(product.images) && product.images.length > 0
                   ? resolveImageUrl(product.images[0])
                   : "";
-                const isSelected = selectedProductId === product._id;
+                const isSelected = selectedSBProducts.some((item) => item.productId === product._id);
 
                 return (
                   <button
@@ -1919,7 +2196,7 @@ if(selectedAccount){
                         <h5 className="font-semibold text-gray-900 text-xs leading-snug line-clamp-1">{product.name}</h5>
                         {isSelected && (
                           <span className="shrink-0 text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
-                            Selected
+                            Added
                           </span>
                         )}
                       </div>
@@ -1933,51 +2210,59 @@ if(selectedAccount){
           </div>
 
           <div className="border border-gray-200 rounded-md p-3 mb-5 bg-gray-50">
-            <h4 className="text-xs font-semibold text-gray-800 mb-2">Selected Product Details</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label htmlFor="productName" className="block text-xs font-medium text-gray-700">
-                  Product Name
-                </label>
-                <input
-                  id="productName"
-                  type="text"
-                  value={productName}
-                  onChange={(e) => setProductName(e.target.value)}
-                  placeholder="Select a product"
-                  required
-                  className="w-full border border-gray-300 rounded p-2 mt-1 bg-white text-sm"
-                />
-              </div>
-              <div>
-                <label htmlFor="sellingPrice" className="block text-xs font-medium text-gray-700">
-                  Selling Price
-                </label>
-                <input
-                  id="sellingPrice"
-                  type="number"
-                  value={sellingPrice}
-                  onChange={(e) => setSellingPrice(e.target.value)}
-                  placeholder="Select a product"
-                  required
-                  className="w-full border border-gray-300 rounded p-2 mt-1 bg-white text-sm"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label htmlFor="productDescription" className="block text-xs font-medium text-gray-700">
-                  Product Description
-                </label>
-                <textarea
-                  id="productDescription"
-                  value={productDescription}
-                  onChange={(e) => setProductDescription(e.target.value)}
-                  placeholder="Select a product"
-                  required
-                  rows="2"
-                  className="w-full border border-gray-300 rounded p-2 mt-1 bg-white text-sm"
-                />
-              </div>
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-xs font-semibold text-gray-800">Selected Products</h4>
+              <span className="text-xs font-semibold text-green-700">Total: {formatCurrency(sellingPrice)}</span>
             </div>
+
+            {selectedSBProducts.length === 0 ? (
+              <p className="text-sm text-gray-500">No product selected yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {selectedSBProducts.map((item) => (
+                  <div key={item.productId} className="grid grid-cols-1 md:grid-cols-[1fr_180px_90px_110px_auto] gap-2 items-center rounded border border-gray-200 bg-white p-2">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">{item.productName}</p>
+                      <p className="text-xs text-gray-500">
+                        {item.variationName ? `${item.variationName} • ` : ""}{formatCurrency(item.price)} each
+                      </p>
+                    </div>
+                    {item.hasVariations ? (
+                      <select
+                        value={item.variationId}
+                        onChange={(e) => handleUpdateSBProductVariation(item.productId, e.target.value)}
+                        className="w-full border border-gray-300 rounded p-2 text-sm"
+                        required
+                      >
+                        <option value="">Select variation</option>
+                        {(item.variations || []).map((variation) => (
+                          <option key={variation._id} value={variation._id}>
+                            {getVariationLabel(variation)} - {formatCurrency(variation.price)}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className="text-xs text-gray-400">No variation</span>
+                    )}
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) => handleUpdateSBProductQuantity(item.productId, e.target.value)}
+                      className="w-full border border-gray-300 rounded p-2 text-sm"
+                    />
+                    <p className="text-sm font-semibold text-gray-800">{formatCurrency(item.subtotal)}</p>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSBProduct(item.productId)}
+                      className="rounded bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end space-x-3">
@@ -1990,9 +2275,9 @@ if(selectedAccount){
             </button>
             <button
               type="submit"
-              disabled={!selectedProductId}
+              disabled={selectedSBProducts.length === 0}
               className={`px-3 py-2 rounded text-white text-sm ${
-                selectedProductId ? "bg-green-600 hover:bg-green-700" : "bg-gray-400 cursor-not-allowed"
+                selectedSBProducts.length > 0 ? "bg-green-600 hover:bg-green-700" : "bg-gray-400 cursor-not-allowed"
               }`}
             >
               Create Account

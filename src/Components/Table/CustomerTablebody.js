@@ -17,6 +17,7 @@ const Tablebody = ({ customers = [], branches = [] }) => {
   const dispatch = useDispatch();
   const role = localStorage.getItem("staffRole");
   const isManagerOrAgent = role === "Manager" || role === "Agent";
+  const isAdmin = role === "Admin";
   const branchLookup = Array.isArray(branches)
     ? branches.reduce((acc, branch) => {
         acc[branch._id] = branch.name;
@@ -65,6 +66,14 @@ const Tablebody = ({ customers = [], branches = [] }) => {
               >
                 {customer.phone}
               </td>
+              {isAdmin && (
+                <td 
+                  className="border border-gray-300 p-2"
+                  onClick={() => handleRowClick(customer._id)}
+                >
+                  {customer.email || "No email"}
+                </td>
+              )}
               {!isManagerOrAgent && (
                 <td 
                   className="border border-gray-300 p-2"
@@ -73,7 +82,7 @@ const Tablebody = ({ customers = [], branches = [] }) => {
                   {branchLookup?.[customer.branchId] || "Unknown Branch"}
                 </td>
               )}
-              {!isManagerOrAgent && (
+              {isAdmin && (
                 <td className="border border-gray-300 p-2">
                   <div className="flex justify-center">
                     <button
@@ -95,7 +104,7 @@ const Tablebody = ({ customers = [], branches = [] }) => {
       ) : (
         <tr>
           <td 
-            colSpan={isManagerOrAgent ? 4 : 5} 
+            colSpan={isManagerOrAgent ? 3 : isAdmin ? 6 : 4} 
             className="text-center p-4 border border-gray-300"
           >
             No customers found.

@@ -7,6 +7,15 @@ const getBranchName = (staffId, staffs = []) => {
 
 
 const Tablebody = ({ customers = [], branches = [] }) => { // Default values for props
+  const amountClass = (direction) =>
+    direction === 'Credit'
+      ? "text-green-600"
+      : direction === 'Transfer'
+      ? "text-green-600"
+      : direction === 'Moved'
+      ? "text-purple-500"
+      : "text-red-600";
+
   return (
     <tbody className="text-xs">
       {Array.isArray(customers) && customers.length > 0 ? (
@@ -15,31 +24,23 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
             key={index}
             className=" hover:bg-gray-100"
           >
-            <td>
-            <p className="text-xs mb-2 font-semibold">
-                <span className={customer.direction === 'Credit' ? "text-green-600":customer.direction ==='Transfer'? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500": "text-red-600"}>
+            <td className="p-2 align-top break-words">
+            <p className="text-xs mb-2 font-semibold min-w-0">
+                <span className={amountClass(customer.direction)}>
                 {customer.direction}
                 </span>
                 <br />
-                <span className="text-gray-500">{customer.date}</span>
+                <span className="text-gray-500 break-words">{customer.date}</span>
             </p>
             </td>            
-            <td>
-            <p className={`text-xs font-semibold ${customer.direction === 'Credit' ?  "text-green-600":customer.direction ==='Transfer'? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>
+            <td className="p-2 align-top break-words">
+            <p className={`text-xs font-semibold break-words ${amountClass(customer.direction)}`}>
             {customer.direction === 'Credit' ? "+" : customer.direction === 'Transfer'? "+" : "-"} {customer.amount?.toLocaleString('en-US')}
             </p>
             </td>
-            <td>
+            <td className="p-2 align-top min-w-0">
   <p
-    className={` text-xs flex items-center space-x-1 ${
-      customer.direction === "Credit"
-        ? "text-green-600"
-        :customer.direction ==='Transfer'
-        ? "text-green-600"
-        : customer.direction === "Moved"
-        ? "text-purple-500"
-        : "text-red-600"
-    }`}
+    className={`text-xs flex flex-wrap items-center gap-1 min-w-0 break-words ${amountClass(customer.direction)}`}
   >
     {/* Icon with smaller size */}
     <span
@@ -51,7 +52,7 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
     </span>
 
     {/* Text "Deposit" */}
-    <span className="flex items-center gap-1">
+    <span className="inline-flex min-w-0 flex-wrap items-center gap-1 break-words">
   {customer.narration === "From DS account" ? (
     <>
       From
@@ -76,9 +77,9 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
 </p>
 </td>
 
-            <td ><p className={`ml-2 ${customer.direction === 'Credit' ?  "text-green-600":customer.direction ==='Transfer'? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>{customer.balance?.toLocaleString('en-US')}</p></td>
-            <td >
-              <p className={`${customer.direction === 'Credit' ?  "text-green-600":customer.direction ==='Transfer'? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>
+            <td className="p-2 align-top break-words"><p className={`${amountClass(customer.direction)}`}>{customer.balance?.toLocaleString('en-US')}</p></td>
+            <td className="p-2 align-top min-w-0">
+              <p className={`break-words ${amountClass(customer.direction)}`}>
                 {customer.createdByName || getBranchName(customer.createdBy, branches)}
               </p>
             </td>

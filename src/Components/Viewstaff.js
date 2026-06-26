@@ -13,8 +13,13 @@ const Viewstaff = () => {
   const { branches } = useSelector((state) => state.branch);
   const [searchTerm, setSearchTerm] = useState("");
   // Ensure staffs is always an array before using .some()
-  const staffList = useMemo(() => (Array.isArray(staffs) ? staffs : []), [staffs]);
-  const isAnyStaffDisabled = staffList.some(staff => staff.tokenVersion === 1);
+  const staffList = useMemo(
+    () => (Array.isArray(staffs) ? staffs.filter((staff) => staff?.role !== "Admin") : []),
+    [staffs]
+  );
+  const isAnyStaffDisabled = staffList.some(
+    (staff) => staff.loginDisabled === true || Number(staff.tokenVersion || 0) > 0
+  );
 
   useEffect(() => {
     dispatch(fetchBranchRequest());

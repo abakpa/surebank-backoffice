@@ -23,7 +23,10 @@ const ViewBranchStaff = () => {
   };
 
   // Ensure staffs is always an array
-  const staffList = useMemo(() => (Array.isArray(branchstaffs) ? branchstaffs : []), [branchstaffs]);
+  const staffList = useMemo(
+    () => (Array.isArray(branchstaffs) ? branchstaffs.filter((staff) => staff?.role !== "Admin") : []),
+    [branchstaffs]
+  );
 
   // Filter staff safely
   const filteredStaff = useMemo(() => staffList.filter((staff) =>

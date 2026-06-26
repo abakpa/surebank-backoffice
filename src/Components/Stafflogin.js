@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import {useDispatch, useSelector} from 'react-redux'
 import {loginRequest} from '../redux/slices/loginSlice'
 import { Link } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const {error,loading} = useSelector((state)=>state.login)
     const [credentials,setCredentials] = useState({email:'',password:''})
+    const [showPassword, setShowPassword] = useState(false)
 
     const handleChange = (e) => {
         setCredentials({...credentials,[e.target.name]: e.target.value})
@@ -35,14 +37,24 @@ const Login = () => {
             />
   
             {/* Password input */}
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={credentials.password}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                value={credentials.password}
+                onChange={handleChange}
+                className="w-full p-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((current) => !current)}
+                className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-gray-500 hover:text-gray-700 focus:outline-none"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
                   <div className="text-right">
                             <Link 
                                 to="/forgotpassword" 
