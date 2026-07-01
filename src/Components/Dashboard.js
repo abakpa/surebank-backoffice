@@ -1,4 +1,5 @@
 import React, { useState,useEffect } from "react";
+import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import { Link } from "react-router-dom"; // Import Link from react-router-dom
@@ -38,6 +39,7 @@ import Loader from "./Loader";
 import Select2 from "./Select2";
 import EcommerceDepositDetailsModal from "./EcommerceDepositDetailsModal";
 import DashboardDateRangeFields from "./DashboardDateRangeFields";
+import { url } from "../redux/sagas/url";
 
 const getDateRangeValue = (dateRanges, key) =>
   dateRanges[key] || { startDate: "", endDate: "" };
@@ -79,6 +81,7 @@ const Dashboard = () => {
     const [branchId24, setBranchId24] = useState("");
     const [isEcommerceDepositModalOpen, setIsEcommerceDepositModalOpen] = useState(false);
     const [isFWWithdrawalModalOpen, setIsFWWithdrawalModalOpen] = useState(false);
+    const [productActionCount, setProductActionCount] = useState(0);
     const {
       loading,
       dscontribution,
@@ -152,6 +155,22 @@ const Dashboard = () => {
       useEffect(() => {
         dispatch(fetchBranchRequest());
       }, [dispatch]);
+
+      useEffect(() => {
+        const fetchProductActionCount = async () => {
+          try {
+            const token = localStorage.getItem("authToken");
+            const response = await axios.get(`${url}/api/ecommerce/orders/product-action-requests`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            setProductActionCount(Number(response.data?.total || 0));
+          } catch (error) {
+            setProductActionCount(0);
+          }
+        };
+
+        fetchProductActionCount();
+      }, []);
 
       useEffect(() => {
         const details = { branchId: branchId, date: getDateRangeValue(dateRanges, "date") };
@@ -691,6 +710,13 @@ const Dashboard = () => {
     </form>
   </div>
 
+  <Link to="/product-action-requests" className="block">
+    <div className="p-4 rounded-lg shadow-md bg-emerald-100 hover:bg-emerald-200 transition">
+      <h3 className="text-sm font-semibold mb-2 text-emerald-800">Product Action Requests</h3>
+      <p className="text-2xl font-bold text-emerald-900">{productActionCount.toLocaleString()}</p>
+      <p className="mt-2 text-xs font-semibold text-emerald-700">View paid product requests</p>
+    </div>
+  </Link>
 
 </div>
 

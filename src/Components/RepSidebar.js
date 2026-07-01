@@ -104,6 +104,11 @@ const ManagerSidebar = ({ isOpen, toggleSidebar, role }) => {
             E-Commerce Orders
           </li>
         </Link>
+        <Link to="/product-action-requests" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            Product Actions
+          </li>
+        </Link>
 
         {/* Login/Logout Buttons (only on small screens) */}
         <div className="block lg:hidden">

@@ -1,4 +1,5 @@
 import React, { useState,useEffect } from "react";
+import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 // import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import { Link } from "react-router-dom"; // Import Link from react-router-dom
@@ -29,6 +30,7 @@ import Loader from "./Loader";
 // import Select2 from "./Select2";
 import EcommerceDepositDetailsModal from "./EcommerceDepositDetailsModal";
 import DashboardDateRangeFields from "./DashboardDateRangeFields";
+import { url } from "../redux/sagas/url";
 
 const getDateRangeValue = (dateRanges, key) =>
   dateRanges[key] || { startDate: "", endDate: "" };
@@ -41,6 +43,7 @@ const ManagerDashboard = () => {
     const [dateRanges, setDateRanges] = useState({});
     const [isEcommerceDepositModalOpen, setIsEcommerceDepositModalOpen] = useState(false);
     const [isFWWithdrawalModalOpen, setIsFWWithdrawalModalOpen] = useState(false);
+    const [productActionCount, setProductActionCount] = useState(0);
 
     // const [branchId, setBranchId] = useState("");
     // const [branchId1, setBranchId1] = useState("");
@@ -93,6 +96,22 @@ const ManagerDashboard = () => {
       const newfdpackage = fdpackage || 0
       const newBranchEcommerceDeposit = branchEcommerceDeposit || 0
       const newBranchFWWithdrawal = branchFWWithdrawal || 0
+
+      useEffect(() => {
+        const fetchProductActionCount = async () => {
+          try {
+            const token = localStorage.getItem("authToken");
+            const response = await axios.get(`${url}/api/ecommerce/orders/product-action-requests`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            setProductActionCount(Number(response.data?.total || 0));
+          } catch (error) {
+            setProductActionCount(0);
+          }
+        };
+
+        fetchProductActionCount();
+      }, []);
 
       const openEcommerceDepositModal = () => {
         const details18 = { date: getDateRangeValue(dateRanges, "date17") };
@@ -171,7 +190,6 @@ const ManagerDashboard = () => {
   {loading && <Loader />}
   <h1 className="text-2xl font-bold mb-4 mt-10 text-center">Manager Dashboard</h1>
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
   {/* Card 4 - Yellow */}
   <div className="p-4 rounded-lg shadow-md bg-yellow-100">
     <h3 className="text-sm font-semibold mb-2 text-yellow-800">Total DS Daily Contribution</h3>
@@ -363,6 +381,14 @@ const ManagerDashboard = () => {
     </form>
   </div>
 
+
+  <Link to="/product-action-requests" className="block">
+    <div className="p-4 rounded-lg shadow-md bg-emerald-100 hover:bg-emerald-200 transition">
+      <h3 className="text-sm font-semibold mb-2 text-emerald-800">Product Action Requests</h3>
+      <p className="text-2xl font-bold text-emerald-900">{productActionCount.toLocaleString()}</p>
+      <p className="mt-2 text-xs font-semibold text-emerald-700">View paid product requests</p>
+    </div>
+  </Link>
 
 
 </div>

@@ -626,6 +626,10 @@ function* fetchCustomerAccountSaga(action) {
       call(axios.get, `${url}/api/fdaccount/${customerId}`,config),
     ]);
 
+    const accountPayload = accountResponse.data || {};
+    const mainAccount = accountPayload.account || accountPayload;
+    const sbWalletAccount = accountPayload.sbWalletAccount || null;
+
     // Combine dsAccountResponse and sbAccountResponse into one object
     const subAccount = {
       dsAccount: dsAccountResponse.data,
@@ -641,7 +645,8 @@ function* fetchCustomerAccountSaga(action) {
     // Dispatch success action with all fetched data
     yield put(
       fetchCustomerAccountSuccess({
-        account: accountResponse.data,
+        account: mainAccount,
+        sbWalletAccount,
         customer: customerResponse.data,
         subAccount, // Combined object
       })

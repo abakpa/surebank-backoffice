@@ -18,6 +18,18 @@ import { useParams } from "react-router-dom";
 import Select from "./Select";
 // import Select2 from "./Select2";
 
+const isDeliveredSBItem = (item) => ["delivered", "completed"].includes(item?.fulfillmentStatus);
+const getActiveSBItems = (account) => (Array.isArray(account?.items) ? account.items.filter((item) => !isDeliveredSBItem(item)) : []);
+const getActiveSBProductSummary = (account) => {
+  const activeItems = getActiveSBItems(account);
+  if (activeItems.length === 0 && Array.isArray(account?.items) && account.items.length > 0) {
+    return "No active products";
+  }
+  return activeItems.length > 0
+    ? activeItems.map((item) => item.productName).filter(Boolean).join(", ")
+    : account?.productName;
+};
+
 const CustomerAccountDashboard = () => {
   const { customerId } = useParams();
 
@@ -31,9 +43,10 @@ const CustomerAccountDashboard = () => {
   const {loading,deposit,error:depositError} = useSelector((state)=>state.deposit)
   const newPhone = deposit?.customer
     const newSubAccount = deposit?.subAccount
-    const staffId = localStorage.getItem("staffId");
+  const staffId = localStorage.getItem("staffId");
   const canTransferWalletToPackage = ['Admin', 'Manager', 'Agent'].includes(loggedInStaffRole);
   const canManageCustomerFunds = ['Admin', 'Manager'].includes(loggedInStaffRole);
+  const canRequestCustomerProduct = ['Agent', 'OnlineRep'].includes(loggedInStaffRole);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [getAmountPerDay, setGetAmountPerDay] = useState(null);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -47,6 +60,7 @@ const CustomerAccountDashboard = () => {
   const [showSellModal, setShowSellModal] = useState(false);
   const [showSBItemFulfillmentModal, setShowSBItemFulfillmentModal] = useState(false);
   const [fulfillingSBItemId, setFulfillingSBItemId] = useState("");
+  const [requestingSBItemId, setRequestingSBItemId] = useState("");
   const [showMaturedWithdrawalModal, setShowMaturedWithdrawalModal] = useState(false);
   const [showMainWithdrawalModal, setShowMainWithdrawalModal] = useState(false);
   const [showMainDepositModal, setShowMainDepositModal] = useState(false);
@@ -437,6 +451,14 @@ if(selectedAccount){
   };
   const handleSellIconClick = (account) => {
     setSelectedAccount(account);
+    if (canRequestCustomerProduct) {
+      if (Array.isArray(account.items) && account.items.length > 0) {
+        setShowSBItemFulfillmentModal(true);
+        return;
+      }
+      setErrors("This SB account does not have item details for customer request.");
+      return;
+    }
     if (Array.isArray(account.items) && account.items.length > 1) {
       setShowSBItemFulfillmentModal(true);
       return;
@@ -465,6 +487,30 @@ if(selectedAccount){
       setErrors(error.response?.data?.message || "Failed to mark item delivered.");
     } finally {
       setFulfillingSBItemId("");
+    }
+  };
+
+  const handleCustomerRequestSBItem = async (item, index) => {
+    if (!selectedAccount?.SBAccountNumber) return;
+    const itemId = index;
+    setErrors("");
+    setRequestingSBItemId(String(itemId));
+
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await axios.post(
+        `${url}/api/sbaccount/${encodeURIComponent(selectedAccount.SBAccountNumber)}/items/${encodeURIComponent(itemId)}/customer-request`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data?.sbAccount) {
+        setSelectedAccount(response.data.sbAccount);
+      }
+      dispatch(fetchCustomerAccountRequest({ customerId }));
+    } catch (error) {
+      setErrors(error.response?.data?.message || "Failed to submit customer request.");
+    } finally {
+      setRequestingSBItemId("");
     }
   };
 
@@ -938,6 +984,18 @@ if(selectedAccount){
 
 
         </p>
+        <p className="text-gray-700 flex flex-wrap items-center gap-x-1 gap-y-2 min-w-0 break-words">
+          <strong>SB Order Wallet:</strong>
+          <span className="break-words">₦{Number(deposit?.sbWalletAccount?.availableBalance || 0).toLocaleString('en-US')}</span>
+          {deposit?.sbWalletAccount?._id && (
+            <button
+              onClick={() => accountTransaction(deposit?.sbWalletAccount?._id)}
+              className="text-blue-600 hover:underline ml-1 shrink-0"
+            >
+              <i className="fas fa-folder-open text-lg" title="View SB Order Wallet Transactions"></i>
+            </button>
+          )}
+        </p>
       </header>
   {/* Add Account Section */}
 <div className="mt-2">
@@ -1157,7 +1215,12 @@ if(selectedAccount){
 
     {/* SB Accounts */}
     {Array.isArray(newSubAccount?.sbAccount) &&
-  newSubAccount.sbAccount.map((account, index) => (
+  newSubAccount.sbAccount.map((account, index) => {
+    const activeSBItems = getActiveSBItems(account);
+    const activeSBTotal = activeSBItems.length > 0
+      ? activeSBItems.reduce((sum, item) => sum + Number(item.subtotal || item.price || 0), 0)
+      : 0;
+    return (
     <li
       key={`sb-${index}`}
       className="flex justify-between items-center bg-gray-50 p-3 rounded hover:shadow-md relative"
@@ -1177,7 +1240,7 @@ if(selectedAccount){
                 : "bg-gray-100 text-blue-700"
             }`}
           >
-            {account.productName} <strong>₦{account.sellingPrice?.toLocaleString('en-US')}</strong>
+            {getActiveSBProductSummary(account)} <strong>₦{(activeSBItems.length > 0 ? activeSBTotal : Number(account.sellingPrice || 0)).toLocaleString('en-US')}</strong>
           </span>
 
           {/* Tooltip & Edit - Same Row on Desktop, Below on Mobile */}
@@ -1220,7 +1283,9 @@ if(selectedAccount){
 
         {/* Account Details */}
         <p className="text-xs text-gray-600"><span className="bg-green-500 text-white w-8 h-8 rounded-sm"> SB:</span> {account.SBAccountNumber || "N/A"}</p>
-        <p className="text-xs text-gray-600">Balance: ₦{account.balance?.toLocaleString('en-US') || 0}</p>
+        {account.accountMode !== 'multi_item' && (
+          <p className="text-xs text-gray-600">Balance: ₦{account.balance?.toLocaleString('en-US') || 0}</p>
+        )}
       </div>
 
       {/* Action Buttons */}
@@ -1242,14 +1307,14 @@ if(selectedAccount){
           </button>
         )}
         {/* Sell Icon */}
-        {canManageCustomerFunds && (
+        {(canManageCustomerFunds || canRequestCustomerProduct) && (
         <button onClick={() => handleSellIconClick(account)} className="text-yellow-600 hover:text-yellow-800">
-          <i className="fas fa-shopping-cart text-lg md:text-lg" title="Sell"></i>
+          <i className="fas fa-shopping-cart text-lg md:text-lg" title={canRequestCustomerProduct ? "Customer Request" : "Sell"}></i>
         </button>
         )}
       </div>
     </li>
-  ))}
+  )})}
   </ul>
 ) : (
   <p className="text-gray-600">Customer does not have any accounts.</p>
@@ -1673,9 +1738,19 @@ if(selectedAccount){
               </tr>
             </thead>
             <tbody>
-              {(selectedAccount.items || []).map((item, index) => {
+              {getActiveSBItems(selectedAccount).length === 0 ? (
+                <tr>
+                  <td className="border p-4 text-center text-sm text-gray-500" colSpan={isAdmin ? 6 : 5}>
+                    No active products pending on this SB account.
+                  </td>
+                </tr>
+              ) : getActiveSBItems(selectedAccount).map((item) => {
+                const originalIndex = (selectedAccount.items || []).findIndex((accountItem) => String(accountItem._id || '') === String(item._id || ''));
+                const index = originalIndex >= 0 ? originalIndex : 0;
                 const itemId = index;
                 const delivered = ["delivered", "completed"].includes(item.fulfillmentStatus);
+                const itemAmount = Number(item.subtotal || item.price || 0);
+                const requested = Number(item.paidAmount || 0) >= itemAmount && itemAmount > 0;
                 const needsCostApproval = !delivered && (item.requiresCostApproval || (isAdmin && Number(item.costSubtotal || 0) <= 0));
                 return (
                   <tr key={`${itemId}-${index}`}>
@@ -1716,6 +1791,19 @@ if(selectedAccount){
                     <td className="border p-2">
                       {delivered ? (
                         <span className="text-xs text-gray-400">No action</span>
+                      ) : canRequestCustomerProduct ? (
+                        requested ? (
+                          <span className="text-xs font-semibold text-green-700">Requested</span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleCustomerRequestSBItem(item, index)}
+                            disabled={requestingSBItemId === String(itemId)}
+                            className="rounded bg-yellow-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-yellow-700 disabled:bg-gray-400"
+                          >
+                            {requestingSBItemId === String(itemId) ? "Processing..." : "Customer Request"}
+                          </button>
+                        )
                       ) : needsCostApproval ? (
                         <span className="text-xs text-gray-400">Approve cost first</span>
                       ) : (
