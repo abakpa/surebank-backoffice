@@ -1,5 +1,5 @@
 import React,{useState} from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {useDispatch, useSelector} from 'react-redux'
 import {loginRequest} from '../redux/slices/loginSlice'
 import { Link } from 'react-router-dom';
@@ -8,9 +8,11 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 const Login = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
     const {error,loading} = useSelector((state)=>state.login)
     const [credentials,setCredentials] = useState({email:'',password:''})
     const [showPassword, setShowPassword] = useState(false)
+    const sessionExpired = searchParams.get('sessionExpired') === '1'
 
     const handleChange = (e) => {
         setCredentials({...credentials,[e.target.name]: e.target.value})
@@ -26,6 +28,12 @@ const Login = () => {
         <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
           <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {sessionExpired && (
+              <div className="rounded-lg bg-yellow-100 p-3 text-sm text-yellow-800">
+                Your login session has expired. Please login again to continue.
+              </div>
+            )}
+
             {/* Email input */}
             <input
               type="email"
