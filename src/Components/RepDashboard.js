@@ -31,6 +31,7 @@ import Loader from "./Loader";
 // import Select2 from "./Select2";
 import EcommerceDepositDetailsModal from "./EcommerceDepositDetailsModal";
 import DashboardDateRangeFields from "./DashboardDateRangeFields";
+import BackofficeProductDeliveryCards from "./BackofficeProductDeliveryCards";
 
 const getDateRangeValue = (dateRanges, key) =>
   dateRanges[key] || { startDate: "", endDate: "" };
@@ -404,6 +405,7 @@ const RepDashboard = () => {
     
       </form>
     </div>
+    <BackofficeProductDeliveryCards />
 </div>
 
 <EcommerceDepositDetailsModal
