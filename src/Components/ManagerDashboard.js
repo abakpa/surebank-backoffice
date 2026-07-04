@@ -30,6 +30,7 @@ import Loader from "./Loader";
 // import Select2 from "./Select2";
 import EcommerceDepositDetailsModal from "./EcommerceDepositDetailsModal";
 import DashboardDateRangeFields from "./DashboardDateRangeFields";
+import BackofficeProductDeliveryCards from "./BackofficeProductDeliveryCards";
 import { url } from "../redux/sagas/url";
 
 const getDateRangeValue = (dateRanges, key) =>
@@ -389,6 +390,7 @@ const ManagerDashboard = () => {
       <p className="mt-2 text-xs font-semibold text-emerald-700">View paid product requests</p>
     </div>
   </Link>
+  <BackofficeProductDeliveryCards />
 
 
 </div>

@@ -7,6 +7,7 @@ import { FaEye } from "react-icons/fa";
 import Tablehead from "./Table/StaffTransactionTableHead";
 import Tablebody from "./Table/StaffTransactionTableBody";
 import EcommerceDepositDetailsModal from "./EcommerceDepositDetailsModal";
+import BackofficeProductDeliveryCards from "./BackofficeProductDeliveryCards";
 
 
 import {
@@ -269,7 +270,7 @@ const ManagerViewRepDashboard = () => {
 
  
     {/* Card 14 - Violet */}
-    <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
+  <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
          {/* Transaction Statement Icon (Top-right Corner) */}
   <Link to={`/repexpenditurereport?staffId=${staffId}`}className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
     <p className="text-sm md:text-sm">View Expenditure</p>
@@ -296,6 +297,7 @@ const ManagerViewRepDashboard = () => {
   
     </form>
   </div>
+  <BackofficeProductDeliveryCards staffId={staffId} />
 
 </div>
 <EcommerceDepositDetailsModal
