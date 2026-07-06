@@ -112,11 +112,6 @@ const ManagerSidebar = ({ isOpen, toggleSidebar, role }) => {
             Products
           </li>
         </Link>
-        <Link to="/categories" className="text-xs">
-          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
-            Categories
-          </li>
-        </Link>
         <Link to="/ecommerce-orders" className="text-xs">
           <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
             E-Commerce Orders
