@@ -466,16 +466,19 @@ if(selectedAccount){
     setShowSellModal(true);
   };
 
-  const handleMarkSBItemDelivered = async (item, index) => {
-    if (!selectedAccount?.SBAccountNumber) return;
+  const getSBItemActionKey = (account, itemId) => `${account?.SBAccountNumber || ""}-${itemId}`;
+
+  const handleMarkSBItemDelivered = async (item, index, account = selectedAccount) => {
+    if (!account?.SBAccountNumber) return;
     const itemId = index;
+    const actionKey = getSBItemActionKey(account, itemId);
     setErrors("");
-    setFulfillingSBItemId(String(itemId));
+    setFulfillingSBItemId(actionKey);
 
     try {
       const token = localStorage.getItem("authToken");
       const response = await axios.post(
-        `${url}/api/sbaccount/${encodeURIComponent(selectedAccount.SBAccountNumber)}/items/${encodeURIComponent(itemId)}/mark-delivered`,
+        `${url}/api/sbaccount/${encodeURIComponent(account.SBAccountNumber)}/items/${encodeURIComponent(itemId)}/mark-delivered`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -490,16 +493,17 @@ if(selectedAccount){
     }
   };
 
-  const handleCustomerRequestSBItem = async (item, index) => {
-    if (!selectedAccount?.SBAccountNumber) return;
+  const handleCustomerRequestSBItem = async (item, index, account = selectedAccount) => {
+    if (!account?.SBAccountNumber) return;
     const itemId = index;
+    const actionKey = getSBItemActionKey(account, itemId);
     setErrors("");
-    setRequestingSBItemId(String(itemId));
+    setRequestingSBItemId(actionKey);
 
     try {
       const token = localStorage.getItem("authToken");
       const response = await axios.post(
-        `${url}/api/sbaccount/${encodeURIComponent(selectedAccount.SBAccountNumber)}/items/${encodeURIComponent(itemId)}/customer-request`,
+        `${url}/api/sbaccount/${encodeURIComponent(account.SBAccountNumber)}/items/${encodeURIComponent(itemId)}/customer-request`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -514,10 +518,11 @@ if(selectedAccount){
     }
   };
 
-  const handleApproveSBItemCostPrice = async (item, index) => {
-    if (!selectedAccount?.SBAccountNumber) return;
+  const handleApproveSBItemCostPrice = async (item, index, account = selectedAccount) => {
+    if (!account?.SBAccountNumber) return;
     const itemId = index;
-    const nextCostPrice = Number(sbItemCostInputs[itemId] || 0);
+    const actionKey = getSBItemActionKey(account, itemId);
+    const nextCostPrice = Number(sbItemCostInputs[actionKey] || 0);
     if (nextCostPrice <= 0) {
       setErrors("Enter a valid cost price for this item.");
       return;
@@ -530,19 +535,19 @@ if(selectedAccount){
     }
 
     setErrors("");
-    setApprovingSBItemId(String(itemId));
+    setApprovingSBItemId(actionKey);
 
     try {
       const token = localStorage.getItem("authToken");
       const response = await axios.put(
-        `${url}/api/sbaccount/${encodeURIComponent(selectedAccount.SBAccountNumber)}/items/${encodeURIComponent(itemId)}/costprice`,
+        `${url}/api/sbaccount/${encodeURIComponent(account.SBAccountNumber)}/items/${encodeURIComponent(itemId)}/costprice`,
         { costPrice: nextCostPrice },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.data?.sbAccount) {
         setSelectedAccount(response.data.sbAccount);
       }
-      setSbItemCostInputs((current) => ({ ...current, [itemId]: "" }));
+      setSbItemCostInputs((current) => ({ ...current, [actionKey]: "" }));
       dispatch(fetchCustomerAccountRequest({ customerId }));
     } catch (error) {
       setErrors(error.response?.data?.message || "Failed to approve item cost price.");
@@ -814,13 +819,12 @@ if(selectedAccount){
     };
 
     const handleUpdateSBProductQuantity = (productId, quantity) => {
-      const normalizedQuantity = Math.max(1, Number(quantity || 1));
       const nextItems = selectedSBProducts.map((item) => (
         item.productId === productId
           ? {
               ...item,
-              quantity: normalizedQuantity,
-              subtotal: Number(item.price || 0) * normalizedQuantity
+              quantity,
+              subtotal: Number(item.price || 0) * Number(quantity || 0)
             }
           : item
       ));
@@ -828,6 +832,22 @@ if(selectedAccount){
       setSelectedSBProducts(nextItems);
       updateSBPackageSummary(nextItems);
       setErrors("");
+    };
+
+    const handleNormalizeSBProductQuantity = (productId) => {
+      const nextItems = selectedSBProducts.map((item) => {
+        if (item.productId !== productId) return item;
+        const normalizedQuantity = Math.max(1, Number(item.quantity || 1));
+
+        return {
+          ...item,
+          quantity: normalizedQuantity,
+          subtotal: Number(item.price || 0) * normalizedQuantity
+        };
+      });
+
+      setSelectedSBProducts(nextItems);
+      updateSBPackageSummary(nextItems);
     };
 
     const handleCloseCreateSBAccountModal = () => {
@@ -859,14 +879,23 @@ if(selectedAccount){
         return;
       }
   
+          const normalizedItems = selectedSBProducts.map(({ variations, hasVariations, ...item }) => {
+            const quantity = Math.max(1, Number(item.quantity || 1));
+            return {
+              ...item,
+              quantity,
+              subtotal: Number(item.price || 0) * quantity
+            };
+          });
+
           const details = { 
             accountManagerId:loggedInStaffRole === "Agent" ? staffId : createdBy, 
             productName, 
             productDescription, 
             customerId:customerId, 
             accountNumber:deposit?.account?.accountNumber, 
-            items: selectedSBProducts.map(({ variations, hasVariations, ...item }) => item),
-            sellingPrice: parseFloat(sellingPrice) 
+            items: normalizedItems,
+            sellingPrice: normalizedItems.reduce((sum, item) => sum + Number(item.subtotal || 0), 0) 
           }
           const data = { details }
           dispatch(createCustomerSBAccountRequest(data))
@@ -905,6 +934,122 @@ if(selectedAccount){
       setShowCreateFDAccountModal(false);
     };
 
+  const renderSBAccountItemsTable = (account) => {
+    const activeItems = getActiveSBItems(account);
+    const colSpan = isAdmin ? 6 : 5;
+
+    return (
+      <div className="mt-2 overflow-x-auto rounded border border-gray-200 bg-white md:mt-3">
+        <table className="min-w-full text-[11px] md:text-sm">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="border-b border-gray-200 p-1 text-left md:p-2">Product</th>
+              <th className="border-b border-gray-200 p-1 text-left md:p-2">Qty</th>
+              <th className="border-b border-gray-200 p-1 text-left md:p-2">Amount</th>
+              {isAdmin && <th className="border-b border-gray-200 p-1 text-left md:p-2">Cost</th>}
+              <th className="border-b border-gray-200 p-1 text-left md:p-2">Status</th>
+              <th className="border-b border-gray-200 p-1 text-left md:p-2">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {activeItems.length === 0 ? (
+              <tr>
+                <td className="p-2 text-center text-xs text-gray-500 md:p-4 md:text-sm" colSpan={colSpan}>
+                  No active products pending on this SB account.
+                </td>
+              </tr>
+            ) : activeItems.map((item, activeIndex) => {
+              const originalIndex = (account.items || []).findIndex((accountItem) => (
+                accountItem === item || (
+                  item._id &&
+                  String(accountItem._id || '') === String(item._id || '')
+                )
+              ));
+              const index = originalIndex >= 0 ? originalIndex : 0;
+              const itemId = index;
+              const actionKey = getSBItemActionKey(account, itemId);
+              const delivered = ["delivered", "completed"].includes(item.fulfillmentStatus);
+              const itemAmount = Number(item.subtotal || item.price || 0);
+              const requested = Number(item.paidAmount || 0) >= itemAmount && itemAmount > 0;
+              const needsCostApproval = !delivered && (item.requiresCostApproval || (isAdmin && Number(item.costSubtotal || 0) <= 0));
+
+              return (
+                <tr key={`${account.SBAccountNumber || "sb"}-${item._id || activeIndex}-${index}`}>
+                  <td className="border-t border-gray-200 p-1 md:p-2">{item.productName}</td>
+                  <td className="border-t border-gray-200 p-1 md:p-2">{item.quantity || 1}</td>
+                  <td className="border-t border-gray-200 p-1 md:p-2">₦{Number(item.subtotal || 0).toLocaleString("en-US")}</td>
+                  {isAdmin && (
+                    <td className="border-t border-gray-200 p-1 md:p-2">
+                      {needsCostApproval ? (
+                        <div className="flex min-w-[150px] gap-1 md:min-w-[190px] md:gap-2">
+                          <input
+                            type="number"
+                            min="1"
+                            value={sbItemCostInputs[actionKey] || ""}
+                            onChange={(event) => setSbItemCostInputs((current) => ({ ...current, [actionKey]: event.target.value }))}
+                            placeholder="Cost each"
+                            className="w-20 rounded border border-gray-300 px-1.5 py-1 text-[11px] md:w-24 md:px-2 md:text-xs"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleApproveSBItemCostPrice(item, index, account)}
+                            disabled={approvingSBItemId === actionKey}
+                            className="rounded bg-blue-600 px-1.5 py-1 text-[11px] font-semibold text-white hover:bg-blue-700 disabled:bg-gray-400 md:px-2 md:text-xs"
+                          >
+                            {approvingSBItemId === actionKey ? "Saving..." : "Approve"}
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-[11px] text-gray-700 md:text-xs">₦{Number(item.costSubtotal || 0).toLocaleString("en-US")}</span>
+                      )}
+                    </td>
+                  )}
+                  <td className="border-t border-gray-200 p-1 md:p-2">
+                    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold md:px-2 md:py-1 md:text-xs ${delivered ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
+                      {item.fulfillmentStatus || "pending"}
+                    </span>
+                  </td>
+                  <td className="border-t border-gray-200 p-1 md:p-2">
+                    {delivered ? (
+                      <span className="text-[10px] text-gray-400 md:text-xs">No action</span>
+                    ) : canRequestCustomerProduct ? (
+                      requested ? (
+                        <span className="text-[10px] font-semibold text-green-700 md:text-xs">Requested</span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleCustomerRequestSBItem(item, index, account)}
+                          disabled={requestingSBItemId === actionKey}
+                          className="rounded bg-yellow-600 px-2 py-1 text-[10px] font-semibold text-white hover:bg-yellow-700 disabled:bg-gray-400 md:px-3 md:py-1.5 md:text-xs"
+                        >
+                          {requestingSBItemId === actionKey ? "Processing..." : "Customer Request"}
+                        </button>
+                      )
+                    ) : needsCostApproval ? (
+                      <span className="text-[10px] text-gray-400 md:text-xs">Approve cost first</span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleMarkSBItemDelivered(item, index, account)}
+                        disabled={fulfillingSBItemId === actionKey}
+                        className="rounded bg-green-600 px-2 py-1 text-[10px] font-semibold text-white hover:bg-green-700 disabled:bg-gray-400 md:px-3 md:py-1.5 md:text-xs"
+                      >
+                        {fulfillingSBItemId === actionKey ? "Processing..." : "Mark Delivered"}
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  const sbAccountWithItemDetails = Array.isArray(newSubAccount?.sbAccount)
+    ? newSubAccount.sbAccount.find((account) => Array.isArray(account?.items) && account.items.length > 0)
+    : null;
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -993,6 +1138,14 @@ if(selectedAccount){
               className="text-blue-600 hover:underline ml-1 shrink-0"
             >
               <i className="fas fa-folder-open text-lg" title="View SB Order Wallet Transactions"></i>
+            </button>
+          )}
+          {sbAccountWithItemDetails && loggedInStaffRole !== 'OnlineRep' && (
+            <button
+              onClick={() => { setSelectedAccount(sbAccountWithItemDetails); setShowSBDepositModal(true); }}
+              className="text-green-600 hover:text-green-800 ml-1 shrink-0"
+            >
+              <i className="fas fa-plus-circle text-lg" title="Deposit to SB Account"></i>
             </button>
           )}
         </p>
@@ -1220,30 +1373,40 @@ if(selectedAccount){
     const activeSBTotal = activeSBItems.length > 0
       ? activeSBItems.reduce((sum, item) => sum + Number(item.subtotal || item.price || 0), 0)
       : 0;
+    const hasSBItemDetails = Array.isArray(account.items) && account.items.length > 0;
+    const isClosedLegacyAccount = (
+      account.accountMode !== 'multi_item' &&
+      (!Array.isArray(account.items) || account.items.length === 0) &&
+      Number(account.balance || 0) <= 0
+    );
     return (
     <li
       key={`sb-${index}`}
-      className="flex justify-between items-center bg-gray-50 p-3 rounded hover:shadow-md relative"
+      className="bg-gray-50 p-3 rounded hover:shadow-md relative"
     >
-      <div>
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+      <div className="min-w-0 flex-1">
         {/* Product Info Container - Responsive Flex */}
         <div className="flex flex-col md:flex-row md:items-center md:space-x-3">
           {/* Product Name & Price */}
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-semibold ${
-              account.accountType === "Rent"
-                ? "bg-blue-100 text-gray-700"
-                : account.accountType === "School fees"
-                ? "bg-green-100 text-green-700"
-                : account.accountType === "Food"
-                ? "bg-purple-100 text-purple-700"
-                : "bg-gray-100 text-blue-700"
-            }`}
-          >
-            {getActiveSBProductSummary(account)} <strong>₦{(activeSBItems.length > 0 ? activeSBTotal : Number(account.sellingPrice || 0)).toLocaleString('en-US')}</strong>
-          </span>
+          {!hasSBItemDetails && (
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                account.accountType === "Rent"
+                  ? "bg-blue-100 text-gray-700"
+                  : account.accountType === "School fees"
+                  ? "bg-green-100 text-green-700"
+                  : account.accountType === "Food"
+                  ? "bg-purple-100 text-purple-700"
+                  : "bg-gray-100 text-blue-700"
+              }`}
+            >
+              {getActiveSBProductSummary(account)} <strong>₦{(activeSBItems.length > 0 ? activeSBTotal : Number(account.sellingPrice || 0)).toLocaleString('en-US')}</strong>
+            </span>
+          )}
 
           {/* Tooltip & Edit - Same Row on Desktop, Below on Mobile */}
+          {!hasSBItemDetails && (
           <div className="flex items-center space-x-2 mt-1 md:mt-0">
             {/* Info Icon with Tooltip */}
             <div>
@@ -1279,40 +1442,50 @@ if(selectedAccount){
         )}
 
           </div>
+          )}
         </div>
 
         {/* Account Details */}
         <p className="text-xs text-gray-600"><span className="bg-green-500 text-white w-8 h-8 rounded-sm"> SB:</span> {account.SBAccountNumber || "N/A"}</p>
-        {account.accountMode !== 'multi_item' && (
+        {account.accountMode !== 'multi_item' && Number(account.balance || 0) > 0 && (
           <p className="text-xs text-gray-600">Balance: ₦{account.balance?.toLocaleString('en-US') || 0}</p>
+        )}
+        {loggedInStaffRole === 'Admin' && isClosedLegacyAccount && (
+          <span className="mt-1 inline-flex rounded-full bg-red-100 px-2 py-1 text-[10px] font-semibold text-red-700">
+            Closed Legacy Account - Admin Only
+          </span>
         )}
       </div>
 
       {/* Action Buttons */}
-      <div className="flex space-x-4">
+      {!hasSBItemDetails && (
+      <div className="flex shrink-0 space-x-4">
         {/* View Transactions */}
         <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
           <i className="fas fa-folder-open text-lg md:text-lg" title="View Transactions"></i>
         </button>
         {/* Deposit Icon */}
-        {loggedInStaffRole !== 'OnlineRep' &&(
+        {loggedInStaffRole !== 'OnlineRep' && !isClosedLegacyAccount &&(
         <button onClick={() => { setSelectedAccount(account); setShowSBDepositModal(true); }} className="text-green-600 hover:text-green-800">
           <i className="fas fa-plus-circle text-lg md:text-lg" title="Deposit"></i>
         </button>
         )}
         {/* Withdrawal Icon */}
-        {loggedInStaffRole === 'Admin' && (
+        {loggedInStaffRole === 'Admin' && !hasSBItemDetails && (
           <button onClick={() => { setSelectedAccount(account); setShowSBWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
             <i className="fas fa-minus-circle text-lg md:text-lg" title="Withdraw"></i>
           </button>
         )}
         {/* Sell Icon */}
-        {(canManageCustomerFunds || canRequestCustomerProduct) && (
+        {canManageCustomerFunds && !hasSBItemDetails && (
         <button onClick={() => handleSellIconClick(account)} className="text-yellow-600 hover:text-yellow-800">
           <i className="fas fa-shopping-cart text-lg md:text-lg" title={canRequestCustomerProduct ? "Customer Request" : "Sell"}></i>
         </button>
         )}
       </div>
+      )}
+      </div>
+      {hasSBItemDetails && renderSBAccountItemsTable(account)}
     </li>
   )})}
   </ul>
@@ -1725,104 +1898,7 @@ if(selectedAccount){
 
         {errors && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{errors}</p>}
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-200 text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="border p-2 text-left">Product</th>
-                <th className="border p-2 text-left">Qty</th>
-                <th className="border p-2 text-left">Amount</th>
-                {isAdmin && <th className="border p-2 text-left">Cost</th>}
-                <th className="border p-2 text-left">Status</th>
-                <th className="border p-2 text-left">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {getActiveSBItems(selectedAccount).length === 0 ? (
-                <tr>
-                  <td className="border p-4 text-center text-sm text-gray-500" colSpan={isAdmin ? 6 : 5}>
-                    No active products pending on this SB account.
-                  </td>
-                </tr>
-              ) : getActiveSBItems(selectedAccount).map((item) => {
-                const originalIndex = (selectedAccount.items || []).findIndex((accountItem) => String(accountItem._id || '') === String(item._id || ''));
-                const index = originalIndex >= 0 ? originalIndex : 0;
-                const itemId = index;
-                const delivered = ["delivered", "completed"].includes(item.fulfillmentStatus);
-                const itemAmount = Number(item.subtotal || item.price || 0);
-                const requested = Number(item.paidAmount || 0) >= itemAmount && itemAmount > 0;
-                const needsCostApproval = !delivered && (item.requiresCostApproval || (isAdmin && Number(item.costSubtotal || 0) <= 0));
-                return (
-                  <tr key={`${itemId}-${index}`}>
-                    <td className="border p-2">{item.productName}</td>
-                    <td className="border p-2">{item.quantity || 1}</td>
-                    <td className="border p-2">₦{Number(item.subtotal || 0).toLocaleString("en-US")}</td>
-                    {isAdmin && (
-                      <td className="border p-2">
-                        {needsCostApproval ? (
-                          <div className="flex min-w-[190px] gap-2">
-                            <input
-                              type="number"
-                              min="1"
-                              value={sbItemCostInputs[itemId] || ""}
-                              onChange={(event) => setSbItemCostInputs((current) => ({ ...current, [itemId]: event.target.value }))}
-                              placeholder="Cost each"
-                              className="w-24 rounded border border-gray-300 px-2 py-1 text-xs"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => handleApproveSBItemCostPrice(item, index)}
-                              disabled={approvingSBItemId === String(itemId)}
-                              className="rounded bg-blue-600 px-2 py-1 text-xs font-semibold text-white hover:bg-blue-700 disabled:bg-gray-400"
-                            >
-                              {approvingSBItemId === String(itemId) ? "Saving..." : "Approve"}
-                            </button>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-gray-700">₦{Number(item.costSubtotal || 0).toLocaleString("en-US")}</span>
-                        )}
-                      </td>
-                    )}
-                    <td className="border p-2">
-                      <span className={`rounded-full px-2 py-1 text-xs font-semibold ${delivered ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-                        {item.fulfillmentStatus || "pending"}
-                      </span>
-                    </td>
-                    <td className="border p-2">
-                      {delivered ? (
-                        <span className="text-xs text-gray-400">No action</span>
-                      ) : canRequestCustomerProduct ? (
-                        requested ? (
-                          <span className="text-xs font-semibold text-green-700">Requested</span>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => handleCustomerRequestSBItem(item, index)}
-                            disabled={requestingSBItemId === String(itemId)}
-                            className="rounded bg-yellow-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-yellow-700 disabled:bg-gray-400"
-                          >
-                            {requestingSBItemId === String(itemId) ? "Processing..." : "Customer Request"}
-                          </button>
-                        )
-                      ) : needsCostApproval ? (
-                        <span className="text-xs text-gray-400">Approve cost first</span>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => handleMarkSBItemDelivered(item, index)}
-                          disabled={fulfillingSBItemId === String(itemId)}
-                          className="rounded bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 disabled:bg-gray-400"
-                        >
-                          {fulfillingSBItemId === String(itemId) ? "Processing..." : "Mark Delivered"}
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        {renderSBAccountItemsTable(selectedAccount)}
       </div>
     </div>
   )}
@@ -2337,6 +2413,7 @@ if(selectedAccount){
                       min="1"
                       value={item.quantity}
                       onChange={(e) => handleUpdateSBProductQuantity(item.productId, e.target.value)}
+                      onBlur={() => handleNormalizeSBProductQuantity(item.productId)}
                       className="w-full border border-gray-300 rounded p-2 text-sm"
                     />
                     <p className="text-sm font-semibold text-gray-800">{formatCurrency(item.subtotal)}</p>

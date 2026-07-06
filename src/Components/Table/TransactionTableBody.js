@@ -5,6 +5,16 @@ const getBranchName = (staffId, staffs = []) => {
   return staff ? `${staff.firstName} ${staff.lastName || ""}`.trim() : "Unknown Staff";
 };
 
+const getTransactionNarration = (transaction) => {
+  const narration = String(transaction?.narration || "");
+  const customerRequestMatch = narration.match(/^Customer request debit for (.+?)(?:\s+-\s+.+)?$/i);
+
+  if (customerRequestMatch) {
+    return `Debited from wallet for ${customerRequestMatch[1]}`;
+  }
+
+  return narration.replace(/\s+-\s+Ref:.+$/i, "");
+};
 
 const Tablebody = ({ customers = [], branches = [] }) => { // Default values for props
   const amountClass = (direction) =>
@@ -19,7 +29,9 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
   return (
     <tbody className="text-xs">
       {Array.isArray(customers) && customers.length > 0 ? (
-        customers.map((customer, index) => (
+        customers.map((customer, index) => {
+          const displayNarration = getTransactionNarration(customer);
+          return (
           <tr
             key={index}
             className=" hover:bg-gray-100"
@@ -70,7 +82,7 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
   ) : customer.narration === "Total DS" ? (
     "Total"
   ) : (
-    customer.narration
+    displayNarration
   )}
 </span>
  
@@ -84,7 +96,8 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
               </p>
             </td>
           </tr>
-        ))
+          );
+        })
       ) : (
         <tr>
           <td colSpan="5" className="text-center p-4">

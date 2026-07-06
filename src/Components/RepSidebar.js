@@ -89,16 +89,6 @@ const ManagerSidebar = ({ isOpen, toggleSidebar, role }) => {
         <li className="theme-sidebar-section mt-4 mb-2 text-xs uppercase tracking-wider">
           E-Commerce
         </li>
-        <Link to="/products" className="text-xs">
-          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
-            Products
-          </li>
-        </Link>
-        <Link to="/categories" className="text-xs">
-          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
-            Categories
-          </li>
-        </Link>
         <Link to="/ecommerce-orders" className="text-xs">
           <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
             E-Commerce Orders
