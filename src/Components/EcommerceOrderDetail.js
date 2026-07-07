@@ -160,8 +160,47 @@ const EcommerceOrderDetail = () => {
     return colors[status] || "bg-gray-100 text-gray-800";
   };
 
+  const isDeliveredItem = (item = {}) =>
+    ["delivered", "completed"].includes(item.fulfillmentStatus || "pending");
+
+  const isDebitPayment = (payment = {}) =>
+    payment.type === "debit" || ["Debit", "Purchased"].includes(payment.direction);
+
   if (loading) return <Loader />;
   if (!order) return <div className="p-4">Order not found</div>;
+
+  const orderItems = Array.isArray(order.items) ? order.items : [];
+  const activeItemsSubtotal = Number(
+    order.activeItemsSubtotal ??
+      orderItems
+        .filter((item) => !isDeliveredItem(item))
+        .reduce((sum, item) => sum + Number(item.subtotal || 0), 0)
+  );
+  const deliveredItemsSubtotal = Number(
+    order.deliveredItemsSubtotal ??
+      orderItems
+        .filter(isDeliveredItem)
+        .reduce((sum, item) => sum + Number(item.subtotal || 0), 0)
+  );
+  const installmentPayments = Array.isArray(order.installmentPlan?.payments)
+    ? order.installmentPlan.payments
+    : [];
+  const customerStatement = order.customerStatement || {};
+  const statementTransactions = Array.isArray(customerStatement.transactions)
+    ? customerStatement.transactions
+    : installmentPayments;
+  const totalPaid = Number(
+    customerStatement.paidTotal ??
+      customerStatement.walletBalance ??
+      order.installmentPlan?.walletBalance ??
+      order.installmentPlan?.totalPaid ??
+      0
+  );
+  const remainingBalance = Number(
+    customerStatement.remainingBalance ??
+      order.installmentPlan?.remainingBalance ??
+      Math.max(0, activeItemsSubtotal - totalPaid)
+  );
 
   return (
     <div className="p-4 max-w-4xl mx-auto">
@@ -210,6 +249,16 @@ const EcommerceOrderDetail = () => {
               <span className="text-gray-600">Total Amount:</span>
               <span className="font-bold">₦{order.totalAmount?.toLocaleString()}</span>
             </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Pending Items Subtotal:</span>
+              <span className="font-bold text-orange-600">₦{activeItemsSubtotal.toLocaleString()}</span>
+            </div>
+            {deliveredItemsSubtotal > 0 && (
+              <div className="flex justify-between">
+                <span className="text-gray-600">Delivered Items Subtotal:</span>
+                <span className="font-medium text-gray-700">₦{deliveredItemsSubtotal.toLocaleString()}</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -305,12 +354,25 @@ const EcommerceOrderDetail = () => {
           </tbody>
           <tfoot className="bg-gray-50">
             <tr>
-              <td colSpan="3" className="px-4 py-3 text-right font-semibold">Total:</td>
-              <td className="px-4 py-3 font-bold">₦{order.totalAmount?.toLocaleString()}</td>
+              <td colSpan="3" className="px-4 py-3 text-right font-semibold">Pending subtotal:</td>
+              <td className="px-4 py-3 font-bold text-orange-600">₦{activeItemsSubtotal.toLocaleString()}</td>
               <td />
               <td />
               {canUpdateOrderStatus && <td />}
             </tr>
+            {deliveredItemsSubtotal > 0 && (
+              <tr>
+                <td colSpan="3" className="px-4 py-2 text-right text-sm font-medium text-gray-600">
+                  Delivered subtotal:
+                </td>
+                <td className="px-4 py-2 text-sm font-semibold text-gray-700">
+                  ₦{deliveredItemsSubtotal.toLocaleString()}
+                </td>
+                <td />
+                <td />
+                {canUpdateOrderStatus && <td />}
+              </tr>
+            )}
           </tfoot>
         </table>
       </div>
@@ -360,67 +422,75 @@ const EcommerceOrderDetail = () => {
 
       {order.paymentType === "installment" && order.installmentPlan && (
         <div className="bg-white rounded-lg shadow p-4 mb-6">
-          <h3 className="font-semibold mb-3">Installment Plan</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
+          <h3 className="font-semibold mb-3">Customer Statement of Account</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
             <div>
-              <span className="text-gray-600">Payment Mode:</span>
-              <p className="font-medium capitalize">Flexible</p>
-            </div>
-            <div>
-              <span className="text-gray-600">Total Paid:</span>
-              <p className="font-medium text-green-600">₦{order.installmentPlan.totalPaid?.toLocaleString() || "0"}</p>
-            </div>
-            <div>
-              <span className="text-gray-600">Payments Made:</span>
-              <p className="font-medium">{order.installmentPlan.payments?.filter((payment) => payment.status === "paid").length || 0}</p>
+              <span className="text-gray-600">Wallet Balance:</span>
+              <p className="font-medium text-green-600">₦{totalPaid.toLocaleString()}</p>
             </div>
             <div>
               <span className="text-gray-600">Remaining Balance:</span>
-              <p className="font-medium text-red-600">₦{order.installmentPlan.remainingBalance?.toLocaleString()}</p>
+              <p className="font-medium text-red-600">₦{remainingBalance.toLocaleString()}</p>
             </div>
           </div>
 
-          <h4 className="font-medium mb-2">Payment History</h4>
+          <h4 className="font-medium mb-2">Statement Transactions</h4>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-3 py-2 text-left">Date</th>
+                  <th className="px-3 py-2 text-left">Narration</th>
+                  <th className="px-3 py-2 text-left">Type</th>
                   <th className="px-3 py-2 text-left">Amount</th>
-                  <th className="px-3 py-2 text-left">Status</th>
-                  <th className="px-3 py-2 text-left">Paid At</th>
+                  <th className="px-3 py-2 text-left">Balance</th>
+                  <th className="px-3 py-2 text-left">Reference</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {(!order.installmentPlan.payments || order.installmentPlan.payments.length === 0) && (
+                {statementTransactions.length === 0 && (
                   <tr>
-                    <td colSpan="4" className="px-3 py-6 text-center text-gray-500">
-                      No payment has been recorded for this order yet.
+                    <td colSpan="6" className="px-3 py-6 text-center text-gray-500">
+                      No statement transaction has been recorded for this order yet.
                     </td>
                   </tr>
                 )}
-                {order.installmentPlan.payments?.map((payment, index) => (
-                  <tr key={index}>
-                    <td className="px-3 py-2">{new Date(payment.date).toLocaleDateString()}</td>
-                    <td className="px-3 py-2">₦{payment.amount?.toLocaleString()}</td>
-                    <td className="px-3 py-2">
-                      <span
-                        className={`px-2 py-1 rounded text-xs ${
-                          payment.status === "paid"
-                            ? "bg-green-100 text-green-800"
-                            : payment.status === "overdue"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {payment.status}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2">
-                      {payment.paidAt ? new Date(payment.paidAt).toLocaleDateString() : "-"}
-                    </td>
-                  </tr>
-                ))}
+                {statementTransactions.map((payment, index) => {
+                  const isDebit = isDebitPayment(payment);
+                  const typeLabel = isDebit ? "Product payment" : "Wallet deposit";
+                  const transactionDate = payment.paidAt || payment.date || payment.createdAt;
+                  const reference = payment.transactionRef || payment.reference || "-";
+                  const hasBalance = payment.balance !== undefined && payment.balance !== null;
+
+                  return (
+                    <tr key={index} className={isDebit ? "text-red-700" : ""}>
+                      <td className="px-3 py-2">
+                        {transactionDate ? new Date(transactionDate).toLocaleDateString() : "-"}
+                      </td>
+                      <td className="px-3 py-2 min-w-[220px] text-gray-700">
+                        {payment.narration || typeLabel}
+                      </td>
+                      <td className="px-3 py-2">
+                        <span
+                          className={`px-2 py-1 rounded text-xs ${
+                            isDebit ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
+                          }`}
+                        >
+                          {typeLabel}
+                        </span>
+                      </td>
+                      <td className={`px-3 py-2 font-medium ${isDebit ? "text-red-700" : "text-green-700"}`}>
+                        {isDebit ? "-" : "+"}₦{Number(payment.amount || 0).toLocaleString()}
+                      </td>
+                      <td className="px-3 py-2 font-medium">
+                        {hasBalance ? `₦${Number(payment.balance || 0).toLocaleString()}` : "-"}
+                      </td>
+                      <td className="px-3 py-2 text-xs text-gray-600 min-w-[160px]">
+                        {reference}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

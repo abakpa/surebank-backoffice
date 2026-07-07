@@ -940,7 +940,7 @@ if(selectedAccount){
 
     return (
       <div className="mt-2 overflow-x-auto rounded border border-gray-200 bg-white md:mt-3">
-        <table className="min-w-full text-[11px] md:text-sm">
+        <table className="min-w-[720px] w-full text-[11px] md:text-sm">
           <thead className="bg-gray-50">
             <tr>
               <th className="border-b border-gray-200 p-1 text-left md:p-2">Product</th>
@@ -1052,7 +1052,7 @@ if(selectedAccount){
     : null;
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="min-h-screen bg-gray-100 px-3 py-6 md:px-4 lg:px-5">
       {loading && <Loader />}
      
          {showSuccess && (
@@ -1100,14 +1100,14 @@ if(selectedAccount){
           onClick={() => accountTransaction(deposit?.account?._id)}
           className="text-blue-600 hover:underline ml-1 shrink-0"
         >
-          <i className="fas fa-folder-open text-lg" title="View Transactions"></i>
+          <i className="fas fa-folder-open text-3xl md:text-lg" title="View Transactions"></i>
         </button>
   {canManageCustomerFunds && (
 	  <button
 	    onClick={() => setShowMainDepositModal(true)}
 	    className="text-green-600 hover:text-green-800 ml-1 shrink-0"
 	  >
-    <i className="fas fa-plus-circle text-lg" title="Deposit"></i>
+    <i className="fas fa-plus-circle text-3xl md:text-lg" title="Deposit"></i>
   </button>
 )}
   {canManageCustomerFunds && (
@@ -1137,7 +1137,7 @@ if(selectedAccount){
               onClick={() => accountTransaction(deposit?.sbWalletAccount?._id)}
               className="text-blue-600 hover:underline ml-1 shrink-0"
             >
-              <i className="fas fa-folder-open text-lg" title="View SB Order Wallet Transactions"></i>
+              <i className="fas fa-folder-open text-3xl md:text-lg" title="View SB Order Wallet Transactions"></i>
             </button>
           )}
           {sbAccountWithItemDetails && loggedInStaffRole !== 'OnlineRep' && (
@@ -1145,7 +1145,7 @@ if(selectedAccount){
               onClick={() => { setSelectedAccount(sbAccountWithItemDetails); setShowSBDepositModal(true); }}
               className="text-green-600 hover:text-green-800 ml-1 shrink-0"
             >
-              <i className="fas fa-plus-circle text-lg" title="Deposit to SB Account"></i>
+              <i className="fas fa-plus-circle text-3xl md:text-lg" title="Deposit to SB Account"></i>
             </button>
           )}
         </p>
@@ -1175,10 +1175,9 @@ if(selectedAccount){
 </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2.4fr)_minmax(280px,0.9fr)]">
         {/* Left Panel - Account Details */}
-        <div className="bg-white p-4 rounded shadow-md">
-          <h2 className="text-lg font-bold mb-4">Accounts</h2>
+        <div className="min-w-0">
           {(Array.isArray(newSubAccount?.dsAccount) && newSubAccount.dsAccount.length > 0) || 
           (Array.isArray(newSubAccount?.fdAccount) && newSubAccount.fdAccount.length > 0) || 
  (Array.isArray(newSubAccount?.sbAccount) && newSubAccount.sbAccount.length > 0) ? (
@@ -1231,7 +1230,7 @@ if(selectedAccount){
           onClick={() => accountTransaction(account._id)}
           className="text-blue-600 hover:underline"
         >
-          <i className="fas fa-folder-open text-lg" title="View Transactions"></i>
+          <i className="fas fa-folder-open text-3xl md:text-lg" title="View Transactions"></i>
         </button>
         {loggedInStaffRole === "Admin" && (
    <button
@@ -1280,7 +1279,7 @@ if(selectedAccount){
           }}
           className="text-green-600 hover:text-green-800"
         >
-          <i className="fas fa-plus-circle text-lg" title="Deposit"></i>
+          <i className="fas fa-plus-circle text-3xl md:text-lg" title="Deposit"></i>
         </button>
         {canManageCustomerFunds && (
           <button
@@ -1341,7 +1340,7 @@ if(selectedAccount){
         </div>
         <div className="flex space-x-4">
           <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
-            <i className="fas fa-folder-open text-lg md:text-lg" title="View Transactions"></i>
+            <i className="fas fa-folder-open text-3xl md:text-lg" title="View Transactions"></i>
           </button>
           {/* <button onClick={() => { setSelectedAccount(account); setGetAmountPerDay(account.amountPerDay); setShowDepositModal(true); }} className="text-green-600 hover:text-green-800">
             <i className="fas fa-plus-circle text-sm md:text-lg" title="Deposit"></i>
@@ -1382,7 +1381,7 @@ if(selectedAccount){
     return (
     <li
       key={`sb-${index}`}
-      className="bg-gray-50 p-3 rounded hover:shadow-md relative"
+      className={`${hasSBItemDetails ? "bg-white p-3 md:p-4" : "bg-gray-50 p-3"} rounded hover:shadow-md relative`}
     >
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
       <div className="min-w-0 flex-1">
@@ -1462,12 +1461,12 @@ if(selectedAccount){
       <div className="flex shrink-0 space-x-4">
         {/* View Transactions */}
         <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
-          <i className="fas fa-folder-open text-lg md:text-lg" title="View Transactions"></i>
+          <i className="fas fa-folder-open text-3xl md:text-lg" title="View Transactions"></i>
         </button>
         {/* Deposit Icon */}
         {loggedInStaffRole !== 'OnlineRep' && !isClosedLegacyAccount &&(
         <button onClick={() => { setSelectedAccount(account); setShowSBDepositModal(true); }} className="text-green-600 hover:text-green-800">
-          <i className="fas fa-plus-circle text-lg md:text-lg" title="Deposit"></i>
+          <i className="fas fa-plus-circle text-3xl md:text-lg" title="Deposit"></i>
         </button>
         )}
         {/* Withdrawal Icon */}
@@ -1501,7 +1500,7 @@ if(selectedAccount){
 	            <h3 className="text-md font-semibold mb-2 break-words">Account: {subAccount.DSAccountNumber}</h3>
 	            {transactionHistory.length > 0 ? (
                 <div className="max-w-full overflow-x-auto">
-  	              <table className="w-full table-fixed">
+  	              <table className="min-w-[760px] w-full table-auto">
   	                <Tablehead />
   	                <Tablebody customers={transactionHistory} branches={staffs} />
   	              </table>
@@ -1535,7 +1534,7 @@ if(selectedAccount){
 	                <h3 className="text-md font-semibold mb-2 break-words">Account: {subAccount.DSAccountNumber}</h3>
 	                {transactionHistory.length > 0 ? (
                     <div className="max-w-full overflow-x-auto">
-  	                  <table className="w-full table-fixed">
+  	                  <table className="min-w-[760px] w-full table-auto">
   	                    <Tablehead />
   	                    <Tablebody customers={transactionHistory} branches={staffs} />
   	                  </table>

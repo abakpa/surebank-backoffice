@@ -45,8 +45,8 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
                 <span className="text-gray-500 break-words">{customer.date}</span>
             </p>
             </td>            
-            <td className="p-2 align-top break-words">
-            <p className={`text-xs font-semibold break-words ${amountClass(customer.direction)}`}>
+            <td className="p-2 align-top whitespace-nowrap">
+            <p className={`text-xs font-semibold whitespace-nowrap ${amountClass(customer.direction)}`}>
             {customer.direction === 'Credit' ? "+" : customer.direction === 'Transfer'? "+" : "-"} {customer.amount?.toLocaleString('en-US')}
             </p>
             </td>
@@ -89,7 +89,7 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
 </p>
 </td>
 
-            <td className="p-2 align-top break-words"><p className={`${amountClass(customer.direction)}`}>{customer.balance?.toLocaleString('en-US')}</p></td>
+            <td className="p-2 align-top whitespace-nowrap"><p className={`whitespace-nowrap ${amountClass(customer.direction)}`}>{customer.balance?.toLocaleString('en-US')}</p></td>
             <td className="p-2 align-top min-w-0">
               <p className={`break-words ${amountClass(customer.direction)}`}>
                 {customer.createdByName || getBranchName(customer.createdBy, branches)}
