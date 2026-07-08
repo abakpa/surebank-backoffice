@@ -25,6 +25,8 @@ const getAuthConfig = () => ({
 
 const ProductActionRequests = () => {
   const navigate = useNavigate();
+  const staffRole = localStorage.getItem("staffRole");
+  const canOpenRequests = !["Agent", "OnlineRep", "Rep"].includes(staffRole);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -153,19 +155,21 @@ const ProductActionRequests = () => {
               <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-500 dark:text-slate-300">Paid</th>
               <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-500 dark:text-slate-300">Status</th>
               <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-500 dark:text-slate-300">Paid At</th>
-              <th className="px-4 py-3 text-right text-xs font-bold uppercase text-gray-500 dark:text-slate-300">Action</th>
+              {canOpenRequests && (
+                <th className="px-4 py-3 text-right text-xs font-bold uppercase text-gray-500 dark:text-slate-300">Action</th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 text-sm dark:divide-slate-700">
             {loading ? (
               <tr>
-                <td colSpan="10">
+                <td colSpan={canOpenRequests ? "10" : "9"}>
                   <TableLoadingNotice message="Loading product action requests..." />
                 </td>
               </tr>
             ) : filteredRequests.length === 0 ? (
               <tr>
-                <td colSpan="10" className="px-4 py-10 text-center text-sm text-gray-500 dark:text-slate-300">
+                <td colSpan={canOpenRequests ? "10" : "9"} className="px-4 py-10 text-center text-sm text-gray-500 dark:text-slate-300">
                   No paid product action requests found.
                 </td>
               </tr>
@@ -203,15 +207,17 @@ const ProductActionRequests = () => {
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-4 py-4 text-gray-600 dark:text-slate-300">{formatDate(request.paidAt)}</td>
-                  <td className="px-4 py-4 text-right">
-                    <button
-                      type="button"
-                      onClick={() => handleOpen(request)}
-                      className="rounded-lg bg-gray-900 px-3 py-2 text-xs font-bold text-white hover:bg-indigo-700"
-                    >
-                      Open
-                    </button>
-                  </td>
+                  {canOpenRequests && (
+                    <td className="px-4 py-4 text-right">
+                      <button
+                        type="button"
+                        onClick={() => handleOpen(request)}
+                        className="rounded-lg bg-gray-900 px-3 py-2 text-xs font-bold text-white hover:bg-indigo-700"
+                      >
+                        Open
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))
             )}

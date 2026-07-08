@@ -46,7 +46,7 @@ const CustomerAccountDashboard = () => {
   const staffId = localStorage.getItem("staffId");
   const canTransferWalletToPackage = ['Admin', 'Manager', 'Agent'].includes(loggedInStaffRole);
   const canManageCustomerFunds = ['Admin', 'Manager'].includes(loggedInStaffRole);
-  const canRequestCustomerProduct = ['Agent', 'OnlineRep'].includes(loggedInStaffRole);
+  const canRequestCustomerProduct = ['Agent', 'OnlineRep', 'Rep'].includes(loggedInStaffRole);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [getAmountPerDay, setGetAmountPerDay] = useState(null);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -61,6 +61,7 @@ const CustomerAccountDashboard = () => {
   const [showSBItemFulfillmentModal, setShowSBItemFulfillmentModal] = useState(false);
   const [fulfillingSBItemId, setFulfillingSBItemId] = useState("");
   const [requestingSBItemId, setRequestingSBItemId] = useState("");
+  const [sbItemActionMessage, setSbItemActionMessage] = useState(null);
   const [showMaturedWithdrawalModal, setShowMaturedWithdrawalModal] = useState(false);
   const [showMainWithdrawalModal, setShowMainWithdrawalModal] = useState(false);
   const [showMainDepositModal, setShowMainDepositModal] = useState(false);
@@ -473,6 +474,7 @@ if(selectedAccount){
     const itemId = index;
     const actionKey = getSBItemActionKey(account, itemId);
     setErrors("");
+    setSbItemActionMessage(null);
     setFulfillingSBItemId(actionKey);
 
     try {
@@ -485,9 +487,20 @@ if(selectedAccount){
       if (response.data?.sbAccount) {
         setSelectedAccount(response.data.sbAccount);
       }
+      setSbItemActionMessage({
+        type: "success",
+        accountNumber: account.SBAccountNumber,
+        message: response.data?.message || "Item delivered successfully",
+      });
       dispatch(fetchCustomerAccountRequest({ customerId }));
     } catch (error) {
-      setErrors(error.response?.data?.message || "Failed to mark item delivered.");
+      const message = error.response?.data?.message || "Failed to mark item delivered.";
+      setErrors(message);
+      setSbItemActionMessage({
+        type: "error",
+        accountNumber: account.SBAccountNumber,
+        message,
+      });
     } finally {
       setFulfillingSBItemId("");
     }
@@ -498,6 +511,7 @@ if(selectedAccount){
     const itemId = index;
     const actionKey = getSBItemActionKey(account, itemId);
     setErrors("");
+    setSbItemActionMessage(null);
     setRequestingSBItemId(actionKey);
 
     try {
@@ -510,9 +524,20 @@ if(selectedAccount){
       if (response.data?.sbAccount) {
         setSelectedAccount(response.data.sbAccount);
       }
+      setSbItemActionMessage({
+        type: "success",
+        accountNumber: account.SBAccountNumber,
+        message: response.data?.message || "Customer request submitted successfully",
+      });
       dispatch(fetchCustomerAccountRequest({ customerId }));
     } catch (error) {
-      setErrors(error.response?.data?.message || "Failed to submit customer request.");
+      const message = error.response?.data?.message || "Failed to submit customer request.";
+      setErrors(message);
+      setSbItemActionMessage({
+        type: "error",
+        accountNumber: account.SBAccountNumber,
+        message,
+      });
     } finally {
       setRequestingSBItemId("");
     }
@@ -940,6 +965,15 @@ if(selectedAccount){
 
     return (
       <div className="mt-2 overflow-x-auto rounded border border-gray-200 bg-white md:mt-3">
+        {sbItemActionMessage?.accountNumber === account.SBAccountNumber && (
+          <p className={`m-2 rounded px-3 py-2 text-xs font-semibold md:text-sm ${
+            sbItemActionMessage.type === "success"
+              ? "bg-green-50 text-green-700"
+              : "bg-red-50 text-red-700"
+          }`}>
+            {sbItemActionMessage.message}
+          </p>
+        )}
         <table className="min-w-[720px] w-full text-[11px] md:text-sm">
           <thead className="bg-gray-50">
             <tr>

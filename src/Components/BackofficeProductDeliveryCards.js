@@ -23,7 +23,7 @@ const getAuthConfig = () => ({
   },
 });
 
-const DeliveryDetailsModal = ({ title, items, isOpen, onClose, onOpenAccount }) => {
+const DeliveryDetailsModal = ({ title, items, isOpen, onClose, onOpenAccount, showDeliveredBy = false }) => {
   if (!isOpen) return null;
 
   return (
@@ -56,6 +56,9 @@ const DeliveryDetailsModal = ({ title, items, isOpen, onClose, onOpenAccount }) 
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-500 dark:text-slate-300">Qty</th>
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-500 dark:text-slate-300">Amount</th>
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-500 dark:text-slate-300">Status</th>
+                {showDeliveredBy && (
+                  <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-500 dark:text-slate-300">Delivered By</th>
+                )}
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-500 dark:text-slate-300">Added</th>
                 <th className="px-4 py-3 text-right text-xs font-bold uppercase text-gray-500 dark:text-slate-300">Action</th>
               </tr>
@@ -63,7 +66,7 @@ const DeliveryDetailsModal = ({ title, items, isOpen, onClose, onOpenAccount }) 
             <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
               {items.length === 0 ? (
                 <tr>
-                  <td colSpan="10" className="px-4 py-10 text-center text-gray-500 dark:text-slate-300">
+                  <td colSpan={showDeliveredBy ? "11" : "10"} className="px-4 py-10 text-center text-gray-500 dark:text-slate-300">
                     No product item found.
                   </td>
                 </tr>
@@ -85,6 +88,9 @@ const DeliveryDetailsModal = ({ title, items, isOpen, onClose, onOpenAccount }) 
                         {item.fulfillmentStatus || "pending"}
                       </span>
                     </td>
+                    {showDeliveredBy && (
+                      <td className="px-4 py-3 font-semibold text-gray-700 dark:text-slate-300">{item.fulfilledBy || "N/A"}</td>
+                    )}
                     <td className="px-4 py-3 text-gray-700 dark:text-slate-300">
                       <p>{formatDate(item.addedAt)}</p>
                       {item.fulfilledAt && <p className="text-xs text-emerald-600">Delivered: {formatDate(item.fulfilledAt)}</p>}
@@ -111,6 +117,7 @@ const DeliveryDetailsModal = ({ title, items, isOpen, onClose, onOpenAccount }) 
 
 const BackofficeProductDeliveryCards = ({ staffId = "" }) => {
   const navigate = useNavigate();
+  const staffRole = localStorage.getItem("staffRole");
   const [summary, setSummary] = useState({
     pending: { count: 0, items: [] },
     delivered: { count: 0, items: [] },
@@ -149,13 +156,13 @@ const BackofficeProductDeliveryCards = ({ staffId = "" }) => {
   const modalData = useMemo(() => {
     if (activeType === "delivered") {
       return {
-        title: "Delivered Backoffice Products",
+        title: "Products Delivered",
         items: summary.delivered.items || [],
       };
     }
 
     return {
-      title: "Backoffice Products Not Delivered",
+      title: "Products Not Delivered",
       items: summary.pending.items || [],
     };
   }, [activeType, summary]);
@@ -174,7 +181,7 @@ const BackofficeProductDeliveryCards = ({ staffId = "" }) => {
         className="relative rounded-lg bg-amber-100 p-4 text-left shadow-md transition hover:bg-amber-200"
       >
         <FaEye className="absolute right-3 top-3 text-amber-800" />
-        <h3 className="pr-8 text-sm font-semibold text-amber-800">Backoffice Products Not Delivered</h3>
+        <h3 className="pr-8 text-sm font-semibold text-amber-800">Products Not Delivered</h3>
         <p className="mt-3 text-2xl font-bold text-amber-900">
           {loading ? "..." : Number(summary.pending.count || 0).toLocaleString()}
         </p>
@@ -187,7 +194,7 @@ const BackofficeProductDeliveryCards = ({ staffId = "" }) => {
         className="relative rounded-lg bg-teal-100 p-4 text-left shadow-md transition hover:bg-teal-200"
       >
         <FaEye className="absolute right-3 top-3 text-teal-800" />
-        <h3 className="pr-8 text-sm font-semibold text-teal-800">Backoffice Products Delivered</h3>
+        <h3 className="pr-8 text-sm font-semibold text-teal-800">Products Delivered</h3>
         <p className="mt-3 text-2xl font-bold text-teal-900">
           {loading ? "..." : Number(summary.delivered.count || 0).toLocaleString()}
         </p>
@@ -200,6 +207,7 @@ const BackofficeProductDeliveryCards = ({ staffId = "" }) => {
         items={modalData.items}
         onClose={() => setActiveType("")}
         onOpenAccount={openAccount}
+        showDeliveredBy={staffRole === "Admin"}
       />
     </>
   );
