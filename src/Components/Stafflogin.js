@@ -13,6 +13,9 @@ const Login = () => {
     const [credentials,setCredentials] = useState({email:'',password:''})
     const [showPassword, setShowPassword] = useState(false)
     const sessionExpired = searchParams.get('sessionExpired') === '1'
+    const sessionExpiredMessage = sessionExpired
+      ? localStorage.getItem('sessionExpiredMessage') || 'Your login session has expired. Please login again to continue.'
+      : ''
 
     const handleChange = (e) => {
         setCredentials({...credentials,[e.target.name]: e.target.value})
@@ -20,6 +23,7 @@ const Login = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        localStorage.removeItem('sessionExpiredMessage')
         const data ={credentials,navigate}
         dispatch(loginRequest(data))
     }
@@ -30,7 +34,7 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {sessionExpired && (
               <div className="rounded-lg bg-yellow-100 p-3 text-sm text-yellow-800">
-                Your login session has expired. Please login again to continue.
+                {sessionExpiredMessage}
               </div>
             )}
 
