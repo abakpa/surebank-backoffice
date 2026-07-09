@@ -3,10 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   fetchOrderByIdRequest,
-  updateOrderStatusRequest,
   updateOrderItemFulfillmentRequest,
   recordPaymentRequest,
-  cancelOrderRequest,
   creditSBAccountRequest,
   clearOrderState,
 } from "../redux/slices/ecommerceOrderSlice";
@@ -28,8 +26,6 @@ const EcommerceOrderDetail = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState("");
   const [transactionRef, setTransactionRef] = useState("");
-  const [cancelReason, setCancelReason] = useState("");
-  const [showCancelModal, setShowCancelModal] = useState(false);
   const [showCreditModal, setShowCreditModal] = useState(false);
   const [creditAmount, setCreditAmount] = useState("");
 
@@ -49,31 +45,9 @@ const EcommerceOrderDetail = () => {
     }
   }, [success, dispatch]);
 
-  const handleStatusChange = (status) => {
-    if (!canUpdateOrderStatus) return;
-    if (isManager && status !== "delivered") return;
-    dispatch(updateOrderStatusRequest({ orderId: id, status }));
-  };
-
   const handleItemFulfillment = (itemId, status = "delivered") => {
     if (!canUpdateOrderStatus) return;
     dispatch(updateOrderItemFulfillmentRequest({ orderId: id, itemId, status }));
-  };
-
-  const getStatusOptions = () => {
-    if (isManager) {
-      return [{ value: "delivered", label: "Delivered" }];
-    }
-
-    return [
-      { value: "pending", label: "Pending" },
-      { value: "confirmed", label: "Confirmed" },
-      { value: "processing", label: "Processing" },
-      { value: "shipped", label: "Shipped" },
-      { value: "delivered", label: "Delivered" },
-      { value: "completed", label: "Completed" },
-      ...(isAdmin ? [{ value: "cancelled", label: "Cancelled" }] : [])
-    ];
   };
 
   const handleRecordPayment = () => {
@@ -94,18 +68,6 @@ const EcommerceOrderDetail = () => {
     setShowPaymentModal(false);
     setPaymentAmount("");
     setTransactionRef("");
-  };
-
-  const handleCancelOrder = () => {
-    if (!isAdmin) return;
-    if (!cancelReason) {
-      alert("Please provide a cancellation reason");
-      return;
-    }
-
-    dispatch(cancelOrderRequest({ orderId: id, reason: cancelReason }));
-    setShowCancelModal(false);
-    setCancelReason("");
   };
 
   const handleCreditSBAccount = () => {
@@ -497,53 +459,14 @@ const EcommerceOrderDetail = () => {
         </div>
       )}
 
-      {(canManageEcommerce || canUpdateOrderStatus) && (
+      {canManageEcommerce && order.paymentType !== "installment" && order.paymentStatus !== "paid" && order.status !== "cancelled" && (
         <div className="flex gap-4 flex-wrap">
-          {canUpdateOrderStatus ? (
-            <select
-              value={order.status}
-              onChange={(e) => handleStatusChange(e.target.value)}
-              className="px-4 py-2 border rounded"
-            >
-              <option value={order.status}>{order.status}</option>
-              {getStatusOptions()
-                .filter((option) => option.value !== order.status)
-                .map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-            </select>
-          ) : (
-            <span className={`px-3 py-2 rounded text-sm ${getStatusColor(order.status)}`}>
-              {order.status}
-            </span>
-          )}
-
-          {order.paymentStatus === "paid" && order.status !== "completed" && order.status !== "cancelled" && (
-            <button
-              onClick={() => handleStatusChange("completed")}
-              className="bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700"
-            >
-              Mark Completed
-            </button>
-          )}
-
-          {order.paymentType !== "installment" && order.paymentStatus !== "paid" && order.status !== "cancelled" && (
-            <button
-              onClick={() => setShowPaymentModal(true)}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            >
-              Record Payment
-            </button>
-          )}
-
-          {isAdmin && !["delivered", "completed", "cancelled"].includes(order.status) && (
-            <button
-              onClick={() => setShowCancelModal(true)}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-            >
-              Cancel Order
-            </button>
-          )}
+          <button
+            onClick={() => setShowPaymentModal(true)}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Record Payment
+          </button>
         </div>
       )}
 
@@ -608,37 +531,6 @@ const EcommerceOrderDetail = () => {
                 className="flex-1 border py-2 rounded hover:bg-gray-100"
               >
                 Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isAdmin && showCancelModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96">
-            <h3 className="font-semibold text-lg mb-4">Cancel Order</h3>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Cancellation Reason</label>
-              <textarea
-                value={cancelReason}
-                onChange={(e) => setCancelReason(e.target.value)}
-                className="w-full px-4 py-2 border rounded"
-                rows={3}
-              />
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={handleCancelOrder}
-                className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700"
-              >
-                Cancel Order
-              </button>
-              <button
-                onClick={() => setShowCancelModal(false)}
-                className="flex-1 border py-2 rounded hover:bg-gray-100"
-              >
-                Close
               </button>
             </div>
           </div>

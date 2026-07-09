@@ -47,6 +47,7 @@ const CustomerAccountDashboard = () => {
   const canTransferWalletToPackage = ['Admin', 'Manager', 'Agent'].includes(loggedInStaffRole);
   const canManageCustomerFunds = ['Admin', 'Manager'].includes(loggedInStaffRole);
   const canRequestCustomerProduct = ['Agent', 'OnlineRep', 'Rep'].includes(loggedInStaffRole);
+  const canChangeSBProduct = canTransferWalletToPackage;
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [getAmountPerDay, setGetAmountPerDay] = useState(null);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -94,7 +95,15 @@ const CustomerAccountDashboard = () => {
   const [ecommerceProducts, setEcommerceProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(false);
   const [productsError, setProductsError] = useState("");
+  const [showSBProductReplaceModal, setShowSBProductReplaceModal] = useState(false);
+  const [replaceSBContext, setReplaceSBContext] = useState(null);
+  const [replacementProductId, setReplacementProductId] = useState("");
+  const [replacementVariationId, setReplacementVariationId] = useState("");
+  const [replacementSearch, setReplacementSearch] = useState("");
+  const [replaceLoading, setReplaceLoading] = useState(false);
+  const [replaceError, setReplaceError] = useState("");
   const [selectedSBProducts, setSelectedSBProducts] = useState([]);
+  const [showMobileSBProductActionModal, setShowMobileSBProductActionModal] = useState(false);
   const [sbItemCostInputs, setSbItemCostInputs] = useState({});
   const [approvingSBItemId, setApprovingSBItemId] = useState("");
   const [accountType, setAccountType] = useState("");
@@ -186,7 +195,7 @@ if(selectedAccount){
   }, [showError, dispatch]);
 
   useEffect(() => {
-    if (!showCreateSBAccountModal || ecommerceProducts.length > 0) {
+    if ((!showCreateSBAccountModal && !showSBProductReplaceModal) || ecommerceProducts.length > 0) {
       return;
     }
 
@@ -219,7 +228,7 @@ if(selectedAccount){
     return () => {
       isMounted = false;
     };
-  }, [showCreateSBAccountModal, ecommerceProducts.length]);
+  }, [showCreateSBAccountModal, showSBProductReplaceModal, ecommerceProducts.length]);
 
 
   // useEffect(() => {
@@ -789,25 +798,42 @@ if(selectedAccount){
       return optionValues.length > 0 ? optionValues.join(" / ") : variation.name;
     };
 
-    const handleSelectSBProduct = (product) => {
+    const buildSBProductItem = (product) => {
       const activeVariations = getActiveProductVariations(product);
       const requiresVariation = activeVariations.length > 0;
+      return {
+        productId: product._id,
+        productName: product.name || "",
+        productDescription: product.description || "",
+        hasVariations: requiresVariation,
+        variations: activeVariations,
+        variationId: "",
+        variationName: "",
+        quantity: 1,
+        price: Number(product.price || 0),
+        subtotal: Number(product.price || 0)
+      };
+    };
+
+    const isMobileViewport = () => (
+      typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches
+    );
+
+    const handleSelectSBProduct = (product) => {
+      if (isMobileViewport()) {
+        const nextItems = [buildSBProductItem(product)];
+        setSelectedSBProducts(nextItems);
+        updateSBPackageSummary(nextItems);
+        setShowMobileSBProductActionModal(true);
+        setErrors("");
+        return;
+      }
+
       const nextItems = selectedSBProducts.some((item) => item.productId === product._id)
         ? selectedSBProducts
         : [
             ...selectedSBProducts,
-            {
-              productId: product._id,
-              productName: product.name || "",
-              productDescription: product.description || "",
-              hasVariations: requiresVariation,
-              variations: activeVariations,
-              variationId: "",
-              variationName: "",
-              quantity: 1,
-              price: Number(product.price || 0),
-              subtotal: Number(product.price || 0)
-            }
+            buildSBProductItem(product)
           ];
 
       setSelectedSBProducts(nextItems);
@@ -877,6 +903,7 @@ if(selectedAccount){
 
     const handleCloseCreateSBAccountModal = () => {
       setShowCreateSBAccountModal(false);
+      setShowMobileSBProductActionModal(false);
       setSelectedSBProducts([]);
       setSellingPrice("");
       setProductName("");
@@ -929,8 +956,101 @@ if(selectedAccount){
       setProductDescription("");
       setSelectedSBProducts([]);
       // setAccountManagerId("");
+      setShowMobileSBProductActionModal(false);
       setShowCreateSBAccountModal(false);
     };
+
+    const selectedReplacementProduct = ecommerceProducts.find((product) => String(product._id || "") === String(replacementProductId));
+    const activeReplacementVariations = getActiveProductVariations(selectedReplacementProduct);
+    const selectedReplacementVariation = activeReplacementVariations.find((variation) => String(variation._id || "") === String(replacementVariationId));
+    const replacementQuantity = Math.max(1, Number(replaceSBContext?.item?.quantity || 1));
+    const replacementUnitPrice = Number(selectedReplacementVariation?.price ?? selectedReplacementProduct?.price ?? 0);
+    const replacementSubtotal = replacementUnitPrice * replacementQuantity;
+    const replacePaidAmount = Number(replaceSBContext?.item?.paidAmount || 0);
+    const replacementAmountTooLow = replacementProductId && replacementSubtotal < replacePaidAmount;
+    const filteredReplacementProducts = ecommerceProducts.filter((product) => {
+      const search = replacementSearch.trim().toLowerCase();
+      if (!search) return true;
+      return [product.name, product.description]
+        .filter(Boolean)
+        .some((value) => value.toLowerCase().includes(search));
+    });
+
+    const handleOpenSBProductReplaceModal = (item, index, account) => {
+      setReplaceSBContext({ item, index, account });
+      setReplacementProductId("");
+      setReplacementVariationId("");
+      setReplacementSearch("");
+      setReplaceError("");
+      setShowSBProductReplaceModal(true);
+    };
+
+    const handleCloseSBProductReplaceModal = () => {
+      setShowSBProductReplaceModal(false);
+      setReplaceSBContext(null);
+      setReplacementProductId("");
+      setReplacementVariationId("");
+      setReplacementSearch("");
+      setReplaceError("");
+      setReplaceLoading(false);
+    };
+
+    const handleSelectReplacementProduct = (product) => {
+      setReplacementProductId(product._id);
+      setReplacementVariationId("");
+      setReplaceError("");
+    };
+
+    const handleReplaceSBProduct = async () => {
+      const account = replaceSBContext?.account;
+      const item = replaceSBContext?.item;
+      const itemId = item?._id || replaceSBContext?.index;
+
+      if (!account?.SBAccountNumber || itemId === undefined || itemId === null) {
+        setReplaceError("Unable to identify this SB product.");
+        return;
+      }
+      if (!replacementProductId) {
+        setReplaceError("Select a replacement product.");
+        return;
+      }
+      if (activeReplacementVariations.length > 0 && !replacementVariationId) {
+        setReplaceError("Select a product variation.");
+        return;
+      }
+      if (replacementAmountTooLow) {
+        setReplaceError("Replacement product amount cannot be less than the amount already paid for this product.");
+        return;
+      }
+
+      setReplaceLoading(true);
+      setReplaceError("");
+
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await axios.put(
+          `${url}/api/ecommerce/orders/staff/sb/${encodeURIComponent(account.SBAccountNumber)}/items/${encodeURIComponent(itemId)}/replace`,
+          {
+            productId: replacementProductId,
+            variationId: replacementVariationId
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        setSbItemActionMessage({
+          type: "success",
+          accountNumber: account.SBAccountNumber,
+          message: response.data?.message || "Product changed successfully",
+        });
+        dispatch(fetchCustomerAccountRequest({ customerId }));
+        handleCloseSBProductReplaceModal();
+      } catch (error) {
+        setReplaceError(error.response?.data?.message || "Failed to change product.");
+      } finally {
+        setReplaceLoading(false);
+      }
+    };
+
     const handleCreateFDAccount = (e) => {
       e.preventDefault();
       setErrors("");
@@ -1047,29 +1167,53 @@ if(selectedAccount){
                     {delivered ? (
                       <span className="text-[10px] text-gray-400 md:text-xs">No action</span>
                     ) : canRequestCustomerProduct ? (
-                      requested ? (
-                        <span className="text-[10px] font-semibold text-green-700 md:text-xs">Requested</span>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => handleCustomerRequestSBItem(item, index, account)}
-                          disabled={requestingSBItemId === actionKey}
-                          className="rounded bg-yellow-600 px-2 py-1 text-[10px] font-semibold text-white hover:bg-yellow-700 disabled:bg-gray-400 md:px-3 md:py-1.5 md:text-xs"
-                        >
-                          {requestingSBItemId === actionKey ? "Processing..." : "Customer Request"}
-                        </button>
-                      )
-                    ) : needsCostApproval ? (
-                      <span className="text-[10px] text-gray-400 md:text-xs">Approve cost first</span>
+                      <div className="flex min-w-[120px] flex-col gap-1 md:min-w-[150px] md:gap-1.5">
+                        {canChangeSBProduct && (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenSBProductReplaceModal(item, index, account)}
+                            className="rounded bg-blue-600 px-2 py-1 text-[10px] font-semibold text-white hover:bg-blue-700 md:px-3 md:py-1.5 md:text-xs"
+                          >
+                            Change Product
+                          </button>
+                        )}
+                        {requested ? (
+                          <span className="text-[10px] font-semibold text-green-700 md:text-xs">Requested</span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleCustomerRequestSBItem(item, index, account)}
+                            disabled={requestingSBItemId === actionKey}
+                            className="rounded bg-yellow-600 px-2 py-1 text-[10px] font-semibold text-white hover:bg-yellow-700 disabled:bg-gray-400 md:px-3 md:py-1.5 md:text-xs"
+                          >
+                            {requestingSBItemId === actionKey ? "Processing..." : "Customer Request"}
+                          </button>
+                        )}
+                      </div>
                     ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleMarkSBItemDelivered(item, index, account)}
-                        disabled={fulfillingSBItemId === actionKey}
-                        className="rounded bg-green-600 px-2 py-1 text-[10px] font-semibold text-white hover:bg-green-700 disabled:bg-gray-400 md:px-3 md:py-1.5 md:text-xs"
-                      >
-                        {fulfillingSBItemId === actionKey ? "Processing..." : "Mark Delivered"}
-                      </button>
+                      <div className="flex min-w-[120px] flex-col gap-1 md:min-w-[150px] md:gap-1.5">
+                        {canChangeSBProduct && (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenSBProductReplaceModal(item, index, account)}
+                            className="rounded bg-blue-600 px-2 py-1 text-[10px] font-semibold text-white hover:bg-blue-700 md:px-3 md:py-1.5 md:text-xs"
+                          >
+                            Change Product
+                          </button>
+                        )}
+                        {needsCostApproval ? (
+                          <span className="text-[10px] text-gray-400 md:text-xs">Approve cost first</span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleMarkSBItemDelivered(item, index, account)}
+                            disabled={fulfillingSBItemId === actionKey}
+                            className="rounded bg-green-600 px-2 py-1 text-[10px] font-semibold text-white hover:bg-green-700 disabled:bg-gray-400 md:px-3 md:py-1.5 md:text-xs"
+                          >
+                            {fulfillingSBItemId === actionKey ? "Processing..." : "Mark Delivered"}
+                          </button>
+                        )}
+                      </div>
                     )}
                   </td>
                 </tr>
@@ -2406,7 +2550,7 @@ if(selectedAccount){
             </div>
           </div>
 
-          <div className="border border-gray-200 rounded-md p-3 mb-5 bg-gray-50">
+          <div className="hidden md:block border border-gray-200 rounded-md p-3 mb-5 bg-gray-50">
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-xs font-semibold text-gray-800">Selected Products</h4>
               <span className="text-xs font-semibold text-green-700">Total: {formatCurrency(sellingPrice)}</span>
@@ -2463,6 +2607,98 @@ if(selectedAccount){
             )}
           </div>
 
+          {showMobileSBProductActionModal && selectedSBProducts[0] && (
+            <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/60 p-0 md:hidden">
+              <div className="max-h-[88vh] w-full overflow-y-auto rounded-t-2xl bg-white p-4 shadow-2xl">
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div>
+                    <h4 className="text-base font-bold text-gray-900">Selected Product</h4>
+                    <p className="text-xs text-gray-500">Create or add this product to the customer's SB order.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowMobileSBProductActionModal(false)}
+                    className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700"
+                  >
+                    Close
+                  </button>
+                </div>
+
+                {errors && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-xs text-red-700">{errors}</p>}
+
+                <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
+                  <p className="text-sm font-bold text-gray-900">{selectedSBProducts[0].productName}</p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    {selectedSBProducts[0].variationName ? `${selectedSBProducts[0].variationName} • ` : ""}
+                    {formatCurrency(selectedSBProducts[0].price)} each
+                  </p>
+
+                  {selectedSBProducts[0].hasVariations ? (
+                    <div className="mt-3">
+                      <label className="mb-1 block text-xs font-semibold text-gray-700">Variation</label>
+                      <select
+                        value={selectedSBProducts[0].variationId}
+                        onChange={(e) => handleUpdateSBProductVariation(selectedSBProducts[0].productId, e.target.value)}
+                        className="w-full rounded border border-gray-300 p-3 text-sm"
+                        required
+                      >
+                        <option value="">Select variation</option>
+                        {(selectedSBProducts[0].variations || []).map((variation) => (
+                          <option key={variation._id} value={variation._id}>
+                            {getVariationLabel(variation)} - {formatCurrency(variation.price)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : (
+                    <p className="mt-3 text-xs text-gray-400">No variation required</p>
+                  )}
+
+                  <div className="mt-3 grid grid-cols-[1fr_auto] items-end gap-3">
+                    <div>
+                      <label className="mb-1 block text-xs font-semibold text-gray-700">Quantity</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={selectedSBProducts[0].quantity}
+                        onChange={(e) => handleUpdateSBProductQuantity(selectedSBProducts[0].productId, e.target.value)}
+                        onBlur={() => handleNormalizeSBProductQuantity(selectedSBProducts[0].productId)}
+                        className="w-full rounded border border-gray-300 p-3 text-sm"
+                      />
+                    </div>
+                    <div className="rounded-lg bg-white px-3 py-2 text-right">
+                      <p className="text-[10px] font-semibold uppercase text-gray-500">Total</p>
+                      <p className="text-sm font-bold text-green-700">{formatCurrency(selectedSBProducts[0].subtotal)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowMobileSBProductActionModal(false);
+                      setSelectedSBProducts([]);
+                      updateSBPackageSummary([]);
+                    }}
+                    className="rounded-lg bg-gray-100 px-3 py-3 text-sm font-semibold text-gray-700"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading || selectedSBProducts.length === 0}
+                    className={`rounded-lg px-3 py-3 text-sm font-semibold text-white ${
+                      loading || selectedSBProducts.length === 0 ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
+                    }`}
+                  >
+                    {loading ? "Saving..." : "Create / Add"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex justify-end space-x-3">
             <button
               type="button"
@@ -2482,6 +2718,183 @@ if(selectedAccount){
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  )}
+  {showSBProductReplaceModal && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-3">
+      <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-lg bg-white shadow-xl">
+        <div className="sticky top-0 z-10 border-b border-gray-200 bg-white px-4 py-3 md:px-5">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="text-base font-bold text-gray-900 md:text-lg">Change Product</h3>
+              <p className="mt-1 text-xs text-gray-600">
+                Replace this product on {replaceSBContext?.account?.SBAccountNumber || "SB account"}.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleCloseSBProductReplaceModal}
+              className="rounded bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-200"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+
+        <div className="p-4 md:p-5">
+          {replaceError && (
+            <p className="mb-3 rounded bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 md:text-sm">
+              {replaceError}
+            </p>
+          )}
+
+          <div className="mb-4 rounded border border-gray-200 bg-gray-50 p-3">
+            <p className="text-[11px] font-semibold uppercase text-gray-500">Current product</p>
+            <p className="mt-1 text-sm font-bold text-gray-900">{replaceSBContext?.item?.productName || "Product"}</p>
+            <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-gray-700">
+              <span>Qty: <b>{replaceSBContext?.item?.quantity || 1}</b></span>
+              <span>Amount: <b>{formatCurrency(replaceSBContext?.item?.subtotal)}</b></span>
+              <span>Paid: <b>{formatCurrency(replaceSBContext?.item?.paidAmount)}</b></span>
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label className="mb-1 block text-xs font-semibold text-gray-700">Search product</label>
+            <input
+              type="text"
+              value={replacementSearch}
+              onChange={(event) => setReplacementSearch(event.target.value)}
+              placeholder="Search product name"
+              className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+            />
+          </div>
+
+          {productsLoading && (
+            <div className="rounded border border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
+              Loading products...
+            </div>
+          )}
+
+          {productsError && (
+            <div className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {productsError}
+            </div>
+          )}
+
+          {!productsLoading && !productsError && (
+            <div className="grid max-h-[330px] grid-cols-2 gap-2.5 overflow-y-auto pr-1 md:grid-cols-3 lg:grid-cols-4">
+              {filteredReplacementProducts.map((product) => {
+                const productImage = Array.isArray(product.images) && product.images.length > 0
+                  ? resolveImageUrl(product.images[0])
+                  : "";
+                const selected = String(product._id || "") === String(replacementProductId);
+
+                return (
+                  <button
+                    type="button"
+                    key={product._id}
+                    onClick={() => handleSelectReplacementProduct(product)}
+                    className={`overflow-hidden rounded-md border text-left shadow-sm transition hover:shadow-md ${
+                      selected ? "border-blue-600 ring-2 ring-blue-100" : "border-gray-200"
+                    }`}
+                  >
+                    <div className="h-24 bg-gray-100 md:h-28">
+                      {productImage ? (
+                        <img src={productImage} alt={product.name} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">No image</div>
+                      )}
+                    </div>
+                    <div className="p-2">
+                      <p className="line-clamp-2 text-xs font-bold text-gray-900">{product.name}</p>
+                      <p className="mt-1 text-xs font-bold text-green-700">{formatCurrency(product.price)}</p>
+                    </div>
+                  </button>
+                );
+              })}
+              {filteredReplacementProducts.length === 0 && (
+                <div className="col-span-full rounded border border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
+                  No matching product found.
+                </div>
+              )}
+            </div>
+          )}
+
+          {selectedReplacementProduct && (
+            <div className="mt-4 rounded border border-gray-200 bg-white p-3">
+              <div className="grid gap-3 md:grid-cols-[1fr_220px] md:items-end">
+                <div>
+                  <p className="text-xs font-semibold text-gray-500">Replacement</p>
+                  <p className="mt-1 text-sm font-bold text-gray-900">{selectedReplacementProduct.name}</p>
+                  {activeReplacementVariations.length > 0 && (
+                    <div className="mt-3">
+                      <label className="mb-1 block text-xs font-semibold text-gray-700">Variation</label>
+                      <select
+                        value={replacementVariationId}
+                        onChange={(event) => {
+                          setReplacementVariationId(event.target.value);
+                          setReplaceError("");
+                        }}
+                        className="w-full rounded border border-gray-300 p-2 text-sm"
+                      >
+                        <option value="">Select variation</option>
+                        {activeReplacementVariations.map((variation) => (
+                          <option key={variation._id} value={variation._id}>
+                            {getVariationLabel(variation)} - {formatCurrency(variation.price)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+                <div className="rounded bg-gray-50 p-3 text-sm">
+                  <div className="flex justify-between gap-3">
+                    <span className="text-gray-500">Qty</span>
+                    <b>{replacementQuantity}</b>
+                  </div>
+                  <div className="mt-1 flex justify-between gap-3">
+                    <span className="text-gray-500">New total</span>
+                    <b className="text-green-700">{formatCurrency(replacementSubtotal)}</b>
+                  </div>
+                  {replacePaidAmount > 0 && (
+                    <div className="mt-1 flex justify-between gap-3">
+                      <span className="text-gray-500">Paid carried</span>
+                      <b>{formatCurrency(replacePaidAmount)}</b>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {replacementAmountTooLow && (
+                <p className="mt-3 rounded bg-red-50 px-3 py-2 text-xs font-semibold text-red-700">
+                  Replacement product amount cannot be less than the amount already paid for this product.
+                </p>
+              )}
+            </div>
+          )}
+
+          <div className="mt-5 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={handleCloseSBProductReplaceModal}
+              className="rounded bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleReplaceSBProduct}
+              disabled={replaceLoading || !replacementProductId || replacementAmountTooLow}
+              className={`rounded px-4 py-2 text-sm font-semibold text-white ${
+                replaceLoading || !replacementProductId || replacementAmountTooLow
+                  ? "bg-gray-400"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              {replaceLoading ? "Changing..." : "Change Product"}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )}
