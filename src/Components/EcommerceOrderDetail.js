@@ -164,7 +164,7 @@ const EcommerceOrderDetail = () => {
     ["delivered", "completed"].includes(item.fulfillmentStatus || "pending");
 
   const isDebitPayment = (payment = {}) =>
-    payment.type === "debit" || ["Debit", "Purchased"].includes(payment.direction);
+    payment.type === "debit" || ["Debit", "Purchased", "Bought", "Delivered"].includes(payment.direction);
 
   if (loading) return <Loader />;
   if (!order) return <div className="p-4">Order not found</div>;
@@ -457,7 +457,7 @@ const EcommerceOrderDetail = () => {
                 )}
                 {statementTransactions.map((payment, index) => {
                   const isDebit = isDebitPayment(payment);
-                  const typeLabel = isDebit ? "Product payment" : "Wallet deposit";
+                  const typeLabel = isDebit ? (["Bought", "Delivered"].includes(payment.direction) ? payment.direction : "Product payment") : "Wallet deposit";
                   const transactionDate = payment.paidAt || payment.date || payment.createdAt;
                   const reference = payment.transactionRef || payment.reference || "-";
                   const hasBalance = payment.balance !== undefined && payment.balance !== null;
