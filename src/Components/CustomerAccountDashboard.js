@@ -19,6 +19,21 @@ import Select from "./Select";
 // import Select2 from "./Select2";
 
 const isDeliveredSBItem = (item) => ["delivered", "completed"].includes(item?.fulfillmentStatus);
+const getSBItemAmount = (item) => Number(item?.subtotal || item?.price || 0);
+const isPaidSBItem = (item) => {
+  const itemAmount = getSBItemAmount(item);
+  return itemAmount > 0 && Number(item?.paidAmount || 0) >= itemAmount;
+};
+const getSBItemDisplayStatus = (item) => {
+  if (isDeliveredSBItem(item)) return item?.fulfillmentStatus || "delivered";
+  if (isPaidSBItem(item)) return "processing order";
+  return item?.fulfillmentStatus || "pending";
+};
+const getSBItemStatusClass = (item) => {
+  if (isDeliveredSBItem(item)) return "bg-green-100 text-green-700";
+  if (isPaidSBItem(item)) return "bg-purple-100 text-purple-700";
+  return "bg-yellow-100 text-yellow-700";
+};
 const getActiveSBItems = (account) => (Array.isArray(account?.items) ? account.items.filter((item) => !isDeliveredSBItem(item)) : []);
 const getActiveSBProductSummary = (account) => {
   const activeItems = getActiveSBItems(account);
@@ -28,6 +43,53 @@ const getActiveSBProductSummary = (account) => {
   return activeItems.length > 0
     ? activeItems.map((item) => item.productName).filter(Boolean).join(", ")
     : account?.productName;
+};
+
+const MobileVariationDropdown = ({ value, options, onChange, getLabel, formatCurrencyValue, accent = "green" }) => {
+  const [open, setOpen] = useState(false);
+  const selectedVariation = (options || []).find((variation) => String(variation._id || "") === String(value || ""));
+  const accentClasses = accent === "blue"
+    ? "border-blue-600 bg-blue-50 text-blue-800"
+    : "border-green-600 bg-green-50 text-green-800";
+
+  return (
+    <div className="relative md:hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((current) => !current)}
+        className="flex w-full items-center justify-between rounded border border-gray-300 bg-white p-3 text-left text-sm"
+      >
+        <span className={selectedVariation ? "font-semibold text-gray-900" : "text-gray-500"}>
+          {selectedVariation
+            ? `${getLabel(selectedVariation)} - ${formatCurrencyValue(selectedVariation.price)}`
+            : "Select variation"}
+        </span>
+        <span className={`ml-3 text-xs transition-transform ${open ? "rotate-180" : ""}`}>⌄</span>
+      </button>
+      {open && (
+        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-[80] max-h-56 overflow-y-auto rounded border border-gray-200 bg-white shadow-xl">
+          {(options || []).map((variation) => {
+            const selected = String(value || "") === String(variation._id || "");
+            return (
+              <button
+                type="button"
+                key={variation._id}
+                onClick={() => {
+                  onChange(variation._id);
+                  setOpen(false);
+                }}
+                className={`block w-full border-b border-gray-100 px-3 py-2 text-left text-xs font-semibold last:border-b-0 ${
+                  selected ? accentClasses : "bg-white text-gray-700"
+                }`}
+              >
+                {getLabel(variation)} - {formatCurrencyValue(variation.price)}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 };
 
 const CustomerAccountDashboard = () => {
@@ -67,6 +129,7 @@ const CustomerAccountDashboard = () => {
   const [showMainWithdrawalModal, setShowMainWithdrawalModal] = useState(false);
   const [showMainDepositModal, setShowMainDepositModal] = useState(false);
   const [showWalletToSBTransferModal, setShowWalletToSBTransferModal] = useState(false);
+  const [walletTransferSource, setWalletTransferSource] = useState("free_to_sb_wallet");
   const [showFDWithdrawalModal, setShowFDWithdrawalModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSBEditModal, setShowSBEditModal] = useState(false);
@@ -641,8 +704,8 @@ if(selectedAccount){
     e.preventDefault();
     setErrors("");
 
-    if (!deposit?.account?.accountNumber || !walletTransferTargetAccountNumber || !amountPerDay) {
-      setErrors("Amount and target account number are required.");
+    if (!deposit?.account?.accountNumber || !amountPerDay) {
+      setErrors("Amount is required.");
       return;
     }
 
@@ -651,9 +714,20 @@ if(selectedAccount){
       return;
     }
 
+    const selectedDSAccount = Array.isArray(newSubAccount?.dsAccount)
+      ? newSubAccount.dsAccount.find((account) => String(account.DSAccountNumber || "") === String(walletTransferTargetAccountNumber || ""))
+      : null;
+
+    if (walletTransferSource === "sb_wallet_to_ds" && !selectedDSAccount) {
+      setErrors("Please select the DS account package to credit.");
+      return;
+    }
+
     const details = {
+      transferType: walletTransferSource,
       accountNumber: deposit?.account?.accountNumber,
-      targetAccountNumber: walletTransferTargetAccountNumber,
+      targetAccountNumber: walletTransferSource === "sb_wallet_to_ds" ? selectedDSAccount.DSAccountNumber : "",
+      accountType: walletTransferSource === "sb_wallet_to_ds" ? selectedDSAccount.accountType : "",
       customerId,
       amountPerDay: parseFloat(amountPerDay)
     };
@@ -661,8 +735,26 @@ if(selectedAccount){
     dispatch(createWalletToSBTransferRequest(data));
     setAmountPerDay("");
     setWalletTransferTargetAccountNumber("");
+    setWalletTransferSource("free_to_sb_wallet");
     setShowWalletToSBTransferModal(false);
   };
+
+  const openWalletTransferModal = (source) => {
+    setWalletTransferSource(source);
+    setWalletTransferTargetAccountNumber("");
+    setAmountPerDay("");
+    setErrors("");
+    setShowWalletToSBTransferModal(true);
+  };
+
+  const closeWalletTransferModal = () => {
+    setShowWalletToSBTransferModal(false);
+    setWalletTransferSource("free_to_sb_wallet");
+    setWalletTransferTargetAccountNumber("");
+    setAmountPerDay("");
+    setErrors("");
+  };
+
   const handleEditSubmit = (e) => {
     e.preventDefault();
     setErrors("");
@@ -967,7 +1059,12 @@ if(selectedAccount){
     const replacementUnitPrice = Number(selectedReplacementVariation?.price ?? selectedReplacementProduct?.price ?? 0);
     const replacementSubtotal = replacementUnitPrice * replacementQuantity;
     const replacePaidAmount = Number(replaceSBContext?.item?.paidAmount || 0);
-    const replacementAmountTooLow = replacementProductId && replacementSubtotal < replacePaidAmount;
+    const currentSBWalletBalance = Number(deposit?.sbWalletAccount?.availableBalance || 0);
+    const walletAfterOldPaymentReversal = currentSBWalletBalance + replacePaidAmount;
+    const replacementWillBePaid = replacementSubtotal > 0 && walletAfterOldPaymentReversal >= replacementSubtotal;
+    const projectedWalletBalance = replacementWillBePaid
+      ? walletAfterOldPaymentReversal - replacementSubtotal
+      : walletAfterOldPaymentReversal;
     const filteredReplacementProducts = ecommerceProducts.filter((product) => {
       const search = replacementSearch.trim().toLowerCase();
       if (!search) return true;
@@ -1016,10 +1113,6 @@ if(selectedAccount){
       }
       if (activeReplacementVariations.length > 0 && !replacementVariationId) {
         setReplaceError("Select a product variation.");
-        return;
-      }
-      if (replacementAmountTooLow) {
-        setReplaceError("Replacement product amount cannot be less than the amount already paid for this product.");
         return;
       }
 
@@ -1123,8 +1216,7 @@ if(selectedAccount){
               const itemId = index;
               const actionKey = getSBItemActionKey(account, itemId);
               const delivered = ["delivered", "completed"].includes(item.fulfillmentStatus);
-              const itemAmount = Number(item.subtotal || item.price || 0);
-              const requested = Number(item.paidAmount || 0) >= itemAmount && itemAmount > 0;
+              const requested = isPaidSBItem(item);
               const needsCostApproval = !delivered && (item.requiresCostApproval || (isAdmin && Number(item.costSubtotal || 0) <= 0));
 
               return (
@@ -1159,8 +1251,8 @@ if(selectedAccount){
                     </td>
                   )}
                   <td className="border-t border-gray-200 p-1 md:p-2">
-                    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold md:px-2 md:py-1 md:text-xs ${delivered ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-                      {item.fulfillmentStatus || "pending"}
+                    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold capitalize md:px-2 md:py-1 md:text-xs ${getSBItemStatusClass(item)}`}>
+                      {getSBItemDisplayStatus(item)}
                     </span>
                   </td>
                   <td className="border-t border-gray-200 p-1 md:p-2">
@@ -1296,12 +1388,12 @@ if(selectedAccount){
     <i className="fas fa-minus-circle text-lg" title="Withdraw"></i>
   </button>
 )}
-  {canTransferWalletToPackage && (
+  {isAdmin && (
   <button
-    onClick={() => setShowWalletToSBTransferModal(true)}
+    onClick={() => openWalletTransferModal("free_to_sb_wallet")}
     className="text-amber-600 hover:text-amber-800 ml-1"
   >
-    <i className="fas fa-exchange-alt text-lg" title="Transfer wallet to SB or DS account"></i>
+    <i className="fas fa-exchange-alt text-lg" title="Transfer Free To Withdraw to SB Order Wallet"></i>
   </button>
 )}
 
@@ -1316,6 +1408,14 @@ if(selectedAccount){
               className="text-blue-600 hover:underline ml-1 shrink-0"
             >
               <i className="fas fa-folder-open text-3xl md:text-lg" title="View SB Order Wallet Transactions"></i>
+            </button>
+          )}
+          {isAdmin && deposit?.sbWalletAccount?._id && (
+            <button
+              onClick={() => openWalletTransferModal("sb_wallet_to_ds")}
+              className="text-amber-600 hover:text-amber-800 ml-1 shrink-0"
+            >
+              <i className="fas fa-exchange-alt text-lg" title="Transfer SB Order Wallet to DS Account"></i>
             </button>
           )}
           {sbAccountWithItemDetails && loggedInStaffRole !== 'OnlineRep' && (
@@ -2181,16 +2281,32 @@ if(selectedAccount){
 
       <div className="bg-white p-6 rounded shadow-md w-96">
       <h3 className="text-lg font-bold mb-4">
-      Transfer Wallet To Account
+      {walletTransferSource === "sb_wallet_to_ds" ? "Transfer SB Order Wallet To DS Account" : "Transfer Free To Withdraw To SB Order Wallet"}
      </h3>
         <form onSubmit={handleWalletToSBTransferSubmit}>
-          <input
-            type="text"
-            value={walletTransferTargetAccountNumber}
-            onChange={(e) => setWalletTransferTargetAccountNumber(e.target.value)}
-            placeholder="Enter SB or DS account number"
-            className="w-full border border-gray-300 rounded p-2 mb-4"
-          />
+          {walletTransferSource === "sb_wallet_to_ds" ? (
+            <select
+              value={walletTransferTargetAccountNumber}
+              onChange={(e) => setWalletTransferTargetAccountNumber(e.target.value)}
+              className="w-full border border-gray-300 rounded p-2 mb-4"
+              required
+            >
+              <option value="">Select DS account package</option>
+              {(newSubAccount?.dsAccount || []).map((account) => (
+                <option key={account.DSAccountNumber} value={account.DSAccountNumber}>
+                  {account.accountType} - {account.DSAccountNumber} - ₦{Number(account.amountPerDay || 0).toLocaleString("en-US")} daily
+                </option>
+              ))}
+            </select>
+          ) : (
+            <div className="mb-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm">
+              <p className="font-semibold text-amber-800">Destination</p>
+              <p className="text-amber-700">SB Order Wallet is automatically selected.</p>
+              <p className="mt-1 text-xs text-amber-600">
+                Current SB Order Wallet Balance: ₦{Number(deposit?.sbWalletAccount?.availableBalance || 0).toLocaleString("en-US")}
+              </p>
+            </div>
+          )}
           <input
             type="number"
             value={amountPerDay}
@@ -2199,14 +2315,14 @@ if(selectedAccount){
             className="w-full border border-gray-300 rounded p-2 mb-4"
           />
           <p className="text-xs text-gray-500 mb-4">
-            This debits the customer wallet and credits the specified SB or DS account.
+            {walletTransferSource === "sb_wallet_to_ds"
+              ? "This debits the SB Order Wallet and credits the selected DS account package."
+              : "This debits Free To Withdraw and credits the SB Order Wallet."}
           </p>
           <div className="flex justify-end space-x-4">
             <button
-              onClick={() => {
-                setShowWalletToSBTransferModal(false);
-                setWalletTransferTargetAccountNumber("");
-              }}
+              type="button"
+              onClick={closeWalletTransferModal}
               className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
             >
               Cancel
@@ -2636,10 +2752,18 @@ if(selectedAccount){
                   {selectedSBProducts[0].hasVariations ? (
                     <div className="mt-3">
                       <label className="mb-1 block text-xs font-semibold text-gray-700">Variation</label>
+                      <MobileVariationDropdown
+                        value={selectedSBProducts[0].variationId}
+                        options={selectedSBProducts[0].variations || []}
+                        onChange={(variationId) => handleUpdateSBProductVariation(selectedSBProducts[0].productId, variationId)}
+                        getLabel={getVariationLabel}
+                        formatCurrencyValue={formatCurrency}
+                        accent="green"
+                      />
                       <select
                         value={selectedSBProducts[0].variationId}
                         onChange={(e) => handleUpdateSBProductVariation(selectedSBProducts[0].productId, e.target.value)}
-                        className="w-full rounded border border-gray-300 p-3 text-sm"
+                        className="hidden w-full rounded border border-gray-300 p-3 text-sm md:block"
                         required
                       >
                         <option value="">Select variation</option>
@@ -2830,13 +2954,24 @@ if(selectedAccount){
                   {activeReplacementVariations.length > 0 && (
                     <div className="mt-3">
                       <label className="mb-1 block text-xs font-semibold text-gray-700">Variation</label>
+                      <MobileVariationDropdown
+                        value={replacementVariationId}
+                        options={activeReplacementVariations}
+                        onChange={(variationId) => {
+                          setReplacementVariationId(variationId);
+                          setReplaceError("");
+                        }}
+                        getLabel={getVariationLabel}
+                        formatCurrencyValue={formatCurrency}
+                        accent="blue"
+                      />
                       <select
                         value={replacementVariationId}
                         onChange={(event) => {
                           setReplacementVariationId(event.target.value);
                           setReplaceError("");
                         }}
-                        className="w-full rounded border border-gray-300 p-2 text-sm"
+                        className="hidden w-full rounded border border-gray-300 p-2 text-sm md:block"
                       >
                         <option value="">Select variation</option>
                         {activeReplacementVariations.map((variation) => (
@@ -2859,17 +2994,22 @@ if(selectedAccount){
                   </div>
                   {replacePaidAmount > 0 && (
                     <div className="mt-1 flex justify-between gap-3">
-                      <span className="text-gray-500">Paid carried</span>
-                      <b>{formatCurrency(replacePaidAmount)}</b>
+                      <span className="text-gray-500">Old payment reversed</span>
+                      <b className="text-green-700">{formatCurrency(replacePaidAmount)}</b>
                     </div>
                   )}
+                  <div className="mt-1 flex justify-between gap-3">
+                    <span className="text-gray-500">New item payment</span>
+                    <b className={replacementWillBePaid ? "text-green-700" : "text-gray-700"}>
+                      {replacementWillBePaid ? formatCurrency(replacementSubtotal) : "Waiting for payment"}
+                    </b>
+                  </div>
+                  <div className="mt-1 flex justify-between gap-3">
+                    <span className="text-gray-500">Wallet after change</span>
+                    <b className="text-purple-700">{formatCurrency(projectedWalletBalance)}</b>
+                  </div>
                 </div>
               </div>
-              {replacementAmountTooLow && (
-                <p className="mt-3 rounded bg-red-50 px-3 py-2 text-xs font-semibold text-red-700">
-                  Replacement product amount cannot be less than the amount already paid for this product.
-                </p>
-              )}
             </div>
           )}
 
@@ -2884,9 +3024,9 @@ if(selectedAccount){
             <button
               type="button"
               onClick={handleReplaceSBProduct}
-              disabled={replaceLoading || !replacementProductId || replacementAmountTooLow}
+              disabled={replaceLoading || !replacementProductId}
               className={`rounded px-4 py-2 text-sm font-semibold text-white ${
-                replaceLoading || !replacementProductId || replacementAmountTooLow
+                replaceLoading || !replacementProductId
                   ? "bg-gray-400"
                   : "bg-blue-600 hover:bg-blue-700"
               }`}

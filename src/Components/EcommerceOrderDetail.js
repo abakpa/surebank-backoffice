@@ -116,6 +116,7 @@ const EcommerceOrderDetail = () => {
       partial: "bg-orange-100 text-orange-800",
       paid: "bg-green-100 text-green-800",
       pending: "bg-yellow-100 text-yellow-800",
+      processing_order: "bg-purple-100 text-purple-800",
       delivered: "bg-green-200 text-green-900",
       completed: "bg-emerald-200 text-emerald-900",
     };
@@ -124,6 +125,24 @@ const EcommerceOrderDetail = () => {
 
   const isDeliveredItem = (item = {}) =>
     ["delivered", "completed"].includes(item.fulfillmentStatus || "pending");
+
+  const getItemAmount = (item = {}) => Number(item.subtotal || item.price || 0);
+
+  const getDerivedPaymentStatus = (item = {}) => {
+    const itemAmount = getItemAmount(item);
+    const paidAmount = Number(item.paidAmount || 0);
+    if (itemAmount > 0 && paidAmount >= itemAmount) return "paid";
+    if (paidAmount > 0) return "partial";
+    return item.paymentStatus || "unpaid";
+  };
+
+  const getDerivedFulfillmentStatus = (item = {}) => {
+    if (isDeliveredItem(item)) return item.fulfillmentStatus || "delivered";
+    if (getDerivedPaymentStatus(item) === "paid") return "processing_order";
+    return item.fulfillmentStatus || "pending";
+  };
+
+  const getStatusLabel = (status = "") => String(status || "").replace(/_/g, " ");
 
   const isDebitPayment = (payment = {}) =>
     payment.type === "debit" || ["Debit", "Purchased", "Bought", "Delivered"].includes(payment.direction);
@@ -269,7 +288,10 @@ const EcommerceOrderDetail = () => {
             </tr>
           </thead>
           <tbody className="divide-y">
-            {order.items?.map((item, index) => (
+            {order.items?.map((item, index) => {
+              const derivedPaymentStatus = getDerivedPaymentStatus(item);
+              const derivedFulfillmentStatus = getDerivedFulfillmentStatus(item);
+              return (
               <tr key={index}>
                 <td className="px-4 py-3 text-sm">
                   <div className="font-medium text-gray-800">{item.productName}</div>
@@ -286,13 +308,13 @@ const EcommerceOrderDetail = () => {
                 <td className="px-4 py-3 text-sm font-medium">₦{item.subtotal?.toLocaleString()}</td>
                 <td className="px-4 py-3 text-sm">
                   <div className="font-medium">₦{Number(item.paidAmount || 0).toLocaleString()}</div>
-                  <span className={`mt-1 inline-flex rounded px-2 py-1 text-xs ${getItemStatusColor(item.paymentStatus)}`}>
-                    {item.paymentStatus || "unpaid"}
+                  <span className={`mt-1 inline-flex rounded px-2 py-1 text-xs capitalize ${getItemStatusColor(derivedPaymentStatus)}`}>
+                    {getStatusLabel(derivedPaymentStatus)}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-sm">
-                  <span className={`inline-flex rounded px-2 py-1 text-xs ${getItemStatusColor(item.fulfillmentStatus || "pending")}`}>
-                    {item.fulfillmentStatus || "pending"}
+                  <span className={`inline-flex rounded px-2 py-1 text-xs capitalize ${getItemStatusColor(derivedFulfillmentStatus)}`}>
+                    {getStatusLabel(derivedFulfillmentStatus)}
                   </span>
                 </td>
                 {canUpdateOrderStatus && (
@@ -312,7 +334,8 @@ const EcommerceOrderDetail = () => {
                   </td>
                 )}
               </tr>
-            ))}
+              );
+            })}
           </tbody>
           <tfoot className="bg-gray-50">
             <tr>
