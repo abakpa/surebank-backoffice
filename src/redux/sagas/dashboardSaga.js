@@ -37,6 +37,9 @@ import {
     fetchDSWithdrawalRequest,
     fetchDSWithdrawalSuccess,
     fetchDSWithdrawalFailure,
+    fetchDSWithdrawalReportRequest,
+    fetchDSWithdrawalReportSuccess,
+    fetchDSWithdrawalReportFailure,
     fetchFWWithdrawalRequest,
     fetchFWWithdrawalSuccess,
     fetchFWWithdrawalFailure,
@@ -335,6 +338,26 @@ function* fetchDSWithdrawalSaga(action) {
             window.location.href = '/login';
           }
         yield put(fetchDSWithdrawalFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+function* fetchDSWithdrawalReportSaga(action) {
+    const { details27 = null } = action.payload;
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const requestData = details27 ? details27 : {};
+        const response = yield call(axios.post, `${url}/api/admindashboard/dswithdrawalreport`, requestData,config);
+        yield put(fetchDSWithdrawalReportSuccess(response.data));
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchDSWithdrawalReportFailure(error.response?.data?.message || "An error occurred"));
     }
 }
 function* fetchFWWithdrawalSaga(action) {
@@ -669,6 +692,7 @@ function* depositSaga(){
     yield takeLatest(fetchSBDailyContributionRequest.type, fetchSBDailyContributionSaga)
     yield takeLatest(fetchTotalSBandDSDailyRequest.type, fetchTotalSBandDSDailySaga)
     yield takeLatest(fetchDSWithdrawalRequest.type, fetchDSWithdrawalSaga)
+    yield takeLatest(fetchDSWithdrawalReportRequest.type, fetchDSWithdrawalReportSaga)
     yield takeLatest(fetchFWWithdrawalRequest.type, fetchFWWithdrawalSaga)
     yield takeLatest(fetchFWWithdrawalReportRequest.type, fetchFWWithdrawalReportSaga)
     yield takeLatest(fetchDSpackageRequest.type, fetchDSpackageSaga)

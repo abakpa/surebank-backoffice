@@ -22,27 +22,53 @@ import {
   fetchProductDemandRequest,
   fetchProductDemandSuccess,
   fetchProductDemandFailure,
+  fetchProductSalesRequest,
+  fetchProductSalesSuccess,
+  fetchProductSalesFailure,
   fetchProductDemandDetailRequest,
   fetchProductDemandDetailSuccess,
-  fetchProductDemandDetailFailure
+  fetchProductDemandDetailFailure,
+  fetchStockTransfersRequest,
+  fetchStockTransfersSuccess,
+  fetchStockTransfersFailure,
+  createStockTransferRequest,
+  createStockTransferSuccess,
+  createStockTransferFailure,
+  acceptStockTransferRequest,
+  acceptStockTransferSuccess,
+  acceptStockTransferFailure,
+  rejectStockTransferRequest,
+  rejectStockTransferSuccess,
+  rejectStockTransferFailure,
+  cancelStockTransferRequest,
+  cancelStockTransferSuccess,
+  cancelStockTransferFailure
 } from '../slices/productSlice';
 import { url } from './url';
 
+const getAuthConfig = () => {
+  const token = localStorage.getItem('authToken');
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+};
+
+const handleUnauthorized = (error) => {
+  if (error.response && error.response.status === 401) {
+    localStorage.removeItem('authToken');
+    window.location.href = '/login';
+  }
+};
+
 function* fetchProductsSaga() {
   try {
-    const token = localStorage.getItem('authToken');
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
+    const config = getAuthConfig();
     const response = yield call(axios.get, `${url}/api/products/admin/all`, config);
     yield put(fetchProductsSuccess(response.data));
   } catch (error) {
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('authToken');
-      window.location.href = '/login';
-    }
+    handleUnauthorized(error);
     yield put(fetchProductsFailure(error.response?.data?.message || error.message));
   }
 }
@@ -187,6 +213,16 @@ function* fetchProductDemandSaga() {
   }
 }
 
+function* fetchProductSalesSaga() {
+  try {
+    const response = yield call(axios.get, `${url}/api/ecommerce/orders/product-sales`, getAuthConfig());
+    yield put(fetchProductSalesSuccess(response.data));
+  } catch (error) {
+    handleUnauthorized(error);
+    yield put(fetchProductSalesFailure(error.response?.data?.message || error.message));
+  }
+}
+
 function* fetchProductDemandDetailSaga(action) {
   const { productId } = action.payload;
   try {
@@ -207,6 +243,87 @@ function* fetchProductDemandDetailSaga(action) {
   }
 }
 
+function* fetchStockTransfersSaga(action) {
+  try {
+    const filters = action?.payload || {};
+    const queryString = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        queryString.append(key, value);
+      }
+    });
+    const endpoint = queryString.toString()
+      ? `${url}/api/stock-transfers?${queryString.toString()}`
+      : `${url}/api/stock-transfers`;
+    const response = yield call(axios.get, endpoint, getAuthConfig());
+    yield put(fetchStockTransfersSuccess(response.data));
+  } catch (error) {
+    handleUnauthorized(error);
+    yield put(fetchStockTransfersFailure(error.response?.data?.message || error.message));
+  }
+}
+
+function* createStockTransferSaga(action) {
+  try {
+    const response = yield call(axios.post, `${url}/api/stock-transfers`, action.payload, getAuthConfig());
+    yield put(createStockTransferSuccess(response.data));
+    yield put(fetchProductsRequest());
+    yield put(fetchStockTransfersRequest());
+  } catch (error) {
+    handleUnauthorized(error);
+    yield put(createStockTransferFailure(error.response?.data?.message || error.message));
+  }
+}
+
+function* acceptStockTransferSaga(action) {
+  try {
+    const { transferId, responseNote } = action.payload;
+    const response = yield call(
+      axios.put,
+      `${url}/api/stock-transfers/${transferId}/accept`,
+      { responseNote },
+      getAuthConfig()
+    );
+    yield put(acceptStockTransferSuccess(response.data));
+    yield put(fetchProductsRequest());
+    yield put(fetchStockTransfersRequest());
+  } catch (error) {
+    handleUnauthorized(error);
+    yield put(acceptStockTransferFailure(error.response?.data?.message || error.message));
+  }
+}
+
+function* rejectStockTransferSaga(action) {
+  try {
+    const { transferId, responseNote } = action.payload;
+    const response = yield call(
+      axios.put,
+      `${url}/api/stock-transfers/${transferId}/reject`,
+      { responseNote },
+      getAuthConfig()
+    );
+    yield put(rejectStockTransferSuccess(response.data));
+    yield put(fetchProductsRequest());
+    yield put(fetchStockTransfersRequest());
+  } catch (error) {
+    handleUnauthorized(error);
+    yield put(rejectStockTransferFailure(error.response?.data?.message || error.message));
+  }
+}
+
+function* cancelStockTransferSaga(action) {
+  try {
+    const { transferId } = action.payload;
+    const response = yield call(axios.put, `${url}/api/stock-transfers/${transferId}/cancel`, {}, getAuthConfig());
+    yield put(cancelStockTransferSuccess(response.data));
+    yield put(fetchProductsRequest());
+    yield put(fetchStockTransfersRequest());
+  } catch (error) {
+    handleUnauthorized(error);
+    yield put(cancelStockTransferFailure(error.response?.data?.message || error.message));
+  }
+}
+
 function* productSaga() {
   yield takeLatest(fetchProductsRequest.type, fetchProductsSaga);
   yield takeLatest(fetchProductByIdRequest.type, fetchProductByIdSaga);
@@ -215,7 +332,13 @@ function* productSaga() {
   yield takeLatest(updateProductStockRequest.type, updateProductStockSaga);
   yield takeLatest(deleteProductRequest.type, deleteProductSaga);
   yield takeLatest(fetchProductDemandRequest.type, fetchProductDemandSaga);
+  yield takeLatest(fetchProductSalesRequest.type, fetchProductSalesSaga);
   yield takeLatest(fetchProductDemandDetailRequest.type, fetchProductDemandDetailSaga);
+  yield takeLatest(fetchStockTransfersRequest.type, fetchStockTransfersSaga);
+  yield takeLatest(createStockTransferRequest.type, createStockTransferSaga);
+  yield takeLatest(acceptStockTransferRequest.type, acceptStockTransferSaga);
+  yield takeLatest(rejectStockTransferRequest.type, rejectStockTransferSaga);
+  yield takeLatest(cancelStockTransferRequest.type, cancelStockTransferSaga);
 }
 
 export default productSaga;

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaTimes } from "react-icons/fa";
@@ -118,40 +118,72 @@ const DeliveryDetailsModal = ({ title, items, isOpen, onClose, onOpenAccount, sh
 const BackofficeProductDeliveryCards = ({ staffId = "" }) => {
   const navigate = useNavigate();
   const staffRole = localStorage.getItem("staffRole");
+  const [deliveredDateRange, setDeliveredDateRange] = useState({
+    dateFrom: "",
+    dateTo: "",
+  });
   const [summary, setSummary] = useState({
     pending: { count: 0, items: [] },
     delivered: { count: 0, items: [] },
   });
-  const [loading, setLoading] = useState(false);
+  const [pendingLoading, setPendingLoading] = useState(false);
+  const [deliveredLoading, setDeliveredLoading] = useState(false);
   const [activeType, setActiveType] = useState("");
+  const didMountDateRangeRef = useRef(false);
 
-  const fetchSummary = useCallback(async () => {
-    setLoading(true);
+  const fetchSummary = useCallback(async ({ includePending = true, range = { dateFrom: "", dateTo: "" } } = {}) => {
+    if (includePending) {
+      setPendingLoading(true);
+    }
+    setDeliveredLoading(true);
     try {
       const response = await axios.get(
         `${url}/api/sbaccount/reports/backoffice-product-delivery`,
         {
           ...getAuthConfig(),
-          params: staffId ? { staffId } : undefined,
+          params: {
+            ...(staffId ? { staffId } : {}),
+            ...(range.dateFrom ? { dateFrom: range.dateFrom } : {}),
+            ...(range.dateTo ? { dateTo: range.dateTo } : {}),
+          },
         }
       );
-      setSummary({
-        pending: response.data?.pending || { count: 0, items: [] },
+      setSummary((current) => ({
+        pending: includePending
+          ? (response.data?.pending || { count: 0, items: [] })
+          : current.pending,
         delivered: response.data?.delivered || { count: 0, items: [] },
-      });
+      }));
     } catch (error) {
       if (error.response?.status === 401) {
         localStorage.removeItem("authToken");
         navigate("/login");
       }
     } finally {
-      setLoading(false);
+      if (includePending) {
+        setPendingLoading(false);
+      }
+      setDeliveredLoading(false);
     }
   }, [navigate, staffId]);
 
   useEffect(() => {
-    fetchSummary();
+    fetchSummary({ includePending: true });
   }, [fetchSummary]);
+
+  useEffect(() => {
+    if (!didMountDateRangeRef.current) {
+      didMountDateRangeRef.current = true;
+      return;
+    }
+    fetchSummary({
+      includePending: false,
+      range: {
+        dateFrom: deliveredDateRange.dateFrom,
+        dateTo: deliveredDateRange.dateTo,
+      },
+    });
+  }, [deliveredDateRange.dateFrom, deliveredDateRange.dateTo, fetchSummary]);
 
   const modalData = useMemo(() => {
     if (activeType === "delivered") {
@@ -173,6 +205,14 @@ const BackofficeProductDeliveryCards = ({ staffId = "" }) => {
     }
   };
 
+  const updateDeliveredDateRange = (field, value) => {
+    setDeliveredDateRange((current) => ({ ...current, [field]: value }));
+  };
+
+  const resetDeliveredDateRange = () => {
+    setDeliveredDateRange({ dateFrom: "", dateTo: "" });
+  };
+
   return (
     <>
       <button
@@ -183,23 +223,57 @@ const BackofficeProductDeliveryCards = ({ staffId = "" }) => {
         <FaEye className="absolute right-3 top-3 text-amber-800" />
         <h3 className="pr-8 text-sm font-semibold text-amber-800">Products Not Delivered</h3>
         <p className="mt-3 text-2xl font-bold text-amber-900">
-          {loading ? "..." : Number(summary.pending.count || 0).toLocaleString()}
+          {pendingLoading ? "..." : Number(summary.pending.count || 0).toLocaleString()}
         </p>
         <p className="mt-2 text-xs font-semibold text-amber-700">View product details</p>
       </button>
 
-      <button
-        type="button"
-        onClick={() => setActiveType("delivered")}
-        className="relative rounded-lg bg-teal-100 p-4 text-left shadow-md transition hover:bg-teal-200"
-      >
-        <FaEye className="absolute right-3 top-3 text-teal-800" />
-        <h3 className="pr-8 text-sm font-semibold text-teal-800">Products Delivered</h3>
-        <p className="mt-3 text-2xl font-bold text-teal-900">
-          {loading ? "..." : Number(summary.delivered.count || 0).toLocaleString()}
-        </p>
-        <p className="mt-2 text-xs font-semibold text-teal-700">View product details</p>
-      </button>
+      <div className="relative rounded-lg bg-teal-100 p-4 text-left shadow-md transition hover:bg-teal-200">
+        <button
+          type="button"
+          onClick={() => setActiveType("delivered")}
+          className="block w-full text-left"
+        >
+          <FaEye className="absolute right-3 top-3 text-teal-800" />
+          <h3 className="pr-8 text-sm font-semibold text-teal-800">Products Delivered</h3>
+          <p className="mt-3 text-2xl font-bold text-teal-900">
+            {deliveredLoading ? "..." : Number(summary.delivered.count || 0).toLocaleString()}
+          </p>
+          <p className="mt-2 text-xs font-semibold text-teal-700">View product details</p>
+        </button>
+
+        <div className="mt-4 border-t border-teal-200 pt-3">
+          <div className="grid gap-2">
+          <label className="text-xs font-semibold text-teal-700">
+            From
+            <input
+              type="date"
+              value={deliveredDateRange.dateFrom}
+              onChange={(event) => updateDeliveredDateRange("dateFrom", event.target.value)}
+              className="mt-1 w-full rounded border border-teal-200 bg-white px-2 py-2 text-sm text-gray-800 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100"
+            />
+          </label>
+          <label className="text-xs font-semibold text-teal-700">
+            To
+            <input
+              type="date"
+              value={deliveredDateRange.dateTo}
+              onChange={(event) => updateDeliveredDateRange("dateTo", event.target.value)}
+              className="mt-1 w-full rounded border border-teal-200 bg-white px-2 py-2 text-sm text-gray-800 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-100"
+            />
+          </label>
+          {(deliveredDateRange.dateFrom || deliveredDateRange.dateTo) && (
+            <button
+              type="button"
+              onClick={resetDeliveredDateRange}
+              className="rounded border border-teal-300 bg-white px-3 py-2 text-xs font-semibold text-teal-700 hover:bg-teal-100"
+            >
+              Clear Range
+            </button>
+          )}
+          </div>
+        </div>
+      </div>
 
       <DeliveryDetailsModal
         isOpen={Boolean(activeType)}
