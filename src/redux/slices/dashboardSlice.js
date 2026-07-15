@@ -27,6 +27,7 @@ const initialState = {
     ecommerceIncome: null,
     ecommerceDeposit: null,
     ecommerceDepositReport: [],
+    dsWithdrawalReport: [],
     fwWithdrawalReport: [],
     loading: false,
     error:null,
@@ -154,6 +155,16 @@ const dashboardSlice = createSlice({
             state.loading=false
         },
         fetchDSWithdrawalFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchDSWithdrawalReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchDSWithdrawalReportSuccess:(state,action)=>{
+            state.dsWithdrawalReport= action.payload;
+            state.loading=false
+        },
+        fetchDSWithdrawalReportFailure:(state,action)=>{
             state.error = action.payload
         },
         fetchFWWithdrawalRequest:(state)=>{
@@ -347,6 +358,9 @@ export const {
     fetchDSWithdrawalRequest,
     fetchDSWithdrawalSuccess,
     fetchDSWithdrawalFailure,
+    fetchDSWithdrawalReportRequest,
+    fetchDSWithdrawalReportSuccess,
+    fetchDSWithdrawalReportFailure,
     fetchFWWithdrawalRequest,
     fetchFWWithdrawalSuccess,
     fetchFWWithdrawalFailure,

@@ -1410,14 +1410,6 @@ if(selectedAccount){
               <i className="fas fa-folder-open text-3xl md:text-lg" title="View SB Order Wallet Transactions"></i>
             </button>
           )}
-          {isAdmin && deposit?.sbWalletAccount?._id && (
-            <button
-              onClick={() => openWalletTransferModal("sb_wallet_to_ds")}
-              className="text-amber-600 hover:text-amber-800 ml-1 shrink-0"
-            >
-              <i className="fas fa-exchange-alt text-lg" title="Transfer SB Order Wallet to DS Account"></i>
-            </button>
-          )}
           {sbAccountWithItemDetails && loggedInStaffRole !== 'OnlineRep' && (
             <button
               onClick={() => { setSelectedAccount(sbAccountWithItemDetails); setShowSBDepositModal(true); }}

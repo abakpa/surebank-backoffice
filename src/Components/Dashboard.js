@@ -33,7 +33,8 @@ import {
   fetchEcommerceDepositRequest,
   fetchEcommerceDepositReportRequest,
   fetchFWWithdrawalRequest,
-  fetchFWWithdrawalReportRequest
+  fetchFWWithdrawalReportRequest,
+  fetchDSWithdrawalReportRequest
 } from '../redux/slices/dashboardSlice'
 import Loader from "./Loader";
 import Select2 from "./Select2";
@@ -82,6 +83,7 @@ const Dashboard = () => {
     const [branchId24, setBranchId24] = useState("");
     const [isEcommerceDepositModalOpen, setIsEcommerceDepositModalOpen] = useState(false);
     const [isFWWithdrawalModalOpen, setIsFWWithdrawalModalOpen] = useState(false);
+    const [isDSWithdrawalModalOpen, setIsDSWithdrawalModalOpen] = useState(false);
     const [productActionCount, setProductActionCount] = useState(0);
     const {
       loading,
@@ -110,6 +112,7 @@ const Dashboard = () => {
       ecommerceIncome,
       ecommerceDeposit,
       ecommerceDepositReport,
+      dsWithdrawalReport,
       fwWithdrawal,
       fwWithdrawalReport
     } = useSelector((state)=>state.dashboard)
@@ -149,6 +152,12 @@ const Dashboard = () => {
         const details26 = { branchId: branchId24, date: getDateRangeValue(dateRanges, "date24") };
         dispatch(fetchFWWithdrawalReportRequest({ details26 }));
         setIsFWWithdrawalModalOpen(true);
+      };
+
+      const openDSWithdrawalModal = () => {
+        const details27 = { branchId: branchId6, date: getDateRangeValue(dateRanges, "date6") };
+        dispatch(fetchDSWithdrawalReportRequest({ details27 }));
+        setIsDSWithdrawalModalOpen(true);
       };
 
 
@@ -387,7 +396,15 @@ const Dashboard = () => {
     </form>
   </div>
    {/* Card 7 - Pink */}
-  <div className="p-4 rounded-lg shadow-md bg-pink-100">
+  <div className="relative p-4 rounded-lg shadow-md bg-pink-100">
+    <button
+      type="button"
+      onClick={openDSWithdrawalModal}
+      className="absolute top-2 right-2 text-pink-800 hover:text-pink-900"
+      title="View DS withdrawal details"
+    >
+      <FaEye />
+    </button>
     <h3 className="text-sm font-semibold mb-2 text-pink-800">DS Withdrawal</h3>
     <p className="text-sm font-bold text-pink-800">{newdswithdrawal?.toLocaleString('en-US') || 0}</p>
     <form className="flex flex-col gap-2 mt-2">
@@ -735,6 +752,19 @@ const Dashboard = () => {
   onClose={() => setIsFWWithdrawalModalOpen(false)}
   title="FW Withdrawal Details"
   transactions={fwWithdrawalReport}
+  showBranch
+  showStaff
+/>
+<EcommerceDepositDetailsModal
+  isOpen={isDSWithdrawalModalOpen}
+  onClose={() => setIsDSWithdrawalModalOpen(false)}
+  title="DS Withdrawal Details"
+  transactions={dsWithdrawalReport}
+  showPackage
+  showAccountNumber
+  showDSAccountNumber
+  showAccountType
+  showBalance
   showBranch
   showStaff
 />

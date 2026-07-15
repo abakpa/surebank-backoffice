@@ -5,13 +5,62 @@ import {
   fetchProductsRequest,
   deleteProductRequest,
   fetchProductDemandRequest,
+  fetchProductSalesRequest,
   fetchProductDemandDetailRequest,
   updateProductStockRequest,
   clearProductDemandDetail,
+  fetchStockTransfersRequest,
+  createStockTransferRequest,
+  acceptStockTransferRequest,
+  rejectStockTransferRequest,
+  cancelStockTransferRequest,
 } from "../redux/slices/productSlice";
 import { fetchCategoriesRequest } from "../redux/slices/productCategorySlice";
+import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import Loader from "./Loader";
 import { resolveImageUrl } from "../utils/image";
+
+const MobileTransferDropdown = ({ value, options, placeholder, onChange, getLabel }) => {
+  const [open, setOpen] = useState(false);
+  const selectedOption = (options || []).find((option) => String(option.value || "") === String(value || ""));
+
+  return (
+    <div className="relative md:hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((current) => !current)}
+        className="flex w-full items-center justify-between rounded border border-gray-300 bg-white px-3 py-3 text-left text-sm"
+      >
+        <span className={selectedOption ? "font-semibold text-gray-900" : "text-gray-500"}>
+          {selectedOption ? getLabel(selectedOption) : placeholder}
+        </span>
+        <span className={`ml-3 text-xs transition-transform ${open ? "rotate-180" : ""}`}>⌄</span>
+      </button>
+      {open && (
+        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-[90] max-h-56 overflow-y-auto rounded border border-gray-200 bg-white shadow-xl">
+          {(options || []).map((option) => {
+            const selected = String(option.value || "") === String(value || "");
+            return (
+              <button
+                type="button"
+                key={option.value}
+                onClick={() => {
+                  onChange(option.value);
+                  setOpen(false);
+                }}
+                className={`block w-full border-b border-gray-100 px-3 py-2 text-left text-xs font-semibold last:border-b-0 ${
+                  selected ? "border-orange-600 bg-orange-50 text-orange-800" : "bg-white text-gray-700"
+                }`}
+              >
+                {getLabel(option)}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Products = () => {
   const dispatch = useDispatch();
@@ -22,12 +71,19 @@ const Products = () => {
     productDemandDetail,
     productDemandLoading,
     productDemandError,
+    productSales,
+    stockTransfers,
+    stockTransferPagination,
+    stockTransferLoading,
+    stockTransferError,
   } = useSelector((state) => state.products);
   const { categories } = useSelector((state) => state.productCategories);
+  const { branches } = useSelector((state) => state.branch);
   const staffRole = localStorage.getItem("staffRole");
   const staffBranch = localStorage.getItem("staffBranch");
   const isAdmin = staffRole === "Admin";
   const isManager = staffRole === "Manager";
+  const canViewStockTransfers = isAdmin || isManager;
   const canManageEcommerce = ["Admin", "ProductManager", "Product Manager", "SubAdmin"].includes(staffRole);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
@@ -36,14 +92,44 @@ const Products = () => {
   const [selectedStockProduct, setSelectedStockProduct] = useState(null);
   const [selectedBranchStockProduct, setSelectedBranchStockProduct] = useState(null);
   const [stockModalValues, setStockModalValues] = useState({});
+  const [selectedTransferProduct, setSelectedTransferProduct] = useState(null);
+  const [transferForm, setTransferForm] = useState({
+    variationId: "",
+    destinationBranchId: "",
+    quantity: 1,
+    note: "",
+  });
+  const [showTransfers, setShowTransfers] = useState(false);
+  const [transferFilters, setTransferFilters] = useState({
+    status: "",
+    dateFrom: "",
+    dateTo: "",
+    sourceBranchId: "",
+    destinationBranchId: "",
+    page: 1,
+    limit: 25,
+  });
 
   useEffect(() => {
     dispatch(fetchProductsRequest());
     dispatch(fetchCategoriesRequest());
     if (isAdmin) {
       dispatch(fetchProductDemandRequest());
+      dispatch(fetchProductSalesRequest());
     }
-  }, [dispatch, isAdmin]);
+    if (canViewStockTransfers) {
+      dispatch(fetchBranchRequest());
+      dispatch(fetchStockTransfersRequest({
+        status: "",
+        dateFrom: "",
+        dateTo: "",
+        sourceBranchId: "",
+        destinationBranchId: "",
+        page: 1,
+        limit: 25,
+      }));
+    }
+  }, [dispatch, isAdmin, canViewStockTransfers]);
 
   const handleDelete = (productId) => {
     if (!canManageEcommerce) return;
@@ -113,6 +199,91 @@ const Products = () => {
     setStockModalValues({});
   };
 
+  const openTransferModal = (product) => {
+    if (!isManager) return;
+    const firstVariationId = product.hasVariations && Array.isArray(product.variations) && product.variations.length > 0
+      ? product.variations[0]._id
+      : "";
+    setSelectedTransferProduct(product);
+    setTransferForm({
+      variationId: firstVariationId,
+      destinationBranchId: "",
+      quantity: 1,
+      note: "",
+    });
+  };
+
+  const closeTransferModal = () => {
+    setSelectedTransferProduct(null);
+    setTransferForm({
+      variationId: "",
+      destinationBranchId: "",
+      quantity: 1,
+      note: "",
+    });
+  };
+
+  const handleTransferFormChange = (field, value) => {
+    setTransferForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleTransferSubmit = (event) => {
+    event.preventDefault();
+    if (!isManager || !selectedTransferProduct) return;
+
+    const quantity = Number(transferForm.quantity || 0);
+    if (!transferForm.destinationBranchId || !Number.isFinite(quantity) || quantity <= 0) {
+      return;
+    }
+
+    dispatch(createStockTransferRequest({
+      productId: selectedTransferProduct._id,
+      variationId: transferForm.variationId || "",
+      destinationBranchId: transferForm.destinationBranchId,
+      quantity,
+      note: transferForm.note,
+    }));
+    closeTransferModal();
+  };
+
+  const fetchTransfersWithFilters = (overrides = {}) => {
+    const nextFilters = { ...transferFilters, ...overrides };
+    dispatch(fetchStockTransfersRequest(nextFilters));
+  };
+
+  const handleTransferFilterChange = (field, value) => {
+    setTransferFilters((prev) => ({
+      ...prev,
+      [field]: value,
+      page: 1,
+    }));
+  };
+
+  const applyTransferFilters = (event) => {
+    event.preventDefault();
+    fetchTransfersWithFilters({ page: 1 });
+  };
+
+  const resetTransferFilters = () => {
+    const nextFilters = {
+      status: "",
+      dateFrom: "",
+      dateTo: "",
+      sourceBranchId: "",
+      destinationBranchId: "",
+      page: 1,
+      limit: 25,
+    };
+    setTransferFilters(nextFilters);
+    dispatch(fetchStockTransfersRequest(nextFilters));
+  };
+
+  const goToTransferPage = (page) => {
+    const nextPage = Math.max(1, page);
+    setTransferFilters((prev) => ({ ...prev, page: nextPage }));
+    fetchTransfersWithFilters({ page: nextPage });
+  };
+
   const handleStockModalChange = (productId, variationId, value) => {
     const key = getStockInputKey(productId, variationId);
     setStockModalValues((prev) => ({ ...prev, [key]: value }));
@@ -168,6 +339,36 @@ const Products = () => {
 
   const selectedCategory = categories.find((category) => category._id === filterCategory);
   const availableSubCategories = selectedCategory?.subcategories || [];
+  const destinationBranches = (branches || []).filter((branch) => branch._id !== staffBranch && branch.isActive !== false);
+  const transferVariationOptions = selectedTransferProduct?.hasVariations && Array.isArray(selectedTransferProduct.variations)
+    ? selectedTransferProduct.variations.map((variation) => ({
+        value: variation._id,
+        label: `${variation.name} - Available: ${getBranchStockQuantity(selectedTransferProduct, variation._id)}`,
+      }))
+    : [];
+  const transferBranchOptions = destinationBranches.map((branch) => ({
+    value: branch._id,
+    label: branch.name,
+  }));
+  const transferAllBranchOptions = (branches || []).map((branch) => ({
+    value: branch._id,
+    label: branch.name,
+  }));
+  const transferStatusOptions = [
+    { value: "", label: "All" },
+    { value: "pending", label: "Pending" },
+    { value: "accepted", label: "Accepted" },
+    { value: "rejected", label: "Rejected" },
+    { value: "cancelled", label: "Cancelled" },
+  ];
+  const transferRowsOptions = [
+    { value: "25", label: "25" },
+    { value: "50", label: "50" },
+    { value: "100", label: "100" },
+  ];
+  const pendingTransfers = (stockTransfers || []).filter((transfer) => transfer.status === "pending");
+  const incomingPendingTransfers = pendingTransfers.filter((transfer) => transfer.destinationBranchId === staffBranch);
+  const outgoingPendingTransfers = pendingTransfers.filter((transfer) => transfer.sourceBranchId === staffBranch);
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -183,14 +384,28 @@ const Products = () => {
     <div className="p-4">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6">
         <h1 className="text-2xl font-bold mb-4 md:mb-0">Products</h1>
-        {canManageEcommerce && (
-          <Link
-            to="/createproduct"
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          >
-            Add New Product
-          </Link>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {canViewStockTransfers && (
+            <button
+              type="button"
+              onClick={() => {
+                setShowTransfers(true);
+                dispatch(fetchStockTransfersRequest(transferFilters));
+              }}
+              className="rounded bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700"
+            >
+              {isAdmin ? `Stock Transfers (${pendingTransfers.length})` : `Transfers (${incomingPendingTransfers.length})`}
+            </button>
+          )}
+          {canManageEcommerce && (
+            <Link
+              to="/createproduct"
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              Add New Product
+            </Link>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -244,6 +459,9 @@ const Products = () => {
                 {isManager ? "Branch Stock" : "Stock"}
               </th>
               {isAdmin && (
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sold Qty</th>
+              )}
+              {isAdmin && (
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Uncompleted</th>
               )}
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -275,6 +493,11 @@ const Products = () => {
                 <td className="px-4 py-3 text-sm">
                   {isAdmin ? renderAdminStock(product) : renderManagerStockSummary(product)}
                 </td>
+                {isAdmin && (
+                  <td className="px-4 py-3 text-sm font-semibold text-gray-900">
+                    {Number(productSales?.[product._id]?.totalSoldQuantity || 0).toLocaleString()}
+                  </td>
+                )}
                 {isAdmin && (
                   <td className="px-4 py-3 text-sm">
                     {(() => {
@@ -318,13 +541,22 @@ const Products = () => {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2 whitespace-nowrap">
                       {isManager && (
-                        <button
-                          type="button"
-                          onClick={() => openStockModal(product)}
-                          className="rounded bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700"
-                        >
-                          Stock
-                        </button>
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => openStockModal(product)}
+                            className="rounded bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700"
+                          >
+                            Stock
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openTransferModal(product)}
+                            className="rounded bg-orange-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-orange-700"
+                          >
+                            Transfer
+                          </button>
+                        </>
                       )}
                       {isAdmin && (
                         <button
@@ -412,6 +644,31 @@ const Products = () => {
                   </tbody>
                 </table>
               )}
+
+              <div className="mt-4 flex flex-col gap-2 border-t pt-3 text-sm text-gray-600 sm:flex-row sm:items-center sm:justify-between">
+                <p>
+                  Page {stockTransferPagination?.page || 1} of {stockTransferPagination?.totalPages || 1}
+                  {" "}({stockTransferPagination?.total || 0} records)
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={!stockTransferPagination?.hasPrevPage || stockTransferLoading}
+                    onClick={() => goToTransferPage((stockTransferPagination?.page || 1) - 1)}
+                    className="rounded border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!stockTransferPagination?.hasNextPage || stockTransferLoading}
+                    onClick={() => goToTransferPage((stockTransferPagination?.page || 1) + 1)}
+                    className="rounded border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -496,6 +753,372 @@ const Products = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {isManager && selectedTransferProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-2xl overflow-visible rounded-lg bg-white shadow-xl">
+            <div className="flex items-start justify-between gap-4 border-b p-4">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">Transfer Stock</h2>
+                <p className="text-sm text-gray-600">{selectedTransferProduct.name}</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  Stock will be reserved from your branch until the destination manager accepts or rejects it.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeTransferModal}
+                className="rounded px-3 py-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+              >
+                Close
+              </button>
+            </div>
+
+            <form onSubmit={handleTransferSubmit} className="overflow-visible">
+              <div className="space-y-4 overflow-visible p-4">
+                {stockTransferError && (
+                  <div className="rounded bg-red-100 p-3 text-sm text-red-700">{stockTransferError}</div>
+                )}
+
+                {selectedTransferProduct.hasVariations && Array.isArray(selectedTransferProduct.variations) && selectedTransferProduct.variations.length > 0 && (
+                  <div className="relative overflow-visible">
+                    <label className="mb-1 block text-sm font-medium text-gray-700">Variation</label>
+                    <MobileTransferDropdown
+                      value={transferForm.variationId}
+                      options={transferVariationOptions}
+                      placeholder="Select variation"
+                      onChange={(variationId) => handleTransferFormChange("variationId", variationId)}
+                      getLabel={(option) => option.label}
+                    />
+                    <select
+                      value={transferForm.variationId}
+                      onChange={(event) => handleTransferFormChange("variationId", event.target.value)}
+                      className="hidden w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-100 md:block"
+                    >
+                      {transferVariationOptions.map((variation) => (
+                        <option key={variation.value} value={variation.value}>
+                          {variation.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div className="relative overflow-visible">
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Destination Branch</label>
+                  <MobileTransferDropdown
+                    value={transferForm.destinationBranchId}
+                    options={transferBranchOptions}
+                    placeholder="Select destination branch"
+                    onChange={(branchId) => handleTransferFormChange("destinationBranchId", branchId)}
+                    getLabel={(option) => option.label}
+                  />
+                  <select
+                    value={transferForm.destinationBranchId}
+                    onChange={(event) => handleTransferFormChange("destinationBranchId", event.target.value)}
+                    className="hidden w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-100 md:block"
+                  >
+                    <option value="">Select destination branch</option>
+                    {transferBranchOptions.map((branch) => (
+                      <option key={branch.value} value={branch.value}>
+                        {branch.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Quantity</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={transferForm.quantity}
+                    onChange={(event) => handleTransferFormChange("quantity", event.target.value)}
+                    className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-100"
+                    required
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Available in your branch: {getBranchStockQuantity(selectedTransferProduct, transferForm.variationId || "")}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">Note</label>
+                  <textarea
+                    value={transferForm.note}
+                    onChange={(event) => handleTransferFormChange("note", event.target.value)}
+                    rows="3"
+                    className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-100"
+                    placeholder="Optional note"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 border-t bg-gray-50 p-4">
+                <button
+                  type="button"
+                  onClick={closeTransferModal}
+                  className="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={stockTransferLoading}
+                  className="rounded bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 disabled:opacity-60"
+                >
+                  {stockTransferLoading ? "Sending..." : "Send Transfer"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {canViewStockTransfers && showTransfers && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-lg bg-white shadow-xl">
+            <div className="flex items-start justify-between gap-4 border-b p-4">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">{isAdmin ? "Stock Transfer Report" : "Stock Transfers"}</h2>
+                <p className="text-sm text-gray-600">
+                  {isAdmin
+                    ? `Pending on page: ${pendingTransfers.length} | Total records: ${stockTransferPagination?.total || 0}`
+                    : `Incoming pending: ${incomingPendingTransfers.length} | Outgoing pending: ${outgoingPendingTransfers.length}`}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowTransfers(false)}
+                className="rounded px-3 py-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="max-h-[72vh] overflow-auto p-4">
+              <form onSubmit={applyTransferFilters} className="mb-4 grid gap-3 overflow-visible rounded border bg-gray-50 p-3 text-sm md:grid-cols-6">
+                <div className="relative overflow-visible">
+                  <label className="mb-1 block text-xs font-medium uppercase text-gray-500">Status</label>
+                  <MobileTransferDropdown
+                    value={transferFilters.status}
+                    options={transferStatusOptions}
+                    placeholder="All"
+                    onChange={(value) => handleTransferFilterChange("status", value)}
+                    getLabel={(option) => option.label}
+                  />
+                  <select
+                    value={transferFilters.status}
+                    onChange={(event) => handleTransferFilterChange("status", event.target.value)}
+                    className="hidden w-full rounded border border-gray-300 px-2 py-2 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-100 md:block"
+                  >
+                    {transferStatusOptions.map((option) => (
+                      <option key={option.value || "all"} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium uppercase text-gray-500">From Date</label>
+                  <input
+                    type="date"
+                    value={transferFilters.dateFrom}
+                    onChange={(event) => handleTransferFilterChange("dateFrom", event.target.value)}
+                    className="w-full rounded border border-gray-300 px-2 py-2 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-100"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium uppercase text-gray-500">To Date</label>
+                  <input
+                    type="date"
+                    value={transferFilters.dateTo}
+                    onChange={(event) => handleTransferFilterChange("dateTo", event.target.value)}
+                    className="w-full rounded border border-gray-300 px-2 py-2 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-100"
+                  />
+                </div>
+                {isAdmin && (
+                  <>
+                    <div className="relative overflow-visible">
+                      <label className="mb-1 block text-xs font-medium uppercase text-gray-500">Source</label>
+                      <MobileTransferDropdown
+                        value={transferFilters.sourceBranchId}
+                        options={[{ value: "", label: "All branches" }, ...transferAllBranchOptions]}
+                        placeholder="All branches"
+                        onChange={(value) => handleTransferFilterChange("sourceBranchId", value)}
+                        getLabel={(option) => option.label}
+                      />
+                      <select
+                        value={transferFilters.sourceBranchId}
+                        onChange={(event) => handleTransferFilterChange("sourceBranchId", event.target.value)}
+                        className="hidden w-full rounded border border-gray-300 px-2 py-2 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-100 md:block"
+                      >
+                        <option value="">All branches</option>
+                        {transferAllBranchOptions.map((branch) => (
+                          <option key={branch.value} value={branch.value}>{branch.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="relative overflow-visible">
+                      <label className="mb-1 block text-xs font-medium uppercase text-gray-500">Destination</label>
+                      <MobileTransferDropdown
+                        value={transferFilters.destinationBranchId}
+                        options={[{ value: "", label: "All branches" }, ...transferAllBranchOptions]}
+                        placeholder="All branches"
+                        onChange={(value) => handleTransferFilterChange("destinationBranchId", value)}
+                        getLabel={(option) => option.label}
+                      />
+                      <select
+                        value={transferFilters.destinationBranchId}
+                        onChange={(event) => handleTransferFilterChange("destinationBranchId", event.target.value)}
+                        className="hidden w-full rounded border border-gray-300 px-2 py-2 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-100 md:block"
+                      >
+                        <option value="">All branches</option>
+                        {transferAllBranchOptions.map((branch) => (
+                          <option key={branch.value} value={branch.value}>{branch.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                )}
+                <div className="relative overflow-visible">
+                  <label className="mb-1 block text-xs font-medium uppercase text-gray-500">Rows</label>
+                  <MobileTransferDropdown
+                    value={String(transferFilters.limit || "25")}
+                    options={transferRowsOptions}
+                    placeholder="25"
+                    onChange={(value) => handleTransferFilterChange("limit", value)}
+                    getLabel={(option) => option.label}
+                  />
+                  <select
+                    value={transferFilters.limit}
+                    onChange={(event) => handleTransferFilterChange("limit", event.target.value)}
+                    className="hidden w-full rounded border border-gray-300 px-2 py-2 text-sm focus:border-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-100 md:block"
+                  >
+                    {transferRowsOptions.map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex items-end gap-2 md:col-span-6">
+                  <button
+                    type="submit"
+                    className="rounded bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700"
+                  >
+                    Apply
+                  </button>
+                  <button
+                    type="button"
+                    onClick={resetTransferFilters}
+                    className="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </form>
+
+              {stockTransferLoading && (
+                <div className="py-6 text-center text-sm text-gray-500">Loading transfers...</div>
+              )}
+              {stockTransferError && (
+                <div className="mb-4 rounded bg-red-100 p-3 text-sm text-red-700">{stockTransferError}</div>
+              )}
+              {(stockTransfers || []).length === 0 ? (
+                <div className="rounded border border-dashed border-gray-300 px-4 py-8 text-center text-sm text-gray-500">
+                  No stock transfers found.
+                </div>
+              ) : (
+                <table className="min-w-full border text-sm">
+                  <thead className="sticky top-0 bg-gray-100">
+                    <tr>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase text-gray-500">Product</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase text-gray-500">From</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase text-gray-500">To</th>
+                      <th className="px-3 py-2 text-right text-xs font-medium uppercase text-gray-500">Qty</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase text-gray-500">Status</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase text-gray-500">Date</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase text-gray-500">Initiated By</th>
+                      <th className="px-3 py-2 text-left text-xs font-medium uppercase text-gray-500">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {(stockTransfers || []).map((transfer) => {
+                      const isIncoming = transfer.destinationBranchId === staffBranch;
+                      const isOutgoing = transfer.sourceBranchId === staffBranch;
+                      return (
+                        <tr key={transfer._id}>
+                          <td className="px-3 py-2">
+                            <p className="font-medium text-gray-900">{transfer.productName}</p>
+                            {transfer.variationName && (
+                              <p className="text-xs text-gray-500">{transfer.variationName}</p>
+                            )}
+                          </td>
+                          <td className="px-3 py-2">{transfer.sourceBranchName}</td>
+                          <td className="px-3 py-2">{transfer.destinationBranchName}</td>
+                          <td className="px-3 py-2 text-right font-semibold">{transfer.quantity}</td>
+                          <td className="px-3 py-2">
+                            <span className={`rounded px-2 py-1 text-xs font-medium ${
+                              transfer.status === "accepted"
+                                ? "bg-green-100 text-green-700"
+                                : transfer.status === "pending"
+                                  ? "bg-orange-100 text-orange-700"
+                                  : "bg-gray-100 text-gray-700"
+                            }`}>
+                              {transfer.status}
+                            </span>
+                          </td>
+                          <td className="px-3 py-2 text-xs text-gray-600">
+                            {transfer.createdAt ? new Date(transfer.createdAt).toLocaleString() : "N/A"}
+                          </td>
+                          <td className="px-3 py-2 text-xs text-gray-600">
+                            <p>{transfer.initiatedByName || "N/A"}</p>
+                            {transfer.acceptedByName && <p>Accepted: {transfer.acceptedByName}</p>}
+                            {transfer.rejectedByName && <p>Rejected: {transfer.rejectedByName}</p>}
+                            {transfer.cancelledByName && <p>Cancelled: {transfer.cancelledByName}</p>}
+                          </td>
+                          <td className="px-3 py-2">
+                            {isAdmin && (
+                              <span className="text-xs text-gray-500">View only</span>
+                            )}
+                            {isManager && transfer.status === "pending" && isIncoming && (
+                              <div className="flex flex-wrap gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => dispatch(acceptStockTransferRequest({ transferId: transfer._id }))}
+                                  className="rounded bg-green-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-green-700"
+                                >
+                                  Accept
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => dispatch(rejectStockTransferRequest({ transferId: transfer._id }))}
+                                  className="rounded bg-red-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-red-700"
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            )}
+                            {isManager && transfer.status === "pending" && isOutgoing && (
+                              <button
+                                type="button"
+                                onClick={() => dispatch(cancelStockTransferRequest({ transferId: transfer._id }))}
+                                className="rounded border border-gray-300 px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+                              >
+                                Cancel
+                              </button>
+                            )}
+                            {isManager && transfer.status !== "pending" && (
+                              <span className="text-xs text-gray-500">No action</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
         </div>
       )}
