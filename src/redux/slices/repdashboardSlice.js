@@ -15,7 +15,9 @@ const initialState = {
     fdcontribution: null,
     reptotalexpenditure: null,
     repEcommerceDeposit: null,
+    repEcommerceDSDeposit: null,
     repEcommerceDepositReport: [],
+    repEcommerceDSDepositReport: [],
     repFWWithdrawalReport: [],
     loading: false,
     error:null,
@@ -177,6 +179,28 @@ const dashboardSlice = createSlice({
         fetchRepEcommerceDepositReportFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchRepEcommerceDSDepositRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepEcommerceDSDepositSuccess:(state,action)=>{
+            state.repEcommerceDSDeposit = action.payload;
+            state.loading = false
+        },
+        fetchRepEcommerceDSDepositFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
+        fetchRepEcommerceDSDepositReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepEcommerceDSDepositReportSuccess:(state,action)=>{
+            state.repEcommerceDSDepositReport = action.payload;
+            state.loading = false
+        },
+        fetchRepEcommerceDSDepositReportFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
     
     }
 })
@@ -228,6 +252,12 @@ export const {
     fetchRepEcommerceDepositReportRequest,
     fetchRepEcommerceDepositReportSuccess,
     fetchRepEcommerceDepositReportFailure,
+    fetchRepEcommerceDSDepositRequest,
+    fetchRepEcommerceDSDepositSuccess,
+    fetchRepEcommerceDSDepositFailure,
+    fetchRepEcommerceDSDepositReportRequest,
+    fetchRepEcommerceDSDepositReportSuccess,
+    fetchRepEcommerceDSDepositReportFailure,
  
 } = dashboardSlice.actions
 

@@ -23,7 +23,9 @@ const initialState = {
     fdinterestexpense: null,
     fdpackage: null,
     branchEcommerceDeposit: null,
+    branchEcommerceDSDeposit: null,
     branchEcommerceDepositReport: [],
+    branchEcommerceDSDepositReport: [],
     branchFWWithdrawalReport: [],
     loading: false,
     error:null,
@@ -275,6 +277,28 @@ const dashboardSlice = createSlice({
             state.error = action.payload
             state.loading = false
         },
+        fetchBranchEcommerceDSDepositRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchEcommerceDSDepositSuccess:(state,action)=>{
+            state.branchEcommerceDSDeposit = action.payload;
+            state.loading = false
+        },
+        fetchBranchEcommerceDSDepositFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
+        fetchBranchEcommerceDSDepositReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchEcommerceDSDepositReportSuccess:(state,action)=>{
+            state.branchEcommerceDSDepositReport = action.payload;
+            state.loading = false
+        },
+        fetchBranchEcommerceDSDepositReportFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
     
     }
 })
@@ -352,6 +376,12 @@ export const {
     fetchBranchEcommerceDepositReportRequest,
     fetchBranchEcommerceDepositReportSuccess,
     fetchBranchEcommerceDepositReportFailure,
+    fetchBranchEcommerceDSDepositRequest,
+    fetchBranchEcommerceDSDepositSuccess,
+    fetchBranchEcommerceDSDepositFailure,
+    fetchBranchEcommerceDSDepositReportRequest,
+    fetchBranchEcommerceDSDepositReportSuccess,
+    fetchBranchEcommerceDSDepositReportFailure,
     
 } = dashboardSlice.actions
 

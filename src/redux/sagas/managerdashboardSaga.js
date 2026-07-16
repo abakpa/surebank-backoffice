@@ -73,6 +73,12 @@ import {
     fetchBranchEcommerceDepositReportRequest,
     fetchBranchEcommerceDepositReportSuccess,
     fetchBranchEcommerceDepositReportFailure,
+    fetchBranchEcommerceDSDepositRequest,
+    fetchBranchEcommerceDSDepositSuccess,
+    fetchBranchEcommerceDSDepositFailure,
+    fetchBranchEcommerceDSDepositReportRequest,
+    fetchBranchEcommerceDSDepositReportSuccess,
+    fetchBranchEcommerceDSDepositReportFailure,
   
 } from '../slices/managerdashboardSlice'
 import { url } from './url'
@@ -556,6 +562,48 @@ function* fetchBranchEcommerceDepositReportSaga(action) {
     }
 }
 
+function* fetchBranchEcommerceDSDepositSaga(action) {
+    const { details21 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details21 ? details21 : {};
+        const response = yield call(axios.post, `${url}/api/managerdashboard/branchecommercedsdeposit`, requestData, config);
+        yield put(fetchBranchEcommerceDSDepositSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchBranchEcommerceDSDepositFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+
+function* fetchBranchEcommerceDSDepositReportSaga(action) {
+    const { details22 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details22 ? details22 : {};
+        const response = yield call(axios.post, `${url}/api/managerdashboard/branchecommercedsdepositreport`, requestData, config);
+        yield put(fetchBranchEcommerceDSDepositReportSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchBranchEcommerceDSDepositReportFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+
 
 
 
@@ -585,6 +633,8 @@ function* depositSaga(){
     yield takeLatest(fetchBranchFDpackageRequest.type, fetchBranchFDpackageSaga)
     yield takeLatest(fetchBranchEcommerceDepositRequest.type, fetchBranchEcommerceDepositSaga)
     yield takeLatest(fetchBranchEcommerceDepositReportRequest.type, fetchBranchEcommerceDepositReportSaga)
+    yield takeLatest(fetchBranchEcommerceDSDepositRequest.type, fetchBranchEcommerceDSDepositSaga)
+    yield takeLatest(fetchBranchEcommerceDSDepositReportRequest.type, fetchBranchEcommerceDSDepositReportSaga)
 
 }
 
