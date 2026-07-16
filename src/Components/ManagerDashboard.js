@@ -23,6 +23,8 @@ import {
   fetchBranchTotalExpenditureRequest,
   fetchBranchEcommerceDepositRequest,
   fetchBranchEcommerceDepositReportRequest,
+  fetchBranchEcommerceDSDepositRequest,
+  fetchBranchEcommerceDSDepositReportRequest,
   fetchBranchFWWithdrawalRequest,
   fetchBranchFWWithdrawalReportRequest
 } from '../redux/slices/managerdashboardSlice'
@@ -43,6 +45,7 @@ const ManagerDashboard = () => {
     // const { branches } = useSelector((state) => state.branch);
     const [dateRanges, setDateRanges] = useState({});
     const [isEcommerceDepositModalOpen, setIsEcommerceDepositModalOpen] = useState(false);
+    const [isEcommerceDSDepositModalOpen, setIsEcommerceDSDepositModalOpen] = useState(false);
     const [isFWWithdrawalModalOpen, setIsFWWithdrawalModalOpen] = useState(false);
     const [productActionCount, setProductActionCount] = useState(0);
 
@@ -79,6 +82,8 @@ const ManagerDashboard = () => {
       fdpackage,
       branchEcommerceDeposit,
       branchEcommerceDepositReport,
+      branchEcommerceDSDeposit,
+      branchEcommerceDSDepositReport,
       branchFWWithdrawal,
       branchFWWithdrawalReport,
     } = useSelector((state)=>state.managerdashboard)
@@ -96,6 +101,7 @@ const ManagerDashboard = () => {
       const newtotalexpenditure =  branchtotalexpenditure || 0
       const newfdpackage = fdpackage || 0
       const newBranchEcommerceDeposit = branchEcommerceDeposit || 0
+      const newBranchEcommerceDSDeposit = branchEcommerceDSDeposit || 0
       const newBranchFWWithdrawal = branchFWWithdrawal || 0
 
       useEffect(() => {
@@ -124,6 +130,11 @@ const ManagerDashboard = () => {
         dispatch(fetchBranchFWWithdrawalReportRequest({ details20 }));
         setIsFWWithdrawalModalOpen(true);
       };
+      const openEcommerceDSDepositModal = () => {
+        const details22 = { date: getDateRangeValue(dateRanges, "date20") };
+        dispatch(fetchBranchEcommerceDSDepositReportRequest({ details22 }));
+        setIsEcommerceDSDepositModalOpen(true);
+      };
       // const newfdContribution = fdcontribution || 0
     //   useEffect(() => {
     //     dispatch(fetchBranchRequest());
@@ -146,6 +157,8 @@ const ManagerDashboard = () => {
         const details17 = { date: getDateRangeValue(dateRanges, "date17") };
         const details18 = { date: getDateRangeValue(dateRanges, "date17") };
         const details19 = { date: getDateRangeValue(dateRanges, "date18") };
+        const details21 = { date: getDateRangeValue(dateRanges, "date20") };
+        const details22 = { date: getDateRangeValue(dateRanges, "date20") };
         // const data = {details}
         // const data1 = {details1}
         const data2 = {details2}
@@ -162,6 +175,8 @@ const ManagerDashboard = () => {
         const data17 = {details17}
         const data18 = {details18}
         const data19 = {details19}
+        const data21 = {details21}
+        const data22 = {details22}
         // dispatch(fetchBranchDSContributionRequest(data));
         // dispatch(fetchBranchSBContributionRequest(data1));
         // dispatch(fetcBranchTotalSBandDSRequest(data2)); 
@@ -179,6 +194,8 @@ const ManagerDashboard = () => {
         dispatch(fetchBranchEcommerceDepositRequest(data17));
         dispatch(fetchBranchEcommerceDepositReportRequest(data18));
         dispatch(fetchBranchFWWithdrawalRequest(data19));
+        dispatch(fetchBranchEcommerceDSDepositRequest(data21));
+        dispatch(fetchBranchEcommerceDSDepositReportRequest(data22));
    
     }, [
       dispatch,
@@ -362,6 +379,21 @@ const ManagerDashboard = () => {
       <DashboardDateRangeFields rangeKey="date17" dateRanges={dateRanges} setDateRanges={setDateRanges} />
     </form>
   </div>
+  <div className="relative p-4 rounded-lg shadow-md bg-orange-100">
+    <button
+      type="button"
+      onClick={openEcommerceDSDepositModal}
+      className="absolute right-3 top-3 text-orange-800 hover:text-orange-900"
+      title="View customer DS deposit details"
+    >
+      <FaEye className="text-lg" />
+    </button>
+    <h3 className="text-sm font-semibold mb-2 text-orange-800">Customer DS Deposit</h3>
+    <p className="text-sm font-bold text-orange-800">{newBranchEcommerceDSDeposit?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <DashboardDateRangeFields rangeKey="date20" dateRanges={dateRanges} setDateRanges={setDateRanges} />
+    </form>
+  </div>
   {/* Card 14 - Violet */}
   <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
          {/* Transaction Statement Icon (Top-right Corner) */}
@@ -407,6 +439,18 @@ const ManagerDashboard = () => {
   onClose={() => setIsFWWithdrawalModalOpen(false)}
   title="Branch FW Withdrawal Details"
   transactions={branchFWWithdrawalReport}
+  showStaff
+/>
+<EcommerceDepositDetailsModal
+  isOpen={isEcommerceDSDepositModalOpen}
+  onClose={() => setIsEcommerceDSDepositModalOpen(false)}
+  title="Branch Customer DS Deposit Details"
+  transactions={branchEcommerceDSDepositReport}
+  showPackage
+  showAccountNumber
+  showDSAccountNumber
+  showAccountType
+  showBalance
   showStaff
 />
 </div>

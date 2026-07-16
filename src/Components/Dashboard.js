@@ -32,6 +32,8 @@ import {
   fetchEcommerceIncomeRequest,
   fetchEcommerceDepositRequest,
   fetchEcommerceDepositReportRequest,
+  fetchEcommerceDSDepositRequest,
+  fetchEcommerceDSDepositReportRequest,
   fetchFWWithdrawalRequest,
   fetchFWWithdrawalReportRequest,
   fetchDSWithdrawalReportRequest
@@ -81,7 +83,9 @@ const Dashboard = () => {
     const [branchId22, setBranchId22] = useState("");
     const [branchId23, setBranchId23] = useState("");
     const [branchId24, setBranchId24] = useState("");
+    const [branchId25, setBranchId25] = useState("");
     const [isEcommerceDepositModalOpen, setIsEcommerceDepositModalOpen] = useState(false);
+    const [isEcommerceDSDepositModalOpen, setIsEcommerceDSDepositModalOpen] = useState(false);
     const [isFWWithdrawalModalOpen, setIsFWWithdrawalModalOpen] = useState(false);
     const [isDSWithdrawalModalOpen, setIsDSWithdrawalModalOpen] = useState(false);
     const [productActionCount, setProductActionCount] = useState(0);
@@ -111,7 +115,9 @@ const Dashboard = () => {
       availablebalance,
       ecommerceIncome,
       ecommerceDeposit,
+      ecommerceDSDeposit,
       ecommerceDepositReport,
+      ecommerceDSDepositReport,
       dsWithdrawalReport,
       fwWithdrawal,
       fwWithdrawalReport
@@ -140,6 +146,7 @@ const Dashboard = () => {
       const newAvailableBalance = availablebalance || 0
       const newEcommerceIncome = ecommerceIncome || 0
       const newEcommerceDeposit = ecommerceDeposit || 0
+      const newEcommerceDSDeposit = ecommerceDSDeposit || 0
       const newFWWithdrawal = fwWithdrawal || 0
 
       const openEcommerceDepositModal = () => {
@@ -152,6 +159,12 @@ const Dashboard = () => {
         const details26 = { branchId: branchId24, date: getDateRangeValue(dateRanges, "date24") };
         dispatch(fetchFWWithdrawalReportRequest({ details26 }));
         setIsFWWithdrawalModalOpen(true);
+      };
+
+      const openEcommerceDSDepositModal = () => {
+        const details29 = { branchId: branchId25, date: getDateRangeValue(dateRanges, "date25") };
+        dispatch(fetchEcommerceDSDepositReportRequest({ details29 }));
+        setIsEcommerceDSDepositModalOpen(true);
       };
 
       const openDSWithdrawalModal = () => {
@@ -209,6 +222,8 @@ const Dashboard = () => {
         const details23 = { branchId: branchId23, date: getDateRangeValue(dateRanges, "date23") };
         const details24 = { branchId: branchId23, date: getDateRangeValue(dateRanges, "date23") };
         const details25 = { branchId: branchId24, date: getDateRangeValue(dateRanges, "date24") };
+        const details28 = { branchId: branchId25, date: getDateRangeValue(dateRanges, "date25") };
+        const details29 = { branchId: branchId25, date: getDateRangeValue(dateRanges, "date25") };
         const data = {details}
         const data1 = {details1}
         const data2 = {details2}
@@ -235,6 +250,8 @@ const Dashboard = () => {
         const data23 = {details23}
         const data24 = {details24}
         const data25 = {details25}
+        const data28 = {details28}
+        const data29 = {details29}
 
         dispatch(fetchDSContributionRequest(data));
         dispatch(fetchSBContributionRequest(data1));
@@ -262,6 +279,8 @@ const Dashboard = () => {
         dispatch(fetchEcommerceDepositRequest(data23));
         dispatch(fetchEcommerceDepositReportRequest(data24));
         dispatch(fetchFWWithdrawalRequest(data25));
+        dispatch(fetchEcommerceDSDepositRequest(data28));
+        dispatch(fetchEcommerceDSDepositReportRequest(data29));
 
     }, [
       dispatch,
@@ -291,6 +310,7 @@ const Dashboard = () => {
       branchId22,
       branchId23,
       branchId24,
+      branchId25,
     ]);
     
   return (
@@ -676,6 +696,28 @@ const Dashboard = () => {
     </form>
   </div>
 
+  <div className="relative p-4 rounded-lg shadow-md bg-orange-100">
+    <button
+      type="button"
+      onClick={openEcommerceDSDepositModal}
+      className="absolute right-3 top-3 text-orange-800 hover:text-orange-900"
+      title="View customer DS deposit details"
+    >
+      <FaEye className="text-lg" />
+    </button>
+    <h3 className="text-sm font-semibold mb-2 text-orange-800">Customer DS Deposit</h3>
+    <p className="text-sm font-bold text-orange-800">{newEcommerceDSDeposit?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <Select2
+        label="Branch"
+        options={branchOptions}
+        value={branchId25}
+        onChange={(selectedId) => setBranchId25(selectedId)}
+      />
+      <DashboardDateRangeFields rangeKey="date25" dateRanges={dateRanges} setDateRanges={setDateRanges} />
+    </form>
+  </div>
+
   {/* Card 13 - Emerald */}
   <div className="p-4 rounded-lg shadow-md bg-emerald-100">
     <h3 className="text-sm font-semibold mb-2 text-emerald-800">Total Income</h3>
@@ -760,6 +802,19 @@ const Dashboard = () => {
   onClose={() => setIsDSWithdrawalModalOpen(false)}
   title="DS Withdrawal Details"
   transactions={dsWithdrawalReport}
+  showPackage
+  showAccountNumber
+  showDSAccountNumber
+  showAccountType
+  showBalance
+  showBranch
+  showStaff
+/>
+<EcommerceDepositDetailsModal
+  isOpen={isEcommerceDSDepositModalOpen}
+  onClose={() => setIsEcommerceDSDepositModalOpen(false)}
+  title="Customer DS Deposit Details"
+  transactions={ecommerceDSDepositReport}
   showPackage
   showAccountNumber
   showDSAccountNumber

@@ -23,6 +23,8 @@ import {
   fetchReferralRequest,
   fetchRepEcommerceDepositRequest,
   fetchRepEcommerceDepositReportRequest,
+  fetchRepEcommerceDSDepositRequest,
+  fetchRepEcommerceDSDepositReportRequest,
   fetchRepFWWithdrawalRequest,
   fetchRepFWWithdrawalReportRequest
 
@@ -49,6 +51,7 @@ const RepDashboard = () => {
 
     const [dateRanges, setDateRanges] = useState({});
     const [isEcommerceDepositModalOpen, setIsEcommerceDepositModalOpen] = useState(false);
+    const [isEcommerceDSDepositModalOpen, setIsEcommerceDSDepositModalOpen] = useState(false);
     const [isFWWithdrawalModalOpen, setIsFWWithdrawalModalOpen] = useState(false);
     const {
       loading,
@@ -65,6 +68,8 @@ const RepDashboard = () => {
      referral,
      repEcommerceDeposit,
      repEcommerceDepositReport,
+     repEcommerceDSDeposit,
+     repEcommerceDSDepositReport,
      repFWWithdrawal,
      repFWWithdrawalReport
   
@@ -82,6 +87,7 @@ const RepDashboard = () => {
       const newrepexpenditure = reptotalexpenditure || 0
       const newreferral = Number(referral) || 0
       const newRepEcommerceDeposit = repEcommerceDeposit || 0
+      const newRepEcommerceDSDeposit = repEcommerceDSDeposit || 0
       const newRepFWWithdrawal = repFWWithdrawal || 0
 
       const openEcommerceDepositModal = () => {
@@ -93,6 +99,11 @@ const RepDashboard = () => {
         const details21 = { date: getDateRangeValue(dateRanges, "date19") };
         dispatch(fetchRepFWWithdrawalReportRequest({ details21 }));
         setIsFWWithdrawalModalOpen(true);
+      };
+      const openEcommerceDSDepositModal = () => {
+        const details23 = { date: getDateRangeValue(dateRanges, "date20") };
+        dispatch(fetchRepEcommerceDSDepositReportRequest({ details23 }));
+        setIsEcommerceDSDepositModalOpen(true);
       };
       
 
@@ -118,6 +129,8 @@ const RepDashboard = () => {
         const details18 = { date: getDateRangeValue(dateRanges, "date18") };
         const details19 = { date: getDateRangeValue(dateRanges, "date18") };
         const details20 = { date: getDateRangeValue(dateRanges, "date19") };
+        const details22 = { date: getDateRangeValue(dateRanges, "date20") };
+        const details23 = { date: getDateRangeValue(dateRanges, "date20") };
     
    
         const data3 = {details3}
@@ -134,6 +147,8 @@ const RepDashboard = () => {
         const data18 = {details18}
         const data19 = {details19}
         const data20 = {details20}
+        const data22 = {details22}
+        const data23 = {details23}
         dispatch(fetchReferralRequest(data17)); 
  
         dispatch(fetchRepDSDailyContributionRequest(data3)); 
@@ -149,6 +164,8 @@ const RepDashboard = () => {
         dispatch(fetchRepEcommerceDepositRequest(data18)); 
         dispatch(fetchRepEcommerceDepositReportRequest(data19)); 
         dispatch(fetchRepFWWithdrawalRequest(data20)); 
+        dispatch(fetchRepEcommerceDSDepositRequest(data22)); 
+        dispatch(fetchRepEcommerceDSDepositReportRequest(data23)); 
  
     }, [
       dispatch,
@@ -319,6 +336,21 @@ const RepDashboard = () => {
       <DashboardDateRangeFields rangeKey="date18" dateRanges={dateRanges} setDateRanges={setDateRanges} />
     </form>
   </div>
+  <div className="relative p-4 rounded-lg shadow-md bg-orange-100">
+    <button
+      type="button"
+      onClick={openEcommerceDSDepositModal}
+      className="absolute right-3 top-3 text-orange-800 hover:text-orange-900"
+      title="View customer DS deposit details"
+    >
+      <FaEye className="text-lg" />
+    </button>
+    <h3 className="text-sm font-semibold mb-2 text-orange-800">Customer DS Deposit</h3>
+    <p className="text-sm font-bold text-orange-800">{newRepEcommerceDSDeposit?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-2 mt-2">
+      <DashboardDateRangeFields rangeKey="date20" dateRanges={dateRanges} setDateRanges={setDateRanges} />
+    </form>
+  </div>
     {/* Card 16 - Fuchsia */}
   {loggedInStaffRole === 'Agent' && (
 
@@ -420,6 +452,17 @@ const RepDashboard = () => {
   title="Rep FW Withdrawal Details"
   transactions={repFWWithdrawalReport}
   showStaff
+/>
+<EcommerceDepositDetailsModal
+  isOpen={isEcommerceDSDepositModalOpen}
+  onClose={() => setIsEcommerceDSDepositModalOpen(false)}
+  title="Rep Customer DS Deposit Details"
+  transactions={repEcommerceDSDepositReport}
+  showPackage
+  showAccountNumber
+  showDSAccountNumber
+  showAccountType
+  showBalance
 />
 </div>
 

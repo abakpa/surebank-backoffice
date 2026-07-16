@@ -26,7 +26,9 @@ const initialState = {
     profit: null,
     ecommerceIncome: null,
     ecommerceDeposit: null,
+    ecommerceDSDeposit: null,
     ecommerceDepositReport: [],
+    ecommerceDSDepositReport: [],
     dsWithdrawalReport: [],
     fwWithdrawalReport: [],
     loading: false,
@@ -317,6 +319,28 @@ const dashboardSlice = createSlice({
         fetchEcommerceDepositReportFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchEcommerceDSDepositRequest:(state)=>{
+            state.loading = true
+        },
+        fetchEcommerceDSDepositSuccess:(state,action)=>{
+            state.ecommerceDSDeposit = action.payload;
+            state.loading = false
+        },
+        fetchEcommerceDSDepositFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
+        fetchEcommerceDSDepositReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchEcommerceDSDepositReportSuccess:(state,action)=>{
+            state.ecommerceDSDepositReport = action.payload;
+            state.loading = false
+        },
+        fetchEcommerceDSDepositReportFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
 
     }
 })
@@ -406,6 +430,12 @@ export const {
     fetchEcommerceDepositReportRequest,
     fetchEcommerceDepositReportSuccess,
     fetchEcommerceDepositReportFailure,
+    fetchEcommerceDSDepositRequest,
+    fetchEcommerceDSDepositSuccess,
+    fetchEcommerceDSDepositFailure,
+    fetchEcommerceDSDepositReportRequest,
+    fetchEcommerceDSDepositReportSuccess,
+    fetchEcommerceDSDepositReportFailure,
 
 } = dashboardSlice.actions
 
