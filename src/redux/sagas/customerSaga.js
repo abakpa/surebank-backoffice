@@ -410,7 +410,14 @@ function*  updateCustomerWithdrawalRequestSaga(action){
         };
         const response = yield call(axios.put,`${url}/api/customerwithdrawalrequest/${withdrawalRequestId}`,{},config );
         yield put( updateCustomerWithdrawalRequestSuccess(response.data))
-        yield call (fetchCustomerWithdrawalRequestSaga);
+        const role = localStorage.getItem('staffRole');
+        if (role === 'Manager') {
+            yield call(fetchBranchCustomerWithdrawalRequestSaga);
+        } else if (role === 'Agent' || role === 'Rep' || role === 'OnlineRep') {
+            yield call(fetchRepCustomerWithdrawalRequestSaga);
+        } else {
+            yield call(fetchCustomerWithdrawalRequestSaga);
+        }
         // yield call (fetchCustomerSaga);
         // navigate('/staff')
     } catch (error) {

@@ -39,56 +39,98 @@ const Viewcustomer = () => {
     setSearchInput(e.target.value);
   };
 
+  const branchCount = branches.filter((branch) => branch.name !== "Head office").length;
+
   if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
 
   return (
-    <div className="flex flex-col p-4 bg-gray-100 min-h-screen w-full mt-10">
-      <h2 className="text-xl font-bold mb-4 text-center">Customer List</h2>
-      
-      {/* Search and Create Buttons */}
-      <div className="flex flex-col md:flex-row items-center justify-between mb-4 gap-2">
-        <input
-          type="text"
-          placeholder="Search customers by name, phone, or branch..."
-          value={searchInput}
-          onChange={handleSearch}
-          className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md"
+    <div className="min-h-screen w-full bg-slate-50 px-3 py-4 md:px-6 md:py-6">
+      <div className="mx-auto max-w-7xl space-y-4">
+        <section className="overflow-hidden rounded-2xl bg-slate-950 text-white shadow-lg">
+          <div className="relative p-4 md:p-6">
+            <div className="absolute right-0 top-0 h-28 w-28 rounded-bl-full bg-orange-500/25 md:h-40 md:w-40" />
+            <div className="relative grid gap-4 lg:grid-cols-[1fr,auto] lg:items-end">
+              <div>
+                <p className="text-xs font-black uppercase text-orange-300">Admin customers</p>
+                <h1 className="mt-1 text-2xl font-black tracking-normal md:text-3xl">Customer Directory</h1>
+                <p className="mt-1 max-w-2xl text-sm font-semibold text-slate-200">
+                  Search, review, create, and manage customer account records across every branch.
+                </p>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-xs md:min-w-[420px] md:text-sm">
+                <div className="rounded-2xl bg-orange-500 px-3 py-2 shadow-sm">
+                  <p className="text-orange-50">Total</p>
+                  <p className="mt-1 text-xl font-black text-white">{Number(customerPagination.total || customerList.length || 0).toLocaleString()}</p>
+                </div>
+                <div className="rounded-2xl bg-sky-500 px-3 py-2 shadow-sm">
+                  <p className="text-sky-50">Branches</p>
+                  <p className="mt-1 text-xl font-black text-white">{branchCount.toLocaleString()}</p>
+                </div>
+                <div className="rounded-2xl bg-emerald-500 px-3 py-2 shadow-sm">
+                  <p className="text-emerald-50">Page</p>
+                  <p className="mt-1 text-xl font-black text-white">{Number(customerPagination.page || currentPage).toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:p-4">
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr),auto] lg:items-center">
+            <div className="relative">
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                <i className="fas fa-search text-sm"></i>
+              </span>
+              <input
+                type="text"
+                placeholder="Search customers by name, phone, or branch..."
+                value={searchInput}
+                onChange={handleSearch}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-9 pr-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-100"
+              />
+            </div>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 lg:flex">
+              <Link to="/viewcustomerusingapp" className="text-xs">
+                <button className="w-full rounded-xl bg-sky-600 px-4 py-3 font-black text-white shadow-sm hover:bg-sky-700 lg:w-auto">
+                  Customers Analytics
+                </button>
+              </Link>
+              <Link to="/viewcustomerwithdrawalrequest" className="text-xs">
+                <button className="w-full rounded-xl bg-purple-700 px-4 py-3 font-black text-white shadow-sm hover:bg-purple-800 lg:w-auto">
+                  Withdrawal Request
+                </button>
+              </Link>
+              <Link to="/createcustomer" className="text-xs">
+                <button className="w-full rounded-xl bg-orange-600 px-4 py-3 font-black text-white shadow-sm hover:bg-orange-700 lg:w-auto">
+                  Create Customer
+                </button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-100 bg-gradient-to-r from-orange-50 via-sky-50 to-emerald-50 px-4 py-3">
+            <h2 className="text-sm font-black uppercase text-slate-800">Customers</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] border-collapse">
+              <Tablehead />
+              <Tablebody customers={customerList} branches={branches} />
+            </table>
+          </div>
+        </section>
+        {loading && (
+          <p className="rounded-xl bg-sky-50 px-3 py-2 text-sm font-semibold text-sky-700">Loading customers...</p>
+        )}
+        <PaginationControls
+          page={customerPagination.page}
+          totalPages={customerPagination.totalPages}
+          total={customerPagination.total}
+          onPageChange={setCurrentPage}
+          disabled={loading}
         />
-        
-        <Link to="/viewcustomerusingapp" className="text-xs">
-          <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-            Customers Analytics
-          </button>
-        </Link>
-        <Link to="/viewcustomerwithdrawalrequest" className="text-xs">
-          <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-            Withdrawal Request
-          </button>
-        </Link>
-        <Link to="/createcustomer" className="text-xs">
-          <button className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-            Create Customer
-          </button>
-        </Link>
       </div>
-      
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[600px] border-collapse border border-gray-300">
-          <Tablehead />
-          <Tablebody customers={customerList} branches={branches} />
-        </table>
-      </div>
-      {loading && (
-        <p className="mt-3 text-sm text-blue-600 dark:text-sky-400">Loading customers...</p>
-      )}
-      <PaginationControls
-        page={customerPagination.page}
-        totalPages={customerPagination.totalPages}
-        total={customerPagination.total}
-        onPageChange={setCurrentPage}
-        disabled={loading}
-      />
     </div>
   );
 };

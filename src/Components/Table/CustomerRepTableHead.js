@@ -4,16 +4,16 @@ const Tablehead = () => {
     const canTransfer = role === "Manager" || role === "Admin";
   
     return (
-      <thead className="text-sm">
-        <tr className="bg-gray-100">
-          <th className="border border-gray-300 p-2">Name</th>
-          <th className="border border-gray-300 p-2">Address</th>
-          <th className="border border-gray-300 p-2">Phone</th>
+      <thead className="bg-slate-900 text-xs font-black uppercase tracking-wide text-slate-100">
+        <tr>
+          <th className="px-4 py-3 text-left">Name</th>
+          <th className="px-4 py-3 text-left">Address</th>
+          <th className="px-4 py-3 text-left">Phone</th>
           {!isManagerOrAgent && (
-          <th className="border border-gray-300 p-2">Branch</th>
+          <th className="px-4 py-3 text-left">Branch</th>
           )}
           {canTransfer && (
-            <th className="border border-gray-300 p-2">Transfer Customer</th>
+            <th className="px-4 py-3 text-left">Transfer Customer</th>
           )}
         </tr>
       </thead>

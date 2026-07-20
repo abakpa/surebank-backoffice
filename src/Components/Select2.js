@@ -7,20 +7,20 @@ const Select = ({ options, value, onChange, label }) => {
   const selectedLabel = options.find((option) => option.value === value)?.label || "Select an option";
 
   return (
-    <div className="relative mb-4">
+    <div className="relative mb-1 sm:mb-3">
       {label && (
-        <label className="select2-label block text-sm font-medium mb-1">
+        <label className="select2-label mb-0.5 block text-[10px] font-medium sm:mb-1 sm:text-sm">
           {label}
         </label>
       )}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="select2-trigger mt-1 flex justify-between items-center w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-600 text-left"
+        className="select2-trigger mt-0.5 flex w-full items-center justify-between rounded border px-1.5 py-1 text-left text-[10px] focus:outline-none focus:ring-2 focus:ring-indigo-600 sm:mt-1 sm:px-3 sm:py-2 sm:text-sm"
       >
-        <span>{selectedLabel}</span>
+        <span className="min-w-0 truncate">{selectedLabel}</span>
         <svg
-          className={`h-5 w-5 transition-transform duration-200 ${
+          className={`h-3.5 w-3.5 flex-shrink-0 transition-transform duration-200 sm:h-5 sm:w-5 ${
             isOpen ? "rotate-180" : "rotate-0"
           }`}
           xmlns="http://www.w3.org/2000/svg"
@@ -45,7 +45,7 @@ const Select = ({ options, value, onChange, label }) => {
                 onChange(option.value); // Pass the value of the selected option
                 setIsOpen(false);
               }}
-              className="select2-option px-4 py-2 cursor-pointer"
+              className="select2-option cursor-pointer px-1.5 py-1 text-[10px] sm:px-4 sm:py-2 sm:text-sm"
             >
               {option.label} {/* Display the label */}
             </li>

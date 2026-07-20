@@ -17,13 +17,13 @@ const DashboardDateRangeFields = ({ rangeKey, dateRanges, setDateRanges }) => {
     <>
       <input
         type="date"
-        className="p-2 border rounded-md"
+        className="w-full rounded-md border p-1 text-[10px] sm:p-2 sm:text-sm"
         value={range.startDate}
         onChange={(e) => updateField("startDate", e.target.value)}
       />
       <input
         type="date"
-        className="p-2 border rounded-md"
+        className="w-full rounded-md border p-1 text-[10px] sm:p-2 sm:text-sm"
         value={range.endDate}
         onChange={(e) => updateField("endDate", e.target.value)}
       />

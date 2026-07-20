@@ -44,6 +44,7 @@ const getActiveSBProductSummary = (account) => {
     ? activeItems.map((item) => item.productName).filter(Boolean).join(", ")
     : account?.productName;
 };
+const formatRoleDisplay = (role) => (role === "Agent" ? "Rep" : role);
 
 const MobileVariationDropdown = ({ value, options, onChange, getLabel, formatCurrencyValue, accent = "green" }) => {
   const [open, setOpen] = useState(false);
@@ -155,6 +156,9 @@ const CustomerAccountDashboard = () => {
   const [phone, setPhone] = useState("");
   const [productName, setProductName] = useState("");
   const [productDescription, setProductDescription] = useState("");
+  const [settlementBankName, setSettlementBankName] = useState("");
+  const [settlementAccountName, setSettlementAccountName] = useState("");
+  const [settlementBankAccountNumber, setSettlementBankAccountNumber] = useState("");
   const [ecommerceProducts, setEcommerceProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(false);
   const [productsError, setProductsError] = useState("");
@@ -173,12 +177,18 @@ const CustomerAccountDashboard = () => {
     // const [accountManagerId, setAccountManagerId] = useState("");
   
   const [errors, setErrors] = useState("");
+  const [customerWithdrawalRequestMessage, setCustomerWithdrawalRequestMessage] = useState("");
+  const [customerWithdrawalRequestError, setCustomerWithdrawalRequestError] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [showCustomerWithdrawalRequestModal, setShowCustomerWithdrawalRequestModal] = useState(false);
+  const [customerWithdrawalRequestType, setCustomerWithdrawalRequestType] = useState("");
+  const [customerWithdrawalRequestSubmitting, setCustomerWithdrawalRequestSubmitting] = useState(false);
   
   const duration = [6, 9, 12, 18, 24]
   const formatCurrency = (value) => `₦${Number(value || 0).toLocaleString("en-US")}`;
   const isAdmin = loggedInStaffRole === "Admin";
+  const canCreateCustomerWithdrawalRequest = ["Agent", "Rep"].includes(loggedInStaffRole);
 
   useEffect(() => {
 if(selectedAccount){
@@ -472,6 +482,77 @@ if(selectedAccount){
     dispatch(createWithdrawalRequest(data));
     setAmountPerDay("");
     setShowWithdrawalModal(false);
+  };
+  const openCustomerWithdrawalRequestModal = (type, account) => {
+    setErrors("");
+    setCustomerWithdrawalRequestMessage("");
+    setCustomerWithdrawalRequestError("");
+    setAmountPerDay("");
+    setSelectedAccount(account);
+    setCustomerWithdrawalRequestType(type);
+    setShowCustomerWithdrawalRequestModal(true);
+  };
+
+  const handleCustomerWithdrawalRequestSubmit = async (e) => {
+    e.preventDefault();
+    setErrors("");
+    setCustomerWithdrawalRequestError("");
+
+    const parsedAmount = Number(amountPerDay);
+    if (!parsedAmount || parsedAmount <= 0) {
+      setCustomerWithdrawalRequestError("Please enter a valid amount.");
+      setShowError(true);
+      return;
+    }
+
+    const details = customerWithdrawalRequestType === "free_to_withdraw"
+      ? {
+          requestType: "free_to_withdraw",
+          customerId,
+          accountTypeId: deposit?.account?._id,
+          amount: parsedAmount,
+        }
+      : {
+          requestType: "ds_package",
+          customerId,
+          accountTypeId: selectedAccount?._id,
+          amount: parsedAmount,
+        };
+
+    if (!details.accountTypeId) {
+      setCustomerWithdrawalRequestError("Account details are missing for this request.");
+      setShowError(true);
+      return;
+    }
+
+    try {
+      setCustomerWithdrawalRequestSubmitting(true);
+      const token = localStorage.getItem("authToken");
+      const response = await axios.post(`${url}/api/customerwithdrawalrequest/staff`, details, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setCustomerWithdrawalRequestMessage(response.data?.message || "Withdrawal request sent successfully");
+      setShowSuccess(true);
+      setAmountPerDay("");
+      setShowCustomerWithdrawalRequestModal(false);
+      setTimeout(() => {
+        setShowSuccess(false);
+        setCustomerWithdrawalRequestMessage("");
+      }, 5000);
+    } catch (error) {
+      if (error.response?.status === 401) {
+        localStorage.removeItem("authToken");
+        window.location.href = "/login";
+        return;
+      }
+      setCustomerWithdrawalRequestError(error.response?.data?.message || "Failed to send withdrawal request.");
+      setShowError(true);
+      setTimeout(() => setShowError(false), 5000);
+    } finally {
+      setCustomerWithdrawalRequestSubmitting(false);
+    }
   };
   const handleSBWithdrawalSubmit = (e) => {
     e.preventDefault();
@@ -854,18 +935,28 @@ if(selectedAccount){
         setErrors("Please enter the daily deposit amount");
         return;
       }
+      if (!settlementBankName.trim() || !settlementAccountName.trim() || !settlementBankAccountNumber.trim()) {
+        setErrors("Please enter settlement bank name, account name and account number");
+        return;
+      }
   
           const details = { 
             accountManagerId:loggedInStaffRole === "Agent" ? staffId : createdBy, 
             accountType,
             customerId:customerId, 
             accountNumber:deposit?.account?.accountNumber, 
-            amountPerDay: parseFloat(amountPerDay) 
+            amountPerDay: parseFloat(amountPerDay),
+            bankName: settlementBankName.trim(),
+            accountName: settlementAccountName.trim(),
+            bankAccountNumber: settlementBankAccountNumber.trim(),
           }
           const data ={details}
           dispatch(createCustomerAccountRequest(data))
       setAmountPerDay("");
       setAccountType("");
+      setSettlementBankName("");
+      setSettlementAccountName("");
+      setSettlementBankAccountNumber("");
       // setAccountManagerId("");
       setShowCreateAccountModal(false);
     };
@@ -1322,31 +1413,43 @@ if(selectedAccount){
     : null;
 
   return (
-    <div className="min-h-screen bg-gray-100 px-3 py-6 md:px-4 lg:px-5">
+    <div className="min-h-screen bg-slate-50 px-3 py-4 md:px-5 lg:px-6">
       {loading && <Loader />}
      
          {showSuccess && (
         <NotificationPopup 
-          messages={[deposit?.message, withdrawal?.message, customerAccount?.message].filter(Boolean)}
+         messages={[deposit?.message, withdrawal?.message, customerAccount?.message, customerWithdrawalRequestMessage].filter(Boolean)}
           type="success"
-          onClose={() => setShowSuccess(false)}
+          onClose={() => {
+            setShowSuccess(false);
+            setCustomerWithdrawalRequestMessage("");
+          }}
         />
       )}
       {showError && (
         <NotificationPopup 
-          messages={[depositError, withdrawalError, customerAccountError].filter(Boolean)}
+          messages={[depositError, withdrawalError, customerAccountError, customerWithdrawalRequestError].filter(Boolean)}
           type="error"
           onClose={() => setShowError(false)}
         />
       )}
-      {/* Header */}
-      <header className="mb-6 mt-6">
-        <h1 className="text-2xl font-bold">Customer Account Dashboard</h1>
-        <p className="text-gray-700"><strong>Name:</strong> {customerName}</p>
-        <div className="flex items-center gap-2">
-        <p className="text-gray-700">
-    <strong>Account Number:</strong> {deposit?.account?.accountNumber}
-  </p>
+      <header className="mb-4 overflow-hidden rounded-2xl bg-slate-950 text-white shadow-lg md:mb-6">
+        <div className="relative p-4 md:p-6">
+          <div className="absolute right-0 top-0 h-28 w-28 rounded-bl-full bg-orange-500/25 md:h-40 md:w-40" />
+          <div className="relative grid gap-4 lg:grid-cols-[1fr,auto] lg:items-end">
+            <div className="min-w-0">
+              <p className="text-xs font-black uppercase text-orange-300">Customer profile</p>
+              <h1 className="mt-1 text-2xl font-black tracking-normal md:text-3xl">Customer Account Dashboard</h1>
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-200">
+                <span className="rounded-full bg-white/10 px-3 py-1 font-semibold">Name: {customerName}</span>
+                <span className="rounded-full bg-white/10 px-3 py-1 font-semibold">Role: {formatRoleDisplay(loggedInStaffRole) || "Staff"}</span>
+              </div>
+            </div>
+            <div className="grid min-w-0 gap-2 sm:min-w-[420px]">
+              <div className="rounded-2xl bg-blue-600 px-3 py-2 text-xs shadow-sm ring-1 ring-blue-300/30 md:px-4 md:py-3 md:text-sm">
+                <p className="text-blue-50">Account Number</p>
+                <div className="mt-0.5 flex items-center gap-2">
+                  <p className="min-w-0 truncate font-black text-white">{deposit?.account?.accountNumber || "N/A"}</p>
   {((loggedInStaffRole === 'Admin')) && (
   <button
     onClick={() => {
@@ -1354,98 +1457,120 @@ if(selectedAccount){
       setPhone(newPhone.phone)
       setShowEditPhoneModal(true);
     }}
-    className="text-blue-600 hover:text-blue-800"
+    className="shrink-0 text-blue-100 hover:text-white"
     title="Edit"
   >
     <i className="fas fa-edit text-sm"></i>
   </button>
 
 )}
-</div>
-        {/* <p className="text-gray-700"><strong>Total Balance:</strong> ₦{deposit?.account?.ledgerBalance}</p> */}
-        <p className="text-gray-700 flex flex-wrap items-center gap-x-1 gap-y-2 min-w-0 break-words">
-          <strong>Free to withdraw:</strong>
-          <span className="break-words">₦{deposit?.account?.availableBalance?.toLocaleString('en-US')}</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+        <div className="min-w-0 rounded-2xl bg-emerald-600 px-3 py-2 text-xs shadow-sm ring-1 ring-emerald-300/30 md:px-4 md:py-3 md:text-sm">
+          <p className="truncate text-emerald-50">Free to withdraw</p>
+          <div className="mt-0.5 flex flex-wrap items-center gap-2">
+          <span className="min-w-0 truncate font-black text-white">₦{deposit?.account?.availableBalance?.toLocaleString('en-US')}</span>
           <button
           onClick={() => accountTransaction(deposit?.account?._id)}
-          className="text-blue-600 hover:underline ml-1 shrink-0"
+          className="shrink-0 text-white/90 hover:text-white"
         >
-          <i className="fas fa-folder-open text-3xl md:text-lg" title="View Transactions"></i>
+          <i className="fas fa-folder-open text-xl md:text-lg" title="View Transactions"></i>
         </button>
   {canManageCustomerFunds && (
 	  <button
 	    onClick={() => setShowMainDepositModal(true)}
-	    className="text-green-600 hover:text-green-800 ml-1 shrink-0"
+	    className="shrink-0 text-white/90 hover:text-white"
 	  >
-    <i className="fas fa-plus-circle text-3xl md:text-lg" title="Deposit"></i>
+    <i className="fas fa-plus-circle text-xl md:text-lg" title="Deposit"></i>
   </button>
 )}
   {canManageCustomerFunds && (
 	  <button
 	    onClick={() => setShowMainWithdrawalModal(true)}
-	    className="text-red-600 hover:text-red-800 ml-1 shrink-0"
+	    className="shrink-0 text-white/90 hover:text-white"
 	  >
     <i className="fas fa-minus-circle text-lg" title="Withdraw"></i>
+  </button>
+)}
+  {canCreateCustomerWithdrawalRequest && deposit?.account?._id && (
+	  <button
+	    onClick={() => openCustomerWithdrawalRequestModal("free_to_withdraw", deposit?.account)}
+	    className="shrink-0 text-white/90 hover:text-white"
+	  >
+    <i className="fas fa-hand-holding-usd text-lg" title="Request Withdrawal"></i>
   </button>
 )}
   {isAdmin && (
   <button
     onClick={() => openWalletTransferModal("free_to_sb_wallet")}
-    className="text-amber-600 hover:text-amber-800 ml-1"
+    className="shrink-0 text-white/90 hover:text-white"
   >
     <i className="fas fa-exchange-alt text-lg" title="Transfer Free To Withdraw to SB Order Wallet"></i>
   </button>
 )}
 
 
-        </p>
-        <p className="text-gray-700 flex flex-wrap items-center gap-x-1 gap-y-2 min-w-0 break-words">
-          <strong>SB Order Wallet:</strong>
-          <span className="break-words">₦{Number(deposit?.sbWalletAccount?.availableBalance || 0).toLocaleString('en-US')}</span>
+          </div>
+        </div>
+        <div className="min-w-0 rounded-2xl bg-purple-700 px-3 py-2 text-xs shadow-sm ring-1 ring-purple-300/30 md:px-4 md:py-3 md:text-sm">
+          <p className="truncate text-purple-100">SB Order Wallet</p>
+          <div className="mt-0.5 flex flex-wrap items-center gap-2">
+          <span className="min-w-0 truncate font-black text-white">₦{Number(deposit?.sbWalletAccount?.availableBalance || 0).toLocaleString('en-US')}</span>
           {deposit?.sbWalletAccount?._id && (
             <button
               onClick={() => accountTransaction(deposit?.sbWalletAccount?._id)}
-              className="text-blue-600 hover:underline ml-1 shrink-0"
+              className="shrink-0 text-white/90 hover:text-white"
             >
-              <i className="fas fa-folder-open text-3xl md:text-lg" title="View SB Order Wallet Transactions"></i>
+              <i className="fas fa-folder-open text-xl md:text-lg" title="View SB Order Wallet Transactions"></i>
             </button>
           )}
           {sbAccountWithItemDetails && loggedInStaffRole !== 'OnlineRep' && (
             <button
               onClick={() => { setSelectedAccount(sbAccountWithItemDetails); setShowSBDepositModal(true); }}
-              className="text-green-600 hover:text-green-800 ml-1 shrink-0"
+              className="shrink-0 text-white/90 hover:text-white"
             >
-              <i className="fas fa-plus-circle text-3xl md:text-lg" title="Deposit to SB Account"></i>
+              <i className="fas fa-plus-circle text-xl md:text-lg" title="Deposit to SB Account"></i>
             </button>
           )}
-        </p>
+          </div>
+        </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </header>
   {/* Add Account Section */}
-<div className="mt-2">
-  <h2 className="text-lg font-bold mb-2">Add New Package</h2>
-  <div className="flex space-x-2 mb-2">
-    {loggedInStaffRole !== 'OnlineRep' && (
-    <div className="cursor-pointer bg-blue-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => setShowCreateAccountModal(true)}>
-      DS
+<div className="mb-4 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:p-4">
+  <div className="mb-3 flex items-center justify-between gap-3">
+    <div>
+      <p className="text-xs font-black uppercase text-orange-600">Packages</p>
+      <h2 className="text-lg font-black text-slate-950">Add New Package</h2>
     </div>
+  </div>
+  <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap">
+    {loggedInStaffRole !== 'OnlineRep' && (
+    <button type="button" className="flex h-12 items-center justify-center rounded-2xl bg-blue-600 px-4 text-sm font-black text-white shadow-sm hover:bg-blue-700 sm:w-20" onClick={() => setShowCreateAccountModal(true)}>
+      DS
+    </button>
     )}
-    <div className="cursor-pointer bg-green-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => {
+    <button type="button" className="flex h-12 items-center justify-center rounded-2xl bg-emerald-600 px-4 text-sm font-black text-white shadow-sm hover:bg-emerald-700 sm:w-20" onClick={() => {
       setErrors("");
       setShowCreateSBAccountModal(true);
     }}>
       SB
-    </div>
+    </button>
     {loggedInStaffRole !== 'OnlineRep' && (
 
-    <div className="cursor-pointer bg-purple-500 text-white w-8 h-8 rounded-lg flex items-center justify-center" onClick={() => setShowCreateFDAccountModal(true)}>
+    <button type="button" className="flex h-12 items-center justify-center rounded-2xl bg-purple-700 px-4 text-sm font-black text-white shadow-sm hover:bg-purple-800 sm:w-20" onClick={() => setShowCreateFDAccountModal(true)}>
       FD
-    </div>
+    </button>
     )}
   </div>
 </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2.4fr)_minmax(280px,0.9fr)]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2.4fr)_minmax(320px,0.9fr)]">
         {/* Left Panel - Account Details */}
         <div className="min-w-0">
           {(Array.isArray(newSubAccount?.dsAccount) && newSubAccount.dsAccount.length > 0) || 
@@ -1457,19 +1582,19 @@ if(selectedAccount){
   newSubAccount.dsAccount.map((account, index) => (
     <li
       key={`ds-${index}`}
-      className="flex flex-col md:flex-row md:justify-between md:items-center bg-gray-50 p-3 rounded hover:shadow-md mb-3"
+      className="overflow-hidden rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:shadow-md md:flex md:items-center md:justify-between md:p-4"
     >
       {/* Account Info */}
-      <div className="flex-1">
+      <div className="min-w-0 flex-1">
         <div
-          className={`inline-block px-2 py-1 rounded-full text-xs font-semibold mb-2 ${
+          className={`inline-flex max-w-full items-center gap-1 rounded-full px-3 py-1 text-xs font-black mb-2 ${
             account.accountType === "Rent"
-              ? "bg-blue-100 text-gray-700"
+              ? "bg-blue-600 text-white"
               : account.accountType === "School fees"
-              ? "bg-green-100 text-green-700"
+              ? "bg-emerald-600 text-white"
               : account.accountType === "Food"
-              ? "bg-purple-100 text-purple-700"
-              : "bg-gray-100 text-blue-700"
+              ? "bg-purple-700 text-white"
+              : "bg-slate-900 text-white"
           }`}
         >
           {account.accountType} Account{" "}
@@ -1480,25 +1605,25 @@ if(selectedAccount){
               setGetAmountPerDay(account.amountPerDay);
               setShowEditModal(true);
             }}
-            className="text-blue-600 hover:text-blue-800 ml-2"
+            className="ml-2 text-white/90 hover:text-white"
           >
             <i className="fas fa-edit text-sm" title="Edit"></i>
           </button>
         </div>
-        <p className="text-sm text-gray-600">
-          <span className="bg-blue-500 text-white px-1 rounded-sm">DS:</span>{" "}
+        <p className="text-sm font-semibold text-slate-600">
+          <span className="rounded bg-blue-100 px-2 py-0.5 text-blue-700">DS</span>{" "}
           {account.DSAccountNumber || "N/A"}
         </p>
-        <p className="text-sm text-gray-600">
+        <p className="mt-1 text-sm font-black text-blue-700">
           Balance: ₦{account.totalContribution?.toLocaleString("en-US") || 0}
         </p>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap md:flex-nowrap space-x-2 md:space-x-4 mt-3 md:mt-0">
+      <div className="mt-3 flex flex-wrap gap-2 md:mt-0 md:flex-nowrap">
         <button
           onClick={() => accountTransaction(account._id)}
-          className="text-blue-600 hover:underline"
+          className="rounded-full bg-blue-50 px-3 py-2 text-blue-700 hover:bg-blue-100"
         >
           <i className="fas fa-folder-open text-3xl md:text-lg" title="View Transactions"></i>
         </button>
@@ -1509,7 +1634,7 @@ if(selectedAccount){
     setGetAmountPerDay(account.amountPerDay);
     setShowDSReversalModal(true);
   }}
-  className="text-indigo-600 hover:text-indigo-800"
+  className="rounded-full bg-indigo-50 px-3 py-2 text-indigo-700 hover:bg-indigo-100"
 >
   {/* DS Reversal */}
   <i className="fas fa-history text-lg" title="DS Reversal"></i>
@@ -1522,7 +1647,7 @@ if(selectedAccount){
     setGetAmountPerDay(account.amountPerDay);
     setShowFreeToWithdrawReversalModal(true);
   }}
-  className="text-orange-600 hover:text-orange-800"
+  className="rounded-full bg-orange-50 px-3 py-2 text-orange-700 hover:bg-orange-100"
 >
   {/* Free To Withdraw Reversal */}
   <i className="fas fa-undo-alt text-lg" title="Free To Withdraw Reversal "></i>
@@ -1535,7 +1660,7 @@ if(selectedAccount){
     setGetAmountPerDay(account.amountPerDay);
     setShowDSChargeReversalModal(true);
   }}
-  className="text-red-600 hover:text-red-800"
+  className="rounded-full bg-red-50 px-3 py-2 text-red-700 hover:bg-red-100"
 >
   {/* Charge Reversal */}
   <i className="fas fa-ban text-lg" title="Charge Reversal"></i>
@@ -1547,7 +1672,7 @@ if(selectedAccount){
             setGetAmountPerDay(account.amountPerDay);
             setShowDepositModal(true);
           }}
-          className="text-green-600 hover:text-green-800"
+          className="rounded-full bg-emerald-50 px-3 py-2 text-emerald-700 hover:bg-emerald-100"
         >
           <i className="fas fa-plus-circle text-3xl md:text-lg" title="Deposit"></i>
         </button>
@@ -1557,9 +1682,17 @@ if(selectedAccount){
               setSelectedAccount(account);
               setShowWithdrawalModal(true);
             }}
-            className="text-red-600 hover:text-red-800"
+            className="rounded-full bg-red-50 px-3 py-2 text-red-700 hover:bg-red-100"
           >
             <i className="fas fa-minus-circle text-lg" title="Withdraw"></i>
+          </button>
+        )}
+        {canCreateCustomerWithdrawalRequest && (
+          <button
+            onClick={() => openCustomerWithdrawalRequestModal("ds_package", account)}
+            className="rounded-full bg-amber-50 px-3 py-2 text-amber-700 hover:bg-amber-100"
+          >
+            <i className="fas fa-hand-holding-usd text-lg" title="Request Withdrawal"></i>
           </button>
         )}
       </div>
@@ -1575,18 +1708,18 @@ if(selectedAccount){
     return (
       <li
         key={`fd-${index}`}
-        className="flex justify-between items-center bg-gray-50 p-3 rounded hover:shadow-md"
+        className="overflow-hidden rounded-2xl border border-purple-100 bg-white p-3 shadow-sm transition hover:shadow-md md:flex md:items-center md:justify-between md:p-4"
       >
         <div>
           <div
-            className={`inline-block px-2 py-1 rounded-full text-xs font-semibold mb-1 ${
+            className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-black mb-2 ${
               account.accountType === "Rent"
-                ? "bg-blue-100 text-gray-700"
+                ? "bg-blue-600 text-white"
                 : account.accountType === "School fees"
-                ? "bg-green-100 text-green-700"
+                ? "bg-emerald-600 text-white"
                 : account.accountType === "Food"
-                ? "bg-purple-100 text-purple-700"
-                : "bg-gray-100 text-blue-700"
+                ? "bg-purple-700 text-white"
+                : "bg-slate-900 text-white"
             }`}
           >
             FD Account <strong>₦{account.fdamount?.toLocaleString('en-US')}</strong>
@@ -1598,25 +1731,25 @@ if(selectedAccount){
                 setGetAmountPerDay(account.fdamount);
                 setShowFDEditModal(true);
               }}
-              className="text-blue-600 hover:text-blue-800 ml-2"
+              className="ml-2 text-white/90 hover:text-white"
             >
               <i className="fas fa-edit text-sm" title="Edit"></i>
             </button>
             )}
     {/* )} */}
           </div>
-          <p className="text-sm text-gray-600"><span className="bg-purple-500 text-white w-8 h-8 rounded-sm"> FD:</span> {account.FDAccountNumber || "N/A"}</p>
-          <p className="text-sm text-gray-600">Interest: ₦{account.expenseInterest?.toLocaleString('en-US') || 0}</p>
+          <p className="text-sm font-semibold text-slate-600"><span className="rounded bg-purple-100 px-2 py-0.5 text-purple-700">FD</span> {account.FDAccountNumber || "N/A"}</p>
+          <p className="mt-1 text-sm font-black text-purple-700">Interest: ₦{account.expenseInterest?.toLocaleString('en-US') || 0}</p>
         </div>
-        <div className="flex space-x-4">
-          <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
+        <div className="mt-3 flex gap-2 md:mt-0">
+          <button onClick={() => accountTransaction(account._id)} className="rounded-full bg-blue-50 px-3 py-2 text-blue-700 hover:bg-blue-100">
             <i className="fas fa-folder-open text-3xl md:text-lg" title="View Transactions"></i>
           </button>
           {/* <button onClick={() => { setSelectedAccount(account); setGetAmountPerDay(account.amountPerDay); setShowDepositModal(true); }} className="text-green-600 hover:text-green-800">
             <i className="fas fa-plus-circle text-sm md:text-lg" title="Deposit"></i>
           </button> */}
            {canManageCustomerFunds && (
-          <button onClick={() => { setSelectedAccount(account); setShowFDWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
+          <button onClick={() => { setSelectedAccount(account); setShowFDWithdrawalModal(true); }} className="rounded-full bg-red-50 px-3 py-2 text-red-700 hover:bg-red-100">
             <i className="fas fa-minus-circle text-lg md:text-lg" title="Withdraw"></i>
           </button>
            )}
@@ -1624,7 +1757,7 @@ if(selectedAccount){
           {(isMatured && account.totalAmount > 0 && canManageCustomerFunds) && (
     <button
       onClick={() => { setSelectedAccount(account); setShowMaturedWithdrawalModal(true); }}
-      className="text-yellow-600 hover:text-yellow-800"
+      className="rounded-full bg-amber-50 px-3 py-2 text-amber-700 hover:bg-amber-100"
     >
       <i className="fas fa-unlock text-lg md:text-lg" title="Withdraw Matured FD"></i>
     </button>
@@ -1651,7 +1784,7 @@ if(selectedAccount){
     return (
     <li
       key={`sb-${index}`}
-      className={`${hasSBItemDetails ? "bg-white p-3 md:p-4" : "bg-gray-50 p-3"} rounded hover:shadow-md relative`}
+      className={`${hasSBItemDetails ? "border-emerald-200 bg-white p-3 md:p-4" : "border-emerald-100 bg-white p-3"} relative overflow-hidden rounded-2xl border shadow-sm transition hover:shadow-md`}
     >
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
       <div className="min-w-0 flex-1">
@@ -1660,14 +1793,14 @@ if(selectedAccount){
           {/* Product Name & Price */}
           {!hasSBItemDetails && (
             <span
-              className={`px-2 py-1 rounded-full text-xs font-semibold ${
+              className={`rounded-full px-3 py-1 text-xs font-black ${
                 account.accountType === "Rent"
-                  ? "bg-blue-100 text-gray-700"
-                  : account.accountType === "School fees"
-                  ? "bg-green-100 text-green-700"
-                  : account.accountType === "Food"
-                  ? "bg-purple-100 text-purple-700"
-                  : "bg-gray-100 text-blue-700"
+                  ? "bg-blue-600 text-white"
+                : account.accountType === "School fees"
+                  ? "bg-emerald-600 text-white"
+                : account.accountType === "Food"
+                  ? "bg-purple-700 text-white"
+                  : "bg-slate-900 text-white"
               }`}
             >
               {getActiveSBProductSummary(account)} <strong>₦{(activeSBItems.length > 0 ? activeSBTotal : Number(account.sellingPrice || 0)).toLocaleString('en-US')}</strong>
@@ -1681,7 +1814,7 @@ if(selectedAccount){
             <div>
               <button
                 type="button"
-                className="text-gray-600 hover:text-gray-800"
+                className="rounded-full bg-slate-100 px-2 py-1 text-slate-600 hover:bg-slate-200"
                 title={account.productDescription || "No description available"}
               >
                 <i className="fas fa-info-circle text-sm"></i>
@@ -1695,7 +1828,7 @@ if(selectedAccount){
                 setSelectedAccount(account);
                 setShowSBEditModal(true);
               }}
-              className="text-blue-600 hover:text-blue-800"
+              className="rounded-full bg-blue-50 px-2 py-1 text-blue-700 hover:bg-blue-100"
             >
               <i className="fas fa-edit text-sm" title="Edit"></i>
             </button>
@@ -1705,7 +1838,7 @@ if(selectedAccount){
         <button onClick={() => { 
         setSelectedAccount(account); 
         setShowCostPriceModal(true); }} 
-        className="text-green-500 hover:text-green-800">
+        className="rounded-full bg-emerald-50 px-2 py-1 text-emerald-700 hover:bg-emerald-100">
           <i className="fas fa-naira-sign text-sm"></i>
         </button>
         )}
@@ -1715,9 +1848,9 @@ if(selectedAccount){
         </div>
 
         {/* Account Details */}
-        <p className="text-xs text-gray-600"><span className="bg-green-500 text-white w-8 h-8 rounded-sm"> SB:</span> {account.SBAccountNumber || "N/A"}</p>
+        <p className="text-xs font-semibold text-slate-600"><span className="rounded bg-emerald-100 px-2 py-0.5 text-emerald-700">SB</span> {account.SBAccountNumber || "N/A"}</p>
         {account.accountMode !== 'multi_item' && Number(account.balance || 0) > 0 && (
-          <p className="text-xs text-gray-600">Balance: ₦{account.balance?.toLocaleString('en-US') || 0}</p>
+          <p className="mt-1 text-xs font-black text-emerald-700">Balance: ₦{account.balance?.toLocaleString('en-US') || 0}</p>
         )}
         {loggedInStaffRole === 'Admin' && isClosedLegacyAccount && (
           <span className="mt-1 inline-flex rounded-full bg-red-100 px-2 py-1 text-[10px] font-semibold text-red-700">
@@ -1728,26 +1861,26 @@ if(selectedAccount){
 
       {/* Action Buttons */}
       {!hasSBItemDetails && (
-      <div className="flex shrink-0 space-x-4">
+      <div className="flex shrink-0 gap-2">
         {/* View Transactions */}
-        <button onClick={() => accountTransaction(account._id)} className="text-blue-600 hover:underline">
+        <button onClick={() => accountTransaction(account._id)} className="rounded-full bg-blue-50 px-3 py-2 text-blue-700 hover:bg-blue-100">
           <i className="fas fa-folder-open text-3xl md:text-lg" title="View Transactions"></i>
         </button>
         {/* Deposit Icon */}
         {loggedInStaffRole !== 'OnlineRep' && !isClosedLegacyAccount &&(
-        <button onClick={() => { setSelectedAccount(account); setShowSBDepositModal(true); }} className="text-green-600 hover:text-green-800">
+        <button onClick={() => { setSelectedAccount(account); setShowSBDepositModal(true); }} className="rounded-full bg-emerald-50 px-3 py-2 text-emerald-700 hover:bg-emerald-100">
           <i className="fas fa-plus-circle text-3xl md:text-lg" title="Deposit"></i>
         </button>
         )}
         {/* Withdrawal Icon */}
         {loggedInStaffRole === 'Admin' && !hasSBItemDetails && (
-          <button onClick={() => { setSelectedAccount(account); setShowSBWithdrawalModal(true); }} className="text-red-600 hover:text-red-800">
+          <button onClick={() => { setSelectedAccount(account); setShowSBWithdrawalModal(true); }} className="rounded-full bg-red-50 px-3 py-2 text-red-700 hover:bg-red-100">
             <i className="fas fa-minus-circle text-lg md:text-lg" title="Withdraw"></i>
           </button>
         )}
         {/* Sell Icon */}
         {canManageCustomerFunds && !hasSBItemDetails && (
-        <button onClick={() => handleSellIconClick(account)} className="text-yellow-600 hover:text-yellow-800">
+        <button onClick={() => handleSellIconClick(account)} className="rounded-full bg-amber-50 px-3 py-2 text-amber-700 hover:bg-amber-100">
           <i className="fas fa-shopping-cart text-lg md:text-lg" title={canRequestCustomerProduct ? "Customer Request" : "Sell"}></i>
         </button>
         )}
@@ -1759,15 +1892,15 @@ if(selectedAccount){
   )})}
   </ul>
 ) : (
-  <p className="text-gray-600">Customer does not have any accounts.</p>
+  <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-10 text-center text-sm font-semibold text-slate-500">Customer does not have any accounts.</div>
 )}
   </div>
      {/* Desktop Right Panel */}
-	     <div className="hidden md:block bg-white p-4 rounded shadow-md min-w-0 overflow-hidden">
-	        <h2 className="text-lg font-bold mb-4">Transaction History</h2>
+	     <div className="hidden min-w-0 overflow-hidden rounded-2xl border border-sky-200 bg-white p-4 shadow-lg md:block">
+	        <h2 className="mb-4 text-lg font-black text-slate-950">Transaction History</h2>
 	        {selectedAccount ? (
 	          <div className="min-w-0">
-	            <h3 className="text-md font-semibold mb-2 break-words">Account: {subAccount.DSAccountNumber}</h3>
+	            <h3 className="mb-2 break-words rounded-xl bg-sky-50 px-3 py-2 text-sm font-black text-sky-800">Account: {subAccount.DSAccountNumber}</h3>
 	            {transactionHistory.length > 0 ? (
                 <div className="max-w-full overflow-x-auto">
   	              <table className="min-w-[760px] w-full table-auto">
@@ -1776,11 +1909,11 @@ if(selectedAccount){
   	              </table>
                 </div>
 	            ) : (
-	              <p className="text-gray-600">No transactions found.</p>
+	              <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm font-semibold text-slate-500">No transactions found.</p>
 	            )}
           </div>
         ) : (
-          <p className="text-gray-600">Select an account to view transactions.</p>
+          <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm font-semibold text-slate-500">Select an account to view transactions.</p>
         )}
       </div>
 
@@ -2043,6 +2176,51 @@ if(selectedAccount){
               className="bg-green-500 text-white px-4 py-2 rounded"
             >
               Deposit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+       {showCustomerWithdrawalRequestModal && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-3">
+      <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl">
+        <div className="mb-4">
+          <p className="text-xs font-black uppercase text-orange-600">Customer request</p>
+          <h3 className="text-lg font-black text-slate-950">
+            {customerWithdrawalRequestType === "free_to_withdraw" ? "Request Available Balance Withdrawal" : "Request DS Package Withdrawal"}
+          </h3>
+          <p className="mt-1 text-xs font-semibold text-slate-500">
+            {customerWithdrawalRequestType === "free_to_withdraw"
+              ? `Available balance: ${formatCurrency(deposit?.account?.availableBalance)}`
+              : `Package balance: ${formatCurrency(selectedAccount?.totalContribution)}`}
+          </p>
+        </div>
+        {customerWithdrawalRequestError && (
+          <p className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">{customerWithdrawalRequestError}</p>
+        )}
+        <form onSubmit={handleCustomerWithdrawalRequestSubmit}>
+          <input
+            type="number"
+            value={amountPerDay}
+            onChange={(e) => setAmountPerDay(e.target.value)}
+            placeholder="Enter amount"
+            className="mb-4 w-full rounded-xl border border-gray-300 p-3 text-sm font-semibold focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-100"
+          />
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setShowCustomerWithdrawalRequestModal(false)}
+              className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-black text-gray-700 hover:bg-gray-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={customerWithdrawalRequestSubmitting}
+              className="rounded-xl bg-orange-600 px-4 py-2 text-sm font-black text-white hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {customerWithdrawalRequestSubmitting ? "Sending..." : "Submit Request"}
             </button>
           </div>
         </form>
@@ -2562,8 +2740,38 @@ if(selectedAccount){
               className="w-full border border-gray-300 rounded p-2 mt-1"
             />
           </div>
+          <div className="mb-4 rounded-xl border border-orange-100 bg-orange-50 p-3">
+            <p className="mb-3 text-xs font-black uppercase text-orange-700">Settlement bank details</p>
+            <div className="grid gap-3">
+              <input
+                type="text"
+                value={settlementBankName}
+                onChange={(e) => setSettlementBankName(e.target.value)}
+                placeholder="Bank name"
+                required
+                className="w-full border border-gray-300 rounded p-2"
+              />
+              <input
+                type="text"
+                value={settlementAccountName}
+                onChange={(e) => setSettlementAccountName(e.target.value)}
+                placeholder="Account name"
+                required
+                className="w-full border border-gray-300 rounded p-2"
+              />
+              <input
+                type="text"
+                value={settlementBankAccountNumber}
+                onChange={(e) => setSettlementBankAccountNumber(e.target.value)}
+                placeholder="Account number"
+                required
+                className="w-full border border-gray-300 rounded p-2"
+              />
+            </div>
+          </div>
           <div className="flex justify-end space-x-4">
             <button
+              type="button"
               onClick={() => setShowCreateAccountModal(false)}
               className="bg-gray-200 text-gray-800 px-4 py-2 rounded"
             >
