@@ -4,6 +4,7 @@ import { url } from "../redux/sagas/url";
 
 const formatMoney = (value) => `₦${Number(value || 0).toLocaleString("en-US")}`;
 const formatNumber = (value) => Number(value || 0).toLocaleString("en-US");
+const formatRoleDisplay = (role) => (role === "Agent" ? "Rep" : role);
 
 const StatCard = ({ label, value, helper, tone = "indigo" }) => {
   const tones = {
@@ -32,7 +33,7 @@ const Breakdown = ({ title, data }) => {
         {entries.length === 0 && <p className="text-sm text-gray-500">No data</p>}
         {entries.map(([label, value]) => (
           <div key={label} className="flex items-center justify-between gap-4 text-sm">
-            <span className="capitalize text-gray-600">{label.replace("_", " ")}</span>
+            <span className="capitalize text-gray-600">{formatRoleDisplay(label).replace("_", " ")}</span>
             <span className="font-semibold text-gray-900">{formatNumber(value)}</span>
           </div>
         ))}

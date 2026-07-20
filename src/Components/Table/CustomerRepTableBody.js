@@ -12,13 +12,13 @@ const getBranchName = (branchId, branches = []) => {
 
 // Define palettes of text + background colors
 const rowColors = [
-  { text: "text-blue-800", bg: "bg-blue-50" },
-  { text: "text-green-800", bg: "bg-green-50" },
-  { text: "text-purple-800", bg: "bg-purple-50" },
-  { text: "text-pink-800", bg: "bg-pink-50" },
-  { text: "text-indigo-800", bg: "bg-indigo-50" },
-  { text: "text-teal-800", bg: "bg-teal-50" },
-  { text: "text-orange-800", bg: "bg-orange-50" },
+  { text: "text-sky-900", bg: "bg-sky-50" },
+  { text: "text-emerald-900", bg: "bg-emerald-50" },
+  { text: "text-purple-900", bg: "bg-purple-50" },
+  { text: "text-orange-900", bg: "bg-orange-50" },
+  { text: "text-indigo-900", bg: "bg-indigo-50" },
+  { text: "text-teal-900", bg: "bg-teal-50" },
+  { text: "text-rose-900", bg: "bg-rose-50" },
 ];
 
 const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) => {
@@ -69,30 +69,32 @@ const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) 
 
   return (
     <>
-      <tbody className="text-sm">
+      <tbody className="divide-y divide-slate-100 text-sm">
         {sortedCustomers.length > 0 ? (
           sortedCustomers.map((customer, index) => {
             const { text, bg } = rowColors[index % rowColors.length]; // pick matching colors
             return (
               <tr
                 key={index}
-                className={`cursor-pointer transition-colors duration-200 ${bg} ${text} hover:opacity-90`}
+                className={`cursor-pointer transition duration-200 ${bg} ${text} hover:brightness-95`}
                 onClick={() => handleRowClick(customer._id)}
               >
-                <td className="border border-gray-300 p-2">
+                <td className="px-4 py-3 font-black">
                   {customer.firstName} {customer.lastName}
                 </td>
-                <td className="border border-gray-300 p-2">{customer.address}</td>
-                <td className="border border-gray-300 p-2">{customer.phone}</td>
+                <td className="max-w-[260px] px-4 py-3 font-semibold">{customer.address}</td>
+                <td className="px-4 py-3 font-black">{customer.phone}</td>
                 {!isManagerOrAgent && (
-                  <td className="border border-gray-300 p-2">
-                    {getBranchName(customer.branchId, branches)}
+                  <td className="px-4 py-3">
+                    <span className="rounded-full bg-white/75 px-3 py-1 text-xs font-black shadow-sm">
+                      {getBranchName(customer.branchId, branches)}
+                    </span>
                   </td>
                 )}
                 {canTransfer && (
-                  <td className="border border-gray-300 p-2">
+                  <td className="px-4 py-3">
                     <button
-                      className="text-blue-700 underline hover:text-blue-900"
+                      className="rounded-full bg-white px-3 py-2 text-xs font-black text-sky-700 shadow-sm hover:bg-sky-50"
                       onClick={(e) => {
                         e.stopPropagation();
                         openTransferModal(customer);
@@ -107,7 +109,7 @@ const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) 
           })
         ) : (
           <tr>
-            <td colSpan="5" className="text-center p-4">
+            <td colSpan="5" className="p-6 text-center text-sm font-semibold text-slate-500">
               No customers found.
             </td>
           </tr>
@@ -116,10 +118,11 @@ const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) 
 
       {/* Transfer Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-md w-full max-w-md">
-            <h2 className="text-lg font-bold mb-4">Transfer Customer</h2>
-            <p className="mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 px-3">
+          <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl">
+            <p className="text-xs font-black uppercase text-sky-600">Customer transfer</p>
+            <h2 className="mb-2 text-lg font-black text-slate-950">Transfer Customer</h2>
+            <p className="mb-4 text-sm font-semibold text-slate-600">
               Select a new staff for:{" "}
               <strong>
                 {selectedCustomer?.firstName} {selectedCustomer?.lastName}
@@ -136,15 +139,15 @@ const Tablebody = ({ customers = [], branches = [], oldStaff, staffList = [] }) 
               onChange={setNewStaff}
             />
 
-            <div className="flex justify-end mt-6 space-x-2">
+            <div className="mt-6 flex justify-end gap-2">
               <button
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                className="rounded-xl bg-slate-100 px-4 py-2 text-sm font-black text-slate-700 hover:bg-slate-200"
                 onClick={closeModal}
               >
                 Cancel
               </button>
               <button
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="rounded-xl bg-sky-600 px-4 py-2 text-sm font-black text-white hover:bg-sky-700"
                 onClick={handleTransfer}
               >
                 Confirm Transfer

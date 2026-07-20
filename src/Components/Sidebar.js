@@ -33,7 +33,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       >
         ✕
       </button>
-      <h2 className="text-xl font-bold mb-6">Sidebar</h2>
+      <h2 className="text-xl font-bold mb-6">Navigation</h2>
       <ul>
         <Link to="/dashboard">
         <li

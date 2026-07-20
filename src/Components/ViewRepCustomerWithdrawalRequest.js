@@ -1,16 +1,50 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import { fetchRepCustomerWithdrawalRequestRequest } from '../redux/slices/customerSlice';
-// import { FaCopy, FaWhatsapp } from 'react-icons/fa';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
+
+const getStatusMeta = (status = '') => {
+    const normalizedStatus = String(status).toLowerCase();
+
+    if (normalizedStatus === 'completed') {
+        return { label: 'Completed', badgeClass: 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200' };
+    }
+
+    if (normalizedStatus === 'processing') {
+        return { label: 'Processing', badgeClass: 'bg-amber-100 text-amber-800 ring-1 ring-amber-200' };
+    }
+
+    return { label: status || 'Pending', badgeClass: 'bg-orange-100 text-orange-800 ring-1 ring-orange-200' };
+};
+
+const getCustomerName = (customer) => `${customer?.customerId?.firstName || ''} ${customer?.customerId?.lastName || ''}`.trim() || 'N/A';
+
+const getInitials = (customer) => {
+    const firstName = customer?.customerId?.firstName || '';
+    const lastName = customer?.customerId?.lastName || '';
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || 'SB';
+};
 
 const ViewRepCustomerWithdrawalRequest = () => {
     const dispatch = useDispatch();
     const { loading, customers, error } = useSelector((state) => state.customer);
     const [showError, setShowError] = useState(false);
     const [copiedId, setCopiedId] = useState(null);
+    const requestList = useMemo(() => (Array.isArray(customers) ? customers : []), [customers]);
+
+    const totalAmount = useMemo(() => (
+        requestList.reduce((sum, customer) => sum + Number(customer?.amount || 0), 0)
+    ), [requestList]);
+
+    const pendingCount = useMemo(() => (
+        requestList.filter((customer) => String(customer?.status || '').toLowerCase() === 'pending').length
+    ), [requestList]);
+
+    const processingCount = useMemo(() => (
+        requestList.filter((customer) => String(customer?.status || '').toLowerCase() === 'processing').length
+    ), [requestList]);
 
     useEffect(() => {
         dispatch(fetchBranchRequest());
@@ -25,7 +59,6 @@ const ViewRepCustomerWithdrawalRequest = () => {
         }
     }, [error]);
 
-
     const copyToClipboard = (text, id) => {
         navigator.clipboard.writeText(text);
         setCopiedId(id);
@@ -33,20 +66,16 @@ const ViewRepCustomerWithdrawalRequest = () => {
     };
 
     return (
-        <div className="container mx-auto p-4 md:p-6">
-            {/* Error Notification */}
+        <div className="min-h-screen bg-slate-50 px-3 py-4 md:px-6 md:py-6">
             {showError && (
                 <div className="fixed top-4 left-0 right-0 z-50 flex justify-center animate-slideDown">
-                    <div className="w-full max-w-md p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded shadow-lg">
+                    <div className="w-full max-w-md rounded bg-red-100 p-4 text-red-700 shadow-lg border-l-4 border-red-500">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="font-medium">Error</p>
                                 <p>{error}</p>
                             </div>
-                            <button
-                                onClick={() => setShowError(false)}
-                                className="ml-4 text-red-700 hover:text-red-900 text-xl font-bold"
-                            >
+                            <button onClick={() => setShowError(false)} className="ml-4 text-xl font-bold text-red-700 hover:text-red-900">
                                 &times;
                             </button>
                         </div>
@@ -54,169 +83,187 @@ const ViewRepCustomerWithdrawalRequest = () => {
                 </div>
             )}
 
-            <h1 className="text-2xl font-bold text-gray-800 mb-6">Customer Withdrawal Requests</h1>
-
-            {loading ? (
-                <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-                </div>
-            ) : (
-                <div className="bg-white shadow overflow-hidden rounded-lg">
-                    {/* Mobile Cards View */}
-                    <div className="md:hidden space-y-4 p-4">
-                        {customers.length > 0 ? (
-                            customers.map((customer) => (
-                                <div key={customer?._id} className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between">
-                                            <h3 className="font-medium">{customer?.customerId?.firstName} {customer?.customerId?.lastName || ''}</h3>
-                                            <span className={`px-2 text-xs leading-5 font-semibold rounded-full ${
-                                                customer?.status?.toLowerCase() === 'completed' ? 'bg-green-100 text-green-800' :
-                                                customer?.status?.toLowerCase() === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                                                'bg-red-100 text-red-800'
-                                            }`}>
-                                                {customer?.status || 'N/A'}
-                                            </span>
-                                        </div>
-                                        <p className="text-sm text-gray-600">Product: {customer?.productName || 'N/A'}</p>
-                                        <p className="text-sm text-gray-600">Package: {customer?.package || 'N/A'}</p>
-                                        <p className="text-sm text-gray-600">Package Number: {customer?.packageNumber || 'N/A'}</p>
-                                        <p className="text-sm text-gray-600">Amount: ₦{customer?.amount?.toLocaleString() || 'N/A'}</p>
-                                        <p className="text-sm text-gray-600">Method: {customer?.channelOfWithdrawal || 'N/A'}</p>
-                                        <p className="text-sm text-gray-600">Address: {customer?.shippingAddress || 'N/A'}</p>
-                                        {customer?.bankName && (
-                                            <div className="mt-2 pt-2 border-t">
-                                                <p className="text-sm text-gray-600">Bank: {customer?.bankName}</p>
-                                                <p className="text-sm text-gray-600">Account: {customer?.accountName}</p>
-                                                <p className="text-sm text-gray-600">
-                                                        Number: {customer?.bankAccountNumber || 'N/A'}
-                                                        {customer?.bankAccountNumber && (
-                                                            <button 
-                                                                onClick={() => copyToClipboard(customer.bankAccountNumber, customer._id)}
-                                                                className="ml-2 text-gray-400 hover:text-blue-500"
-                                                                title="Copy account number"
-                                                            >
-                                                                <FontAwesomeIcon icon={faCopy} size="xs" />
-                                                                {copiedId === customer._id && (
-                                                                    <span className="ml-1 text-xs text-green-600">Copied!</span>
-                                                                )}
-                                                            </button>
-                                                        )}
-                                                    </p>
-                                            </div>
-                                        )}
-                                        <div className="flex justify-between text-xs text-gray-500 mt-2">
-                                            <span>Rep: {customer?.accountManagerId?.firstName || 'N/A'}</span>
-                                            <span>{new Date(customer?.createdAt).toLocaleDateString()}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="text-center py-8 text-gray-500">
-                                No withdrawal requests found
+            <div className="mx-auto max-w-7xl space-y-4">
+                <section className="overflow-hidden rounded-2xl bg-slate-950 text-white shadow-lg">
+                    <div className="relative p-4 md:p-6">
+                        <div className="absolute right-0 top-0 h-28 w-28 rounded-bl-full bg-emerald-500/25 md:h-36 md:w-36" />
+                        <div className="relative grid gap-4 lg:grid-cols-[1fr,auto] lg:items-end">
+                            <div>
+                                <p className="text-xs font-black uppercase text-emerald-300">Rep requests</p>
+                                <h1 className="mt-1 text-2xl font-black tracking-normal md:text-3xl">Customer Withdrawal Requests</h1>
+                                <p className="mt-1 max-w-2xl text-sm text-slate-200">
+                                    View withdrawal requests from customers tied to you. Admin handles processing actions.
+                                </p>
                             </div>
-                        )}
-                    </div>
-
-                    {/* Desktop Table View */}
-                    <div className="hidden md:block">
-                        <div className="overflow-x-auto" style={{ maxWidth: 'calc(100vw - 2rem)' }}>
-                            <table className="w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package Number</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bank Details</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rep</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {customers.length > 0 ? (
-                                        customers.map((customer) => (
-                                            <tr key={customer?._id} className="hover:bg-gray-50">
-                                                <td className="px-4 py-4 whitespace-nowrap">
-                                                    <div className="flex items-center">
-                                                        <div>
-                                                            <div className="text-sm font-medium text-gray-900">
-                                                                {customer?.customerId?.firstName} {customer?.customerId?.lastName || ''}
-                                                            </div>
-                                                            <div className="text-sm text-gray-500">{customer?.customerId?.phone || 'N/A'}</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {customer?.productName || 'N/A'}
-                                                </td>
-                                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {customer?.package || 'N/A'}
-                                                    </td>
-                                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {customer?.packageNumber || 'N/A'}
-                                                    </td>
-                                                <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    ₦{customer?.amount?.toLocaleString() || 'N/A'}
-                                                </td>
-                                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {customer?.channelOfWithdrawal || 'N/A'}
-                                                </td>
-                                                <td className="px-4 py-4 text-sm text-gray-500">
-                                                    {customer?.bankName ? (
-                                                        <div>
-                                                            <div>{customer.bankName}</div>
-                                                            <div>{customer.accountName}</div>
-                                                            <div className="flex items-center">
-                                                                {customer.bankAccountNumber}
-                                                                <button 
-                                                                    onClick={() => copyToClipboard(customer.bankAccountNumber, customer._id)}
-                                                                    className="ml-2 text-gray-400 hover:text-blue-500"
-                                                                    title="Copy account number"
-                                                                >
-                                                                    <FontAwesomeIcon icon={faCopy} size="xs" />
-                                                                    {copiedId === customer._id && (
-                                                                        <span className="ml-1 text-xs text-green-600">Copied!</span>
-                                                                    )}
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    ) : 'N/A'}
-                                                </td>
-                                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {customer?.accountManagerId?.firstName || 'N/A'}
-                                                </td>
-                                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {new Date(customer?.createdAt).toLocaleDateString()}
-                                                </td>
-                                                <td className="px-4 py-4 whitespace-nowrap">
-                                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                                        customer?.status?.toLowerCase() === 'completed' ? 'bg-green-100 text-green-800' :
-                                                        customer?.status?.toLowerCase() === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                                                        'bg-red-100 text-red-800'
-                                                    }`}>
-                                                        {customer?.status || 'N/A'}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan="8" className="px-6 py-4 text-center text-sm text-gray-500">
-                                                No withdrawal requests found
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                            <div className="grid grid-cols-3 gap-2 text-xs md:min-w-[420px] md:text-sm">
+                                <div className="rounded-2xl bg-orange-500 px-3 py-2 shadow-sm">
+                                    <p className="text-orange-50">Pending</p>
+                                    <p className="mt-1 text-xl font-black text-white">{pendingCount.toLocaleString()}</p>
+                                </div>
+                                <div className="rounded-2xl bg-blue-600 px-3 py-2 shadow-sm">
+                                    <p className="text-blue-50">Processing</p>
+                                    <p className="mt-1 text-xl font-black text-white">{processingCount.toLocaleString()}</p>
+                                </div>
+                                <div className="rounded-2xl bg-emerald-600 px-3 py-2 shadow-sm">
+                                    <p className="text-emerald-50">Amount</p>
+                                    <p className="mt-1 truncate text-xl font-black text-white">₦{totalAmount.toLocaleString()}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                </section>
+
+                <section className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:p-4">
+                    <div className="rounded-xl bg-emerald-50 px-3 py-2.5 text-sm font-bold text-emerald-800 ring-1 ring-emerald-100">
+                        {requestList.length.toLocaleString()} rep request{requestList.length === 1 ? '' : 's'} shown
+                    </div>
+                </section>
+
+                {loading ? (
+                    <div className="flex h-64 items-center justify-center rounded-2xl bg-white shadow-sm">
+                        <div className="h-12 w-12 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-500"></div>
+                    </div>
+                ) : (
+                    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
+                        <div className="space-y-3 p-3 md:hidden">
+                            {requestList.length > 0 ? (
+                                requestList.map((customer) => {
+                                    const statusMeta = getStatusMeta(customer?.status);
+
+                                    return (
+                                        <div key={customer?._id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                                            <div className="bg-gradient-to-r from-slate-900 to-emerald-800 p-3 text-white">
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div className="flex min-w-0 items-center gap-3">
+                                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-sm font-black">
+                                                            {getInitials(customer)}
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <h3 className="truncate font-black">{getCustomerName(customer)}</h3>
+                                                            <p className="truncate text-xs text-slate-200">{customer?.customerId?.phone || 'N/A'}</p>
+                                                        </div>
+                                                    </div>
+                                                    <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-black ${statusMeta.badgeClass}`}>
+                                                        {statusMeta.label}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid gap-2 p-3 text-sm">
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <div className="rounded-xl bg-orange-50 p-2">
+                                                        <p className="text-xs font-bold text-orange-700">Amount</p>
+                                                        <p className="font-black text-orange-900">₦{customer?.amount?.toLocaleString() || 'N/A'}</p>
+                                                    </div>
+                                                    <div className="rounded-xl bg-purple-50 p-2">
+                                                        <p className="text-xs font-bold text-purple-700">Package No.</p>
+                                                        <p className="truncate font-black text-purple-900">{customer?.packageNumber || 'N/A'}</p>
+                                                    </div>
+                                                </div>
+                                                <p className="text-slate-600"><span className="font-bold text-slate-900">Package:</span> {customer?.package || 'N/A'}</p>
+                                                <p className="text-slate-600"><span className="font-bold text-slate-900">Method:</span> {customer?.channelOfWithdrawal || 'N/A'}</p>
+                                                {customer?.bankName && (
+                                                    <div className="rounded-xl border border-slate-100 bg-slate-50 p-2">
+                                                        <p className="font-bold text-slate-900">{customer?.bankName}</p>
+                                                        <p className="text-slate-600">{customer?.accountName}</p>
+                                                        <p className="flex items-center text-slate-600">
+                                                            {customer?.bankAccountNumber || 'N/A'}
+                                                            {customer?.bankAccountNumber && (
+                                                                <button onClick={() => copyToClipboard(customer.bankAccountNumber, customer._id)} className="ml-2 rounded-full bg-white px-2 py-1 text-emerald-600 shadow-sm" title="Copy account number">
+                                                                    <FontAwesomeIcon icon={faCopy} size="xs" />
+                                                                    {copiedId === customer._id && <span className="ml-1 text-xs text-emerald-600">Copied</span>}
+                                                                </button>
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                                <div className="flex items-center justify-between border-t border-slate-100 pt-2">
+                                                    <div>
+                                                        <span className="text-xs font-semibold text-slate-500">Rep: {customer?.accountManagerId?.firstName || 'N/A'}</span>
+                                                        <span className="block text-xs font-semibold text-slate-500">Date: {new Date(customer?.createdAt).toLocaleDateString()}</span>
+                                                    </div>
+                                                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-600">View only</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-slate-500">
+                                    No withdrawal requests found
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="hidden md:block">
+                            <div className="overflow-x-auto" style={{ maxWidth: 'calc(100vw - 2rem)' }}>
+                                <table className="w-full divide-y divide-slate-200">
+                                    <thead className="bg-slate-900">
+                                        <tr>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Customer</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Package</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Package Number</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Amount</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Method</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Bank Details</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Rep</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Date</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 bg-white">
+                                        {requestList.length > 0 ? (
+                                            requestList.map((customer) => {
+                                                const statusMeta = getStatusMeta(customer?.status);
+
+                                                return (
+                                                    <tr key={customer?._id} className="transition hover:bg-emerald-50/60">
+                                                        <td className="whitespace-nowrap px-4 py-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-xs font-black text-emerald-700">{getInitials(customer)}</div>
+                                                                <div>
+                                                                    <div className="text-sm font-black text-slate-900">{getCustomerName(customer)}</div>
+                                                                    <div className="text-xs font-semibold text-slate-500">{customer?.customerId?.phone || 'N/A'}</div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="whitespace-nowrap px-4 py-4 text-sm font-semibold text-slate-600">{customer?.package || 'N/A'}</td>
+                                                        <td className="whitespace-nowrap px-4 py-4"><span className="rounded-full bg-purple-50 px-2.5 py-1 text-xs font-black text-purple-700">{customer?.packageNumber || 'N/A'}</span></td>
+                                                        <td className="whitespace-nowrap px-4 py-4 text-sm font-black text-orange-700">₦{customer?.amount?.toLocaleString() || 'N/A'}</td>
+                                                        <td className="whitespace-nowrap px-4 py-4 text-sm font-semibold text-slate-600">{customer?.channelOfWithdrawal || 'N/A'}</td>
+                                                        <td className="px-4 py-4 text-sm text-slate-600">
+                                                            {customer?.bankName ? (
+                                                                <div className="rounded-xl bg-slate-50 p-2">
+                                                                    <div className="font-bold text-slate-900">{customer.bankName}</div>
+                                                                    <div>{customer.accountName}</div>
+                                                                    <div className="flex items-center font-semibold">
+                                                                        {customer.bankAccountNumber}
+                                                                        <button onClick={() => copyToClipboard(customer.bankAccountNumber, customer._id)} className="ml-2 rounded-full bg-white px-2 py-1 text-emerald-600 shadow-sm hover:bg-emerald-50" title="Copy account number">
+                                                                            <FontAwesomeIcon icon={faCopy} size="xs" />
+                                                                            {copiedId === customer._id && <span className="ml-1 text-xs text-emerald-600">Copied</span>}
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            ) : 'N/A'}
+                                                        </td>
+                                                        <td className="whitespace-nowrap px-4 py-4 text-sm font-semibold text-slate-600">{customer?.accountManagerId?.firstName || 'N/A'}</td>
+                                                        <td className="whitespace-nowrap px-4 py-4 text-sm font-semibold text-slate-600">{new Date(customer?.createdAt).toLocaleDateString()}</td>
+                                                        <td className="whitespace-nowrap px-4 py-4"><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-black ${statusMeta.badgeClass}`}>{statusMeta.label}</span></td>
+                                                    </tr>
+                                                );
+                                            })
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="9" className="px-6 py-10 text-center text-sm font-semibold text-slate-500">No withdrawal requests found</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

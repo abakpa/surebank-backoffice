@@ -181,7 +181,7 @@ const customerSlice = createSlice({
             state.loading = true
         },
        updateCustomerWithdrawalRequestSuccess:(state,action)=>{
-            state.customers= action.payload;
+            state.withdrawalRequestUpdate = action.payload;
             state.loading=false
         },
        updateCustomerWithdrawalRequestFailure:(state,action)=>{

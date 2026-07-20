@@ -314,15 +314,15 @@ const Dashboard = () => {
     ]);
     
   return (
-<div className="p-6">
+<div className="p-3 sm:p-6">
   {loading && <Loader />}
-  <h1 className="text-2xl font-bold mb-4 mt-10 text-center">Admin Dashboard</h1>
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+  <h1 className="text-base sm:text-xl font-bold mb-4 mt-10 text-center">Admin Dashboard</h1>
+  <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-3">
       {/* Card 4 - Yellow */}
-  <div className="p-4 rounded-lg shadow-md bg-yellow-100">
-    <h3 className="text-sm font-semibold mb-2 text-yellow-800">Total DS Daily Contribution</h3>
-    <p className="text-sm font-bold text-yellow-800">{newdailyds?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-yellow-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-yellow-800">Total DS Daily Contribution</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-yellow-800">{newdailyds?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -335,10 +335,10 @@ const Dashboard = () => {
   </div>
 
   {/* Card 5 - Purple */}
-  <div className="p-4 rounded-lg shadow-md bg-purple-100">
-    <h3 className="text-sm font-semibold mb-2 text-purple-800">Total SB Daily Contribution</h3>
-    <p className="text-sm font-bold text-purple-800">{newdailysb?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-purple-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-purple-800">Total SB Daily Contribution</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-purple-800">{newdailysb?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -350,10 +350,10 @@ const Dashboard = () => {
     </form>
   </div>
   {/* Card 5 - Purple */}
-  <div className="p-4 rounded-lg shadow-md bg-purple-100">
-    <h3 className="text-sm font-semibold mb-2 text-purple-800">Total FD Daily Contribution</h3>
-    <p className="text-sm font-bold text-purple-800">{newdailyfd?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-purple-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-purple-800">Total FD Daily Contribution</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-purple-800">{newdailyfd?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -365,10 +365,10 @@ const Dashboard = () => {
     </form>
   </div>
     {/* Card 6 - Indigo */}
-  <div className="p-4 rounded-lg shadow-md bg-indigo-100">
-    <h3 className="text-sm font-semibold mb-2 text-indigo-800">Total Daily Contribution</h3>
-    <p className="text-sm font-bold text-indigo-800">{newtotaldailysbandds?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-indigo-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-indigo-800">Total Daily Contribution</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-indigo-800">{newtotaldailysbandds?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -380,10 +380,10 @@ const Dashboard = () => {
     </form>
   </div>
   {/* Card 1 - Blue */}
-  <div className="p-4 rounded-lg shadow-md bg-blue-100">
-    <h3 className="text-sm font-semibold mb-2 text-blue-800">Free to Withdraw</h3>
-    <p className="text-sm font-bold text-blue-800">{newAvailableBalance?.toLocaleString('en-US')}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-blue-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-blue-800">Free to Withdraw</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-blue-800">{newAvailableBalance?.toLocaleString('en-US')}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -394,7 +394,7 @@ const Dashboard = () => {
    
     </form>
   </div>
-  <div className="relative p-4 rounded-lg shadow-md bg-rose-100">
+  <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-rose-200">
     <button
       type="button"
       onClick={openFWWithdrawalModal}
@@ -403,9 +403,9 @@ const Dashboard = () => {
     >
       <FaEye />
     </button>
-    <h3 className="text-sm font-semibold mb-2 text-rose-800">FW Withdrawal</h3>
-    <p className="text-sm font-bold text-rose-800">{newFWWithdrawal?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-rose-800">FW Withdrawal</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-rose-800">{newFWWithdrawal?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -416,7 +416,7 @@ const Dashboard = () => {
     </form>
   </div>
    {/* Card 7 - Pink */}
-  <div className="relative p-4 rounded-lg shadow-md bg-pink-100">
+  <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-pink-200">
     <button
       type="button"
       onClick={openDSWithdrawalModal}
@@ -425,9 +425,9 @@ const Dashboard = () => {
     >
       <FaEye />
     </button>
-    <h3 className="text-sm font-semibold mb-2 text-pink-800">DS Withdrawal</h3>
-    <p className="text-sm font-bold text-pink-800">{newdswithdrawal?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-pink-800">DS Withdrawal</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-pink-800">{newdswithdrawal?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -439,10 +439,10 @@ const Dashboard = () => {
     </form>
   </div>
     {/* Card 8 - Teal */}
-  <div className="p-4 rounded-lg shadow-md bg-teal-100">
-    <h3 className="text-sm font-semibold mb-2 text-teal-800">DS Package</h3>
-    <p className="text-sm font-bold text-teal-800">{newdspackage?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-teal-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-teal-800">DS Package</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-teal-800">{newdspackage?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -455,10 +455,10 @@ const Dashboard = () => {
   </div>
 
   {/* Card 9 - Orange */}
-  <div className="p-4 rounded-lg shadow-md bg-orange-100">
-    <h3 className="text-sm font-semibold mb-2 text-orange-800">SB Package</h3>
-    <p className="text-sm font-bold text-orange-800">{newsbpackage?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-orange-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-orange-800">SB Package</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-orange-800">{newsbpackage?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -470,10 +470,10 @@ const Dashboard = () => {
     </form>
   </div>
     {/* Card 16 - Fuchsia */}
-    <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
-    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Package</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newfdpackage?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+    <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-fuchsia-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-fuchsia-800">FD Package</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-fuchsia-800">{ newfdpackage?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -485,10 +485,10 @@ const Dashboard = () => {
     </form>
   </div>
    {/* Card 10 - Cyan */}
-  <div className="p-4 rounded-lg shadow-md bg-cyan-100">
-    <h3 className="text-sm font-semibold mb-2 text-cyan-800">Total Packages</h3>
-    <p className="text-sm font-bold text-cyan-800">{newpackages?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-cyan-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-cyan-800">Total Packages</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-cyan-800">{newpackages?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -500,10 +500,10 @@ const Dashboard = () => {
     </form>
   </div>
   {/* Card 1 - Blue */}
-  <div className="p-4 rounded-lg shadow-md bg-blue-100">
-    <h3 className="text-sm font-semibold mb-2 text-blue-800">Total DS Contribution</h3>
-    <p className="text-sm font-bold text-blue-800">{newdsContribution?.toLocaleString('en-US')}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-blue-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-blue-800">Total DS Contribution</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-blue-800">{newdsContribution?.toLocaleString('en-US')}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -516,10 +516,10 @@ const Dashboard = () => {
   </div>
 
   {/* Card 2 - Green */}
-  <div className="p-4 rounded-lg shadow-md bg-green-100">
-    <h3 className="text-sm font-semibold mb-2 text-green-800">Total SB Contribution</h3>
-    <p className="text-sm font-bold text-green-800">{newsbContribution?.toLocaleString('en-US')}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-green-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-green-800">Total SB Contribution</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-green-800">{newsbContribution?.toLocaleString('en-US')}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -531,13 +531,13 @@ const Dashboard = () => {
     </form>
   </div>
     {/* Card 16 - Fuchsia */}
-    <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
+    <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-violet-200">
   <Link to="/fdreport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
-    <i className="fas fa-file-alt text-lg" title="View Transaction Statement"></i>
+    <i className="fas fa-file-alt text-sm sm:text-lg" title="View Transaction Statement"></i>
   </Link>
-    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">Total FD Contribution</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newfdContribution?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-fuchsia-800">Total FD Contribution</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-fuchsia-800">{ newfdContribution?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -549,10 +549,10 @@ const Dashboard = () => {
     </form>
   </div>
    {/* Card 3 - Red */}
-  <div className="p-4 rounded-lg shadow-md bg-red-100">
-    <h3 className="text-sm font-semibold mb-2 text-red-800">Total Contribution</h3>
-    <p className="text-sm font-bold text-red-800">{newtotalsbandds?.toLocaleString('en-US')}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-red-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-red-800">Total Contribution</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-red-800">{newtotalsbandds?.toLocaleString('en-US')}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -564,10 +564,10 @@ const Dashboard = () => {
     </form>
   </div>
   {/* Card 15 - Fuchsia */}
-  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
-    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Interest Icome</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newinterestincome?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-fuchsia-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-fuchsia-800">FD Interest Icome</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-fuchsia-800">{ newinterestincome?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -579,10 +579,10 @@ const Dashboard = () => {
     </form>
   </div>
   {/* Card 15 - Fuchsia */}
-  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
-    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Interest Expense</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newinterestexpense?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-fuchsia-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-fuchsia-800">FD Interest Expense</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-fuchsia-800">{ newinterestexpense?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -595,14 +595,14 @@ const Dashboard = () => {
   </div>
 
   {/* Card 11 - Amber */}
-  <div className="relative p-4 rounded-lg shadow-md bg-amber-100">
+  <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-amber-200">
       {/* Transaction Statement Icon (Top-right Corner) */}
   <Link to="/dsincome" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
-    <i className="fas fa-file-alt text-lg" title="View Transaction Statement"></i>
+    <i className="fas fa-file-alt text-sm sm:text-lg" title="View Transaction Statement"></i>
   </Link>
-    <h3 className="text-sm font-semibold mb-2 text-amber-800">DS Income</h3>
-    <p className="text-sm font-bold text-amber-800">{newdsincome?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-amber-800">DS Income</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-amber-800">{newdsincome?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -616,16 +616,16 @@ const Dashboard = () => {
 
 
 {/* Card 12 - Lime */}
-<div className="relative p-4 rounded-lg shadow-md bg-lime-100">
+<div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-lime-200">
   {/* Transaction Statement Icon (Top-right Corner) */}
   <Link to="/sbincome" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
-    <i className="fas fa-file-alt text-lg" title="View Transaction Statement"></i>
+    <i className="fas fa-file-alt text-sm sm:text-lg" title="View Transaction Statement"></i>
   </Link>
 
-  <h3 className="text-sm font-semibold mb-2 text-lime-800">SB Income</h3>
-  <p className="text-sm font-bold text-lime-800">{newsbincome?.toLocaleString('en-US') || 0}</p>
+  <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-lime-800">SB Income</h3>
+  <p className="text-[11px] sm:text-sm font-bold text-lime-800">{newsbincome?.toLocaleString('en-US') || 0}</p>
 
-  <form className="flex flex-col gap-2 mt-2">
+  <form className="flex flex-col gap-1 mt-1">
     <Select2
       label="Branch"
       options={branchOptions}
@@ -636,16 +636,16 @@ const Dashboard = () => {
   </form>
 </div>
 {/* Card 12 - Lime */}
-<div className="relative p-4 rounded-lg shadow-md bg-lime-100">
+<div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-lime-200">
   {/* Transaction Statement Icon (Top-right Corner) */}
   <Link to="/fdincome" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
-    <i className="fas fa-file-alt text-lg" title="View Transaction Statement"></i>
+    <i className="fas fa-file-alt text-sm sm:text-lg" title="View Transaction Statement"></i>
   </Link>
 
-  <h3 className="text-sm font-semibold mb-2 text-lime-800">FD Income</h3>
-  <p className="text-sm font-bold text-lime-800">{newfdincome?.toLocaleString('en-US') || 0}</p>
+  <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-lime-800">FD Income</h3>
+  <p className="text-[11px] sm:text-sm font-bold text-lime-800">{newfdincome?.toLocaleString('en-US') || 0}</p>
 
-  <form className="flex flex-col gap-2 mt-2">
+  <form className="flex flex-col gap-1 mt-1">
     <Select2
       label="Branch"
       options={branchOptions}
@@ -657,13 +657,13 @@ const Dashboard = () => {
 </div>
 
   {/* Ecommerce Income Card */}
-  <div className="relative p-4 rounded-lg shadow-md bg-sky-100">
+  <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-sky-200">
     <Link to="/ecommerce-income" className="absolute top-2 right-2 text-sky-800 hover:text-sky-900">
-      <i className="fas fa-file-alt text-lg" title="View Ecommerce Income Report"></i>
+      <i className="fas fa-file-alt text-sm sm:text-lg" title="View Ecommerce Income Report"></i>
     </Link>
-    <h3 className="text-sm font-semibold mb-2 text-sky-800">Ecommerce Income</h3>
-    <p className="text-sm font-bold text-sky-800">{newEcommerceIncome?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-sky-800">Ecommerce Income</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-sky-800">{newEcommerceIncome?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -674,18 +674,18 @@ const Dashboard = () => {
     </form>
   </div>
 
-  <div className="relative p-4 rounded-lg shadow-md bg-emerald-100">
+  <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-emerald-200">
     <button
       type="button"
       onClick={openEcommerceDepositModal}
       className="absolute right-3 top-3 text-emerald-800 hover:text-emerald-900"
       title="View ecommerce deposit details"
     >
-      <FaEye className="text-lg" />
+      <FaEye className="text-sm sm:text-lg" />
     </button>
-    <h3 className="text-sm font-semibold mb-2 text-emerald-800">Ecommerce Deposit</h3>
-    <p className="text-sm font-bold text-emerald-800">{newEcommerceDeposit?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-emerald-800">Ecommerce Deposit</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-emerald-800">{newEcommerceDeposit?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -696,18 +696,18 @@ const Dashboard = () => {
     </form>
   </div>
 
-  <div className="relative p-4 rounded-lg shadow-md bg-orange-100">
+  <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-orange-200">
     <button
       type="button"
       onClick={openEcommerceDSDepositModal}
       className="absolute right-3 top-3 text-orange-800 hover:text-orange-900"
       title="View customer DS deposit details"
     >
-      <FaEye className="text-lg" />
+      <FaEye className="text-sm sm:text-lg" />
     </button>
-    <h3 className="text-sm font-semibold mb-2 text-orange-800">Customer DS Deposit</h3>
-    <p className="text-sm font-bold text-orange-800">{newEcommerceDSDeposit?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-orange-800">Customer DS Deposit</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-orange-800">{newEcommerceDSDeposit?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -719,10 +719,10 @@ const Dashboard = () => {
   </div>
 
   {/* Card 13 - Emerald */}
-  <div className="p-4 rounded-lg shadow-md bg-emerald-100">
-    <h3 className="text-sm font-semibold mb-2 text-emerald-800">Total Income</h3>
-    <p className="text-sm font-bold text-emerald-800">{newtotalincome?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-emerald-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-emerald-800">Total Income</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-emerald-800">{newtotalincome?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -735,14 +735,14 @@ const Dashboard = () => {
   </div>
 
   {/* Card 14 - Violet */}
-  <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
+  <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-violet-200">
          {/* Transaction Statement Icon (Top-right Corner) */}
   <Link to="/expenditurereport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
   <p className="text-sm md:text-sm">View Expenditure</p>
   </Link>
-    <h3 className="text-sm font-semibold mb-2 text-violet-800">Total Expenses</h3>
-    <p className="text-sm font-bold text-violet-800">{ newtotalexpenditure?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-violet-800">Total Expenses</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-violet-800">{ newtotalexpenditure?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -755,10 +755,10 @@ const Dashboard = () => {
   </div>
 
   {/* Card 15 - Fuchsia */}
-  <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
-    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">Profit</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newprofit?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-fuchsia-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-fuchsia-800">Profit</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-fuchsia-800">{ newprofit?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       <Select2
         label="Branch"
         options={branchOptions}
@@ -771,9 +771,9 @@ const Dashboard = () => {
   </div>
 
   <Link to="/product-action-requests" className="block">
-    <div className="p-4 rounded-lg shadow-md bg-emerald-100 hover:bg-emerald-200 transition">
-      <h3 className="text-sm font-semibold mb-2 text-emerald-800">Product Action Requests</h3>
-      <p className="text-2xl font-bold text-emerald-900">{productActionCount.toLocaleString()}</p>
+    <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-emerald-200 hover:bg-emerald-300 transition">
+      <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-emerald-800">Product Action Requests</h3>
+      <p className="text-base sm:text-xl font-bold text-emerald-900">{productActionCount.toLocaleString()}</p>
       <p className="mt-2 text-xs font-semibold text-emerald-700">View paid product requests</p>
     </div>
   </Link>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import { 
@@ -9,14 +9,65 @@ import Select2 from "./Select2";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
 
+const getStatusMeta = (status = '') => {
+    const normalizedStatus = String(status).toLowerCase();
+
+    if (normalizedStatus === 'completed') {
+        return {
+            label: 'Completed',
+            badgeClass: 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200',
+            buttonText: 'Done',
+            buttonClass: 'bg-emerald-600 text-white cursor-not-allowed opacity-80',
+        };
+    }
+
+    if (normalizedStatus === 'processing') {
+        return {
+            label: 'Processing',
+            badgeClass: 'bg-amber-100 text-amber-800 ring-1 ring-amber-200',
+            buttonText: 'Complete',
+            buttonClass: 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm',
+        };
+    }
+
+    return {
+        label: status || 'Pending',
+        badgeClass: 'bg-orange-100 text-orange-800 ring-1 ring-orange-200',
+        buttonText: 'Process',
+        buttonClass: 'bg-orange-600 text-white hover:bg-orange-700 shadow-sm',
+    };
+};
+
+const getCustomerName = (customer) => `${customer?.customerId?.firstName || ''} ${customer?.customerId?.lastName || ''}`.trim() || 'N/A';
+
+const getInitials = (customer) => {
+    const firstName = customer?.customerId?.firstName || '';
+    const lastName = customer?.customerId?.lastName || '';
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || 'SB';
+};
+
 const ViewCustomerWithdrawalRequest = () => {
     const dispatch = useDispatch();
     const { branches } = useSelector((state) => state.branch);
     const { loading, customers, error } = useSelector((state) => state.customer);
     const [branchId, setBranchId] = useState('all');
+    const [searchTerm, setSearchTerm] = useState('');
     const [filteredCustomers, setFilteredCustomers] = useState([]);
     const [showError, setShowError] = useState(false);
     const [copiedId, setCopiedId] = useState(null);
+    const requestList = useMemo(() => (Array.isArray(customers) ? customers : []), [customers]);
+
+    const visibleTotalAmount = useMemo(() => (
+        filteredCustomers.reduce((sum, customer) => sum + Number(customer?.amount || 0), 0)
+    ), [filteredCustomers]);
+
+    const pendingCount = useMemo(() => (
+        filteredCustomers.filter((customer) => String(customer?.status || '').toLowerCase() === 'pending').length
+    ), [filteredCustomers]);
+
+    const processingCount = useMemo(() => (
+        filteredCustomers.filter((customer) => String(customer?.status || '').toLowerCase() === 'processing').length
+    ), [filteredCustomers]);
 
     useEffect(() => {
         dispatch(fetchBranchRequest());
@@ -24,15 +75,20 @@ const ViewCustomerWithdrawalRequest = () => {
     }, [dispatch]);
 
     useEffect(() => {
-        if (branchId === 'all') {
-            setFilteredCustomers(customers);
-        } else {
-            const filtered = customers.filter(customer => 
-                customer.branchId?._id === branchId
-            );
-            setFilteredCustomers(filtered);
-        }
-    }, [branchId, customers]);
+        const normalizedSearch = searchTerm.trim().toLowerCase();
+        const filtered = requestList.filter((customer) => {
+            const matchesBranch = branchId === 'all' || customer.branchId?._id === branchId;
+            const customerName = `${customer?.customerId?.firstName || ''} ${customer?.customerId?.lastName || ''}`.toLowerCase();
+            const packageNumber = String(customer?.packageNumber || '').toLowerCase();
+            const matchesSearch = !normalizedSearch
+                || customerName.includes(normalizedSearch)
+                || packageNumber.includes(normalizedSearch);
+
+            return matchesBranch && matchesSearch;
+        });
+
+        setFilteredCustomers(filtered);
+    }, [branchId, requestList, searchTerm]);
 
     useEffect(() => {
         if (error) {
@@ -62,7 +118,7 @@ const ViewCustomerWithdrawalRequest = () => {
             .map((branch) => ({ label: branch.name, value: branch._id }))
     ];
     return (
-        <div className="container mx-auto p-4 md:p-6">
+        <div className="min-h-screen bg-slate-50 px-3 py-4 md:px-6 md:py-6">
             {showError && (
                 <div className="fixed top-4 left-0 right-0 z-50 flex justify-center animate-slideDown">
                     <div className="w-full max-w-md p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded shadow-lg">
@@ -82,246 +138,268 @@ const ViewCustomerWithdrawalRequest = () => {
                 </div>
             )}
 
-            <h1 className="text-2xl font-bold text-gray-800 mb-6">Customer Withdrawal Requests</h1>
-            
-            {/* Branch Filter */}
-            <div className="mb-6">
-                <Select2
-                    label="Filter by Branch"
-                    options={branchOptions}
-                    value={branchId}
-                    onChange={setBranchId}
-                    className="block w-full md:w-64"
-                />
-            </div>
-
-            {loading ? (
-                <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-                </div>
-            ) : (
-                <div className="bg-white shadow overflow-hidden rounded-lg">
-                    {/* Mobile Cards View */}
-                    <div className="md:hidden space-y-4 p-4">
-                        {filteredCustomers.length > 0 ? (
-                            filteredCustomers.map((customer) => {
-                                let buttonText, buttonColor;
-                                switch (customer?.status?.toLowerCase()) {
-                                    case 'pending':
-                                        buttonText = 'Process';
-                                        buttonColor = 'bg-red-600 hover:bg-red-500';
-                                        break;
-                                    case 'processing':
-                                        buttonText = 'Complete';
-                                        buttonColor = 'bg-blue-600 hover:bg-blue-500';
-                                        break;
-                                    case 'completed':
-                                        buttonText = 'Done';
-                                        buttonColor = 'bg-green-600 hover:bg-green-500';
-                                        break;
-                                    default:
-                                        buttonText = 'Process';
-                                        buttonColor = 'bg-gray-600 hover:bg-gray-500';
-                                }
-
-                                return (
-                                    <div key={customer?._id} className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
-                                        <div className="space-y-2">
-                                            <div className="flex justify-between">
-                                                <h3 className="font-medium">{customer?.customerId?.firstName} {customer?.customerId?.lastName || ''}</h3>
-                                                <span className={`px-2 text-xs leading-5 font-semibold rounded-full ${
-                                                    customer?.status?.toLowerCase() === 'completed' ? 'bg-green-100 text-green-800' :
-                                                    customer?.status?.toLowerCase() === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                                                    'bg-red-100 text-red-800'
-                                                }`}>
-                                                    {customer?.status || 'N/A'}
-                                                </span>
-                                            </div>
-                                            <p className="text-sm text-gray-600">Product: {customer?.productName || 'N/A'}</p>
-                                            <p className="text-sm text-gray-600">Package: {customer?.package || 'N/A'}</p>
-                                            <p className="text-sm text-gray-600">Package Number: {customer?.packageNumber || 'N/A'}</p>
-                                            <p className="text-sm text-gray-600">Amount: ₦{customer?.amount?.toLocaleString() || 'N/A'}</p>
-                                            <p className="text-sm text-gray-600">Method: {customer?.channelOfWithdrawal || 'N/A'}</p>
-                                            <p className="text-sm text-gray-600">Branch: {customer?.branchId?.name || 'N/A'}</p>
-                                            <p className="text-sm text-gray-600">Address: {customer?.shippingAddress || 'N/A'}</p>
-                                            {customer?.bankName && (
-                                                <div className="mt-2 pt-2 border-t">
-                                                    <p className="text-sm text-gray-600">Bank: {customer?.bankName}</p>
-                                                    <p className="text-sm text-gray-600">Account: {customer?.accountName}</p>
-                                                    <p className="text-sm text-gray-600">
-                                                        Number: {customer?.bankAccountNumber || 'N/A'}
-                                                        {customer?.bankAccountNumber && (
-                                                            <button 
-                                                                onClick={() => copyToClipboard(customer.bankAccountNumber, customer._id)}
-                                                                className="ml-2 text-gray-400 hover:text-blue-500"
-                                                                title="Copy account number"
-                                                            >
-                                                                <FontAwesomeIcon icon={faCopy} size="xs" />
-                                                                {copiedId === customer._id && (
-                                                                    <span className="ml-1 text-xs text-green-600">Copied!</span>
-                                                                )}
-                                                            </button>
-                                                        )}
-                                                    </p>
-                                                </div>
-                                            )}
-                                            <div className="flex justify-between items-center mt-2 pt-2 border-t">
-                                                <div>
-                                                    <span className="text-xs text-gray-500">Rep: {customer?.accountManagerId?.firstName || 'N/A'}</span>
-                                                    <span className="block text-xs text-gray-500">Date: {new Date(customer?.createdAt).toLocaleDateString()}</span>
-                                                </div>
-                                                <button 
-                                                    className={`${buttonColor} px-3 py-1 rounded text-white text-sm`}
-                                                    onClick={handleStatusUpdate(customer?._id)}
-                                                    disabled={customer?.status?.toLowerCase() === 'completed'}
-                                                >
-                                                    {buttonText}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })
-                        ) : (
-                            <div className="text-center py-8 text-gray-500">
-                                No requests found{branchId !== 'all' ? ' for this branch' : ''}
+            <div className="mx-auto max-w-7xl space-y-4">
+                <section className="overflow-hidden rounded-2xl bg-slate-950 text-white shadow-lg">
+                    <div className="relative p-4 md:p-6">
+                        <div className="absolute right-0 top-0 h-28 w-28 rounded-bl-full bg-orange-500/25 md:h-36 md:w-36" />
+                        <div className="relative grid gap-4 lg:grid-cols-[1fr,auto] lg:items-end">
+                            <div>
+                                <p className="text-xs font-black uppercase text-orange-300">Admin requests</p>
+                                <h1 className="mt-1 text-2xl font-black tracking-normal md:text-3xl">Customer Withdrawal Requests</h1>
+                                <p className="mt-1 max-w-2xl text-sm text-slate-200">
+                                    Review customer payout requests, filter by branch, and process completed external payments.
+                                </p>
                             </div>
-                        )}
-                    </div>
-
-                    {/* Desktop Table View */}
-                    <div className="hidden md:block">
-                        <div className="overflow-x-auto" style={{ maxWidth: 'calc(100vw - 2rem)' }}>
-                            <table className="w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package Number</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bank Details</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rep</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {filteredCustomers.length > 0 ? (
-                                        filteredCustomers.map((customer) => {
-                                            let buttonText, buttonColor;
-                                            switch (customer?.status?.toLowerCase()) {
-                                                case 'pending':
-                                                    buttonText = 'Process';
-                                                    buttonColor = 'bg-red-600 hover:bg-red-500';
-                                                    break;
-                                                case 'processing':
-                                                    buttonText = 'Complete';
-                                                    buttonColor = 'bg-blue-600 hover:bg-blue-500';
-                                                    break;
-                                                case 'completed':
-                                                    buttonText = 'Done';
-                                                    buttonColor = 'bg-green-600 hover:bg-green-500';
-                                                    break;
-                                                default:
-                                                    buttonText = 'Process';
-                                                    buttonColor = 'bg-gray-600 hover:bg-gray-500';
-                                            }
-
-                                            return (
-                                                <tr key={customer?._id} className="hover:bg-gray-50">
-                                                    <td className="px-4 py-4 whitespace-nowrap">
-                                                        <div className="flex items-center">
-                                                            <div>
-                                                                <div className="text-sm font-medium text-gray-900">
-                                                                    {customer?.customerId?.firstName} {customer?.customerId?.lastName || ''}
-                                                                </div>
-                                                                <div className="text-sm text-gray-500">{customer?.customerId?.phone || 'N/A'}</div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {customer?.productName || 'N/A'}
-                                                    </td>
-                                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {customer?.package || 'N/A'}
-                                                    </td>
-                                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {customer?.packageNumber || 'N/A'}
-                                                    </td>
-                                                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                        ₦{customer?.amount?.toLocaleString() || 'N/A'}
-                                                    </td>
-                                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {customer?.channelOfWithdrawal || 'N/A'}
-                                                    </td>
-                                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {customer?.branchId?.name || 'N/A'}
-                                                    </td>
-                                                    <td className="px-4 py-4 text-sm text-gray-500">
-                                                        {customer?.bankName ? (
-                                                            <div>
-                                                                <div>{customer.bankName}</div>
-                                                                <div>{customer.accountName}</div>
-                                                                <div className="flex items-center">
-                                                                    {customer.bankAccountNumber}
-                                                                    <button 
-                                                                        onClick={() => copyToClipboard(customer.bankAccountNumber, customer._id)}
-                                                                        className="ml-2 text-gray-400 hover:text-blue-500"
-                                                                        title="Copy account number"
-                                                                    >
-                                                                        <FontAwesomeIcon icon={faCopy} size="xs" />
-                                                                        {copiedId === customer._id && (
-                                                                            <span className="ml-1 text-xs text-green-600">Copied!</span>
-                                                                        )}
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        ) : 'N/A'}
-                                                    </td>
-                                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {customer?.accountManagerId?.firstName || 'N/A'}
-                                                    </td>
-                                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {new Date(customer?.createdAt).toLocaleDateString()}
-                                                    </td>
-                                                    <td className="px-4 py-4 whitespace-nowrap">
-                                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                                            customer?.status?.toLowerCase() === 'completed' ? 'bg-green-100 text-green-800' :
-                                                            customer?.status?.toLowerCase() === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                                                            'bg-red-100 text-red-800'
-                                                        }`}>
-                                                            {customer?.status || 'N/A'}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        <button 
-                                                            className={`${buttonColor} px-3 py-1 rounded text-white`}
-                                                            onClick={handleStatusUpdate(customer?._id)}
-                                                            disabled={customer?.status?.toLowerCase() === 'completed'}
-                                                        >
-                                                            {buttonText}
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })
-                                    ) : (
-                                        <tr>
-                                            <td colSpan="10" className="px-6 py-4 text-center text-sm text-gray-500">
-                                                No requests found{branchId !== 'all' ? ' for this branch' : ''}
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                            <div className="grid grid-cols-3 gap-2 text-xs md:min-w-[420px] md:text-sm">
+                                <div className="rounded-2xl bg-orange-500 px-3 py-2 shadow-sm">
+                                    <p className="text-orange-50">Pending</p>
+                                    <p className="mt-1 text-xl font-black text-white">{pendingCount.toLocaleString()}</p>
+                                </div>
+                                <div className="rounded-2xl bg-blue-600 px-3 py-2 shadow-sm">
+                                    <p className="text-blue-50">Processing</p>
+                                    <p className="mt-1 text-xl font-black text-white">{processingCount.toLocaleString()}</p>
+                                </div>
+                                <div className="rounded-2xl bg-emerald-600 px-3 py-2 shadow-sm">
+                                    <p className="text-emerald-50">Amount</p>
+                                    <p className="mt-1 truncate text-xl font-black text-white">₦{visibleTotalAmount.toLocaleString()}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </section>
+
+                <section className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:p-4">
+                    <div className="grid gap-3 md:grid-cols-[minmax(220px,280px),minmax(260px,420px),auto] md:items-end">
+                        <Select2
+                            label="Filter by Branch"
+                            options={branchOptions}
+                            value={branchId}
+                            onChange={setBranchId}
+                            className="block w-full"
+                        />
+                        <div>
+                            <label htmlFor="withdrawal-request-search" className="mb-1.5 block text-sm font-bold text-slate-700">
+                                Search
+                            </label>
+                            <input
+                                id="withdrawal-request-search"
+                                type="search"
+                                value={searchTerm}
+                                onChange={(event) => setSearchTerm(event.target.value)}
+                                placeholder="Customer name or package number"
+                                className="block w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-100"
+                            />
+                        </div>
+                        <div className="rounded-xl bg-sky-50 px-3 py-2.5 text-sm font-bold text-sky-800 ring-1 ring-sky-100">
+                            {filteredCustomers.length.toLocaleString()} request{filteredCustomers.length === 1 ? '' : 's'} shown
+                        </div>
+                    </div>
+                </section>
+
+                {loading ? (
+                    <div className="flex h-64 items-center justify-center rounded-2xl bg-white shadow-sm">
+                        <div className="h-12 w-12 animate-spin rounded-full border-4 border-orange-100 border-t-orange-500"></div>
+                    </div>
+                ) : (
+                    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
+                        {/* Mobile Cards View */}
+                        <div className="space-y-3 p-3 md:hidden">
+                            {filteredCustomers.length > 0 ? (
+                                filteredCustomers.map((customer) => {
+                                    const statusMeta = getStatusMeta(customer?.status);
+
+                                    return (
+                                        <div key={customer?._id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                                            <div className="bg-gradient-to-r from-slate-900 to-blue-800 p-3 text-white">
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div className="flex min-w-0 items-center gap-3">
+                                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-sm font-black">
+                                                            {getInitials(customer)}
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <h3 className="truncate font-black">{getCustomerName(customer)}</h3>
+                                                            <p className="truncate text-xs text-slate-200">{customer?.customerId?.phone || 'N/A'}</p>
+                                                        </div>
+                                                    </div>
+                                                    <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-black ${statusMeta.badgeClass}`}>
+                                                        {statusMeta.label}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid gap-2 p-3 text-sm">
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    <div className="rounded-xl bg-orange-50 p-2">
+                                                        <p className="text-xs font-bold text-orange-700">Amount</p>
+                                                        <p className="font-black text-orange-900">₦{customer?.amount?.toLocaleString() || 'N/A'}</p>
+                                                    </div>
+                                                    <div className="rounded-xl bg-purple-50 p-2">
+                                                        <p className="text-xs font-bold text-purple-700">Package No.</p>
+                                                        <p className="truncate font-black text-purple-900">{customer?.packageNumber || 'N/A'}</p>
+                                                    </div>
+                                                </div>
+                                                <p className="text-slate-600"><span className="font-bold text-slate-900">Package:</span> {customer?.package || 'N/A'}</p>
+                                                <p className="text-slate-600"><span className="font-bold text-slate-900">Method:</span> {customer?.channelOfWithdrawal || 'N/A'}</p>
+                                                <p className="text-slate-600"><span className="font-bold text-slate-900">Branch:</span> {customer?.branchId?.name || 'N/A'}</p>
+                                                {customer?.bankName && (
+                                                    <div className="rounded-xl border border-slate-100 bg-slate-50 p-2">
+                                                        <p className="font-bold text-slate-900">{customer?.bankName}</p>
+                                                        <p className="text-slate-600">{customer?.accountName}</p>
+                                                        <p className="flex items-center text-slate-600">
+                                                            {customer?.bankAccountNumber || 'N/A'}
+                                                            {customer?.bankAccountNumber && (
+                                                                <button
+                                                                    onClick={() => copyToClipboard(customer.bankAccountNumber, customer._id)}
+                                                                    className="ml-2 rounded-full bg-white px-2 py-1 text-sky-600 shadow-sm"
+                                                                    title="Copy account number"
+                                                                >
+                                                                    <FontAwesomeIcon icon={faCopy} size="xs" />
+                                                                    {copiedId === customer._id && (
+                                                                        <span className="ml-1 text-xs text-emerald-600">Copied</span>
+                                                                    )}
+                                                                </button>
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                                <div className="flex items-center justify-between border-t border-slate-100 pt-2">
+                                                    <div>
+                                                        <span className="text-xs font-semibold text-slate-500">Rep: {customer?.accountManagerId?.firstName || 'N/A'}</span>
+                                                        <span className="block text-xs font-semibold text-slate-500">Date: {new Date(customer?.createdAt).toLocaleDateString()}</span>
+                                                    </div>
+                                                    <button
+                                                        className={`rounded-full px-4 py-2 text-sm font-black transition ${statusMeta.buttonClass}`}
+                                                        onClick={handleStatusUpdate(customer?._id)}
+                                                        disabled={customer?.status?.toLowerCase() === 'completed'}
+                                                    >
+                                                        {statusMeta.buttonText}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-slate-500">
+                                    No requests found{branchId !== 'all' ? ' for this branch' : ''}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Desktop Table View */}
+                        <div className="hidden md:block">
+                            <div className="overflow-x-auto" style={{ maxWidth: 'calc(100vw - 2rem)' }}>
+                                <table className="w-full divide-y divide-slate-200">
+                                    <thead className="bg-slate-900">
+                                        <tr>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Customer</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Package</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Package Number</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Amount</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Method</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Branch</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Bank Details</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Rep</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Date</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Status</th>
+                                            <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 bg-white">
+                                        {filteredCustomers.length > 0 ? (
+                                            filteredCustomers.map((customer) => {
+                                                const statusMeta = getStatusMeta(customer?.status);
+
+                                                return (
+                                                    <tr key={customer?._id} className="transition hover:bg-orange-50/60">
+                                                        <td className="px-4 py-4 whitespace-nowrap">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-xs font-black text-blue-700">
+                                                                    {getInitials(customer)}
+                                                                </div>
+                                                                <div>
+                                                                    <div className="text-sm font-black text-slate-900">
+                                                                        {getCustomerName(customer)}
+                                                                    </div>
+                                                                    <div className="text-xs font-semibold text-slate-500">{customer?.customerId?.phone || 'N/A'}</div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-4 py-4 whitespace-nowrap text-sm font-semibold text-slate-600">
+                                                            {customer?.package || 'N/A'}
+                                                        </td>
+                                                        <td className="px-4 py-4 whitespace-nowrap">
+                                                            <span className="rounded-full bg-purple-50 px-2.5 py-1 text-xs font-black text-purple-700">
+                                                                {customer?.packageNumber || 'N/A'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-4 whitespace-nowrap text-sm font-black text-orange-700">
+                                                            ₦{customer?.amount?.toLocaleString() || 'N/A'}
+                                                        </td>
+                                                        <td className="px-4 py-4 whitespace-nowrap text-sm font-semibold text-slate-600">
+                                                            {customer?.channelOfWithdrawal || 'N/A'}
+                                                        </td>
+                                                        <td className="px-4 py-4 whitespace-nowrap text-sm font-semibold text-slate-600">
+                                                            {customer?.branchId?.name || 'N/A'}
+                                                        </td>
+                                                        <td className="px-4 py-4 text-sm text-slate-600">
+                                                            {customer?.bankName ? (
+                                                                <div className="rounded-xl bg-slate-50 p-2">
+                                                                    <div className="font-bold text-slate-900">{customer.bankName}</div>
+                                                                    <div>{customer.accountName}</div>
+                                                                    <div className="flex items-center font-semibold">
+                                                                        {customer.bankAccountNumber}
+                                                                        <button
+                                                                            onClick={() => copyToClipboard(customer.bankAccountNumber, customer._id)}
+                                                                            className="ml-2 rounded-full bg-white px-2 py-1 text-sky-600 shadow-sm hover:bg-sky-50"
+                                                                            title="Copy account number"
+                                                                        >
+                                                                            <FontAwesomeIcon icon={faCopy} size="xs" />
+                                                                            {copiedId === customer._id && (
+                                                                                <span className="ml-1 text-xs text-emerald-600">Copied</span>
+                                                                            )}
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            ) : 'N/A'}
+                                                        </td>
+                                                        <td className="px-4 py-4 whitespace-nowrap text-sm font-semibold text-slate-600">
+                                                            {customer?.accountManagerId?.firstName || 'N/A'}
+                                                        </td>
+                                                        <td className="px-4 py-4 whitespace-nowrap text-sm font-semibold text-slate-600">
+                                                            {new Date(customer?.createdAt).toLocaleDateString()}
+                                                        </td>
+                                                        <td className="px-4 py-4 whitespace-nowrap">
+                                                            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-black ${statusMeta.badgeClass}`}>
+                                                                {statusMeta.label}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-4 whitespace-nowrap text-sm">
+                                                            <button
+                                                                className={`rounded-full px-4 py-2 text-xs font-black transition ${statusMeta.buttonClass}`}
+                                                                onClick={handleStatusUpdate(customer?._id)}
+                                                                disabled={customer?.status?.toLowerCase() === 'completed'}
+                                                            >
+                                                                {statusMeta.buttonText}
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="10" className="px-6 py-10 text-center text-sm font-semibold text-slate-500">
+                                                    No requests found{branchId !== 'all' ? ' for this branch' : ''}
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 </div>
-            )}
         </div>
     );
 };
