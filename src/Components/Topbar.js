@@ -11,7 +11,15 @@ const Topbar = ({ toggleSidebar, theme, toggleTheme }) => {
   const isLoggedIn = useSelector((state) => state.login.token);
   const token = isLoggedIn || localStorage.getItem("authToken");
   const rawRole = useSelector((state) => state.login.staff?.role) || localStorage.getItem("staffRole");
-  const displayRole = rawRole === "Agent" ? "Rep" : rawRole === "OnlineRep" ? "Online Rep" : rawRole || "Staff";
+  const displayRole = rawRole === "Agent"
+    ? "Rep"
+    : rawRole === "OnlineRep"
+    ? "Online Rep"
+    : rawRole === "Manager"
+    ? "Secretary"
+    : rawRole === "ProductManager" || rawRole === "Product Manager"
+    ? "Product Secretary"
+    : rawRole || "Staff";
 
   const handleLogout = () => {
     dispatch(logoutRequest({ navigate }));

@@ -206,7 +206,7 @@ const ManagerDashboard = () => {
   return (
 <div className="p-3 sm:p-6">
   {loading && <Loader />}
-  <h1 className="text-base sm:text-xl font-bold mb-4 mt-10 text-center">Manager Dashboard</h1>
+  <h1 className="text-base sm:text-xl font-bold mb-4 mt-10 text-center">Secretary Dashboard</h1>
   <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-3">
   {/* Card 4 - Yellow */}
   <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-yellow-200">

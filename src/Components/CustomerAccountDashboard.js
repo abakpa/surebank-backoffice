@@ -44,7 +44,13 @@ const getActiveSBProductSummary = (account) => {
     ? activeItems.map((item) => item.productName).filter(Boolean).join(", ")
     : account?.productName;
 };
-const formatRoleDisplay = (role) => (role === "Agent" ? "Rep" : role);
+const formatRoleDisplay = (role) => {
+  if (role === "Agent") return "Rep";
+  if (role === "Manager") return "Secretary";
+  if (role === "ProductManager" || role === "Product Manager") return "Product Secretary";
+  if (role === "OnlineRep") return "Online Rep";
+  return role;
+};
 
 const MobileVariationDropdown = ({ value, options, onChange, getLabel, formatCurrencyValue, accent = "green" }) => {
   const [open, setOpen] = useState(false);
@@ -111,6 +117,11 @@ const CustomerAccountDashboard = () => {
   const canManageCustomerFunds = ['Admin', 'Manager'].includes(loggedInStaffRole);
   const canRequestCustomerProduct = ['Agent', 'OnlineRep', 'Rep'].includes(loggedInStaffRole);
   const canChangeSBProduct = canTransferWalletToPackage;
+  const hasCustomerSettlementBankDetails = Boolean(
+    newPhone?.settlementBankDetails?.bankName &&
+    newPhone?.settlementBankDetails?.accountName &&
+    newPhone?.settlementBankDetails?.bankAccountNumber
+  );
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [getAmountPerDay, setGetAmountPerDay] = useState(null);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -488,6 +499,9 @@ if(selectedAccount){
     setCustomerWithdrawalRequestMessage("");
     setCustomerWithdrawalRequestError("");
     setAmountPerDay("");
+    setSettlementBankName("");
+    setSettlementAccountName("");
+    setSettlementBankAccountNumber("");
     setSelectedAccount(account);
     setCustomerWithdrawalRequestType(type);
     setShowCustomerWithdrawalRequestModal(true);
@@ -505,18 +519,32 @@ if(selectedAccount){
       return;
     }
 
+    if (!hasCustomerSettlementBankDetails) {
+      if (!settlementBankName.trim() || !settlementAccountName.trim() || !settlementBankAccountNumber.trim()) {
+        setCustomerWithdrawalRequestError("Please enter settlement bank name, account name and account number.");
+        setShowError(true);
+        return;
+      }
+    }
+
     const details = customerWithdrawalRequestType === "free_to_withdraw"
       ? {
           requestType: "free_to_withdraw",
           customerId,
           accountTypeId: deposit?.account?._id,
           amount: parsedAmount,
+          bankName: settlementBankName.trim(),
+          accountName: settlementAccountName.trim(),
+          bankAccountNumber: settlementBankAccountNumber.trim(),
         }
       : {
           requestType: "ds_package",
           customerId,
           accountTypeId: selectedAccount?._id,
           amount: parsedAmount,
+          bankName: settlementBankName.trim(),
+          accountName: settlementAccountName.trim(),
+          bankAccountNumber: settlementBankAccountNumber.trim(),
         };
 
     if (!details.accountTypeId) {
@@ -536,6 +564,9 @@ if(selectedAccount){
       setCustomerWithdrawalRequestMessage(response.data?.message || "Withdrawal request sent successfully");
       setShowSuccess(true);
       setAmountPerDay("");
+      setSettlementBankName("");
+      setSettlementAccountName("");
+      setSettlementBankAccountNumber("");
       setShowCustomerWithdrawalRequestModal(false);
       setTimeout(() => {
         setShowSuccess(false);
@@ -1411,6 +1442,19 @@ if(selectedAccount){
   const sbAccountWithItemDetails = Array.isArray(newSubAccount?.sbAccount)
     ? newSubAccount.sbAccount.find((account) => Array.isArray(account?.items) && account.items.length > 0)
     : null;
+  const visibleSBAccounts = Array.isArray(newSubAccount?.sbAccount)
+    ? newSubAccount.sbAccount.filter((account) => !(
+      account.accountMode !== 'multi_item' &&
+      (!Array.isArray(account.items) || account.items.length === 0) &&
+      Number(account.balance || 0) <= 0
+    ))
+    : [];
+  const hasCustomerPackages = (
+    (Array.isArray(newSubAccount?.dsAccount) && newSubAccount.dsAccount.length > 0) ||
+    (Array.isArray(newSubAccount?.fdAccount) && newSubAccount.fdAccount.length > 0) ||
+    visibleSBAccounts.length > 0
+  );
+  const isLoadingCustomerPackages = loading && !hasCustomerPackages;
 
   return (
     <div className="min-h-screen bg-slate-50 px-3 py-4 md:px-5 lg:px-6">
@@ -1573,9 +1617,12 @@ if(selectedAccount){
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2.4fr)_minmax(320px,0.9fr)]">
         {/* Left Panel - Account Details */}
         <div className="min-w-0">
-          {(Array.isArray(newSubAccount?.dsAccount) && newSubAccount.dsAccount.length > 0) || 
-          (Array.isArray(newSubAccount?.fdAccount) && newSubAccount.fdAccount.length > 0) || 
- (Array.isArray(newSubAccount?.sbAccount) && newSubAccount.sbAccount.length > 0) ? (
+          {isLoadingCustomerPackages ? (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-12 text-center text-sm font-semibold text-slate-500">
+              <div className="mx-auto mb-3 h-9 w-9 animate-spin rounded-full border-4 border-orange-100 border-t-orange-500" />
+              <p>Loading customer packages...</p>
+            </div>
+          ) : hasCustomerPackages ? (
   <ul className="space-y-4">
     {/* DS Accounts */}
   {Array.isArray(newSubAccount?.dsAccount) &&
@@ -1769,18 +1816,12 @@ if(selectedAccount){
 
 
     {/* SB Accounts */}
-    {Array.isArray(newSubAccount?.sbAccount) &&
-  newSubAccount.sbAccount.map((account, index) => {
+    {visibleSBAccounts.map((account, index) => {
     const activeSBItems = getActiveSBItems(account);
     const activeSBTotal = activeSBItems.length > 0
       ? activeSBItems.reduce((sum, item) => sum + Number(item.subtotal || item.price || 0), 0)
       : 0;
     const hasSBItemDetails = Array.isArray(account.items) && account.items.length > 0;
-    const isClosedLegacyAccount = (
-      account.accountMode !== 'multi_item' &&
-      (!Array.isArray(account.items) || account.items.length === 0) &&
-      Number(account.balance || 0) <= 0
-    );
     return (
     <li
       key={`sb-${index}`}
@@ -1852,11 +1893,6 @@ if(selectedAccount){
         {account.accountMode !== 'multi_item' && Number(account.balance || 0) > 0 && (
           <p className="mt-1 text-xs font-black text-emerald-700">Balance: ₦{account.balance?.toLocaleString('en-US') || 0}</p>
         )}
-        {loggedInStaffRole === 'Admin' && isClosedLegacyAccount && (
-          <span className="mt-1 inline-flex rounded-full bg-red-100 px-2 py-1 text-[10px] font-semibold text-red-700">
-            Closed Legacy Account - Admin Only
-          </span>
-        )}
       </div>
 
       {/* Action Buttons */}
@@ -1867,7 +1903,7 @@ if(selectedAccount){
           <i className="fas fa-folder-open text-3xl md:text-lg" title="View Transactions"></i>
         </button>
         {/* Deposit Icon */}
-        {loggedInStaffRole !== 'OnlineRep' && !isClosedLegacyAccount &&(
+        {loggedInStaffRole !== 'OnlineRep' && (
         <button onClick={() => { setSelectedAccount(account); setShowSBDepositModal(true); }} className="rounded-full bg-emerald-50 px-3 py-2 text-emerald-700 hover:bg-emerald-100">
           <i className="fas fa-plus-circle text-3xl md:text-lg" title="Deposit"></i>
         </button>
@@ -2207,10 +2243,46 @@ if(selectedAccount){
             placeholder="Enter amount"
             className="mb-4 w-full rounded-xl border border-gray-300 p-3 text-sm font-semibold focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-100"
           />
+          {!hasCustomerSettlementBankDetails && (
+            <div className="mb-4 rounded-xl border border-orange-100 bg-orange-50 p-3">
+              <p className="mb-2 text-xs font-black uppercase text-orange-700">Settlement bank details required</p>
+              <p className="mb-3 text-xs font-semibold text-slate-600">
+                Enter the customer's bank details once. It will be saved for future withdrawal requests.
+              </p>
+              <div className="grid gap-2">
+                <input
+                  type="text"
+                  value={settlementBankName}
+                  onChange={(e) => setSettlementBankName(e.target.value)}
+                  placeholder="Bank name"
+                  className="w-full rounded-xl border border-orange-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
+                />
+                <input
+                  type="text"
+                  value={settlementAccountName}
+                  onChange={(e) => setSettlementAccountName(e.target.value)}
+                  placeholder="Account name"
+                  className="w-full rounded-xl border border-orange-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
+                />
+                <input
+                  type="text"
+                  value={settlementBankAccountNumber}
+                  onChange={(e) => setSettlementBankAccountNumber(e.target.value)}
+                  placeholder="Account number"
+                  className="w-full rounded-xl border border-orange-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
+                />
+              </div>
+            </div>
+          )}
           <div className="flex justify-end gap-3">
             <button
               type="button"
-              onClick={() => setShowCustomerWithdrawalRequestModal(false)}
+              onClick={() => {
+                setShowCustomerWithdrawalRequestModal(false);
+                setSettlementBankName("");
+                setSettlementAccountName("");
+                setSettlementBankAccountNumber("");
+              }}
               className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-black text-gray-700 hover:bg-gray-200"
             >
               Cancel
@@ -2719,7 +2791,7 @@ if(selectedAccount){
         </div>
         {/* <div className="mb-4">
          <Select2
-  label="Account Manager"
+  label="Account Secretary"
   options={staffs.map((staff) => ({ label: `${staff.firstName} ${staff.lastName}`, value: staff._id }))}
   value={accountManagerId}
   onChange={(selectedId) => setAccountManagerId(selectedId)}
@@ -3249,7 +3321,7 @@ if(selectedAccount){
         {/* {(loggedInStaffRole === "Admin" || loggedInStaffRole === "Manager") &&
         <div className="mb-4">
           <Select2
-            label="Account Manager"
+            label="Account Secretary"
             options={staffs.map((staff) => ({
               label: `${staff.firstName} ${staff.lastName}`,
               value: staff._id

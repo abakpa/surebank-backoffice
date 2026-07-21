@@ -4,7 +4,13 @@ import { url } from "../redux/sagas/url";
 
 const formatMoney = (value) => `₦${Number(value || 0).toLocaleString("en-US")}`;
 const formatNumber = (value) => Number(value || 0).toLocaleString("en-US");
-const formatRoleDisplay = (role) => (role === "Agent" ? "Rep" : role);
+const formatRoleDisplay = (role) => {
+  if (role === "Agent") return "Rep";
+  if (role === "Manager") return "Secretary";
+  if (role === "ProductManager" || role === "Product Manager") return "Product Secretary";
+  if (role === "OnlineRep") return "Online Rep";
+  return role;
+};
 
 const StatCard = ({ label, value, helper, tone = "indigo" }) => {
   const tones = {
