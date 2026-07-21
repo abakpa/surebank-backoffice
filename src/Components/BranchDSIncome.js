@@ -18,7 +18,6 @@ const BranchDSIncome = () => {
   }, [dispatch]);
 
 
-  // Ensure customers is always an array
   const dsincomeList = useMemo(() => (Array.isArray(branchdsincome) ? branchdsincome : []), [branchdsincome]);
 
   const handleSearch = (e) => {
