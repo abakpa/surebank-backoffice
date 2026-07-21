@@ -62,6 +62,7 @@ import EcommerceIncomeReport from "./Components/EcommerceIncomeReport";
 import ProductReviews from "./Components/ProductReviews";
 import Analytics from "./Components/Analytics";
 import ProductActionRequests from "./Components/ProductActionRequests";
+import ClosedLegacySBAccounts from "./Components/ClosedLegacySBAccounts";
 
 const THEME_STORAGE_KEY = "backofficeTheme";
 
@@ -187,6 +188,7 @@ function App() {
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/deposit" element={<Deposit />} />
                   <Route path="/sbincome" element={<SBIncome />} />
+                  <Route path="/closed-legacy-sb-accounts" element={<ClosedLegacySBAccounts />} />
                   <Route path="/fdincome" element={<FDIncome />} />
                   <Route path="/branchsbincome" element={<BranchSBIncome />} />
                   <Route path="/dsincome" element={<DSIncome />} />

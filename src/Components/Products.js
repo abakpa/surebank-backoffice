@@ -765,7 +765,7 @@ const Products = () => {
                 <h2 className="text-lg font-bold text-gray-900">Transfer Stock</h2>
                 <p className="text-sm text-gray-600">{selectedTransferProduct.name}</p>
                 <p className="mt-1 text-xs text-gray-500">
-                  Stock will be reserved from your branch until the destination manager accepts or rejects it.
+                  Stock will be reserved from your branch until the destination secretary accepts or rejects it.
                 </p>
               </div>
               <button

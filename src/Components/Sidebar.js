@@ -86,6 +86,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           Order
           </li>
         </Link>
+        <Link to="/closed-legacy-sb-accounts" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            Closed Legacy SB
+          </li>
+        </Link>
         <Link to="/interest" className="text-xs">
           <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
           Interest Rate

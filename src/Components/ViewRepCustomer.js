@@ -84,7 +84,7 @@ const Viewcustomer = () => {
 
   return (
     <div className="min-h-screen w-full bg-slate-50 px-3 py-4 md:px-6 md:py-6">
-      <div className="mx-auto max-w-7xl space-y-4">
+      <div className="mx-auto max-w-7xl space-y-0 md:space-y-4">
         <section className="overflow-hidden rounded-2xl bg-slate-950 text-white shadow-lg">
           <div className="relative p-4 md:p-6">
             <div className="absolute right-0 top-0 h-28 w-28 rounded-bl-full bg-sky-500/25 md:h-40 md:w-40" />
@@ -96,7 +96,7 @@ const Viewcustomer = () => {
                   Review customers tied to {repName}, open accounts, and manage request follow-up.
                 </p>
               </div>
-              <div className="grid grid-cols-3 gap-2 text-xs md:min-w-[420px] md:text-sm">
+              <div className="grid grid-cols-2 gap-2 text-xs md:min-w-[300px] md:text-sm">
                 <div className="rounded-2xl bg-sky-500 px-3 py-2 shadow-sm">
                   <p className="text-sky-50">Customers</p>
                   <p className="mt-1 text-xl font-black text-white">{customerList.length.toLocaleString()}</p>
@@ -104,10 +104,6 @@ const Viewcustomer = () => {
                 <div className="rounded-2xl bg-orange-500 px-3 py-2 shadow-sm">
                   <p className="text-orange-50">Showing</p>
                   <p className="mt-1 text-xl font-black text-white">{filteredCustomers.length.toLocaleString()}</p>
-                </div>
-                <div className="rounded-2xl bg-purple-700 px-3 py-2 shadow-sm">
-                  <p className="text-purple-100">Role</p>
-                  <p className="mt-1 text-xl font-black text-white">Rep</p>
                 </div>
               </div>
             </div>
@@ -169,8 +165,8 @@ const Viewcustomer = () => {
         </section>
 
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 bg-gradient-to-r from-sky-50 via-orange-50 to-purple-50 px-4 py-3">
-            <h2 className="text-sm font-black uppercase text-slate-800">Rep Customers</h2>
+          <div className="border-b border-slate-100 bg-gradient-to-r from-sky-50 via-orange-50 to-purple-50 px-4 py-3 dark:border-slate-700 dark:from-slate-900 dark:via-slate-800 dark:to-orange-950">
+            <h2 className="text-sm font-black uppercase text-slate-800 dark:text-white">Rep Customers</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] border-collapse">
@@ -189,7 +185,7 @@ const Viewcustomer = () => {
                   <p className="mb-3 text-sm font-semibold text-slate-600">Select the new staff to receive these customers.</p>
           
                          <Select2
-                    label="Account Manager"
+                    label="Account Secretary"
                      options={staffList.map((staff) => ({ label: `${staff.firstName} ${staff.lastName}`, value: staff._id }))}
                     value={newStaff}
                      onChange={(selectedId) => setNewStaff(selectedId)}

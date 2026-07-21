@@ -52,7 +52,7 @@ const Viewcustomer = () => {
             <div className="absolute right-0 top-0 h-28 w-28 rounded-bl-full bg-emerald-500/25 md:h-40 md:w-40" />
             <div className="relative grid gap-4 lg:grid-cols-[1fr,auto] lg:items-end">
               <div>
-                <p className="text-xs font-black uppercase text-emerald-300">Manager customers</p>
+                <p className="text-xs font-black uppercase text-emerald-300">Secretary customers</p>
                 <h1 className="mt-1 text-2xl font-black tracking-normal md:text-3xl">Branch Customer Directory</h1>
                 <p className="mt-1 max-w-2xl text-sm font-semibold text-slate-200">
                   {branchName} customers, withdrawal requests, and branch customer activity in one place.

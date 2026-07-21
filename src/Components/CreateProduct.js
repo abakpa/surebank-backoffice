@@ -287,7 +287,7 @@ const CreateProduct = () => {
     return (
       <div className="p-6 bg-white rounded shadow-md max-w-2xl mx-auto mt-12">
         <h2 className="text-xl font-bold mb-2">View Only</h2>
-        <p className="text-gray-600">Only admin and product manager can create or edit ecommerce products.</p>
+        <p className="text-gray-600">Only admin and product secretary can create or edit ecommerce products.</p>
       </div>
     );
   }

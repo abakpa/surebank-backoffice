@@ -6,6 +6,17 @@ const initialState = {
     error:null,
 };
 
+const hasCustomerAccountPayload = (payload) => Boolean(
+    payload?.account || payload?.subAccount || payload?.customer || payload?.sbWalletAccount
+);
+
+const applyActionSuccessPayload = (state, payload) => {
+    state.deposit = hasCustomerAccountPayload(payload)
+        ? payload
+        : { ...(state.deposit || {}), ...(payload || {}) };
+    state.loading = false;
+};
+
 const depositSlice = createSlice({
     name:'deposit',
     initialState,
@@ -25,8 +36,7 @@ const depositSlice = createSlice({
             state.loading = true
         },
         fetchReversalSuccess:(state,action)=>{
-            state.deposit= action.payload;
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         fetchReversalFailure:(state,action)=>{
              state.error=action.payload
@@ -36,8 +46,7 @@ const depositSlice = createSlice({
             state.loading = true
         },
         fetchDSReversalSuccess:(state,action)=>{
-            state.deposit= action.payload;
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         fetchDSReversalFailure:(state,action)=>{
              state.error=action.payload
@@ -47,8 +56,7 @@ const depositSlice = createSlice({
             state.loading = true
         },
         fetchFreeToWithdrawReversalSuccess:(state,action)=>{
-            state.deposit= action.payload;
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         fetchFreeToWithdrawReversalFailure:(state,action)=>{
              state.error=action.payload
@@ -58,8 +66,7 @@ const depositSlice = createSlice({
             state.loading = true
         },
         createCostPriceSuccess:(state,action)=>{
-            state.deposit= action.payload;
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         createCostPriceFailure:(state,action)=>{
             state.error = action.payload
@@ -74,6 +81,7 @@ const depositSlice = createSlice({
         },
         fetchCustomerAccountFailure:(state,action)=>{
             state.error = action.payload
+            state.loading=false
         },
         fetchCustomerByIdRequest:(state)=>{
             state.loading = true
@@ -84,6 +92,7 @@ const depositSlice = createSlice({
         },
         fetchCustomerByIdFailure:(state,action)=>{
             state.error = action.payload
+            state.loading=false
         },
         fetchCustomerSubAccountRequest:(state)=>{
             state.loading = true
@@ -94,6 +103,7 @@ const depositSlice = createSlice({
         },
         fetchCustomerSubAccountFailure:(state,action)=>{
             state.error = action.payload
+            state.loading=false
         },
         fetchSubAccountDepositRequest:(state)=>{
             state.loading = true
@@ -104,13 +114,13 @@ const depositSlice = createSlice({
         },
         fetchSubAccountDepositFailure:(state,action)=>{
             state.error = action.payload
+            state.loading=false
         },
         createDepositRequest:(state)=>{
             state.loading=true
         },
         createDepositSuccess:(state,action)=>{
-            state.deposit = action.payload
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         createDepositFailure:(state,action)=>{
             state.error=action.payload
@@ -120,8 +130,7 @@ const depositSlice = createSlice({
             state.loading=true
         },
         createSBDepositSuccess:(state,action)=>{
-            state.deposit = action.payload
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         createSBDepositFailure:(state,action)=>{
             state.error=action.payload
@@ -136,13 +145,13 @@ const depositSlice = createSlice({
         },
         fetchWithdrawalFailure:(state,action)=>{
             state.error = action.payload
+            state.loading=false
         },
         createWithdrawalRequest:(state)=>{
             state.loading=true
         },
         createWithdrawalSuccess:(state,action)=>{
-            state.deposit=action.payload
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         createWithdrawalFailure:(state,action)=>{
             state.error=action.payload
@@ -152,8 +161,7 @@ const depositSlice = createSlice({
             state.loading=true
         },
         createSBWithdrawalSuccess:(state,action)=>{
-            state.deposit=action.payload
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         createSBWithdrawalFailure:(state,action)=>{
             state.error=action.payload
@@ -163,8 +171,7 @@ const depositSlice = createSlice({
             state.loading=true
         },
         createFDWithdrawalSuccess:(state,action)=>{
-            state.deposit=action.payload
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         createFDWithdrawalFailure:(state,action)=>{
             state.error=action.payload
@@ -174,8 +181,7 @@ const depositSlice = createSlice({
             state.loading=true
         },
         createSBSellProductSuccess:(state,action)=>{
-            state.deposit=action.payload
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         createSBSellProductFailure:(state,action)=>{
             state.error=action.payload
@@ -185,8 +191,7 @@ const depositSlice = createSlice({
             state.loading=true
         },
         createFDMaturedWithdrawalSuccess:(state,action)=>{
-            state.deposit=action.payload
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         createFDMaturedWithdrawalFailure:(state,action)=>{
             state.error=action.payload
@@ -196,8 +201,7 @@ const depositSlice = createSlice({
             state.loading=true
         },
         createMainWithdrawalSuccess:(state,action)=>{
-            state.deposit=action.payload
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         createMainWithdrawalFailure:(state,action)=>{
             state.error=action.payload
@@ -207,8 +211,7 @@ const depositSlice = createSlice({
             state.loading=true
         },
         createMainDepositSuccess:(state,action)=>{
-            state.deposit=action.payload
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         createMainDepositFailure:(state,action)=>{
             state.error=action.payload
@@ -218,8 +221,7 @@ const depositSlice = createSlice({
             state.loading=true
         },
         createWalletToSBTransferSuccess:(state,action)=>{
-            state.deposit=action.payload
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         createWalletToSBTransferFailure:(state,action)=>{
             state.error=action.payload
@@ -229,8 +231,7 @@ const depositSlice = createSlice({
             state.loading=true
         },
         createCustomerAccountSuccess:(state,action)=>{
-            state.deposit=action.payload
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         createCustomerAccountFailure:(state,action)=>{
             state.error=action.payload
@@ -240,8 +241,7 @@ const depositSlice = createSlice({
             state.loading=true
         },
         createCustomerSBAccountSuccess:(state,action)=>{
-            state.deposit=action.payload
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         createCustomerSBAccountFailure:(state,action)=>{
             state.error=action.payload
@@ -251,8 +251,7 @@ const depositSlice = createSlice({
             state.loading=true
         },
         createCustomerFDAccountSuccess:(state,action)=>{
-            state.deposit=action.payload
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         createCustomerFDAccountFailure:(state,action)=>{
             state.error=action.payload
@@ -262,8 +261,7 @@ const depositSlice = createSlice({
             state.loading=true
         },
         editCustomerAccountSuccess:(state,action)=>{
-            state.deposit=action.payload
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         editCustomerAccountFailure:(state,action)=>{
             state.error=action.payload
@@ -273,8 +271,7 @@ const depositSlice = createSlice({
             state.loading=true
         },
         editCustomerSBAccountSuccess:(state,action)=>{
-            state.deposit=action.payload
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         editCustomerSBAccountFailure:(state,action)=>{
             state.error=action.payload
@@ -284,8 +281,7 @@ const depositSlice = createSlice({
             state.loading=true
         },
         editCustomerFDAccountSuccess:(state,action)=>{
-            state.deposit=action.payload
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
         editCustomerFDAccountFailure:(state,action)=>{
             state.error=action.payload
@@ -298,11 +294,11 @@ const depositSlice = createSlice({
             state.loading = true
         },
        updatePhoneSuccess:(state,action)=>{
-            state.deposit= action.payload;
-            state.loading=false
+            applyActionSuccessPayload(state, action.payload)
         },
        updatePhoneFailure:(state,action)=>{
             state.error = action.payload
+            state.loading=false
         }
     }
 })
