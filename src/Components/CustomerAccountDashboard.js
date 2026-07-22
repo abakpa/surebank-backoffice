@@ -1187,6 +1187,9 @@ if(selectedAccount){
     const projectedWalletBalance = replacementWillBePaid
       ? walletAfterOldPaymentReversal - replacementSubtotal
       : walletAfterOldPaymentReversal;
+    const replacementReadyForSummary = Boolean(
+      selectedReplacementProduct && (activeReplacementVariations.length === 0 || replacementVariationId)
+    );
     const filteredReplacementProducts = ecommerceProducts.filter((product) => {
       const search = replacementSearch.trim().toLowerCase();
       if (!search) return true;
@@ -3255,37 +3258,47 @@ if(selectedAccount){
                     </div>
                   )}
                 </div>
-                <div className="rounded bg-gray-50 p-3 text-sm">
-                  <div className="flex justify-between gap-3">
-                    <span className="text-gray-500">Qty</span>
-                    <b>{replacementQuantity}</b>
-                  </div>
-                  <div className="mt-1 flex justify-between gap-3">
-                    <span className="text-gray-500">New total</span>
-                    <b className="text-green-700">{formatCurrency(replacementSubtotal)}</b>
-                  </div>
-                  {replacePaidAmount > 0 && (
-                    <div className="mt-1 flex justify-between gap-3">
-                      <span className="text-gray-500">Old payment reversed</span>
-                      <b className="text-green-700">{formatCurrency(replacePaidAmount)}</b>
+                {replacementReadyForSummary ? (
+                  <div className="rounded-xl border border-blue-100 bg-blue-50 p-3 text-sm shadow-sm">
+                    <p className="mb-2 text-xs font-bold uppercase text-blue-700">Replacement Summary</p>
+                    <div className="flex justify-between gap-3">
+                      <span className="text-gray-600">Qty</span>
+                      <b>{replacementQuantity}</b>
                     </div>
-                  )}
-                  <div className="mt-1 flex justify-between gap-3">
-                    <span className="text-gray-500">New item payment</span>
-                    <b className={replacementWillBePaid ? "text-green-700" : "text-gray-700"}>
-                      {replacementWillBePaid ? formatCurrency(replacementSubtotal) : "Waiting for payment"}
-                    </b>
+                    <div className="mt-1 flex justify-between gap-3">
+                      <span className="text-gray-600">New total</span>
+                      <b className="text-green-700">{formatCurrency(replacementSubtotal)}</b>
+                    </div>
+                    {replacePaidAmount > 0 && (
+                      <div className="mt-1 flex justify-between gap-3">
+                        <span className="text-gray-600">Old payment reversed</span>
+                        <b className="text-green-700">{formatCurrency(replacePaidAmount)}</b>
+                      </div>
+                    )}
+                    <div className="mt-1 flex justify-between gap-3">
+                      <span className="text-gray-600">New item payment</span>
+                      <b className={replacementWillBePaid ? "text-green-700" : "text-gray-700"}>
+                        {replacementWillBePaid ? formatCurrency(replacementSubtotal) : "Waiting for payment"}
+                      </b>
+                    </div>
+                    <div className="mt-1 flex justify-between gap-3">
+                      <span className="text-gray-600">Wallet after change</span>
+                      <b className="text-purple-700">{formatCurrency(projectedWalletBalance)}</b>
+                    </div>
                   </div>
-                  <div className="mt-1 flex justify-between gap-3">
-                    <span className="text-gray-500">Wallet after change</span>
-                    <b className="text-purple-700">{formatCurrency(projectedWalletBalance)}</b>
+                ) : (
+                  <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-3 text-xs font-semibold text-gray-500">
+                    {activeReplacementVariations.length > 0
+                      ? "Select a variation to see the replacement summary."
+                      : "Select a product to see the replacement summary."}
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )}
 
-          <div className="mt-5 flex justify-end gap-3">
+          {replacementReadyForSummary && (
+          <div className="sticky bottom-0 mt-5 flex justify-end gap-3 border-t border-gray-100 bg-white py-3">
             <button
               type="button"
               onClick={handleCloseSBProductReplaceModal}
@@ -3306,6 +3319,7 @@ if(selectedAccount){
               {replaceLoading ? "Changing..." : "Change Product"}
             </button>
           </div>
+          )}
         </div>
       </div>
     </div>
