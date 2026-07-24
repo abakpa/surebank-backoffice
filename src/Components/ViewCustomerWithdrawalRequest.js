@@ -55,19 +55,26 @@ const ViewCustomerWithdrawalRequest = () => {
     const [filteredCustomers, setFilteredCustomers] = useState([]);
     const [showError, setShowError] = useState(false);
     const [copiedId, setCopiedId] = useState(null);
+    const [showHistoryModal, setShowHistoryModal] = useState(false);
     const requestList = useMemo(() => (Array.isArray(customers) ? customers : []), [customers]);
+    const activeRequests = useMemo(() => (
+        filteredCustomers.filter((customer) => String(customer?.status || '').toLowerCase() !== 'completed')
+    ), [filteredCustomers]);
+    const completedRequests = useMemo(() => (
+        filteredCustomers.filter((customer) => String(customer?.status || '').toLowerCase() === 'completed')
+    ), [filteredCustomers]);
 
     const visibleTotalAmount = useMemo(() => (
-        filteredCustomers.reduce((sum, customer) => sum + Number(customer?.amount || 0), 0)
-    ), [filteredCustomers]);
+        activeRequests.reduce((sum, customer) => sum + Number(customer?.amount || 0), 0)
+    ), [activeRequests]);
 
     const pendingCount = useMemo(() => (
-        filteredCustomers.filter((customer) => String(customer?.status || '').toLowerCase() === 'pending').length
-    ), [filteredCustomers]);
+        activeRequests.filter((customer) => String(customer?.status || '').toLowerCase() === 'pending').length
+    ), [activeRequests]);
 
     const processingCount = useMemo(() => (
-        filteredCustomers.filter((customer) => String(customer?.status || '').toLowerCase() === 'processing').length
-    ), [filteredCustomers]);
+        activeRequests.filter((customer) => String(customer?.status || '').toLowerCase() === 'processing').length
+    ), [activeRequests]);
 
     useEffect(() => {
         dispatch(fetchBranchRequest());
@@ -111,6 +118,42 @@ const ViewCustomerWithdrawalRequest = () => {
         setTimeout(() => setCopiedId(null), 2000);
     };
 
+    const renderCompletedRequestCard = (customer) => {
+        const statusMeta = getStatusMeta(customer?.status);
+
+        return (
+            <div key={customer?._id} className="overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-sm">
+                <div className="bg-gradient-to-r from-emerald-700 to-slate-900 p-3 text-white">
+                    <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                            <h3 className="truncate font-black">{getCustomerName(customer)}</h3>
+                            <p className="truncate text-xs text-emerald-50">{customer?.customerId?.phone || 'N/A'}</p>
+                        </div>
+                        <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-black ${statusMeta.badgeClass}`}>
+                            {statusMeta.label}
+                        </span>
+                    </div>
+                </div>
+                <div className="grid gap-2 p-3 text-sm">
+                    <div className="grid grid-cols-2 gap-2">
+                        <div className="rounded-xl bg-emerald-50 p-2">
+                            <p className="text-xs font-bold text-emerald-700">Amount</p>
+                            <p className="font-black text-emerald-900">₦{customer?.amount?.toLocaleString() || 'N/A'}</p>
+                        </div>
+                        <div className="rounded-xl bg-purple-50 p-2">
+                            <p className="text-xs font-bold text-purple-700">Package No.</p>
+                            <p className="truncate font-black text-purple-900">{customer?.packageNumber || 'N/A'}</p>
+                        </div>
+                    </div>
+                    <p className="text-slate-600"><span className="font-bold text-slate-900">Package:</span> {customer?.package || 'N/A'}</p>
+                    <p className="text-slate-600"><span className="font-bold text-slate-900">Method:</span> {customer?.channelOfWithdrawal || 'N/A'}</p>
+                    <p className="text-slate-600"><span className="font-bold text-slate-900">Branch:</span> {customer?.branchId?.name || 'N/A'}</p>
+                    <p className="text-xs font-semibold text-slate-500">Date: {new Date(customer?.createdAt).toLocaleDateString()}</p>
+                </div>
+            </div>
+        );
+    };
+
     const branchOptions = [
         { label: "All Branches", value: "all" },
         ...branches
@@ -118,6 +161,7 @@ const ViewCustomerWithdrawalRequest = () => {
             .map((branch) => ({ label: branch.name, value: branch._id }))
     ];
     return (
+        <>
         <div className="min-h-screen bg-slate-50 px-3 py-4 md:px-6 md:py-6">
             {showError && (
                 <div className="fixed top-4 left-0 right-0 z-50 flex justify-center animate-slideDown">
@@ -169,14 +213,18 @@ const ViewCustomerWithdrawalRequest = () => {
                 </section>
 
                 <section className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:p-4">
-                    <div className="grid gap-3 md:grid-cols-[minmax(220px,280px),minmax(260px,420px),auto] md:items-end">
-                        <Select2
-                            label="Filter by Branch"
-                            options={branchOptions}
-                            value={branchId}
-                            onChange={setBranchId}
-                            className="block w-full"
-                        />
+                    <div className="grid gap-3 md:grid-cols-[minmax(220px,280px),minmax(260px,420px),minmax(190px,230px),minmax(240px,280px)] md:items-end">
+                        <div>
+                            <div className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 transition focus-within:border-orange-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-orange-100">
+                                <Select2
+                                    label="Filter by Branch"
+                                    options={branchOptions}
+                                    value={branchId}
+                                    onChange={setBranchId}
+                                    className="block w-full"
+                                />
+                            </div>
+                        </div>
                         <div>
                             <label htmlFor="withdrawal-request-search" className="mb-1.5 block text-sm font-bold text-slate-700">
                                 Search
@@ -191,8 +239,15 @@ const ViewCustomerWithdrawalRequest = () => {
                             />
                         </div>
                         <div className="rounded-xl bg-sky-50 px-3 py-2.5 text-sm font-bold text-sky-800 ring-1 ring-sky-100">
-                            {filteredCustomers.length.toLocaleString()} request{filteredCustomers.length === 1 ? '' : 's'} shown
+                            {activeRequests.length.toLocaleString()} active request{activeRequests.length === 1 ? '' : 's'} shown
                         </div>
+                        <button
+                            type="button"
+                            onClick={() => setShowHistoryModal(true)}
+                            className="hidden w-full rounded-xl bg-gradient-to-r from-emerald-600 via-sky-600 to-purple-700 px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-slate-900/10 md:block"
+                        >
+                            Request Transaction History ({completedRequests.length.toLocaleString()})
+                        </button>
                     </div>
                 </section>
 
@@ -204,8 +259,8 @@ const ViewCustomerWithdrawalRequest = () => {
                     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg">
                         {/* Mobile Cards View */}
                         <div className="space-y-3 p-3 md:hidden">
-                            {filteredCustomers.length > 0 ? (
-                                filteredCustomers.map((customer) => {
+                            {activeRequests.length > 0 ? (
+                                activeRequests.map((customer) => {
                                     const statusMeta = getStatusMeta(customer?.status);
 
                                     return (
@@ -306,8 +361,8 @@ const ViewCustomerWithdrawalRequest = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 bg-white">
-                                        {filteredCustomers.length > 0 ? (
-                                            filteredCustomers.map((customer) => {
+                                        {activeRequests.length > 0 ? (
+                                            activeRequests.map((customer) => {
                                                 const statusMeta = getStatusMeta(customer?.status);
 
                                                 return (
@@ -399,8 +454,46 @@ const ViewCustomerWithdrawalRequest = () => {
                         </div>
                     </div>
                 )}
+                <div className="md:hidden">
+                    <button
+                        type="button"
+                        onClick={() => setShowHistoryModal(true)}
+                        className="w-full rounded-2xl bg-gradient-to-r from-emerald-600 via-sky-600 to-purple-700 px-4 py-3 text-sm font-black text-white shadow-lg shadow-slate-900/10"
+                    >
+                        Request Transaction History ({completedRequests.length.toLocaleString()})
+                    </button>
+                </div>
                 </div>
         </div>
+            {showHistoryModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-3">
+                    <div className="flex max-h-full w-full max-w-md flex-col overflow-hidden rounded-3xl bg-slate-50 shadow-2xl md:max-w-3xl">
+                        <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-white px-4 py-4">
+                            <div className="min-w-0">
+                                <p className="text-xs font-black uppercase text-emerald-700">Completed Requests</p>
+                                <h2 className="mt-0.5 text-lg font-black text-slate-950">Request Transaction History</h2>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowHistoryModal(false)}
+                                className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700"
+                            >
+                                Close
+                            </button>
+                        </div>
+                        <div className="flex-1 space-y-3 overflow-y-auto p-3">
+                            {completedRequests.length > 0 ? (
+                                completedRequests.map(renderCompletedRequestCard)
+                            ) : (
+                                <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-10 text-center text-sm font-semibold text-slate-500">
+                                    No completed request history found.
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
 };
 
