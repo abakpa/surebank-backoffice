@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
-import { fetchCustomerLoginCountRequest } from '../redux/slices/customerSlice';
+import { fetchCustomerLoginCountRequest, fetchCustomerNewCustomersRequest } from '../redux/slices/customerSlice';
 import Select2 from "./Select2";
+import CustomerAnalyticsNewCustomersModal from "./CustomerAnalyticsNewCustomersModal";
 
 const formatCurrency = (value) => `₦${Number(value || 0).toLocaleString("en-US")}`;
 const formatDate = (value) => {
@@ -23,13 +24,15 @@ const pickTop = (items, field) => (
 const ViewCustomerUsingApp = () => {
   const dispatch = useDispatch();
   const { branches } = useSelector((state) => state.branch);
-  const { loading, customers, error } = useSelector((state) => state.customer);
+  const { loading, customers, newCustomers: newCustomerRows, error } = useSelector((state) => state.customer);
   const [branchId, setBranchId] = useState('all');
   const [search, setSearch] = useState('');
+  const [showNewCustomersModal, setShowNewCustomersModal] = useState(false);
 
   useEffect(() => {
     dispatch(fetchBranchRequest());
     dispatch(fetchCustomerLoginCountRequest());
+    dispatch(fetchCustomerNewCustomersRequest());
   }, [dispatch]);
 
   const branchOptions = [
@@ -70,6 +73,21 @@ const ViewCustomerUsingApp = () => {
       bestSBCustomer: pickTop(filteredCustomers, "sbPurchaseTotal"),
     };
   }, [filteredCustomers]);
+
+  const newCustomers = useMemo(() => {
+    const normalizedSearch = search.trim().toLowerCase();
+    return (Array.isArray(newCustomerRows) ? newCustomerRows : []).filter((customer) => {
+      const branchMatch = branchId === 'all' || customer.branchId?._id === branchId;
+      const searchText = [
+        getCustomerName(customer),
+        customer?.customerId?.phone,
+        customer?.branchId?.name,
+        getRepName(customer),
+      ].filter(Boolean).join(" ").toLowerCase();
+
+      return branchMatch && (!normalizedSearch || searchText.includes(normalizedSearch));
+    });
+  }, [branchId, newCustomerRows, search]);
 
   if (error) {
     return (
@@ -114,22 +132,31 @@ const ViewCustomerUsingApp = () => {
           </div>
         </section>
 
-        <section className="grid gap-3 lg:grid-cols-3">
-          <div className="rounded-2xl border border-orange-100 bg-white p-4 shadow-sm">
-            <p className="text-xs font-black uppercase text-orange-600">Most Active Login</p>
-            <p className="mt-2 text-lg font-black text-slate-950">{getCustomerName(summary.bestLoginCustomer)}</p>
-            <p className="text-sm font-bold text-slate-500">{Number(summary.bestLoginCustomer?.count || 0).toLocaleString()} login(s)</p>
+        <section className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+          <div className="rounded-2xl border border-orange-100 bg-white p-3 shadow-sm sm:p-4">
+            <p className="text-[10px] font-black uppercase text-orange-600 sm:text-xs">Most Active Login</p>
+            <p className="mt-1 truncate text-sm font-black text-slate-950 sm:text-lg">{getCustomerName(summary.bestLoginCustomer)}</p>
+            <p className="text-xs font-bold text-slate-500 sm:text-sm">{Number(summary.bestLoginCustomer?.count || 0).toLocaleString()} login(s)</p>
           </div>
-          <div className="rounded-2xl border border-emerald-100 bg-white p-4 shadow-sm">
-            <p className="text-xs font-black uppercase text-emerald-600">Best DS Customer</p>
-            <p className="mt-2 text-lg font-black text-slate-950">{getCustomerName(summary.bestDSCustomer)}</p>
-            <p className="text-sm font-bold text-emerald-700">{formatCurrency(getPerformance(summary.bestDSCustomer).dsTotal)}</p>
+          <div className="rounded-2xl border border-emerald-100 bg-white p-3 shadow-sm sm:p-4">
+            <p className="text-[10px] font-black uppercase text-emerald-600 sm:text-xs">Best DS Customer</p>
+            <p className="mt-1 truncate text-sm font-black text-slate-950 sm:text-lg">{getCustomerName(summary.bestDSCustomer)}</p>
+            <p className="text-xs font-bold text-emerald-700 sm:text-sm">{formatCurrency(getPerformance(summary.bestDSCustomer).dsTotal)}</p>
           </div>
-          <div className="rounded-2xl border border-sky-100 bg-white p-4 shadow-sm">
-            <p className="text-xs font-black uppercase text-sky-600">Best Product Customer</p>
-            <p className="mt-2 text-lg font-black text-slate-950">{getCustomerName(summary.bestSBCustomer)}</p>
-            <p className="text-sm font-bold text-sky-700">{formatCurrency(getPerformance(summary.bestSBCustomer).sbPurchaseTotal)}</p>
+          <div className="rounded-2xl border border-sky-100 bg-white p-3 shadow-sm sm:p-4">
+            <p className="text-[10px] font-black uppercase text-sky-600 sm:text-xs">Best Product Customer</p>
+            <p className="mt-1 truncate text-sm font-black text-slate-950 sm:text-lg">{getCustomerName(summary.bestSBCustomer)}</p>
+            <p className="text-xs font-bold text-sky-700 sm:text-sm">{formatCurrency(getPerformance(summary.bestSBCustomer).sbPurchaseTotal)}</p>
           </div>
+          <button
+            type="button"
+            onClick={() => setShowNewCustomersModal(true)}
+            className="rounded-2xl border border-pink-100 bg-gradient-to-br from-pink-600 to-orange-500 p-3 text-left text-white shadow-sm transition hover:shadow-md sm:p-4"
+          >
+            <p className="text-[10px] font-black uppercase text-pink-50 sm:text-xs">New Customers</p>
+            <p className="mt-1 text-2xl font-black leading-none sm:text-3xl">{newCustomers.length.toLocaleString()}</p>
+            <p className="mt-1 text-xs font-bold text-pink-50 sm:text-sm">Opened in 30 days</p>
+          </button>
         </section>
 
         <section className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
@@ -211,6 +238,12 @@ const ViewCustomerUsingApp = () => {
           </section>
         )}
       </div>
+      {showNewCustomersModal && (
+        <CustomerAnalyticsNewCustomersModal
+          customers={newCustomers}
+          onClose={() => setShowNewCustomersModal(false)}
+        />
+      )}
     </div>
   );
 };

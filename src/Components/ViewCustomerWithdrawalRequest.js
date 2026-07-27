@@ -194,7 +194,7 @@ const ViewCustomerWithdrawalRequest = () => {
                                     Review customer payout requests, filter by branch, and process completed external payments.
                                 </p>
                             </div>
-                            <div className="grid grid-cols-3 gap-2 text-xs md:min-w-[420px] md:text-sm">
+                            <div className="grid grid-cols-2 gap-2 text-xs md:min-w-[420px] md:grid-cols-3 md:text-sm">
                                 <div className="rounded-2xl bg-orange-500 px-3 py-2 shadow-sm">
                                     <p className="text-orange-50">Pending</p>
                                     <p className="mt-1 text-xl font-black text-white">{pendingCount.toLocaleString()}</p>
@@ -203,9 +203,9 @@ const ViewCustomerWithdrawalRequest = () => {
                                     <p className="text-blue-50">Processing</p>
                                     <p className="mt-1 text-xl font-black text-white">{processingCount.toLocaleString()}</p>
                                 </div>
-                                <div className="rounded-2xl bg-emerald-600 px-3 py-2 shadow-sm">
+                                <div className="col-span-2 rounded-2xl bg-emerald-600 px-3 py-2 shadow-sm md:col-span-1">
                                     <p className="text-emerald-50">Amount</p>
-                                    <p className="mt-1 truncate text-xl font-black text-white">₦{visibleTotalAmount.toLocaleString()}</p>
+                                    <p className="mt-1 whitespace-normal break-words text-lg font-black leading-tight text-white sm:text-xl">₦{visibleTotalAmount.toLocaleString()}</p>
                                 </div>
                             </div>
                         </div>
