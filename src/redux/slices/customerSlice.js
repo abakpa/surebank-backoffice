@@ -11,6 +11,8 @@ const initialState = {
     },
     branchcustomers: [],
     ecommerceCustomers: [],
+    newCustomers: [],
+    newCustomersLoading: false,
     loading: false,
     error:null,
 };
@@ -65,6 +67,39 @@ const customerSlice = createSlice({
         },
         fetchRepCustomerLoginCountFailure:(state,action)=>{
             state.error = action.payload
+        },
+        fetchCustomerNewCustomersRequest:(state)=>{
+            state.newCustomersLoading = true
+        },
+        fetchCustomerNewCustomersSuccess:(state,action)=>{
+            state.newCustomers = action.payload;
+            state.newCustomersLoading=false
+        },
+        fetchCustomerNewCustomersFailure:(state,action)=>{
+            state.error = action.payload
+            state.newCustomersLoading=false
+        },
+        fetchBranchCustomerNewCustomersRequest:(state)=>{
+            state.newCustomersLoading = true
+        },
+        fetchBranchCustomerNewCustomersSuccess:(state,action)=>{
+            state.newCustomers = action.payload;
+            state.newCustomersLoading=false
+        },
+        fetchBranchCustomerNewCustomersFailure:(state,action)=>{
+            state.error = action.payload
+            state.newCustomersLoading=false
+        },
+        fetchRepCustomerNewCustomersRequest:(state)=>{
+            state.newCustomersLoading = true
+        },
+        fetchRepCustomerNewCustomersSuccess:(state,action)=>{
+            state.newCustomers = action.payload;
+            state.newCustomersLoading=false
+        },
+        fetchRepCustomerNewCustomersFailure:(state,action)=>{
+            state.error = action.payload
+            state.newCustomersLoading=false
         },
         fetchCustomerWithdrawalRequestRequest:(state)=>{
             state.loading = true
@@ -218,6 +253,15 @@ export const {
     fetchRepCustomerLoginCountRequest,
     fetchRepCustomerLoginCountSuccess,
     fetchRepCustomerLoginCountFailure,
+    fetchCustomerNewCustomersRequest,
+    fetchCustomerNewCustomersSuccess,
+    fetchCustomerNewCustomersFailure,
+    fetchBranchCustomerNewCustomersRequest,
+    fetchBranchCustomerNewCustomersSuccess,
+    fetchBranchCustomerNewCustomersFailure,
+    fetchRepCustomerNewCustomersRequest,
+    fetchRepCustomerNewCustomersSuccess,
+    fetchRepCustomerNewCustomersFailure,
     fetchCustomerWithdrawalRequestRequest,
     fetchCustomerWithdrawalRequestSuccess,
     fetchCustomerWithdrawalRequestFailure,
