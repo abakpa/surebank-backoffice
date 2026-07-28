@@ -34,7 +34,6 @@ const Viewcustomer = () => {
 
   }, [dispatch,staffId]);
 
-  // Ensure customers is always an array
   const customerList = useMemo(() => (Array.isArray(customers) ? customers : []), [customers]);
 
   const handleSearch = (e) => {
