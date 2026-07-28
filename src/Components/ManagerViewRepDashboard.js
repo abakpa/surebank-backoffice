@@ -155,7 +155,7 @@ const ManagerViewRepDashboard = () => {
           </button>
         </Link>
   </h1>
-  <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-3">
+  <div className="dashboard-card-grid-divider dashboard-card-grid-divider-manager-view grid grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-3">
 
   {/* Card 4 - Yellow */}
   <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-yellow-200">

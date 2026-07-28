@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchBranchCustomerLoginCountRequest, fetchBranchCustomerNewCustomersRequest } from '../redux/slices/customerSlice';
 import CustomerAnalyticsNewCustomersModal from "./CustomerAnalyticsNewCustomersModal";
 
-const formatCurrency = (value) => `₦${Number(value || 0).toLocaleString("en-US")}`;
 const formatDate = (value) => {
     if (!value) return "Never";
     return new Date(value).toLocaleString();
@@ -14,11 +13,6 @@ const getCustomerName = (customer) => (
 const getRepName = (customer) => (
     [customer?.accountManager?.firstName, customer?.accountManager?.lastName].filter(Boolean).join(" ") || "Ecommerce"
 );
-const getPerformance = (customer) => customer?.performance || {};
-const pickTop = (items, field) => (
-    [...items].sort((a, b) => Number(getPerformance(b)[field] || 0) - Number(getPerformance(a)[field] || 0))[0] || null
-);
-
 const ViewBranchCustomerUsingApp = () => {
     const dispatch = useDispatch();
     const { loading, customers, newCustomers: newCustomerRows, error } = useSelector((state) => state.customer);
@@ -48,17 +42,11 @@ const ViewBranchCustomerUsingApp = () => {
     const summary = useMemo(() => {
         const totalCustomers = filteredCustomers.length;
         const totalLogins = filteredCustomers.reduce((sum, customer) => sum + Number(customer?.count || 0), 0);
-        const totalDS = filteredCustomers.reduce((sum, customer) => sum + Number(getPerformance(customer).dsTotal || 0), 0);
-        const totalSB = filteredCustomers.reduce((sum, customer) => sum + Number(getPerformance(customer).sbPurchaseTotal || 0), 0);
 
         return {
             totalCustomers,
             totalLogins,
-            totalDS,
-            totalSB,
             bestLoginCustomer: [...filteredCustomers].sort((a, b) => Number(b?.count || 0) - Number(a?.count || 0))[0] || null,
-            bestDSCustomer: pickTop(filteredCustomers, "dsTotal"),
-            bestSBCustomer: pickTop(filteredCustomers, "sbPurchaseTotal"),
         };
     }, [filteredCustomers]);
 
@@ -94,13 +82,13 @@ const ViewBranchCustomerUsingApp = () => {
                             <p className="text-xs font-black uppercase text-blue-300">Branch Customer App Usage</p>
                             <h1 className="mt-1 text-2xl font-black sm:text-3xl">Customer Performance Dashboard</h1>
                             <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-slate-200">
-                                Track ecommerce customer logins, DS contribution performance, and SB product purchase performance for your branch.
+                                Track ecommerce customer logins and new customer activity for your branch.
                             </p>
                         </div>
                     </div>
                 </section>
 
-                <section className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-4">
+                <section className="grid grid-cols-2 gap-2 sm:gap-4">
                     <div className="rounded-2xl bg-orange-500 p-3 text-white shadow-sm sm:p-4">
                         <p className="text-[10px] font-black uppercase text-orange-50 sm:text-xs">Customers Using App</p>
                         <p className="mt-1 text-xl font-black sm:text-2xl">{summary.totalCustomers.toLocaleString()}</p>
@@ -109,31 +97,13 @@ const ViewBranchCustomerUsingApp = () => {
                         <p className="text-[10px] font-black uppercase text-purple-100 sm:text-xs">Total Logins</p>
                         <p className="mt-1 text-xl font-black sm:text-2xl">{summary.totalLogins.toLocaleString()}</p>
                     </div>
-                    <div className="rounded-2xl bg-emerald-600 p-3 text-white shadow-sm sm:p-4">
-                        <p className="text-[10px] font-black uppercase text-emerald-50 sm:text-xs">DS Performance</p>
-                        <p className="mt-1 text-lg font-black sm:text-2xl">{formatCurrency(summary.totalDS)}</p>
-                    </div>
-                    <div className="rounded-2xl bg-sky-600 p-3 text-white shadow-sm sm:p-4">
-                        <p className="text-[10px] font-black uppercase text-sky-50 sm:text-xs">Product Purchase</p>
-                        <p className="mt-1 text-lg font-black sm:text-2xl">{formatCurrency(summary.totalSB)}</p>
-                    </div>
                 </section>
 
-                <section className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+                <section className="grid grid-cols-2 gap-2 sm:gap-3">
                     <div className="rounded-2xl border border-orange-100 bg-white p-3 shadow-sm sm:p-4">
                         <p className="text-[10px] font-black uppercase text-orange-600 sm:text-xs">Most Active Login</p>
                         <p className="mt-1 truncate text-sm font-black text-slate-950 sm:text-lg">{getCustomerName(summary.bestLoginCustomer)}</p>
                         <p className="text-xs font-bold text-slate-500 sm:text-sm">{Number(summary.bestLoginCustomer?.count || 0).toLocaleString()} login(s)</p>
-                    </div>
-                    <div className="rounded-2xl border border-emerald-100 bg-white p-3 shadow-sm sm:p-4">
-                        <p className="text-[10px] font-black uppercase text-emerald-600 sm:text-xs">Best DS Customer</p>
-                        <p className="mt-1 truncate text-sm font-black text-slate-950 sm:text-lg">{getCustomerName(summary.bestDSCustomer)}</p>
-                        <p className="text-xs font-bold text-emerald-700 sm:text-sm">{formatCurrency(getPerformance(summary.bestDSCustomer).dsTotal)}</p>
-                    </div>
-                    <div className="rounded-2xl border border-sky-100 bg-white p-3 shadow-sm sm:p-4">
-                        <p className="text-[10px] font-black uppercase text-sky-600 sm:text-xs">Best Product Customer</p>
-                        <p className="mt-1 truncate text-sm font-black text-slate-950 sm:text-lg">{getCustomerName(summary.bestSBCustomer)}</p>
-                        <p className="text-xs font-bold text-sky-700 sm:text-sm">{formatCurrency(getPerformance(summary.bestSBCustomer).sbPurchaseTotal)}</p>
                     </div>
                     <button
                         type="button"
@@ -164,7 +134,7 @@ const ViewBranchCustomerUsingApp = () => {
                 ) : (
                     <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
                         <div className="overflow-x-auto">
-                            <table className="min-w-[980px] divide-y divide-slate-200 text-sm">
+                            <table className="min-w-[720px] divide-y divide-slate-200 text-sm">
                                 <thead className="bg-slate-50">
                                     <tr className="text-left text-xs font-black uppercase text-slate-500">
                                         <th className="px-4 py-3">Customer</th>
@@ -172,16 +142,11 @@ const ViewBranchCustomerUsingApp = () => {
                                         <th className="px-4 py-3">Rep</th>
                                         <th className="px-4 py-3">Last Login</th>
                                         <th className="px-4 py-3">Logins</th>
-                                        <th className="px-4 py-3">DS Total</th>
-                                        <th className="px-4 py-3">Product Purchase</th>
-                                        <th className="px-4 py-3">Combined</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 bg-white">
                                     {filteredCustomers.length > 0 ? (
-                                        filteredCustomers.map((customer) => {
-                                            const performance = getPerformance(customer);
-                                            return (
+                                        filteredCustomers.map((customer) => (
                                                 <tr key={customer?._id} className="hover:bg-blue-50/40">
                                                     <td className="px-4 py-4">
                                                         <p className="font-black text-slate-950">{getCustomerName(customer)}</p>
@@ -195,15 +160,11 @@ const ViewBranchCustomerUsingApp = () => {
                                                             {Number(customer?.count || 0).toLocaleString()}
                                                         </span>
                                                     </td>
-                                                    <td className="whitespace-nowrap px-4 py-4 font-black text-emerald-700">{formatCurrency(performance.dsTotal)}</td>
-                                                    <td className="whitespace-nowrap px-4 py-4 font-black text-sky-700">{formatCurrency(performance.sbPurchaseTotal)}</td>
-                                                    <td className="whitespace-nowrap px-4 py-4 font-black text-orange-600">{formatCurrency(performance.combinedTotal)}</td>
                                                 </tr>
-                                            );
-                                        })
+                                        ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="8" className="px-4 py-10 text-center text-sm font-semibold text-slate-500">
+                                            <td colSpan="5" className="px-4 py-10 text-center text-sm font-semibold text-slate-500">
                                                 No customers found for the selected filter.
                                             </td>
                                         </tr>

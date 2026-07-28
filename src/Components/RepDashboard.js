@@ -177,7 +177,7 @@ const RepDashboard = () => {
 <div className="p-3 sm:p-6">
   {loading && <Loader />}
   <h1 className="text-base sm:text-xl font-bold mb-4 mt-10 text-center">Rep Dashboard</h1>
-  <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-3">
+  <div className={`dashboard-card-grid-divider ${loggedInStaffRole === 'Agent' ? 'dashboard-card-grid-divider-rep-agent' : 'dashboard-card-grid-divider-rep-standard'} grid grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-3`}>
 
   {/* Card 4 - Yellow */}
   {loggedInStaffRole === 'Agent' && (
