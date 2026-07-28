@@ -6,6 +6,9 @@ import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import { fetchStaffRequest } from "../redux/slices/staffSlice";
 import Select2 from "./Select2";
 
+const normalizePhoneNumber = (value = "") => String(value || "").replace(/\D/g, "").slice(0, 11);
+const isValidPhoneNumber = (value = "") => /^\d{11}$/.test(value);
+
 const CreateCustomer = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -48,12 +51,40 @@ const CreateCustomer = () => {
     dispatch(fetchStaffRequest());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (staffRole !== "Admin" || !accountManagerId) return;
+
+    const selectedStaff = staffs.find((staff) => staff._id === accountManagerId);
+    const selectedStaffBranchId = typeof selectedStaff?.branchId === "object"
+      ? selectedStaff.branchId?._id
+      : selectedStaff?.branchId;
+
+    if (selectedStaffBranchId && selectedStaffBranchId !== branchId) {
+      setAccountManagerId("");
+    }
+  }, [accountManagerId, branchId, staffRole, staffs]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setValidationError("");
 
     if (password.length < 6) {
       setValidationError("Password must be at least 6 characters");
+      return;
+    }
+
+    if (!isValidPhoneNumber(phone)) {
+      setValidationError("Phone number must be exactly 11 digits");
+      return;
+    }
+
+    if (staffRole === "Admin" && !branchId) {
+      setValidationError("Please select a branch before creating the customer");
+      return;
+    }
+
+    if (staffRole === "Admin" && !accountManagerId) {
+      setValidationError("Please select an account rep before creating the customer");
       return;
     }
 
@@ -86,7 +117,16 @@ const CreateCustomer = () => {
 
   // Only show non-admins as selectable staff
   const accountManagerOptions = staffs
-  .filter((staff) => staff.role !== "Admin")
+  .filter((staff) => {
+    if (staff.role === "Admin") return false;
+    if (staffRole !== "Admin") return true;
+
+    const staffBranchId = typeof staff.branchId === "object"
+      ? staff.branchId?._id
+      : staff.branchId;
+
+    return branchId && String(staffBranchId || "") === String(branchId);
+  })
   .map((staff) => ({
     label: `${staff.firstName} ${staff.lastName}`,
     value: staff._id,
@@ -152,10 +192,13 @@ const CreateCustomer = () => {
             id="phone"
             type="text"
             value={phone}
-            onChange={(e) => setPhone(e.target.value.replace(/\s+/g, ''))}
+            inputMode="numeric"
+            maxLength={11}
+            onChange={(e) => setPhone(normalizePhoneNumber(e.target.value))}
             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-600"
             required
           />
+          <p className="mt-1 text-xs text-gray-500">Exactly 11 digits</p>
         </div>
 
         {/* Password */}
@@ -202,7 +245,10 @@ const CreateCustomer = () => {
               label="Branch"
               options={branchOptions}
               value={branchId}
-              onChange={setBranchId}
+              onChange={(selectedBranchId) => {
+                setBranchId(selectedBranchId);
+                setAccountManagerId("");
+              }}
             />
           </div>
         )}
