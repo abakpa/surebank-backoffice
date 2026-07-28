@@ -13,6 +13,7 @@ const initialState = {
     ecommerceCustomers: [],
     newCustomers: [],
     newCustomersLoading: false,
+    newCustomersError: null,
     loading: false,
     error:null,
 };
@@ -70,35 +71,44 @@ const customerSlice = createSlice({
         },
         fetchCustomerNewCustomersRequest:(state)=>{
             state.newCustomersLoading = true
+            state.newCustomersError = null
         },
         fetchCustomerNewCustomersSuccess:(state,action)=>{
             state.newCustomers = action.payload;
             state.newCustomersLoading=false
+            state.newCustomersError = null
         },
         fetchCustomerNewCustomersFailure:(state,action)=>{
-            state.error = action.payload
+            state.newCustomersError = action.payload
+            state.newCustomers = []
             state.newCustomersLoading=false
         },
         fetchBranchCustomerNewCustomersRequest:(state)=>{
             state.newCustomersLoading = true
+            state.newCustomersError = null
         },
         fetchBranchCustomerNewCustomersSuccess:(state,action)=>{
             state.newCustomers = action.payload;
             state.newCustomersLoading=false
+            state.newCustomersError = null
         },
         fetchBranchCustomerNewCustomersFailure:(state,action)=>{
-            state.error = action.payload
+            state.newCustomersError = action.payload
+            state.newCustomers = []
             state.newCustomersLoading=false
         },
         fetchRepCustomerNewCustomersRequest:(state)=>{
             state.newCustomersLoading = true
+            state.newCustomersError = null
         },
         fetchRepCustomerNewCustomersSuccess:(state,action)=>{
             state.newCustomers = action.payload;
             state.newCustomersLoading=false
+            state.newCustomersError = null
         },
         fetchRepCustomerNewCustomersFailure:(state,action)=>{
-            state.error = action.payload
+            state.newCustomersError = action.payload
+            state.newCustomers = []
             state.newCustomersLoading=false
         },
         fetchCustomerWithdrawalRequestRequest:(state)=>{
