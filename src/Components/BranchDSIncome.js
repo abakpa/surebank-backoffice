@@ -35,7 +35,6 @@ const BranchDSIncome = () => {
     <div className="flex flex-col p-4 bg-gray-100 min-h-screen w-full mt-10">
       <h2 className="text-xl font-bold mb-4 text-center">DS Income Statement</h2>
       
-      {/* Search and Create Buttons */}
       <div className="flex flex-col md:flex-row items-center justify-between mb-4 gap-2">
         <input
           type="text"
