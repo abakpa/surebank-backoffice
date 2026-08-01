@@ -18,7 +18,6 @@ const BranchExpenditureReport = () => {
   }, [dispatch]);
 
 
-  // Ensure customers is always an array
   const expenditureList = useMemo(() => (Array.isArray(branchexpenditurereport) ? branchexpenditurereport : []), [branchexpenditurereport]);
 
   const handleSearch = (e) => {
