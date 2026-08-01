@@ -14,15 +14,25 @@ import {
 } from '../slices/orderSlice'
 import { url } from './url'
 
-function* fetchOrderSaga(){
+function* fetchOrderSaga(action){
     try {
+        const params = action?.payload || {};
         const token = localStorage.getItem('authToken');
         const config = {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         }
-        const response = yield call(axios.post, `${url}/api/admindashboard/order`,{},config)
+        const response = yield call(
+          axios.post,
+          `${url}/api/admindashboard/order`,
+          {
+            page: params.page || 1,
+            limit: params.limit || 25,
+            search: params.search || '',
+          },
+          config
+        )
         console.log("saga order",response)
         yield put(fetchOrderSuccess(response.data))
     } catch (error) {

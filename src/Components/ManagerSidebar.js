@@ -4,11 +4,14 @@ import { useSelector, useDispatch } from "react-redux";
 import { logoutRequest } from "../redux/slices/loginSlice";
 import { useNavigate } from "react-router-dom";
 
-const ManagerSidebar = ({ isOpen, toggleSidebar }) => {
+const ManagerSidebar = ({ isOpen, toggleSidebar, role }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isLoggedIn = useSelector((state) => state.login.token);
   const token = isLoggedIn || localStorage.getItem("authToken");
+  const normalizedRole = role === "Product Manager" || role === "ProductManager" || role === "SubAdmin"
+    ? "ProductManager"
+    : role;
   // const loggedInStaffRole = useSelector((state) => state.login.staff?.role) || localStorage.getItem("staffRole");
 
   const handleLogout = () => {
@@ -22,19 +25,37 @@ const ManagerSidebar = ({ isOpen, toggleSidebar }) => {
 
   return (
     <div
-      className={`fixed inset-y-0 left-0 w-64 bg-gray-800 text-white p-4 mt-12 transform ${
+      className={`app-sidebar fixed inset-y-0 left-0 w-64 p-4 mt-12 transform ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       } transition-transform lg:translate-x-0 lg:relative lg:block z-20`}
     >
       {/* Close Button */}
       <button
-        className="lg:hidden absolute top-4 right-4 text-white bg-gray-700 rounded-full p-2"
+        className="theme-icon-button lg:hidden absolute top-4 right-4 rounded-full p-2"
         onClick={toggleSidebar}
       >
         ✕
       </button>
-      <h2 className="text-xl font-bold mb-6">Sidebar</h2>
+      <h2 className="text-xl font-bold mb-6">Navigation</h2>
       <ul>
+        {normalizedRole === "ProductManager" ? (
+          <>
+            <li className="theme-sidebar-section mt-4 mb-2 text-xs uppercase tracking-wider">
+              Product Management
+            </li>
+            <Link to="/products" className="text-xs">
+              <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+                Products
+              </li>
+            </Link>
+            <Link to="/categories" className="text-xs">
+              <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+                Categories
+              </li>
+            </Link>
+          </>
+        ) : (
+          <>
         <Link to="/managerdashboard">
         <li
           className="hover:bg-gray-700 p-2 rounded cursor-pointer text-xs"
@@ -81,6 +102,28 @@ const ManagerSidebar = ({ isOpen, toggleSidebar }) => {
           Order
           </li>
         </Link>
+
+        {/* E-Commerce Section */}
+        <li className="theme-sidebar-section mt-4 mb-2 text-xs uppercase tracking-wider">
+          E-Commerce
+        </li>
+        <Link to="/products" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            Products
+          </li>
+        </Link>
+        <Link to="/ecommerce-orders" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            E-Commerce Orders
+          </li>
+        </Link>
+        <Link to="/product-action-requests" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            Product Actions
+          </li>
+        </Link>
+          </>
+        )}
 
         {/* Login/Logout Buttons (only on small screens) */}
         <div className="block lg:hidden">

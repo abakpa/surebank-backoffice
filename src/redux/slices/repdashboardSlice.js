@@ -7,12 +7,18 @@ const initialState = {
     repdailysb: null,
     reptotaldailysbandds: null,
     repdswithdrawal: null,
+    repFWWithdrawal: null,
     repdspackage: null,
     repsbpackage: null,
     reppackages: null,
     fdpackage: null,
     fdcontribution: null,
     reptotalexpenditure: null,
+    repEcommerceDeposit: null,
+    repEcommerceDSDeposit: null,
+    repEcommerceDepositReport: [],
+    repEcommerceDSDepositReport: [],
+    repFWWithdrawalReport: [],
     loading: false,
     error:null,
     referral:null
@@ -71,6 +77,26 @@ const dashboardSlice = createSlice({
             state.loading=false
         },
         fetchRepDSWithdrawalFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchRepFWWithdrawalRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepFWWithdrawalSuccess:(state,action)=>{
+            state.repFWWithdrawal= action.payload;
+            state.loading=false
+        },
+        fetchRepFWWithdrawalFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchRepFWWithdrawalReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepFWWithdrawalReportSuccess:(state,action)=>{
+            state.repFWWithdrawalReport= action.payload;
+            state.loading=false
+        },
+        fetchRepFWWithdrawalReportFailure:(state,action)=>{
             state.error = action.payload
         },
         fetchRepDSpackageRequest:(state)=>{
@@ -133,6 +159,48 @@ const dashboardSlice = createSlice({
         fetchReferralFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchRepEcommerceDepositRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepEcommerceDepositSuccess:(state,action)=>{
+            state.repEcommerceDeposit = action.payload;
+            state.loading = false
+        },
+        fetchRepEcommerceDepositFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchRepEcommerceDepositReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepEcommerceDepositReportSuccess:(state,action)=>{
+            state.repEcommerceDepositReport = action.payload;
+            state.loading = false
+        },
+        fetchRepEcommerceDepositReportFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchRepEcommerceDSDepositRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepEcommerceDSDepositSuccess:(state,action)=>{
+            state.repEcommerceDSDeposit = action.payload;
+            state.loading = false
+        },
+        fetchRepEcommerceDSDepositFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
+        fetchRepEcommerceDSDepositReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchRepEcommerceDSDepositReportSuccess:(state,action)=>{
+            state.repEcommerceDSDepositReport = action.payload;
+            state.loading = false
+        },
+        fetchRepEcommerceDSDepositReportFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
     
     }
 })
@@ -154,6 +222,12 @@ export const {
     fetchRepDSWithdrawalRequest,
     fetchRepDSWithdrawalSuccess,
     fetchRepDSWithdrawalFailure,
+    fetchRepFWWithdrawalRequest,
+    fetchRepFWWithdrawalSuccess,
+    fetchRepFWWithdrawalFailure,
+    fetchRepFWWithdrawalReportRequest,
+    fetchRepFWWithdrawalReportSuccess,
+    fetchRepFWWithdrawalReportFailure,
     fetchRepDSpackageRequest,
     fetchRepDSpackageSuccess,
     fetchRepDSpackageFailure,
@@ -172,6 +246,18 @@ export const {
     fetchReferralRequest,
     fetchReferralSuccess,
     fetchReferralFailure,
+    fetchRepEcommerceDepositRequest,
+    fetchRepEcommerceDepositSuccess,
+    fetchRepEcommerceDepositFailure,
+    fetchRepEcommerceDepositReportRequest,
+    fetchRepEcommerceDepositReportSuccess,
+    fetchRepEcommerceDepositReportFailure,
+    fetchRepEcommerceDSDepositRequest,
+    fetchRepEcommerceDSDepositSuccess,
+    fetchRepEcommerceDSDepositFailure,
+    fetchRepEcommerceDSDepositReportRequest,
+    fetchRepEcommerceDSDepositReportSuccess,
+    fetchRepEcommerceDSDepositReportFailure,
  
 } = dashboardSlice.actions
 

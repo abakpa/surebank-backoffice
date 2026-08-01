@@ -9,7 +9,13 @@ const Tablehead = () => {
           <th className="border border-gray-300 p-2">Phone</th>
           <th className="border border-gray-300 p-2">Role</th>
           {viewDeactivateAndResetPassword && (
+          <th className="border border-gray-300 p-2">Change Role</th>
+        )}
+          {viewDeactivateAndResetPassword && (
           <th className="border border-gray-300 p-2">Branch</th>
+        )}
+          {viewDeactivateAndResetPassword && (
+          <th className="border border-gray-300 p-2">Signature</th>
         )}
 
           {viewDeactivateAndResetPassword && (

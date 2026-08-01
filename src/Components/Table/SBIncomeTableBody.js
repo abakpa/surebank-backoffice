@@ -7,6 +7,19 @@ import { useNavigate } from "react-router-dom";
 //   return branch ? branch.name : "Unknown Branch";
 // };
 
+const formatDate = (value) => {
+  if (!value) return "N/A";
+
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) return value;
+
+  return parsedDate.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
 const Tablebody = ({ customers = [], branches = [] }) => { // Default values for props
   const navigate = useNavigate();
 
@@ -23,13 +36,16 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
         className={`text-center hover:bg-gray-100 cursor-pointer ${
           customer.narration === "DS Charge Reversal" ? "text-red-600 font-semibold" : ""
         }`}
-        onClick={() => handleRowClick(customer.customerId._id)}
+        onClick={() => customer.customerId?._id && handleRowClick(customer.customerId._id)}
       >
-        <td className="border border-gray-300 p-2">
-          {customer.customerId.firstName} {customer.customerId.lastName}
+        <td className="border border-gray-300 p-2 whitespace-nowrap">
+          {formatDate(customer.date || customer.createdAt)}
         </td>
         <td className="border border-gray-300 p-2">
-          {customer.customerId.branchId.name}
+          {customer.customerId?.firstName} {customer.customerId?.lastName}
+        </td>
+        <td className="border border-gray-300 p-2">
+          {customer.customerId?.branchId?.name}
         </td>
         <td className="border border-gray-300 p-2">
           {customer.narration}

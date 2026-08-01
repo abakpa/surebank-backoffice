@@ -3,13 +3,13 @@ import { useDispatch } from "react-redux";
 import { resetCustomerPasswordRequest } from "../../redux/slices/customerSlice";
 
 const rowColors = [
-  "bg-blue-100 text-blue-800",
-  "bg-green-100 text-green-800",
-  "bg-purple-100 text-purple-800",
-  "bg-pink-100 text-pink-800",
-  "bg-indigo-100 text-indigo-800",
-  "bg-teal-100 text-teal-800",
-  "bg-orange-100 text-orange-800",
+  "bg-sky-50 text-sky-900",
+  "bg-emerald-50 text-emerald-900",
+  "bg-purple-50 text-purple-900",
+  "bg-orange-50 text-orange-900",
+  "bg-indigo-50 text-indigo-900",
+  "bg-teal-50 text-teal-900",
+  "bg-rose-50 text-rose-900",
 ];
 
 const Tablebody = ({ customers = [], branches = [] }) => {
@@ -17,6 +17,13 @@ const Tablebody = ({ customers = [], branches = [] }) => {
   const dispatch = useDispatch();
   const role = localStorage.getItem("staffRole");
   const isManagerOrAgent = role === "Manager" || role === "Agent";
+  const isAdmin = role === "Admin";
+  const branchLookup = Array.isArray(branches)
+    ? branches.reduce((acc, branch) => {
+        acc[branch._id] = branch.name;
+        return acc;
+      }, {})
+    : branches;
 
   const handleRowClick = (customerId) => {
     navigate(`/customeraccountdashboard/${customerId}`);
@@ -31,55 +38,58 @@ const Tablebody = ({ customers = [], branches = [] }) => {
     dispatch(resetCustomerPasswordRequest(details));
   };
 
-  // Sort customers alphabetically by firstName + lastName
-  const sortedCustomers = [...customers].sort((a, b) => {
-    const nameA = `${a.firstName || ""} ${a.lastName || ""}`.toLowerCase();
-    const nameB = `${b.firstName || ""} ${b.lastName || ""}`.toLowerCase();
-    return nameA.localeCompare(nameB);
-  });
-
   return (
-    <tbody className="text-sm">
-      {Array.isArray(sortedCustomers) && sortedCustomers.length > 0 ? (
-        sortedCustomers.map((customer, index) => {
+    <tbody className="divide-y divide-slate-100 text-sm">
+      {Array.isArray(customers) && customers.length > 0 ? (
+        customers.map((customer, index) => {
           const rowStyle = rowColors[index % rowColors.length]; // cycle colors
           return (
             <tr
               key={customer._id || index}
-              className={`cursor-pointer transition-colors duration-200 ${rowStyle} hover:opacity-90`}
+              className={`cursor-pointer transition duration-200 ${rowStyle} hover:brightness-95`}
             >
               <td 
-                className="border border-gray-300 p-2"
+                className="px-4 py-3 font-black"
                 onClick={() => handleRowClick(customer._id)}
               >
                 {customer.firstName} {customer.lastName}
               </td>
               <td 
-                className="border border-gray-300 p-2"
+                className="max-w-[260px] px-4 py-3 font-semibold"
                 onClick={() => handleRowClick(customer._id)}
               >
                 {customer.address}
               </td>
               <td 
-                className="border border-gray-300 p-2"
+                className="px-4 py-3 font-black"
                 onClick={() => handleRowClick(customer._id)}
               >
                 {customer.phone}
               </td>
-              {!isManagerOrAgent && (
+              {isAdmin && (
                 <td 
-                  className="border border-gray-300 p-2"
+                  className="px-4 py-3 font-semibold"
                   onClick={() => handleRowClick(customer._id)}
                 >
-                  {branches.find(b => b._id === customer.branchId)?.name || "Unknown Branch"}
+                  {customer.email || "No email"}
                 </td>
               )}
               {!isManagerOrAgent && (
-                <td className="border border-gray-300 p-2">
+                <td 
+                  className="px-4 py-3"
+                  onClick={() => handleRowClick(customer._id)}
+                >
+                  <span className="rounded-full bg-white/75 px-3 py-1 text-xs font-black shadow-sm">
+                    {branchLookup?.[customer.branchId] || "Unknown Branch"}
+                  </span>
+                </td>
+              )}
+              {isAdmin && (
+                <td className="px-4 py-3">
                   <div className="flex justify-center">
                     <button
                       onClick={(e) => resetPassword(e, customer)}
-                      className={`px-3 py-1 rounded text-xs font-medium ${
+                      className={`rounded-full px-3 py-2 text-xs font-black shadow-sm ${
                         customer.updatePassword === "false"
                           ? "bg-green-600 text-white hover:bg-green-700"
                           : "bg-red-600 text-white hover:bg-red-700"
@@ -96,8 +106,8 @@ const Tablebody = ({ customers = [], branches = [] }) => {
       ) : (
         <tr>
           <td 
-            colSpan={isManagerOrAgent ? 4 : 5} 
-            className="text-center p-4 border border-gray-300"
+            colSpan={isManagerOrAgent ? 3 : isAdmin ? 6 : 4} 
+            className="p-6 text-center text-sm font-semibold text-slate-500"
           >
             No customers found.
           </td>

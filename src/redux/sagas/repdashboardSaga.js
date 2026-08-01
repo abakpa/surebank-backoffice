@@ -16,6 +16,12 @@ import {
     fetchRepDSWithdrawalRequest,
     fetchRepDSWithdrawalSuccess,
     fetchRepDSWithdrawalFailure,
+    fetchRepFWWithdrawalRequest,
+    fetchRepFWWithdrawalSuccess,
+    fetchRepFWWithdrawalFailure,
+    fetchRepFWWithdrawalReportRequest,
+    fetchRepFWWithdrawalReportSuccess,
+    fetchRepFWWithdrawalReportFailure,
     fetchRepDSpackageRequest,
     fetchRepDSpackageSuccess,
     fetchRepDSpackageFailure,
@@ -34,6 +40,18 @@ import {
         fetchReferralRequest,
     fetchReferralSuccess,
     fetchReferralFailure,
+    fetchRepEcommerceDepositRequest,
+    fetchRepEcommerceDepositSuccess,
+    fetchRepEcommerceDepositFailure,
+    fetchRepEcommerceDepositReportRequest,
+    fetchRepEcommerceDepositReportSuccess,
+    fetchRepEcommerceDepositReportFailure,
+    fetchRepEcommerceDSDepositRequest,
+    fetchRepEcommerceDSDepositSuccess,
+    fetchRepEcommerceDSDepositFailure,
+    fetchRepEcommerceDSDepositReportRequest,
+    fetchRepEcommerceDSDepositReportSuccess,
+    fetchRepEcommerceDSDepositReportFailure,
   
 } from '../slices/repdashboardSlice'
 import { url } from './url'
@@ -136,6 +154,44 @@ function* fetchRepDSWithdrawalSaga(action) {
             window.location.href = '/login';
           }
         yield put(fetchRepDSWithdrawalFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+function* fetchRepFWWithdrawalSaga(action) {
+    const { details20 = null } = action.payload;
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details20 ? details20 : {};
+        const response = yield call(axios.post, `${url}/api/repdashboard/repfwwithdrawal`, requestData,config);
+        yield put(fetchRepFWWithdrawalSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchRepFWWithdrawalFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+function* fetchRepFWWithdrawalReportSaga(action) {
+    const { details21 = null } = action.payload;
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details21 ? details21 : {};
+        const response = yield call(axios.post, `${url}/api/repdashboard/repfwwithdrawalreport`, requestData,config);
+        yield put(fetchRepFWWithdrawalReportSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchRepFWWithdrawalReportFailure(error.response?.data?.message || "An error occurred"));
     }
 }
 function* fetchRepDSpackageSaga(action) {
@@ -261,6 +317,90 @@ function* fetchrerralSaga(action){
     }
 }
 
+function* fetchRepEcommerceDepositSaga(action) {
+    const { details18 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details18 ? details18 : {};
+        const response = yield call(axios.post, `${url}/api/repdashboard/repecommercedeposit`, requestData, config);
+        yield put(fetchRepEcommerceDepositSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchRepEcommerceDepositFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+
+function* fetchRepEcommerceDepositReportSaga(action) {
+    const { details19 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details19 ? details19 : {};
+        const response = yield call(axios.post, `${url}/api/repdashboard/repecommercedepositreport`, requestData, config);
+        yield put(fetchRepEcommerceDepositReportSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchRepEcommerceDepositReportFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+
+function* fetchRepEcommerceDSDepositSaga(action) {
+    const { details22 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details22 ? details22 : {};
+        const response = yield call(axios.post, `${url}/api/repdashboard/repecommercedsdeposit`, requestData, config);
+        yield put(fetchRepEcommerceDSDepositSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchRepEcommerceDSDepositFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+
+function* fetchRepEcommerceDSDepositReportSaga(action) {
+    const { details23 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details23 ? details23 : {};
+        const response = yield call(axios.post, `${url}/api/repdashboard/repecommercedsdepositreport`, requestData, config);
+        yield put(fetchRepEcommerceDSDepositReportSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchRepEcommerceDSDepositReportFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+
 
 function* depositSaga(){
 
@@ -270,12 +410,18 @@ function* depositSaga(){
     yield takeLatest(fetchRepFDDailyContributionRequest.type, fetchReFDDailyContributionSaga)
     yield takeLatest(fetchRepTotalSBandDSDailyRequest.type, fetchRepTotalSBandDSDailySaga)
     yield takeLatest(fetchRepDSWithdrawalRequest.type, fetchRepDSWithdrawalSaga)
+    yield takeLatest(fetchRepFWWithdrawalRequest.type, fetchRepFWWithdrawalSaga)
+    yield takeLatest(fetchRepFWWithdrawalReportRequest.type, fetchRepFWWithdrawalReportSaga)
     yield takeLatest(fetchRepDSpackageRequest.type, fetchRepDSpackageSaga)
     yield takeLatest(fetchRepSBpackageRequest.type, fetchRepSBpackageSaga)
     yield takeLatest(fetchRepFDpackageRequest.type, fetchRepFDpackageSaga)
     yield takeLatest(fetchRepPackageRequest.type, fetchRepPackageSaga)
     yield takeLatest(fetchRepTotalExpenditureRequest.type, fetchRepTotalExpenditureSaga)
     yield takeLatest(fetchReferralRequest.type, fetchrerralSaga)
+    yield takeLatest(fetchRepEcommerceDepositRequest.type, fetchRepEcommerceDepositSaga)
+    yield takeLatest(fetchRepEcommerceDepositReportRequest.type, fetchRepEcommerceDepositReportSaga)
+    yield takeLatest(fetchRepEcommerceDSDepositRequest.type, fetchRepEcommerceDSDepositSaga)
+    yield takeLatest(fetchRepEcommerceDSDepositReportRequest.type, fetchRepEcommerceDSDepositReportSaga)
     
 
 }

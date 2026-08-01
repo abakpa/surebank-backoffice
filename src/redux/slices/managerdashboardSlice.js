@@ -9,6 +9,7 @@ const initialState = {
     branchdailysb: null,
     branchtotaldailysbandds: null,
     branchdswithdrawal: null,
+    branchFWWithdrawal: null,
     branchdspackage: null,
     branchsbpackage: null,
     branchpackages: null,
@@ -21,6 +22,11 @@ const initialState = {
     fdinterestincome: null,
     fdinterestexpense: null,
     fdpackage: null,
+    branchEcommerceDeposit: null,
+    branchEcommerceDSDeposit: null,
+    branchEcommerceDepositReport: [],
+    branchEcommerceDSDepositReport: [],
+    branchFWWithdrawalReport: [],
     loading: false,
     error:null,
 };
@@ -149,6 +155,26 @@ const dashboardSlice = createSlice({
         fetchBranchDSWithdrawalFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchBranchFWWithdrawalRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchFWWithdrawalSuccess:(state,action)=>{
+            state.branchFWWithdrawal= action.payload;
+            state.loading=false
+        },
+        fetchBranchFWWithdrawalFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchBranchFWWithdrawalReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchFWWithdrawalReportSuccess:(state,action)=>{
+            state.branchFWWithdrawalReport= action.payload;
+            state.loading=false
+        },
+        fetchBranchFWWithdrawalReportFailure:(state,action)=>{
+            state.error = action.payload
+        },
         fetchBranchDSpackageRequest:(state)=>{
             state.loading = true
         },
@@ -229,6 +255,50 @@ const dashboardSlice = createSlice({
         fetchBranchTotalProfitFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchBranchEcommerceDepositRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchEcommerceDepositSuccess:(state,action)=>{
+            state.branchEcommerceDeposit = action.payload;
+            state.loading = false
+        },
+        fetchBranchEcommerceDepositFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
+        fetchBranchEcommerceDepositReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchEcommerceDepositReportSuccess:(state,action)=>{
+            state.branchEcommerceDepositReport = action.payload;
+            state.loading = false
+        },
+        fetchBranchEcommerceDepositReportFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
+        fetchBranchEcommerceDSDepositRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchEcommerceDSDepositSuccess:(state,action)=>{
+            state.branchEcommerceDSDeposit = action.payload;
+            state.loading = false
+        },
+        fetchBranchEcommerceDSDepositFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
+        fetchBranchEcommerceDSDepositReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchBranchEcommerceDSDepositReportSuccess:(state,action)=>{
+            state.branchEcommerceDSDepositReport = action.payload;
+            state.loading = false
+        },
+        fetchBranchEcommerceDSDepositReportFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
     
     }
 })
@@ -270,6 +340,12 @@ export const {
     fetchBranchDSWithdrawalRequest,
     fetchBranchDSWithdrawalSuccess,
     fetchBranchDSWithdrawalFailure,
+    fetchBranchFWWithdrawalRequest,
+    fetchBranchFWWithdrawalSuccess,
+    fetchBranchFWWithdrawalFailure,
+    fetchBranchFWWithdrawalReportRequest,
+    fetchBranchFWWithdrawalReportSuccess,
+    fetchBranchFWWithdrawalReportFailure,
     fetchBranchDSpackageRequest,
     fetchBranchDSpackageSuccess,
     fetchBranchDSpackageFailure,
@@ -294,7 +370,19 @@ export const {
     fetchBranchTotalProfitRequest,
     fetchBranchTotalProfitSuccess,
     fetchBranchTotalProfitFailure,
- 
+    fetchBranchEcommerceDepositRequest,
+    fetchBranchEcommerceDepositSuccess,
+    fetchBranchEcommerceDepositFailure,
+    fetchBranchEcommerceDepositReportRequest,
+    fetchBranchEcommerceDepositReportSuccess,
+    fetchBranchEcommerceDepositReportFailure,
+    fetchBranchEcommerceDSDepositRequest,
+    fetchBranchEcommerceDSDepositSuccess,
+    fetchBranchEcommerceDSDepositFailure,
+    fetchBranchEcommerceDSDepositReportRequest,
+    fetchBranchEcommerceDSDepositReportSuccess,
+    fetchBranchEcommerceDSDepositReportFailure,
+    
 } = dashboardSlice.actions
 
 export default dashboardSlice.reducer

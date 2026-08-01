@@ -24,22 +24,22 @@ const staffSlice = createSlice({
        disableAllStaffRequest:(state)=>{
             state.loading = true
         },
-       disableAllStaffSuccess:(state,action)=>{
-            state.staffs= action.payload;
+       disableAllStaffSuccess:(state)=>{
             state.loading=false
         },
        disableAllStaffFailure:(state,action)=>{
             state.error = action.payload
+            state.loading=false
         },
       activateAllStaffRequest:(state)=>{
             state.loading = true
         },
-      activateAllStaffSuccess:(state,action)=>{
-            state.staffs= action.payload;
+      activateAllStaffSuccess:(state)=>{
             state.loading=false
         },
       activateAllStaffFailure:(state,action)=>{
             state.error = action.payload
+            state.loading=false
         },
         fetchBranchStaffRequest:(state)=>{
             state.loading = true

@@ -15,6 +15,8 @@ const initialState = {
     fdcontribution: null,
     reptotalexpenditure: null,
     transaction:null,
+    repEcommerceDeposit: null,
+    repEcommerceDepositReport: [],
     referral:null,
     referralCount:null,
     referralstaff:null,
@@ -147,6 +149,28 @@ const managerviewrepdashboardSlice = createSlice({
         fetchMVTransactionFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchMVRepEcommerceDepositRequest:(state)=>{
+            state.loading = true
+        },
+        fetchMVRepEcommerceDepositSuccess:(state,action)=>{
+            state.repEcommerceDeposit = action.payload;
+            state.loading = false
+        },
+        fetchMVRepEcommerceDepositFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
+        fetchMVRepEcommerceDepositReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchMVRepEcommerceDepositReportSuccess:(state,action)=>{
+            state.repEcommerceDepositReport = action.payload;
+            state.loading = false
+        },
+        fetchMVRepEcommerceDepositReportFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
         fetchMVReferralRequest:(state)=>{
             state.loading = true
         },
@@ -219,6 +243,12 @@ export const {
     fetchMVTransactionRequest,
     fetchMVTransactionSuccess,
     fetchMVTransactionFailure,
+    fetchMVRepEcommerceDepositRequest,
+    fetchMVRepEcommerceDepositSuccess,
+    fetchMVRepEcommerceDepositFailure,
+    fetchMVRepEcommerceDepositReportRequest,
+    fetchMVRepEcommerceDepositReportSuccess,
+    fetchMVRepEcommerceDepositReportFailure,
     fetchMVReferralRequest,
     fetchMVReferralSuccess,
     fetchMVReferralFailure,

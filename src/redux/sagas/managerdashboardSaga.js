@@ -37,6 +37,12 @@ import {
     fetchBranchDSWithdrawalRequest,
     fetchBranchDSWithdrawalSuccess,
     fetchBranchDSWithdrawalFailure,
+    fetchBranchFWWithdrawalRequest,
+    fetchBranchFWWithdrawalSuccess,
+    fetchBranchFWWithdrawalFailure,
+    fetchBranchFWWithdrawalReportRequest,
+    fetchBranchFWWithdrawalReportSuccess,
+    fetchBranchFWWithdrawalReportFailure,
     fetchBranchDSpackageRequest,
     fetchBranchDSpackageSuccess,
     fetchBranchDSpackageFailure,
@@ -61,6 +67,18 @@ import {
     fetchBranchTotalProfitRequest,
     fetchBranchTotalProfitSuccess,
     fetchBranchTotalProfitFailure,
+    fetchBranchEcommerceDepositRequest,
+    fetchBranchEcommerceDepositSuccess,
+    fetchBranchEcommerceDepositFailure,
+    fetchBranchEcommerceDepositReportRequest,
+    fetchBranchEcommerceDepositReportSuccess,
+    fetchBranchEcommerceDepositReportFailure,
+    fetchBranchEcommerceDSDepositRequest,
+    fetchBranchEcommerceDSDepositSuccess,
+    fetchBranchEcommerceDSDepositFailure,
+    fetchBranchEcommerceDSDepositReportRequest,
+    fetchBranchEcommerceDSDepositReportSuccess,
+    fetchBranchEcommerceDSDepositReportFailure,
   
 } from '../slices/managerdashboardSlice'
 import { url } from './url'
@@ -303,6 +321,44 @@ function* fetchBranchDSWithdrawalSaga(action) {
         yield put(fetchBranchDSWithdrawalFailure(error.response?.data?.message || "An error occurred"));
     }
 }
+function* fetchBranchFWWithdrawalSaga(action) {
+    const { details19 = null } = action.payload;
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details19 ? details19 : {};
+        const response = yield call(axios.post, `${url}/api/managerdashboard/branchfwwithdrawal`, requestData,config);
+        yield put(fetchBranchFWWithdrawalSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchBranchFWWithdrawalFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+function* fetchBranchFWWithdrawalReportSaga(action) {
+    const { details20 = null } = action.payload;
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details20 ? details20 : {};
+        const response = yield call(axios.post, `${url}/api/managerdashboard/branchfwwithdrawalreport`, requestData,config);
+        yield put(fetchBranchFWWithdrawalReportSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchBranchFWWithdrawalReportFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
 function* fetchBranchDSpackageSaga(action) {
     const { details7 = null } = action.payload;
 
@@ -464,6 +520,90 @@ function* fetchBranchTotalProfitSaga(action) {
     }
 }
 
+function* fetchBranchEcommerceDepositSaga(action) {
+    const { details17 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details17 ? details17 : {};
+        const response = yield call(axios.post, `${url}/api/managerdashboard/branchecommercedeposit`, requestData, config);
+        yield put(fetchBranchEcommerceDepositSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchBranchEcommerceDepositFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+
+function* fetchBranchEcommerceDepositReportSaga(action) {
+    const { details18 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details18 ? details18 : {};
+        const response = yield call(axios.post, `${url}/api/managerdashboard/branchecommercedepositreport`, requestData, config);
+        yield put(fetchBranchEcommerceDepositReportSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchBranchEcommerceDepositReportFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+
+function* fetchBranchEcommerceDSDepositSaga(action) {
+    const { details21 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details21 ? details21 : {};
+        const response = yield call(axios.post, `${url}/api/managerdashboard/branchecommercedsdeposit`, requestData, config);
+        yield put(fetchBranchEcommerceDSDepositSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchBranchEcommerceDSDepositFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+
+function* fetchBranchEcommerceDSDepositReportSaga(action) {
+    const { details22 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+        const requestData = details22 ? details22 : {};
+        const response = yield call(axios.post, `${url}/api/managerdashboard/branchecommercedsdepositreport`, requestData, config);
+        yield put(fetchBranchEcommerceDSDepositReportSuccess(response.data));
+    } catch (error) {  if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchBranchEcommerceDSDepositReportFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+
 
 
 
@@ -477,6 +617,8 @@ function* depositSaga(){
     yield takeLatest(fetchBranchSBDailyContributionRequest.type, fetchBranchSBDailyContributionSaga)
     yield takeLatest(fetchBranchTotalSBandDSDailyRequest.type, fetchBranchTotalSBandDSDailySaga)
     yield takeLatest(fetchBranchDSWithdrawalRequest.type, fetchBranchDSWithdrawalSaga)
+    yield takeLatest(fetchBranchFWWithdrawalRequest.type, fetchBranchFWWithdrawalSaga)
+    yield takeLatest(fetchBranchFWWithdrawalReportRequest.type, fetchBranchFWWithdrawalReportSaga)
     yield takeLatest(fetchBranchDSpackageRequest.type, fetchBranchDSpackageSaga)
     yield takeLatest(fetchBranchSBpackageRequest.type, fetchBranchSBpackageSaga)
     yield takeLatest(fetchBranchPackageRequest.type, fetchBranchPackageSaga)
@@ -489,6 +631,10 @@ function* depositSaga(){
     yield takeLatest(fetchBranchFDInterestIncomeRequest.type, fetchBranchFDInterestIncomeSaga)
     yield takeLatest(fetchBranchFDInterestExpenseRequest.type, fetchBranchFDInterestExpenseSaga)
     yield takeLatest(fetchBranchFDpackageRequest.type, fetchBranchFDpackageSaga)
+    yield takeLatest(fetchBranchEcommerceDepositRequest.type, fetchBranchEcommerceDepositSaga)
+    yield takeLatest(fetchBranchEcommerceDepositReportRequest.type, fetchBranchEcommerceDepositReportSaga)
+    yield takeLatest(fetchBranchEcommerceDSDepositRequest.type, fetchBranchEcommerceDSDepositSaga)
+    yield takeLatest(fetchBranchEcommerceDSDepositReportRequest.type, fetchBranchEcommerceDSDepositReportSaga)
 
 }
 

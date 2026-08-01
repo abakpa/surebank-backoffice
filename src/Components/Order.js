@@ -1,66 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrderRequest } from "../redux/slices/orderSlice";
-import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import Tablehead from "./Table/OrderTableHead";
 import Tablebody from "./Table/OrderTableBody";
-// import { Link } from "react-router-dom";
+import PaginationControls from "./PaginationControls";
+
+const PAGE_SIZE = 25;
 
 const Order = () => {
   const dispatch = useDispatch();
-  const { loading, order, error } = useSelector((state) => state.order);
-  const { branches } = useSelector((state) => state.branch);
+  const { loading, orderItems, orderPagination, error } = useSelector((state) => state.order);
+  const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   useEffect(() => {
-    dispatch(fetchBranchRequest());
-    dispatch(fetchOrderRequest());
-  }, [dispatch]);
-  // Ensure customers is always an array
-  const orderList = Array.isArray(order.orders) ? order.orders : [];
-  const orderList2 = Array.isArray(order.sbAccounts) ? order.sbAccounts : [];
+    const timeoutId = setTimeout(() => {
+      setSearchTerm(searchInput.trim());
+      setCurrentPage(1);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchInput]);
+
+  useEffect(() => {
+    dispatch(fetchOrderRequest({ page: currentPage, limit: PAGE_SIZE, search: searchTerm }));
+  }, [currentPage, dispatch, searchTerm]);
 
   const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
+    setSearchInput(e.target.value);
   };
-
-  const filteredorderList = orderList.filter((orderList) =>
-    (orderList?.status?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-    (orderList?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-  );
-  const filteredorderList2 = orderList2.filter((orderList2) =>
-    (orderList2?.status?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-    (orderList2?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-  );
-  console.log("component transaction",filteredorderList)
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <svg
-          className="animate-spin h-10 w-10 text-blue-500"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          role="img"
-          aria-label="Loading"
-        >
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-            className="opacity-25"
-          />
-          <path
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-            className="opacity-75"
-          />
-        </svg>
-        <p className="text-blue-500 ml-4">Loading Transaction Statement...</p>
-      </div>
-    );
-  }
 
   if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
 
@@ -72,8 +40,8 @@ const Order = () => {
       <div className="flex flex-col md:flex-row items-center justify-between mb-4 gap-2">
         <input
           type="text"
-          placeholder="Search by branch or status..."
-          value={searchTerm}
+          placeholder="Search by customer, branch, product, or status..."
+          value={searchInput}
           onChange={handleSearch}
           className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md"
         />
@@ -88,9 +56,19 @@ const Order = () => {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[600px] border-collapse border border-gray-300">
           <Tablehead />
-          <Tablebody customers={filteredorderList} customers2={filteredorderList2} branches={branches} />
+          <Tablebody items={orderItems} />
         </table>
       </div>
+      {loading && (
+        <p className="mt-3 text-sm text-blue-600 dark:text-sky-400">Loading orders...</p>
+      )}
+      <PaginationControls
+        page={orderPagination.page}
+        totalPages={orderPagination.totalPages}
+        total={orderPagination.total}
+        onPageChange={setCurrentPage}
+        disabled={loading}
+      />
     </div>
   );
 };

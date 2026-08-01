@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchTransactionRequest } from "../redux/slices/transactionSlice";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import Tablehead from "./Table/StaffTransactionTableHead";
 import Tablebody from "./Table/StaffTransactionTableBody";
 // import { Link } from "react-router-dom";
+import TableLoadingNotice from "./TableLoadingNotice";
 
 const Transaction = () => {
   const dispatch = useDispatch();
@@ -17,46 +18,16 @@ const Transaction = () => {
   }, [dispatch]);
 
   // Ensure customers is always an array
-  const transactionList = Array.isArray(transaction) ? transaction : [];
+  const transactionList = useMemo(() => (Array.isArray(transaction) ? transaction : []), [transaction]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredtransactionListList = transactionList.filter((transactionListList) =>
+  const filteredtransactionListList = useMemo(() => transactionList.filter((transactionListList) =>
     (transactionListList?.customerId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
     (transactionListList?.branchId?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
-  );
-  console.log("component transaction",filteredtransactionListList)
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <svg
-          className="animate-spin h-10 w-10 text-blue-500"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          role="img"
-          aria-label="Loading"
-        >
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-            className="opacity-25"
-          />
-          <path
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-            className="opacity-75"
-          />
-        </svg>
-        <p className="text-blue-500 ml-4">Loading Transaction Statement...</p>
-      </div>
-    );
-  }
+  ), [searchTerm, transactionList]);
 
   if (error) return <p className="text-red-500 text-center">Error: {error}</p>;
 
@@ -87,6 +58,7 @@ const Transaction = () => {
           <Tablebody customers={filteredtransactionListList} branches={branches} />
         </table>
       </div>
+      {loading && <TableLoadingNotice message="Loading transaction statement..." />}
     </div>
   );
 };

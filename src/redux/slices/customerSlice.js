@@ -2,7 +2,18 @@ import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
     customers: [],
+    customerList: [],
+    customerPagination: {
+        total: 0,
+        page: 1,
+        limit: 25,
+        totalPages: 1,
+    },
     branchcustomers: [],
+    ecommerceCustomers: [],
+    newCustomers: [],
+    newCustomersLoading: false,
+    newCustomersError: null,
     loading: false,
     error:null,
 };
@@ -15,11 +26,18 @@ const customerSlice = createSlice({
             state.loading = true
         },
         fetchCustomerSuccess:(state,action)=>{
-            state.customers= action.payload;
+            state.customerList = action.payload.items || [];
+            state.customerPagination = {
+                total: action.payload.total || 0,
+                page: action.payload.page || 1,
+                limit: action.payload.limit || 25,
+                totalPages: action.payload.totalPages || 1,
+            };
             state.loading=false
         },
         fetchCustomerFailure:(state,action)=>{
             state.error = action.payload
+            state.loading = false
         },
         fetchCustomerLoginCountRequest:(state)=>{
             state.loading = true
@@ -50,6 +68,48 @@ const customerSlice = createSlice({
         },
         fetchRepCustomerLoginCountFailure:(state,action)=>{
             state.error = action.payload
+        },
+        fetchCustomerNewCustomersRequest:(state)=>{
+            state.newCustomersLoading = true
+            state.newCustomersError = null
+        },
+        fetchCustomerNewCustomersSuccess:(state,action)=>{
+            state.newCustomers = action.payload;
+            state.newCustomersLoading=false
+            state.newCustomersError = null
+        },
+        fetchCustomerNewCustomersFailure:(state,action)=>{
+            state.newCustomersError = action.payload
+            state.newCustomers = []
+            state.newCustomersLoading=false
+        },
+        fetchBranchCustomerNewCustomersRequest:(state)=>{
+            state.newCustomersLoading = true
+            state.newCustomersError = null
+        },
+        fetchBranchCustomerNewCustomersSuccess:(state,action)=>{
+            state.newCustomers = action.payload;
+            state.newCustomersLoading=false
+            state.newCustomersError = null
+        },
+        fetchBranchCustomerNewCustomersFailure:(state,action)=>{
+            state.newCustomersError = action.payload
+            state.newCustomers = []
+            state.newCustomersLoading=false
+        },
+        fetchRepCustomerNewCustomersRequest:(state)=>{
+            state.newCustomersLoading = true
+            state.newCustomersError = null
+        },
+        fetchRepCustomerNewCustomersSuccess:(state,action)=>{
+            state.newCustomers = action.payload;
+            state.newCustomersLoading=false
+            state.newCustomersError = null
+        },
+        fetchRepCustomerNewCustomersFailure:(state,action)=>{
+            state.newCustomersError = action.payload
+            state.newCustomers = []
+            state.newCustomersLoading=false
         },
         fetchCustomerWithdrawalRequestRequest:(state)=>{
             state.loading = true
@@ -166,14 +226,27 @@ const customerSlice = createSlice({
             state.loading = true
         },
        updateCustomerWithdrawalRequestSuccess:(state,action)=>{
-            state.customers= action.payload;
+            state.withdrawalRequestUpdate = action.payload;
             state.loading=false
         },
        updateCustomerWithdrawalRequestFailure:(state,action)=>{
             state.error = action.payload
             state.loading=false
         },
- 
+        // Ecommerce customers
+        fetchEcommerceCustomersRequest:(state)=>{
+            state.loading = true
+            state.error = null
+        },
+        fetchEcommerceCustomersSuccess:(state,action)=>{
+            state.ecommerceCustomers = action.payload;
+            state.loading = false
+        },
+        fetchEcommerceCustomersFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
+
     }
 })
 
@@ -190,6 +263,15 @@ export const {
     fetchRepCustomerLoginCountRequest,
     fetchRepCustomerLoginCountSuccess,
     fetchRepCustomerLoginCountFailure,
+    fetchCustomerNewCustomersRequest,
+    fetchCustomerNewCustomersSuccess,
+    fetchCustomerNewCustomersFailure,
+    fetchBranchCustomerNewCustomersRequest,
+    fetchBranchCustomerNewCustomersSuccess,
+    fetchBranchCustomerNewCustomersFailure,
+    fetchRepCustomerNewCustomersRequest,
+    fetchRepCustomerNewCustomersSuccess,
+    fetchRepCustomerNewCustomersFailure,
     fetchCustomerWithdrawalRequestRequest,
     fetchCustomerWithdrawalRequestSuccess,
     fetchCustomerWithdrawalRequestFailure,
@@ -226,7 +308,10 @@ export const {
     updateCustomerWithdrawalRequestRequest,
    updateCustomerWithdrawalRequestSuccess,
    updateCustomerWithdrawalRequestFailure,
-   
+   fetchEcommerceCustomersRequest,
+   fetchEcommerceCustomersSuccess,
+   fetchEcommerceCustomersFailure,
+
 } = customerSlice.actions
 
 export default customerSlice.reducer

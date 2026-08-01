@@ -51,18 +51,60 @@ import ViewRepCustomerUsingApp from "./Components/ViewRepCustomerUsingApp";
 import ViewCustomerWithdrawalRequest from "./Components/ViewCustomerWithdrawalRequest";
 import ViewBranchCustomerWithdrawalRequest from "./Components/ViewBranchCustomerWithdrawalRequest";
 import ViewRepCustomerWithdrawalRequest from "./Components/ViewRepCustomerWithdrawalRequest";
+import Products from "./Components/Products";
+import CreateProduct from "./Components/CreateProduct";
+import Categories from "./Components/Categories";
+import CreateCategory from "./Components/CreateCategory";
+import EcommerceOrders from "./Components/EcommerceOrders";
+import EcommerceOrderDetail from "./Components/EcommerceOrderDetail";
+import EcommerceCustomers from "./Components/EcommerceCustomers";
+import EcommerceIncomeReport from "./Components/EcommerceIncomeReport";
+import ProductReviews from "./Components/ProductReviews";
+import Analytics from "./Components/Analytics";
+import ProductActionRequests from "./Components/ProductActionRequests";
+import ClosedLegacySBAccounts from "./Components/ClosedLegacySBAccounts";
 
+const THEME_STORAGE_KEY = "backofficeTheme";
+
+const getInitialTheme = () => {
+  const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+  if (savedTheme === "dark" || savedTheme === "light") {
+    return savedTheme;
+  }
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+};
+
+const normalizeStaffRole = (role) => {
+  if (role === "Product Manager" || role === "ProductManager" || role === "SubAdmin") {
+    return "ProductManager";
+  }
+
+  return role;
+};
 
 function App() {
   const isLoggedIn = useSelector((state) => state.login.token);
   const token = isLoggedIn || localStorage.getItem("authToken");
- const loggedInStaffRole = useSelector((state) => state.login.staff?.role) || localStorage.getItem("staffRole");
+ const loggedInStaffRole = normalizeStaffRole(useSelector((state) => state.login.staff?.role) || localStorage.getItem("staffRole"));
+  const [theme, setTheme] = React.useState(getInitialTheme);
 
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false); // Track sidebar state
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  const toggleTheme = () => {
+    setTheme((currentTheme) => (currentTheme === "dark" ? "light" : "dark"));
+  };
+
+  React.useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    document.documentElement.setAttribute("data-theme", theme);
+    document.body.classList.toggle("dark-mode", theme === "dark");
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
 
   const handleLogout = () => {
     // Logout logic: Clear token and close sidebar
@@ -72,7 +114,7 @@ function App() {
 
   return (
     <Router>
-      <div className="container mx-auto relative flex  h-screen ">
+      <div className="app-shell container mx-auto relative flex h-screen">
         {/* Render Sidebar only when logged in */}
         {token && (
   loggedInStaffRole === 'Admin' ? (
@@ -81,13 +123,13 @@ function App() {
     <RepSidebar isOpen={isSidebarOpen} role={loggedInStaffRole} toggleSidebar={toggleSidebar} />
   ) :loggedInStaffRole === 'OnlineRep' ? (
     <RepSidebar isOpen={isSidebarOpen} role={loggedInStaffRole} toggleSidebar={toggleSidebar} />
-  ):( <ManagerSidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />)
+  ):( <ManagerSidebar isOpen={isSidebarOpen} role={loggedInStaffRole} toggleSidebar={toggleSidebar} />)
 )}
 
         {/* Overlay for small screens */}
         {isSidebarOpen && token && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden"
+            className="fixed inset-0 bg-black/50 z-10 lg:hidden"
             onClick={toggleSidebar}
           ></div>
         )}
@@ -99,15 +141,30 @@ function App() {
             isLoggedIn={!!token}
             onLogout={handleLogout}
             toggleSidebar={toggleSidebar}
+            theme={theme}
+            toggleTheme={toggleTheme}
           />
 
           {/* Page Content */}
-          <div className="content flex-1 bg-gray-100 overflow-y-auto">
+          <div className="app-content content flex-1 overflow-y-auto">
             <Routes>
               {/* Protected Routes */}
               {token ? (
+                loggedInStaffRole === "ProductManager" ? (
+                  <>
+                    <Route path="/products" element={<Products />} />
+                    <Route path="/createproduct" element={<CreateProduct />} />
+                    <Route path="/editproduct/:id" element={<CreateProduct />} />
+                    <Route path="/categories" element={<Categories />} />
+                    <Route path="/createcategory" element={<CreateCategory />} />
+                    <Route path="/editcategory/:id" element={<CreateCategory />} />
+                    <Route path="/" element={<Navigate to="/products" />} />
+                    <Route path="*" element={<Navigate to="/products" />} />
+                  </>
+                ) : (
                 <>
                   <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/analytics" element={<Analytics />} />
                   <Route path="/branches" element={<Viewbranches />} />
                   <Route path="/createbranch" element={<Createbranch />} />
                   <Route path="/expenditure" element={<Expenditure />} />
@@ -131,6 +188,7 @@ function App() {
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/deposit" element={<Deposit />} />
                   <Route path="/sbincome" element={<SBIncome />} />
+                  <Route path="/closed-legacy-sb-accounts" element={<ClosedLegacySBAccounts />} />
                   <Route path="/fdincome" element={<FDIncome />} />
                   <Route path="/branchsbincome" element={<BranchSBIncome />} />
                   <Route path="/dsincome" element={<DSIncome />} />
@@ -152,7 +210,21 @@ function App() {
                   <Route path="/viewcustomerwithdrawalrequest" element={<ViewCustomerWithdrawalRequest />} />
                   <Route path="/viewbranchcustomerwithdrawalrequest" element={<ViewBranchCustomerWithdrawalRequest />} />
                   <Route path="/viewrepcustomerwithdrawalrequest" element={<ViewRepCustomerWithdrawalRequest />} />
+                  {/* E-Commerce Routes */}
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/createproduct" element={<CreateProduct />} />
+                  <Route path="/editproduct/:id" element={<CreateProduct />} />
+                  <Route path="/categories" element={<Categories />} />
+                  <Route path="/createcategory" element={<CreateCategory />} />
+                  <Route path="/editcategory/:id" element={<CreateCategory />} />
+                  <Route path="/ecommerce-orders" element={<EcommerceOrders />} />
+                  <Route path="/ecommerce-order/:id" element={<EcommerceOrderDetail />} />
+                  <Route path="/product-action-requests" element={<ProductActionRequests />} />
+                  <Route path="/ecommerce-customers" element={<EcommerceCustomers />} />
+                  <Route path="/product-reviews" element={<ProductReviews />} />
+                  <Route path="/ecommerce-income" element={<EcommerceIncomeReport />} />
                 </>
+                )
               ) : (
                 // Redirect unauthenticated users to Login
                 <Route path="*" element={<Navigate to="/login" />} />

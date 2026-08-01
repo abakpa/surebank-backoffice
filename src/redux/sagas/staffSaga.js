@@ -129,7 +129,7 @@ function* createStaffSaga(action){
 }
 function* updateStaffSaga(action){
     console.log(action.payload)
-    const {staffId,status} = action.payload
+    const {staffId,status,role} = action.payload
     try {
         const token = localStorage.getItem('authToken');
         const config = {
@@ -137,7 +137,8 @@ function* updateStaffSaga(action){
             Authorization: `Bearer ${token}`,
           },
         };
-        const response = yield call(axios.put,`${url}/api/staff/${staffId}?status=${status}`,{},config );
+        const query = status ? `?status=${status}` : "";
+        const response = yield call(axios.put,`${url}/api/staff/${staffId}${query}`,{ role },config );
         yield put(updateStaffSuccess(response.data))
         yield call (fetchBranchStaffSaga);
         yield call (fetchStaffSaga);

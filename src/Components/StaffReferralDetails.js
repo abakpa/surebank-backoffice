@@ -9,6 +9,7 @@ import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import Tablehead from "./Table/StaffReferralTableHead";
 import Tablebody from "./Table/StaffReferralTableBody";
 import { useLocation } from "react-router-dom";
+import TableLoadingNotice from "./TableLoadingNotice";
 
 const StaffReferralDetails = () => {
   const dispatch = useDispatch();
@@ -76,35 +77,6 @@ const StaffReferralDetails = () => {
     console.log("referralCount (from redux):", referralCount);
   }, [referralCount]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <svg
-          className="animate-spin h-10 w-10 text-blue-500"
-          viewBox="0 0 24 24"
-          fill="none"
-          role="img"
-          aria-label="Loading"
-        >
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-            className="opacity-25"
-          />
-          <path
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-            className="opacity-75"
-          />
-        </svg>
-        <p className="text-blue-500 ml-4 text-sm sm:text-base">Loading staff...</p>
-      </div>
-    );
-  }
-
   if (error)
     return (
       <p className="text-red-500 text-center mt-10 text-sm sm:text-base">
@@ -171,6 +143,7 @@ const StaffReferralDetails = () => {
           />
         </table>
       </div>
+      {loading && <TableLoadingNotice message="Loading staff..." />}
     </div>
   );
 };

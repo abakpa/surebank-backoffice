@@ -13,6 +13,7 @@ const initialState = {
     dailysb: null,
     totaldailysbandds: null,
     dswithdrawal: null,
+    fwWithdrawal: null,
     dspackage: null,
     sbpackage: null,
     fdpackage: null,
@@ -23,6 +24,13 @@ const initialState = {
     totalincome: null,
     totalexpenditure: null,
     profit: null,
+    ecommerceIncome: null,
+    ecommerceDeposit: null,
+    ecommerceDSDeposit: null,
+    ecommerceDepositReport: [],
+    ecommerceDSDepositReport: [],
+    dsWithdrawalReport: [],
+    fwWithdrawalReport: [],
     loading: false,
     error:null,
 };
@@ -151,6 +159,36 @@ const dashboardSlice = createSlice({
         fetchDSWithdrawalFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchDSWithdrawalReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchDSWithdrawalReportSuccess:(state,action)=>{
+            state.dsWithdrawalReport= action.payload;
+            state.loading=false
+        },
+        fetchDSWithdrawalReportFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchFWWithdrawalRequest:(state)=>{
+            state.loading = true
+        },
+        fetchFWWithdrawalSuccess:(state,action)=>{
+            state.fwWithdrawal= action.payload;
+            state.loading=false
+        },
+        fetchFWWithdrawalFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchFWWithdrawalReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchFWWithdrawalReportSuccess:(state,action)=>{
+            state.fwWithdrawalReport= action.payload;
+            state.loading=false
+        },
+        fetchFWWithdrawalReportFailure:(state,action)=>{
+            state.error = action.payload
+        },
         fetchDSpackageRequest:(state)=>{
             state.loading = true
         },
@@ -251,7 +289,59 @@ const dashboardSlice = createSlice({
         fetchTotalProfitFailure:(state,action)=>{
             state.error = action.payload
         },
-    
+        fetchEcommerceIncomeRequest:(state)=>{
+            state.loading = true
+        },
+        fetchEcommerceIncomeSuccess:(state,action)=>{
+            state.ecommerceIncome= action.payload;
+            state.loading=false
+        },
+        fetchEcommerceIncomeFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchEcommerceDepositRequest:(state)=>{
+            state.loading = true
+        },
+        fetchEcommerceDepositSuccess:(state,action)=>{
+            state.ecommerceDeposit = action.payload;
+            state.loading = false
+        },
+        fetchEcommerceDepositFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchEcommerceDepositReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchEcommerceDepositReportSuccess:(state,action)=>{
+            state.ecommerceDepositReport = action.payload;
+            state.loading = false
+        },
+        fetchEcommerceDepositReportFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchEcommerceDSDepositRequest:(state)=>{
+            state.loading = true
+        },
+        fetchEcommerceDSDepositSuccess:(state,action)=>{
+            state.ecommerceDSDeposit = action.payload;
+            state.loading = false
+        },
+        fetchEcommerceDSDepositFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
+        fetchEcommerceDSDepositReportRequest:(state)=>{
+            state.loading = true
+        },
+        fetchEcommerceDSDepositReportSuccess:(state,action)=>{
+            state.ecommerceDSDepositReport = action.payload;
+            state.loading = false
+        },
+        fetchEcommerceDSDepositReportFailure:(state,action)=>{
+            state.error = action.payload
+            state.loading = false
+        },
+
     }
 })
 
@@ -292,6 +382,15 @@ export const {
     fetchDSWithdrawalRequest,
     fetchDSWithdrawalSuccess,
     fetchDSWithdrawalFailure,
+    fetchDSWithdrawalReportRequest,
+    fetchDSWithdrawalReportSuccess,
+    fetchDSWithdrawalReportFailure,
+    fetchFWWithdrawalRequest,
+    fetchFWWithdrawalSuccess,
+    fetchFWWithdrawalFailure,
+    fetchFWWithdrawalReportRequest,
+    fetchFWWithdrawalReportSuccess,
+    fetchFWWithdrawalReportFailure,
     fetchDSpackageRequest,
     fetchDSpackageSuccess,
     fetchDSpackageFailure,
@@ -322,7 +421,22 @@ export const {
     fetchTotalProfitRequest,
     fetchTotalProfitSuccess,
     fetchTotalProfitFailure,
- 
+    fetchEcommerceIncomeRequest,
+    fetchEcommerceIncomeSuccess,
+    fetchEcommerceIncomeFailure,
+    fetchEcommerceDepositRequest,
+    fetchEcommerceDepositSuccess,
+    fetchEcommerceDepositFailure,
+    fetchEcommerceDepositReportRequest,
+    fetchEcommerceDepositReportSuccess,
+    fetchEcommerceDepositReportFailure,
+    fetchEcommerceDSDepositRequest,
+    fetchEcommerceDSDepositSuccess,
+    fetchEcommerceDSDepositFailure,
+    fetchEcommerceDSDepositReportRequest,
+    fetchEcommerceDSDepositReportSuccess,
+    fetchEcommerceDSDepositReportFailure,
+
 } = dashboardSlice.actions
 
 export default dashboardSlice.reducer

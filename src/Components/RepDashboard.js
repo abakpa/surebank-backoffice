@@ -1,6 +1,7 @@
 import React, { useState,useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+import { FaEye } from "react-icons/fa";
 
 // import { useParams } from "react-router-dom";
 // import { fetchBranchRequest } from "../redux/slices/branchSlice";
@@ -19,11 +20,23 @@ import {
   fetchRepFDpackageRequest,
   fetchRepPackageRequest,
   fetchRepTotalExpenditureRequest,
-  fetchReferralRequest
+  fetchReferralRequest,
+  fetchRepEcommerceDepositRequest,
+  fetchRepEcommerceDepositReportRequest,
+  fetchRepEcommerceDSDepositRequest,
+  fetchRepEcommerceDSDepositReportRequest,
+  fetchRepFWWithdrawalRequest,
+  fetchRepFWWithdrawalReportRequest
 
 } from '../redux/slices/repdashboardSlice'
 import Loader from "./Loader";
 // import Select2 from "./Select2";
+import EcommerceDepositDetailsModal from "./EcommerceDepositDetailsModal";
+import DashboardDateRangeFields from "./DashboardDateRangeFields";
+import BackofficeProductDeliveryCards from "./BackofficeProductDeliveryCards";
+
+const getDateRangeValue = (dateRanges, key) =>
+  dateRanges[key] || { startDate: "", endDate: "" };
 
 
 
@@ -36,17 +49,10 @@ const RepDashboard = () => {
   const loggedInStaffRole = localStorage.getItem("staffRole");
     // const { branches } = useSelector((state) => state.branch);
 
-    const [date3, setDate3] = useState("");
-    const [date4, setDate4] = useState("");
-    const [date5, setDate5] = useState("");
-    const [date6, setDate6] = useState("");
-    const [date7, setDate7] = useState("");
-    const [date8, setDate8] = useState("");
-    const [date9, setDate9] = useState("");
-    const [date13, setDate13] = useState("");
-    const [date15, setDate15] = useState("");
-    const [date16, setDate16] = useState("");
-    const [date17, setDate17] = useState("");
+    const [dateRanges, setDateRanges] = useState({});
+    const [isEcommerceDepositModalOpen, setIsEcommerceDepositModalOpen] = useState(false);
+    const [isEcommerceDSDepositModalOpen, setIsEcommerceDSDepositModalOpen] = useState(false);
+    const [isFWWithdrawalModalOpen, setIsFWWithdrawalModalOpen] = useState(false);
     const {
       loading,
      repdailyds,
@@ -59,7 +65,13 @@ const RepDashboard = () => {
      reppackages,
      fdpackage,
      reptotalexpenditure,
-     referral
+     referral,
+     repEcommerceDeposit,
+     repEcommerceDepositReport,
+     repEcommerceDSDeposit,
+     repEcommerceDSDepositReport,
+     repFWWithdrawal,
+     repFWWithdrawalReport
   
     } = useSelector((state)=>state.repdashboard)
   
@@ -71,9 +83,28 @@ const RepDashboard = () => {
       const newdspackage = repdspackage || 0
       const newsbpackage = repsbpackage || 0
       const newpackages = reppackages || 0
-      const newfdpackage = fdpackage || 0
+      const newfdpackage = Number(fdpackage) || 0
       const newrepexpenditure = reptotalexpenditure || 0
-      const newreferral = referral || 0
+      const newreferral = Number(referral) || 0
+      const newRepEcommerceDeposit = repEcommerceDeposit || 0
+      const newRepEcommerceDSDeposit = repEcommerceDSDeposit || 0
+      const newRepFWWithdrawal = repFWWithdrawal || 0
+
+      const openEcommerceDepositModal = () => {
+        const details19 = { date: getDateRangeValue(dateRanges, "date18") };
+        dispatch(fetchRepEcommerceDepositReportRequest({ details19 }));
+        setIsEcommerceDepositModalOpen(true);
+      };
+      const openFWWithdrawalModal = () => {
+        const details21 = { date: getDateRangeValue(dateRanges, "date19") };
+        dispatch(fetchRepFWWithdrawalReportRequest({ details21 }));
+        setIsFWWithdrawalModalOpen(true);
+      };
+      const openEcommerceDSDepositModal = () => {
+        const details23 = { date: getDateRangeValue(dateRanges, "date20") };
+        dispatch(fetchRepEcommerceDSDepositReportRequest({ details23 }));
+        setIsEcommerceDSDepositModalOpen(true);
+      };
       
 
 
@@ -84,17 +115,22 @@ const RepDashboard = () => {
 
       useEffect(() => {
     
-        const details3 = { date: date3 };
-        const details4 = { date: date4 };
-        const details5 = { date: date5 };
-        const details6 = { date: date6 };
-        const details7 = { date: date7 };
-        const details8 = { date: date8 };
-        const details9 = { date: date9 };
-        const details13 = { date: date13 };
-        const details15 = { date: date15 };
-        const details16 = { date: date16 };
-        const details17 = { date: date17,staffId:staffId };
+        const details3 = { date: getDateRangeValue(dateRanges, "date3") };
+        const details4 = { date: getDateRangeValue(dateRanges, "date4") };
+        const details5 = { date: getDateRangeValue(dateRanges, "date5") };
+        const details6 = { date: getDateRangeValue(dateRanges, "date6") };
+        const details7 = { date: getDateRangeValue(dateRanges, "date7") };
+        const details8 = { date: getDateRangeValue(dateRanges, "date8") };
+        const details9 = { date: getDateRangeValue(dateRanges, "date9") };
+        const details13 = { date: getDateRangeValue(dateRanges, "date13") };
+        const details15 = { date: getDateRangeValue(dateRanges, "date15") };
+        const details16 = { date: getDateRangeValue(dateRanges, "date16") };
+        const details17 = { date: getDateRangeValue(dateRanges, "date17"),staffId:staffId };
+        const details18 = { date: getDateRangeValue(dateRanges, "date18") };
+        const details19 = { date: getDateRangeValue(dateRanges, "date18") };
+        const details20 = { date: getDateRangeValue(dateRanges, "date19") };
+        const details22 = { date: getDateRangeValue(dateRanges, "date20") };
+        const details23 = { date: getDateRangeValue(dateRanges, "date20") };
     
    
         const data3 = {details3}
@@ -108,8 +144,13 @@ const RepDashboard = () => {
         const data15 = {details15}
         const data16 = {details16}
         const data17 = {details17}
+        const data18 = {details18}
+        const data19 = {details19}
+        const data20 = {details20}
+        const data22 = {details22}
+        const data23 = {details23}
         dispatch(fetchReferralRequest(data17)); 
-  
+ 
         dispatch(fetchRepDSDailyContributionRequest(data3)); 
         dispatch(fetchRepSBDailyContributionRequest(data4)); 
         dispatch(fetchRepFDDailyContributionRequest(data16)); 
@@ -120,48 +161,37 @@ const RepDashboard = () => {
         dispatch(fetchRepFDpackageRequest(data15)); 
         dispatch(fetchRepPackageRequest(data9)); 
         dispatch(fetchRepTotalExpenditureRequest(data13)); 
+        dispatch(fetchRepEcommerceDepositRequest(data18)); 
+        dispatch(fetchRepEcommerceDepositReportRequest(data19)); 
+        dispatch(fetchRepFWWithdrawalRequest(data20)); 
+        dispatch(fetchRepEcommerceDSDepositRequest(data22)); 
+        dispatch(fetchRepEcommerceDSDepositReportRequest(data23)); 
  
     }, [
       dispatch,
- 
-      date3,
-      date4,
-      date5,
-      date6,
-      date7,
-      date8,
-      date9,
-      date13,
-      date15,
-      date16,
-      date17,
+      dateRanges,
       staffId
     ]);
     
   return (
-<div className="p-6">
+<div className="p-3 sm:p-6">
   {loading && <Loader />}
-  <h1 className="text-2xl font-bold mb-4 mt-10 text-center">Rep Dashboard</h1>
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+  <h1 className="text-base sm:text-xl font-bold mb-4 mt-10 text-center">Rep Dashboard</h1>
+  <div className={`dashboard-card-grid-divider ${loggedInStaffRole === 'Agent' ? 'dashboard-card-grid-divider-rep-agent' : 'dashboard-card-grid-divider-rep-standard'} grid grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-3`}>
 
   {/* Card 4 - Yellow */}
   {loggedInStaffRole === 'Agent' && (
-  <div className="p-4 rounded-lg shadow-md bg-yellow-100">
-    <h3 className="text-sm font-semibold mb-2 text-yellow-800">Total DS Daily Contribution</h3>
-    <p className="text-sm font-bold text-yellow-800">{newdailyds?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-yellow-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-yellow-800">Total DS Daily Contribution</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-yellow-800">{newdailyds?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       {/* <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
         value={branchId3}
         onChange={(selectedId) => setBranchId3(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date3}
-        onChange={(e) => setDate3(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date3" dateRanges={dateRanges} setDateRanges={setDateRanges} />
     
     </form>
   </div>
@@ -170,22 +200,17 @@ const RepDashboard = () => {
   {/* Card 5 - Purple */}
   {loggedInStaffRole === 'Agent' && (
 
-  <div className="p-4 rounded-lg shadow-md bg-purple-100">
-    <h3 className="text-sm font-semibold mb-2 text-purple-800">Total SB Daily Contribution</h3>
-    <p className="text-sm font-bold text-purple-800">{newdailysb?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-purple-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-purple-800">Total SB Daily Contribution</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-purple-800">{newdailysb?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       {/* <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
         value={branchId4}
         onChange={(selectedId) => setBranchId4(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date4}
-        onChange={(e) => setDate4(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date4" dateRanges={dateRanges} setDateRanges={setDateRanges} />
     
     </form>
   </div>
@@ -193,22 +218,17 @@ const RepDashboard = () => {
   {/* Card 5 - Purple */}
   {loggedInStaffRole === 'Agent' && (
 
-  <div className="p-4 rounded-lg shadow-md bg-purple-100">
-    <h3 className="text-sm font-semibold mb-2 text-purple-800">Total FD Daily Contribution</h3>
-    <p className="text-sm font-bold text-purple-800">{newdailyfd?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-purple-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-purple-800">Total FD Daily Contribution</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-purple-800">{newdailyfd?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       {/* <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
         value={branchId4}
         onChange={(selectedId) => setBranchId4(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date16}
-        onChange={(e) => setDate16(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date16" dateRanges={dateRanges} setDateRanges={setDateRanges} />
     
     </form>
   </div>
@@ -216,22 +236,17 @@ const RepDashboard = () => {
   {/* Card 6 - Indigo */}
   {loggedInStaffRole === 'Agent' && (
 
-  <div className="p-4 rounded-lg shadow-md bg-indigo-100">
-    <h3 className="text-sm font-semibold mb-2 text-indigo-800">Total Daily Contribution</h3>
-    <p className="text-sm font-bold text-indigo-800">{newtotaldailysbandds?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-indigo-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-indigo-800">Total Daily Contribution</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-indigo-800">{newtotaldailysbandds?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       {/* <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
         value={branchId5}
         onChange={(selectedId) => setBranchId5(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date5}
-        onChange={(e) => setDate5(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date5" dateRanges={dateRanges} setDateRanges={setDateRanges} />
   
     </form>
   </div>
@@ -239,89 +254,117 @@ const RepDashboard = () => {
   {/* Card 7 - Pink */}
   {loggedInStaffRole === 'Agent' && (
 
-  <div className="p-4 rounded-lg shadow-md bg-pink-100">
-    <h3 className="text-sm font-semibold mb-2 text-pink-800">DS Withdrawal</h3>
-    <p className="text-sm font-bold text-pink-800">{newdswithdrawal?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-pink-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-pink-800">DS Withdrawal</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-pink-800">{newdswithdrawal?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       {/* <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
         value={branchId6}
         onChange={(selectedId) => setBranchId6(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date6}
-        onChange={(e) => setDate6(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date6" dateRanges={dateRanges} setDateRanges={setDateRanges} />
   
+    </form>
+  </div>
+  )}
+  {loggedInStaffRole === 'Agent' && (
+
+  <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-rose-200">
+    <button
+      type="button"
+      onClick={openFWWithdrawalModal}
+      className="absolute top-2 right-2 text-rose-800 hover:text-rose-900"
+      title="View FW withdrawal details"
+    >
+      <FaEye />
+    </button>
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-rose-800">FW Withdrawal</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-rose-800">{newRepFWWithdrawal?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
+      <DashboardDateRangeFields rangeKey="date19" dateRanges={dateRanges} setDateRanges={setDateRanges} />
     </form>
   </div>
   )}
   {/* Card 8 - Teal */}
   {loggedInStaffRole === 'Agent' && (
 
-  <div className="p-4 rounded-lg shadow-md bg-teal-100">
-    <h3 className="text-sm font-semibold mb-2 text-teal-800">DS Package</h3>
-    <p className="text-sm font-bold text-teal-800">{newdspackage?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-teal-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-teal-800">DS Package</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-teal-800">{newdspackage?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       {/* <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
         value={branchId7}
         onChange={(selectedId) => setBranchId7(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date7}
-        onChange={(e) => setDate7(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date7" dateRanges={dateRanges} setDateRanges={setDateRanges} />
 
     </form>
   </div>
   )}
   {/* Card 9 - Orange */}
 
-  <div className="p-4 rounded-lg shadow-md bg-orange-100">
-    <h3 className="text-sm font-semibold mb-2 text-orange-800">SB Package</h3>
-    <p className="text-sm font-bold text-orange-800">{newsbpackage?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-orange-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-orange-800">SB Package</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-orange-800">{newsbpackage?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       {/* <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
         value={branchId8}
         onChange={(selectedId) => setBranchId8(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date8}
-        onChange={(e) => setDate8(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date8" dateRanges={dateRanges} setDateRanges={setDateRanges} />
   
+    </form>
+  </div>
+  <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-emerald-200">
+    <button
+      type="button"
+      onClick={openEcommerceDepositModal}
+      className="absolute right-3 top-3 text-emerald-800 hover:text-emerald-900"
+      title="View ecommerce deposit details"
+    >
+      <FaEye className="text-sm sm:text-lg" />
+    </button>
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-emerald-800">Ecommerce Deposit</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-emerald-800">{newRepEcommerceDeposit?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
+      <DashboardDateRangeFields rangeKey="date18" dateRanges={dateRanges} setDateRanges={setDateRanges} />
+    </form>
+  </div>
+  <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-orange-200">
+    <button
+      type="button"
+      onClick={openEcommerceDSDepositModal}
+      className="absolute right-3 top-3 text-orange-800 hover:text-orange-900"
+      title="View customer DS deposit details"
+    >
+      <FaEye className="text-sm sm:text-lg" />
+    </button>
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-orange-800">Customer DS Deposit</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-orange-800">{newRepEcommerceDSDeposit?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
+      <DashboardDateRangeFields rangeKey="date20" dateRanges={dateRanges} setDateRanges={setDateRanges} />
     </form>
   </div>
     {/* Card 16 - Fuchsia */}
   {loggedInStaffRole === 'Agent' && (
 
-    <div className="p-4 rounded-lg shadow-md bg-fuchsia-100">
-    <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Package</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newfdpackage?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+    <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-fuchsia-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-fuchsia-800">FD Package</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-fuchsia-800">{ newfdpackage?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       {/* <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
         value={branchId16}
         onChange={(selectedId) => setBranchId16(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date15}
-        onChange={(e) => setDate15(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date15" dateRanges={dateRanges} setDateRanges={setDateRanges} />
   
     </form>
   </div>
@@ -329,93 +372,98 @@ const RepDashboard = () => {
   {/* Card 10 - Cyan */}
   {loggedInStaffRole === 'Agent' && (
 
-  <div className="p-4 rounded-lg shadow-md bg-cyan-100">
-    <h3 className="text-sm font-semibold mb-2 text-cyan-800">Total Packages</h3>
-    <p className="text-sm font-bold text-cyan-800">{newpackages?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-cyan-200">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-cyan-800">Total Packages</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-cyan-800">{newpackages?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       {/* <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
         value={branchId9}
         onChange={(selectedId) => setBranchId9(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date9}
-        onChange={(e) => setDate9(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date9" dateRanges={dateRanges} setDateRanges={setDateRanges} />
  
     </form>
   </div>
   )}
     {/* Card 16 - Fuchsia */}
-    {/* <div className="relative p-4 rounded-lg shadow-md bg-violet-100"> */}
+    {/* <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-violet-200"> */}
   {/* <Link to="/branchfdreport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
-    <i className="fas fa-file-alt text-lg" title="View FD Transaction Statement"></i>
+    <i className="fas fa-file-alt text-sm sm:text-lg" title="View FD Transaction Statement"></i>
   </Link> */}
-    {/* <h3 className="text-sm font-semibold mb-2 text-fuchsia-800">FD Contribution</h3>
-    <p className="text-sm font-bold text-fuchsia-800">{ newfdContribution || 0}</p>
-    <form className="flex flex-col gap-2 mt-2"> */}
+    {/* <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-fuchsia-800">FD Contribution</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-fuchsia-800">{ newfdContribution || 0}</p>
+    <form className="flex flex-col gap-1 mt-1"> */}
       {/* <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
         value={branchId15}
         onChange={(selectedId) => setBranchId15(selectedId)}
       /> */}
-      {/* <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date16}
-        onChange={(e) => setDate16(e.target.value)}
-      />
-  
-    </form>
+      {/* Date range input intentionally omitted for the archived FD contribution card. */}
+    {/* </form>
   </div> */}
     {/* Card 14 - Violet */}
-    <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
+    <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-violet-200">
          {/* Transaction Statement Icon (Top-right Corner) */}
   <Link to="/repexpenditurereport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
     <p className="text-sm md:text-sm">View Expenditure</p>
   </Link>
-    <h3 className="text-sm font-semibold mb-2 text-violet-800">Total Expenses</h3>
-    <p className="text-sm font-bold text-violet-800">{ newrepexpenditure?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-2 mt-2">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-violet-800">Total Expenses</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-violet-800">{ newrepexpenditure?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
       {/* <Select2
         label="Branch"
         options={branches.map((branch) => ({ label: branch.name, value: branch._id }))}
         value={branchId13}
         onChange={(selectedId) => setBranchId13(selectedId)}
       /> */}
-      <input 
-        type="date" 
-        className="p-2 border rounded-md" 
-        value={date13}
-        onChange={(e) => setDate13(e.target.value)}
-      />
+      <DashboardDateRangeFields rangeKey="date13" dateRanges={dateRanges} setDateRanges={setDateRanges} />
   
     </form>
   </div>
      {/* Card 14 - Violet */}
-      <div className="relative p-4 rounded-lg shadow-md bg-violet-100">
+      <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-violet-200">
            {/* Transaction Statement Icon (Top-right Corner) */}
     <Link to={`/staffreferral?staffId=${staffId}`}className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
       <p className="text-sm md:text-sm">View Referral</p>
     </Link>
-      <h3 className="text-sm font-semibold mb-2 text-violet-800">Staff Referrals</h3>
-      <p className="text-sm font-bold text-violet-800">{ newreferral?.toLocaleString('en-US') || 0}</p>
-      <form className="flex flex-col gap-2 mt-2">
+      <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-violet-800">Staff Referrals</h3>
+      <p className="text-[11px] sm:text-sm font-bold text-violet-800">{ newreferral?.toLocaleString('en-US') || 0}</p>
+      <form className="flex flex-col gap-1 mt-1">
      
-        <input 
-          type="date" 
-          className="p-2 border rounded-md" 
-          value={date17}
-          onChange={(e) => setDate17(e.target.value)}
-        />
+        <DashboardDateRangeFields rangeKey="date17" dateRanges={dateRanges} setDateRanges={setDateRanges} />
     
       </form>
     </div>
+    <BackofficeProductDeliveryCards />
 </div>
+
+<EcommerceDepositDetailsModal
+  isOpen={isEcommerceDepositModalOpen}
+  onClose={() => setIsEcommerceDepositModalOpen(false)}
+  title="Rep Ecommerce Deposit Details"
+  transactions={repEcommerceDepositReport}
+/>
+<EcommerceDepositDetailsModal
+  isOpen={isFWWithdrawalModalOpen}
+  onClose={() => setIsFWWithdrawalModalOpen(false)}
+  title="Rep FW Withdrawal Details"
+  transactions={repFWWithdrawalReport}
+  showStaff
+/>
+<EcommerceDepositDetailsModal
+  isOpen={isEcommerceDSDepositModalOpen}
+  onClose={() => setIsEcommerceDSDepositModalOpen(false)}
+  title="Rep Customer DS Deposit Details"
+  transactions={repEcommerceDSDepositReport}
+  showPackage
+  showAccountNumber
+  showDSAccountNumber
+  showAccountType
+  showBalance
+/>
 </div>
 
   );

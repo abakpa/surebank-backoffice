@@ -2,44 +2,57 @@
 // Mock function to get branch name from branchId
 const getBranchName = (staffId, staffs = []) => {
   const staff = staffs.find((staff) => staff._id === staffId);
-  return staff ? staff.firstName : "Unknown Branch";
+  return staff ? `${staff.firstName} ${staff.lastName || ""}`.trim() : "Unknown Staff";
 };
 
+const getTransactionNarration = (transaction) => {
+  const narration = String(transaction?.narration || "");
+  const customerRequestMatch = narration.match(/^Customer request debit for (.+?)(?:\s+-\s+.+)?$/i);
+
+  if (customerRequestMatch) {
+    return `Debited from wallet for ${customerRequestMatch[1]}`;
+  }
+
+  return narration.replace(/\s+-\s+Ref:.+$/i, "");
+};
 
 const Tablebody = ({ customers = [], branches = [] }) => { // Default values for props
+  const amountClass = (direction) =>
+    direction === 'Credit'
+      ? "text-green-600"
+      : direction === 'Transfer'
+      ? "text-green-600"
+      : direction === 'Moved'
+      ? "text-purple-500"
+      : "text-red-600";
+
   return (
     <tbody className="text-xs">
       {Array.isArray(customers) && customers.length > 0 ? (
-        customers.map((customer, index) => (
+        customers.map((customer, index) => {
+          const displayNarration = getTransactionNarration(customer);
+          return (
           <tr
             key={index}
             className=" hover:bg-gray-100"
           >
-            <td>
-            <p className="text-xs mb-2 font-semibold">
-                <span className={customer.direction === 'Credit' ? "text-green-600":customer.direction ==='Transfer'? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500": "text-red-600"}>
+            <td className="p-2 align-top break-words">
+            <p className="text-xs mb-2 font-semibold min-w-0">
+                <span className={amountClass(customer.direction)}>
                 {customer.direction}
                 </span>
                 <br />
-                <span className="text-gray-500">{customer.date}</span>
+                <span className="text-gray-500 break-words">{customer.date}</span>
             </p>
             </td>            
-            <td>
-            <p className={`text-xs font-semibold ${customer.direction === 'Credit' ?  "text-green-600":customer.direction ==='Transfer'? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>
+            <td className="p-2 align-top whitespace-nowrap">
+            <p className={`text-xs font-semibold whitespace-nowrap ${amountClass(customer.direction)}`}>
             {customer.direction === 'Credit' ? "+" : customer.direction === 'Transfer'? "+" : "-"} {customer.amount?.toLocaleString('en-US')}
             </p>
             </td>
-            <td>
+            <td className="p-2 align-top min-w-0">
   <p
-    className={` text-xs flex items-center space-x-1 ${
-      customer.direction === "Credit"
-        ? "text-green-600"
-        :customer.direction ==='Transfer'
-        ? "text-green-600"
-        : customer.direction === "Moved"
-        ? "text-purple-500"
-        : "text-red-600"
-    }`}
+    className={`text-xs flex flex-wrap items-center gap-1 min-w-0 break-words ${amountClass(customer.direction)}`}
   >
     {/* Icon with smaller size */}
     <span
@@ -51,7 +64,7 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
     </span>
 
     {/* Text "Deposit" */}
-    <span className="flex items-center gap-1">
+    <span className="inline-flex min-w-0 flex-wrap items-center gap-1 break-words">
   {customer.narration === "From DS account" ? (
     <>
       From
@@ -69,19 +82,22 @@ const Tablebody = ({ customers = [], branches = [] }) => { // Default values for
   ) : customer.narration === "Total DS" ? (
     "Total"
   ) : (
-    customer.narration
+    displayNarration
   )}
 </span>
  
 </p>
 </td>
 
-            <td ><p className={`ml-2 ${customer.direction === 'Credit' ?  "text-green-600":customer.direction ==='Transfer'? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>{customer.balance?.toLocaleString('en-US')}</p></td>
-            <td >
-              <p className={`${customer.direction === 'Credit' ?  "text-green-600":customer.direction ==='Transfer'? "text-green-600" :customer.direction === 'Moved' ? "text-purple-500" :  "text-red-600"}`}>{getBranchName(customer.createdBy, branches)}</p>
+            <td className="p-2 align-top whitespace-nowrap"><p className={`whitespace-nowrap ${amountClass(customer.direction)}`}>{customer.balance?.toLocaleString('en-US')}</p></td>
+            <td className="p-2 align-top min-w-0">
+              <p className={`break-words ${amountClass(customer.direction)}`}>
+                {customer.createdByName || getBranchName(customer.createdBy, branches)}
+              </p>
             </td>
           </tr>
-        ))
+          );
+        })
       ) : (
         <tr>
           <td colSpan="5" className="text-center p-4">
