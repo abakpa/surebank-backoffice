@@ -178,6 +178,7 @@ const CustomerAccountDashboard = () => {
   const [replacementProductId, setReplacementProductId] = useState("");
   const [replacementVariationId, setReplacementVariationId] = useState("");
   const [replacementSearch, setReplacementSearch] = useState("");
+  const [createSBProductSearch, setCreateSBProductSearch] = useState("");
   const [replaceLoading, setReplaceLoading] = useState(false);
   const [replaceError, setReplaceError] = useState("");
   const [selectedSBProducts, setSelectedSBProducts] = useState([]);
@@ -1119,6 +1120,7 @@ if(selectedAccount){
       setShowCreateSBAccountModal(false);
       setShowMobileSBProductActionModal(false);
       setSelectedSBProducts([]);
+      setCreateSBProductSearch("");
       setSellingPrice("");
       setProductName("");
       setProductDescription("");
@@ -1169,10 +1171,26 @@ if(selectedAccount){
       setProductName("");
       setProductDescription("");
       setSelectedSBProducts([]);
+      setCreateSBProductSearch("");
       // setAccountManagerId("");
       setShowMobileSBProductActionModal(false);
       setShowCreateSBAccountModal(false);
     };
+
+    const filteredCreateSBProducts = ecommerceProducts.filter((product) => {
+      const search = createSBProductSearch.trim().toLowerCase();
+      if (!search) return true;
+
+      return [
+        product.name,
+        product.description,
+        product.categoryName,
+        product.subCategoryName,
+        product.sku
+      ]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(search));
+    });
 
     const selectedReplacementProduct = ecommerceProducts.find((product) => String(product._id || "") === String(replacementProductId));
     const activeReplacementVariations = getActiveProductVariations(selectedReplacementProduct);
@@ -2866,20 +2884,31 @@ if(selectedAccount){
   
   {/* Create SB Account Package Modal */}
   {showCreateSBAccountModal && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-5 py-3">
-          <h3 className="text-lg font-bold text-gray-900">Create SB Package</h3>
-          <p className="text-xs text-gray-600 mt-1">Select one or more products to create a single SB package order for this customer.</p>
+    <div className="fixed inset-0 z-[70] flex items-start justify-center bg-black bg-opacity-50 px-3 pb-3 pt-16 md:items-center md:p-4">
+      <div className="max-h-[calc(100vh-5rem)] w-full max-w-4xl overflow-y-auto rounded-lg bg-white shadow-xl md:max-h-[90vh]">
+        <div className="sticky top-0 z-10 border-b border-gray-200 bg-white px-4 py-3 md:px-5">
+          <h3 className="text-base font-bold text-gray-900 md:text-lg">Create SB Package</h3>
+          <p className="mt-1 text-[11px] leading-4 text-gray-600 md:text-xs">Select one or more products to create a single SB package order for this customer.</p>
         </div>
 
-        <form onSubmit={handleCreateSBAccount} className="p-5">
+        <form onSubmit={handleCreateSBAccount} className="p-4 md:p-5">
           {errors && <p className="text-red-600 mb-4 text-sm">{errors}</p>}
 
           <div className="mb-5">
-            <div className="flex items-center justify-between mb-2">
+            <div className="mb-2 flex items-center justify-between gap-3">
               <h4 className="text-xs font-semibold text-gray-800">Products</h4>
               {productsLoading && <span className="text-xs text-gray-500">Loading products...</span>}
+            </div>
+
+            <div className="mb-3">
+              <label className="mb-1 block text-xs font-semibold text-gray-700">Search product</label>
+              <input
+                type="text"
+                value={createSBProductSearch}
+                onChange={(event) => setCreateSBProductSearch(event.target.value)}
+                placeholder="Search by product name, description, category, or SKU"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+              />
             </div>
 
             {productsError && (
@@ -2894,8 +2923,14 @@ if(selectedAccount){
               </div>
             )}
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
-              {ecommerceProducts.map((product) => {
+            {!productsLoading && !productsError && ecommerceProducts.length > 0 && filteredCreateSBProducts.length === 0 && (
+              <div className="mb-4 rounded-md border border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-600">
+                No product matches your search.
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 lg:grid-cols-4">
+              {filteredCreateSBProducts.map((product) => {
                 const productImage = Array.isArray(product.images) && product.images.length > 0
                   ? resolveImageUrl(product.images[0])
                   : "";
