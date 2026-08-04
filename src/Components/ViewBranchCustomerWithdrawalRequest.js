@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBranchCustomerWithdrawalRequestRequest } from '../redux/slices/customerSlice';
+import {
+    fetchBranchCustomerWithdrawalRequestRequest,
+    updateCustomerWithdrawalRequestRequest,
+} from '../redux/slices/customerSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
 
@@ -89,6 +92,42 @@ const ViewBranchCustomerWithdrawalRequest = () => {
         setTimeout(() => setCopiedId(null), 2000);
     };
 
+    const handleStatusUpdate = (_id) => (e) => {
+        e.preventDefault();
+        const details = { withdrawalRequestId: _id };
+        dispatch(updateCustomerWithdrawalRequestRequest({ details }));
+    };
+
+    const renderManagerAction = (customer) => {
+        const normalizedStatus = String(customer?.status || '').toLowerCase();
+
+        if (normalizedStatus === 'pending') {
+            return (
+                <button
+                    type="button"
+                    onClick={handleStatusUpdate(customer?._id)}
+                    className="rounded-full bg-orange-600 px-4 py-2 text-xs font-black text-white shadow-sm transition hover:bg-orange-700"
+                >
+                    Process
+                </button>
+            );
+        }
+
+        if (normalizedStatus === 'processing') {
+            return (
+                <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-800">
+                    Awaiting Admin
+                </span>
+            );
+        }
+
+        return (
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-600">
+                View only
+            </span>
+        );
+    };
+
     const renderRequestCard = (customer, completed = false) => {
         const statusMeta = getStatusMeta(customer?.status);
 
@@ -145,7 +184,7 @@ const ViewBranchCustomerWithdrawalRequest = () => {
                             <span className="text-xs font-semibold text-slate-500">Rep: {customer?.accountManagerId?.firstName || 'N/A'}</span>
                             <span className="block text-xs font-semibold text-slate-500">Date: {new Date(customer?.createdAt).toLocaleDateString()}</span>
                         </div>
-                        {!completed && <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-600">View only</span>}
+                        {!completed && renderManagerAction(customer)}
                     </div>
                 </div>
             </div>
@@ -180,7 +219,7 @@ const ViewBranchCustomerWithdrawalRequest = () => {
                                     <p className="text-xs font-black uppercase text-blue-300">Branch requests</p>
                                     <h1 className="mt-1 text-2xl font-black tracking-normal md:text-3xl">Customer Withdrawal Requests</h1>
                                     <p className="mt-1 max-w-2xl text-sm text-slate-200">
-                                        View withdrawal requests from customers in your branch. Admin handles completion actions.
+                                        Process pending branch requests for admin completion. Customer debit happens only when admin completes the request.
                                     </p>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2 text-xs md:min-w-[420px] md:grid-cols-3 md:text-sm">
@@ -259,6 +298,7 @@ const ViewBranchCustomerWithdrawalRequest = () => {
                                                 <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Rep</th>
                                                 <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Date</th>
                                                 <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Status</th>
+                                                <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-wider text-slate-200">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100 bg-white">
@@ -299,12 +339,13 @@ const ViewBranchCustomerWithdrawalRequest = () => {
                                                             <td className="whitespace-nowrap px-4 py-4 text-sm font-semibold text-slate-600">{customer?.accountManagerId?.firstName || 'N/A'}</td>
                                                             <td className="whitespace-nowrap px-4 py-4 text-sm font-semibold text-slate-600">{new Date(customer?.createdAt).toLocaleDateString()}</td>
                                                             <td className="whitespace-nowrap px-4 py-4"><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-black ${statusMeta.badgeClass}`}>{statusMeta.label}</span></td>
+                                                            <td className="whitespace-nowrap px-4 py-4">{renderManagerAction(customer)}</td>
                                                         </tr>
                                                     );
                                                 })
                                             ) : (
                                                 <tr>
-                                                    <td colSpan="9" className="px-6 py-10 text-center text-sm font-semibold text-slate-500">No active withdrawal requests found</td>
+                                                    <td colSpan="10" className="px-6 py-10 text-center text-sm font-semibold text-slate-500">No active withdrawal requests found</td>
                                                 </tr>
                                             )}
                                         </tbody>

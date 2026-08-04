@@ -1,4 +1,5 @@
 import React from "react";
+import { createPortal } from "react-dom";
 
 const formatAmount = (value) => Number(value || 0).toLocaleString("en-US");
 const formatDate = (value) => {
@@ -34,9 +35,9 @@ const EcommerceDepositDetailsModal = ({
     showStaff,
   ].filter(Boolean).length;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-      <div className="max-h-[85vh] w-full max-w-6xl overflow-hidden rounded-xl bg-white shadow-2xl">
+  return createPortal(
+    <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-black/50 px-3 py-4 sm:px-4">
+      <div className="max-h-[86vh] w-full max-w-6xl overflow-hidden rounded-xl bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
           <button
@@ -128,7 +129,8 @@ const EcommerceDepositDetailsModal = ({
           </table>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

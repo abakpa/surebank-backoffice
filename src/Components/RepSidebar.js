@@ -84,6 +84,11 @@ const ManagerSidebar = ({ isOpen, toggleSidebar, role }) => {
           Order
           </li>
         </Link>
+        <Link to="/viewcashwithdrawalrequest" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            Cash Request
+          </li>
+        </Link>
 
         {/* E-Commerce Section */}
         <li className="theme-sidebar-section mt-4 mb-2 text-xs uppercase tracking-wider">

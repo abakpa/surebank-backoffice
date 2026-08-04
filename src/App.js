@@ -51,6 +51,7 @@ import ViewRepCustomerUsingApp from "./Components/ViewRepCustomerUsingApp";
 import ViewCustomerWithdrawalRequest from "./Components/ViewCustomerWithdrawalRequest";
 import ViewBranchCustomerWithdrawalRequest from "./Components/ViewBranchCustomerWithdrawalRequest";
 import ViewRepCustomerWithdrawalRequest from "./Components/ViewRepCustomerWithdrawalRequest";
+import ViewCashWithdrawalRequest from "./Components/ViewCashWithdrawalRequest";
 import Products from "./Components/Products";
 import CreateProduct from "./Components/CreateProduct";
 import Categories from "./Components/Categories";
@@ -210,6 +211,7 @@ function App() {
                   <Route path="/viewcustomerwithdrawalrequest" element={<ViewCustomerWithdrawalRequest />} />
                   <Route path="/viewbranchcustomerwithdrawalrequest" element={<ViewBranchCustomerWithdrawalRequest />} />
                   <Route path="/viewrepcustomerwithdrawalrequest" element={<ViewRepCustomerWithdrawalRequest />} />
+                  <Route path="/viewcashwithdrawalrequest" element={<ViewCashWithdrawalRequest />} />
                   {/* E-Commerce Routes */}
                   <Route path="/products" element={<Products />} />
                   <Route path="/createproduct" element={<CreateProduct />} />

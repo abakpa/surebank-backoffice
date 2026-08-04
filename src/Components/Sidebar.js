@@ -91,6 +91,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             Closed Legacy SB
           </li>
         </Link>
+        <Link to="/viewcashwithdrawalrequest" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            Cash Request
+          </li>
+        </Link>
         <Link to="/interest" className="text-xs">
           <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
           Interest Rate

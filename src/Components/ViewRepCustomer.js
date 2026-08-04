@@ -146,6 +146,11 @@ const Viewcustomer = () => {
                   Customers Request
                 </button>
               </Link>
+              <Link to="/viewcashwithdrawalrequest" className="text-xs">
+                <button className="w-full rounded-xl bg-emerald-600 px-4 py-3 font-black text-white shadow-sm hover:bg-emerald-700 xl:w-auto">
+                  Cash Request
+                </button>
+              </Link>
               {role === 'Agent' && (
                 <Link to="/viewrepcustomerusingapp" className="text-xs">
                   <button className="w-full rounded-xl bg-sky-600 px-4 py-3 font-black text-white shadow-sm hover:bg-sky-700 xl:w-auto">

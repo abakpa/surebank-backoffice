@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaPrint, FaReceipt, FaShareAlt, FaTimes } from "react-icons/fa";
@@ -276,8 +277,8 @@ const ReceiptModal = ({ receipt, isOpen, onClose }) => {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-3 sm:p-5">
+  return createPortal(
+    <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-black/60 p-3 sm:p-5">
       <div ref={receiptRef} className="receipt-print-area max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white shadow-2xl">
         <div className="bg-gradient-to-r from-orange-500 via-fuchsia-600 to-indigo-700 px-5 py-5 text-white sm:px-7">
           <div className="flex items-start justify-between gap-3">
@@ -377,15 +378,16 @@ const ReceiptModal = ({ receipt, isOpen, onClose }) => {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
 const DeliveryDetailsModal = ({ title, items, isOpen, onClose, onOpenAccount, onOpenReceipt, receiptLoadingId = "", showDeliveredBy = false }) => {
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-black/50 p-3 sm:p-4">
       <div className="max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-lg bg-white shadow-xl dark:bg-slate-900">
         <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-slate-700">
           <div>
@@ -481,7 +483,8 @@ const DeliveryDetailsModal = ({ title, items, isOpen, onClose, onOpenAccount, on
           </table>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

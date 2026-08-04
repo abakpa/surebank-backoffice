@@ -115,6 +115,7 @@ const CustomerAccountDashboard = () => {
   const staffId = localStorage.getItem("staffId");
   const canTransferWalletToPackage = ['Admin', 'Manager', 'Agent'].includes(loggedInStaffRole);
   const canManageCustomerFunds = ['Admin', 'Manager'].includes(loggedInStaffRole);
+  const canDirectlyWithdrawCustomerFunds = loggedInStaffRole === 'Admin';
   const canRequestCustomerProduct = ['Agent', 'OnlineRep', 'Rep'].includes(loggedInStaffRole);
   const canChangeSBProduct = canTransferWalletToPackage;
   const hasCustomerSettlementBankDetails = Boolean(
@@ -195,6 +196,7 @@ const CustomerAccountDashboard = () => {
   const [showError, setShowError] = useState(false);
   const [showCustomerWithdrawalRequestModal, setShowCustomerWithdrawalRequestModal] = useState(false);
   const [customerWithdrawalRequestType, setCustomerWithdrawalRequestType] = useState("");
+  const [customerWithdrawalPayoutMethod, setCustomerWithdrawalPayoutMethod] = useState("transfer");
   const [customerWithdrawalRequestSubmitting, setCustomerWithdrawalRequestSubmitting] = useState(false);
   
   const duration = [6, 9, 12, 18, 24]
@@ -505,6 +507,7 @@ if(selectedAccount){
     setSettlementBankAccountNumber("");
     setSelectedAccount(account);
     setCustomerWithdrawalRequestType(type);
+    setCustomerWithdrawalPayoutMethod("transfer");
     setShowCustomerWithdrawalRequestModal(true);
   };
 
@@ -520,7 +523,17 @@ if(selectedAccount){
       return;
     }
 
-    if (!hasCustomerSettlementBankDetails) {
+    const availableRequestBalance = customerWithdrawalRequestType === "free_to_withdraw"
+      ? Number(deposit?.account?.availableBalance || 0)
+      : Number(selectedAccount?.totalContribution || 0);
+
+    if (parsedAmount > availableRequestBalance) {
+      setCustomerWithdrawalRequestError(`Amount cannot be more than ${formatCurrency(availableRequestBalance)}.`);
+      setShowError(true);
+      return;
+    }
+
+    if (customerWithdrawalPayoutMethod === "transfer" && !hasCustomerSettlementBankDetails) {
       if (!settlementBankName.trim() || !settlementAccountName.trim() || !settlementBankAccountNumber.trim()) {
         setCustomerWithdrawalRequestError("Please enter settlement bank name, account name and account number.");
         setShowError(true);
@@ -534,6 +547,7 @@ if(selectedAccount){
           customerId,
           accountTypeId: deposit?.account?._id,
           amount: parsedAmount,
+          payoutMethod: customerWithdrawalPayoutMethod,
           bankName: settlementBankName.trim(),
           accountName: settlementAccountName.trim(),
           bankAccountNumber: settlementBankAccountNumber.trim(),
@@ -543,6 +557,7 @@ if(selectedAccount){
           customerId,
           accountTypeId: selectedAccount?._id,
           amount: parsedAmount,
+          payoutMethod: customerWithdrawalPayoutMethod,
           bankName: settlementBankName.trim(),
           accountName: settlementAccountName.trim(),
           bankAccountNumber: settlementBankAccountNumber.trim(),
@@ -568,6 +583,7 @@ if(selectedAccount){
       setSettlementBankName("");
       setSettlementAccountName("");
       setSettlementBankAccountNumber("");
+      setCustomerWithdrawalPayoutMethod("transfer");
       setShowCustomerWithdrawalRequestModal(false);
       setTimeout(() => {
         setShowSuccess(false);
@@ -1550,7 +1566,7 @@ if(selectedAccount){
     <i className="fas fa-plus-circle text-xl md:text-lg" title="Deposit"></i>
   </button>
 )}
-  {canManageCustomerFunds && (
+  {canDirectlyWithdrawCustomerFunds && (
 	  <button
 	    onClick={() => setShowMainWithdrawalModal(true)}
 	    className="shrink-0 text-white/90 hover:text-white"
@@ -1744,7 +1760,7 @@ if(selectedAccount){
         >
           <i className="fas fa-plus-circle text-3xl md:text-lg" title="Deposit"></i>
         </button>
-        {canManageCustomerFunds && (
+        {canDirectlyWithdrawCustomerFunds && (
           <button
             onClick={() => {
               setSelectedAccount(account);
@@ -2264,7 +2280,32 @@ if(selectedAccount){
             placeholder="Enter amount"
             className="mb-4 w-full rounded-xl border border-gray-300 p-3 text-sm font-semibold focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-100"
           />
-          {!hasCustomerSettlementBankDetails && (
+          <div className="mb-4 grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1">
+            {[
+              { value: "transfer", label: "Transfer", tone: "bg-blue-600" },
+              { value: "cash", label: "Cash", tone: "bg-emerald-600" },
+            ].map((option) => {
+              const active = customerWithdrawalPayoutMethod === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setCustomerWithdrawalPayoutMethod(option.value)}
+                  className={`rounded-xl px-3 py-2 text-sm font-black transition ${
+                    active ? `${option.tone} text-white shadow-sm` : "bg-white text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+          <p className="mb-4 rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
+            {customerWithdrawalPayoutMethod === "cash"
+              ? "Cash requests will be completed by the branch secretary/manager after cash is paid out."
+              : "Transfer requests will be processed by the branch secretary/manager and completed by admin after bank payment."}
+          </p>
+          {customerWithdrawalPayoutMethod === "transfer" && !hasCustomerSettlementBankDetails && (
             <div className="mb-4 rounded-xl border border-orange-100 bg-orange-50 p-3">
               <p className="mb-2 text-xs font-black uppercase text-orange-700">Settlement bank details required</p>
               <p className="mb-3 text-xs font-semibold text-slate-600">
@@ -2303,6 +2344,7 @@ if(selectedAccount){
                 setSettlementBankName("");
                 setSettlementAccountName("");
                 setSettlementBankAccountNumber("");
+                setCustomerWithdrawalPayoutMethod("transfer");
               }}
               className="rounded-xl bg-gray-100 px-4 py-2 text-sm font-black text-gray-700 hover:bg-gray-200"
             >

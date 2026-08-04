@@ -101,7 +101,14 @@ const Viewcustomer = () => {
               {["Manager"].includes(loggedInStaffRole)&&(
                 <Link to="/viewbranchcustomerwithdrawalrequest" className="text-xs">
                   <button className="w-full rounded-xl bg-purple-700 px-4 py-3 font-black text-white shadow-sm hover:bg-purple-800 lg:w-auto">
-                    Withdrawal Request
+                    Transfer Request
+                  </button>
+                </Link>
+              )}
+              {["Manager"].includes(loggedInStaffRole)&&(
+                <Link to="/viewcashwithdrawalrequest" className="text-xs">
+                  <button className="w-full rounded-xl bg-emerald-600 px-4 py-3 font-black text-white shadow-sm hover:bg-emerald-700 lg:w-auto">
+                    Cash Request
                   </button>
                 </Link>
               )}
