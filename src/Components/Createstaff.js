@@ -40,7 +40,7 @@ const CreateStaff = () => {
   // Role options
   const allRoles = [
     { label: "Secretary", value: "Manager" },
-    { label: "Product Secretary", value: "ProductManager" },
+    { label: "Product Manager", value: "ProductManager" },
     { label: "Rep", value: "Agent" },
     { label: "Admin", value: "Admin" },
     { label: "Online Rep", value: "OnlineRep" },

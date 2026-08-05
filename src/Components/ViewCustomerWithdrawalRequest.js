@@ -21,6 +21,15 @@ const getStatusMeta = (status = '') => {
         };
     }
 
+    if (normalizedStatus === 'rejected') {
+        return {
+            label: 'Rejected',
+            badgeClass: 'bg-red-100 text-red-800 ring-1 ring-red-200',
+            buttonText: 'Rejected',
+            buttonClass: 'bg-red-600 text-white cursor-not-allowed opacity-80',
+        };
+    }
+
     if (normalizedStatus === 'processing') {
         return {
             label: 'Processing',
@@ -56,12 +65,15 @@ const ViewCustomerWithdrawalRequest = () => {
     const [showError, setShowError] = useState(false);
     const [copiedId, setCopiedId] = useState(null);
     const [showHistoryModal, setShowHistoryModal] = useState(false);
+    const [rejectModalRequest, setRejectModalRequest] = useState(null);
+    const [rejectionReason, setRejectionReason] = useState('');
     const requestList = useMemo(() => (Array.isArray(customers) ? customers : []), [customers]);
+    const isClosedRequest = (customer) => ['completed', 'rejected'].includes(String(customer?.status || '').toLowerCase());
     const activeRequests = useMemo(() => (
-        filteredCustomers.filter((customer) => String(customer?.status || '').toLowerCase() !== 'completed')
+        filteredCustomers.filter((customer) => !isClosedRequest(customer))
     ), [filteredCustomers]);
     const completedRequests = useMemo(() => (
-        filteredCustomers.filter((customer) => String(customer?.status || '').toLowerCase() === 'completed')
+        filteredCustomers.filter(isClosedRequest)
     ), [filteredCustomers]);
 
     const visibleTotalAmount = useMemo(() => (
@@ -112,6 +124,29 @@ const ViewCustomerWithdrawalRequest = () => {
         dispatch(updateCustomerWithdrawalRequestRequest(data));
     };
 
+    const openRejectModal = (customer) => (e) => {
+        e.preventDefault();
+        setRejectModalRequest(customer);
+        setRejectionReason('');
+    };
+
+    const closeRejectModal = () => {
+        setRejectModalRequest(null);
+        setRejectionReason('');
+    };
+
+    const handleRejectRequest = (e) => {
+        e.preventDefault();
+        if (!rejectModalRequest?._id) return;
+        const details = {
+            withdrawalRequestId: rejectModalRequest._id,
+            reject: true,
+            rejectionReason,
+        };
+        dispatch(updateCustomerWithdrawalRequestRequest({ details }));
+        closeRejectModal();
+    };
+
     const copyToClipboard = (text, id) => {
         navigator.clipboard.writeText(text);
         setCopiedId(id);
@@ -123,7 +158,7 @@ const ViewCustomerWithdrawalRequest = () => {
 
         return (
             <div key={customer?._id} className="overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-sm">
-                <div className="bg-gradient-to-r from-emerald-700 to-slate-900 p-3 text-white">
+                <div className={`bg-gradient-to-r p-3 text-white ${String(customer?.status || '').toLowerCase() === 'rejected' ? 'from-red-700 to-slate-900' : 'from-emerald-700 to-slate-900'}`}>
                     <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                             <h3 className="truncate font-black">{getCustomerName(customer)}</h3>
@@ -148,6 +183,9 @@ const ViewCustomerWithdrawalRequest = () => {
                     <p className="text-slate-600"><span className="font-bold text-slate-900">Package:</span> {customer?.package || 'N/A'}</p>
                     <p className="text-slate-600"><span className="font-bold text-slate-900">Method:</span> {customer?.channelOfWithdrawal || 'N/A'}</p>
                     <p className="text-slate-600"><span className="font-bold text-slate-900">Branch:</span> {customer?.branchId?.name || 'N/A'}</p>
+                    {customer?.rejectionReason && (
+                        <p className="rounded-xl bg-red-50 p-2 text-red-700"><span className="font-bold">Reason:</span> {customer.rejectionReason}</p>
+                    )}
                     <p className="text-xs font-semibold text-slate-500">Date: {new Date(customer?.createdAt).toLocaleDateString()}</p>
                 </div>
             </div>
@@ -322,13 +360,22 @@ const ViewCustomerWithdrawalRequest = () => {
                                                         <span className="text-xs font-semibold text-slate-500">Rep: {customer?.accountManagerId?.firstName || 'N/A'}</span>
                                                         <span className="block text-xs font-semibold text-slate-500">Date: {new Date(customer?.createdAt).toLocaleDateString()}</span>
                                                     </div>
-                                                    <button
-                                                        className={`rounded-full px-4 py-2 text-sm font-black transition ${statusMeta.buttonClass}`}
-                                                        onClick={handleStatusUpdate(customer?._id)}
-                                                        disabled={customer?.status?.toLowerCase() === 'completed'}
-                                                    >
-                                                        {statusMeta.buttonText}
-                                                    </button>
+                                                    <div className="flex shrink-0 flex-col gap-2">
+                                                        <button
+                                                            className={`rounded-full px-4 py-2 text-sm font-black transition ${statusMeta.buttonClass}`}
+                                                            onClick={handleStatusUpdate(customer?._id)}
+                                                            disabled={customer?.status?.toLowerCase() === 'completed'}
+                                                        >
+                                                            {statusMeta.buttonText}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={openRejectModal(customer)}
+                                                            className="rounded-full bg-red-600 px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-red-700"
+                                                        >
+                                                            Reject
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -430,20 +477,29 @@ const ViewCustomerWithdrawalRequest = () => {
                                                             </span>
                                                         </td>
                                                         <td className="px-4 py-4 whitespace-nowrap text-sm">
-                                                            <button
-                                                                className={`rounded-full px-4 py-2 text-xs font-black transition ${statusMeta.buttonClass}`}
-                                                                onClick={handleStatusUpdate(customer?._id)}
-                                                                disabled={customer?.status?.toLowerCase() === 'completed'}
-                                                            >
-                                                                {statusMeta.buttonText}
-                                                            </button>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                <button
+                                                                    className={`rounded-full px-4 py-2 text-xs font-black transition ${statusMeta.buttonClass}`}
+                                                                    onClick={handleStatusUpdate(customer?._id)}
+                                                                    disabled={customer?.status?.toLowerCase() === 'completed'}
+                                                                >
+                                                                    {statusMeta.buttonText}
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={openRejectModal(customer)}
+                                                                    className="rounded-full bg-red-600 px-4 py-2 text-xs font-black text-white shadow-sm transition hover:bg-red-700"
+                                                                >
+                                                                    Reject
+                                                                </button>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 );
                                             })
                                         ) : (
                                             <tr>
-                                                <td colSpan="10" className="px-6 py-10 text-center text-sm font-semibold text-slate-500">
+                                                <td colSpan="11" className="px-6 py-10 text-center text-sm font-semibold text-slate-500">
                                                     No requests found{branchId !== 'all' ? ' for this branch' : ''}
                                                 </td>
                                             </tr>
@@ -465,20 +521,88 @@ const ViewCustomerWithdrawalRequest = () => {
                 </div>
                 </div>
         </div>
+            {rejectModalRequest && (
+                <div className="backoffice-modal-overlay fixed inset-0 flex justify-center bg-slate-950/75">
+                    <div className="backoffice-modal-panel w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl">
+                        <div className="bg-gradient-to-r from-red-700 via-orange-600 to-slate-900 px-5 py-4 text-white">
+                            <div className="flex items-start justify-between gap-3">
+                                <div>
+                                    <p className="text-xs font-black uppercase text-red-100">Reject Withdrawal Request</p>
+                                    <h2 className="mt-1 text-xl font-black">Confirm Rejection</h2>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={closeRejectModal}
+                                    className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/25"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                        <form onSubmit={handleRejectRequest} className="space-y-4 p-5">
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="rounded-2xl bg-orange-50 p-3">
+                                    <p className="text-xs font-bold text-orange-700">Customer</p>
+                                    <p className="mt-1 truncate text-sm font-black text-orange-950">{getCustomerName(rejectModalRequest)}</p>
+                                </div>
+                                <div className="rounded-2xl bg-red-50 p-3">
+                                    <p className="text-xs font-bold text-red-700">Amount</p>
+                                    <p className="mt-1 text-sm font-black text-red-950">₦{Number(rejectModalRequest?.amount || 0).toLocaleString()}</p>
+                                </div>
+                            </div>
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm">
+                                <p className="font-bold text-slate-900">{rejectModalRequest?.package || 'N/A'} - {rejectModalRequest?.packageNumber || 'N/A'}</p>
+                                <p className="mt-1 text-xs font-semibold text-slate-500">
+                                    This will mark the request as rejected without debiting the customer.
+                                </p>
+                            </div>
+                            <div>
+                                <label htmlFor="rejection-reason" className="mb-1.5 block text-sm font-black text-slate-800">
+                                    Rejection Reason
+                                </label>
+                                <textarea
+                                    id="rejection-reason"
+                                    value={rejectionReason}
+                                    onChange={(event) => setRejectionReason(event.target.value)}
+                                    placeholder="Enter why this request is being rejected"
+                                    rows={4}
+                                    className="block w-full resize-none rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    type="button"
+                                    onClick={closeRejectModal}
+                                    className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-black text-slate-700 hover:bg-slate-200"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="rounded-2xl bg-red-600 px-4 py-3 text-sm font-black text-white shadow-lg shadow-red-900/15 hover:bg-red-700"
+                                >
+                                    Reject Request
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
             {showHistoryModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-3">
-                    <div className="flex max-h-full w-full max-w-md flex-col overflow-hidden rounded-3xl bg-slate-50 shadow-2xl md:max-w-3xl">
+                <div className="backoffice-modal-overlay fixed inset-0 flex justify-center bg-slate-950/70">
+                    <div className="backoffice-modal-panel flex w-full max-w-md flex-col overflow-hidden rounded-3xl bg-slate-50 shadow-2xl md:max-w-3xl">
                         <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-white px-4 py-4">
                             <div className="min-w-0">
-                                <p className="text-xs font-black uppercase text-emerald-700">Completed Requests</p>
+                                <p className="text-xs font-black uppercase text-emerald-700">Completed and Rejected Requests</p>
                                 <h2 className="mt-0.5 text-lg font-black text-slate-950">Request Transaction History</h2>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setShowHistoryModal(false)}
-                                className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700"
+                                aria-label="Close request transaction history"
+                                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-600 text-2xl font-black leading-none text-white shadow-lg shadow-red-900/20 hover:bg-red-700"
                             >
-                                Close
+                                &times;
                             </button>
                         </div>
                         <div className="flex-1 space-y-3 overflow-y-auto p-3">
@@ -486,9 +610,18 @@ const ViewCustomerWithdrawalRequest = () => {
                                 completedRequests.map(renderCompletedRequestCard)
                             ) : (
                                 <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-10 text-center text-sm font-semibold text-slate-500">
-                                    No completed request history found.
+                                    No request history found.
                                 </div>
                             )}
+                        </div>
+                        <div className="border-t border-slate-200 bg-white p-3">
+                            <button
+                                type="button"
+                                onClick={() => setShowHistoryModal(false)}
+                                className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-black text-white shadow-lg shadow-slate-900/15 hover:bg-slate-800"
+                            >
+                                Close History
+                            </button>
                         </div>
                     </div>
                 </div>

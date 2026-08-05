@@ -14,6 +14,10 @@ const getStatusMeta = (status = '') => {
         return { label: 'Completed', badgeClass: 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200' };
     }
 
+    if (normalizedStatus === 'rejected') {
+        return { label: 'Rejected', badgeClass: 'bg-red-100 text-red-800 ring-1 ring-red-200' };
+    }
+
     if (normalizedStatus === 'processing') {
         return { label: 'Processing', badgeClass: 'bg-amber-100 text-amber-800 ring-1 ring-amber-200' };
     }
@@ -28,6 +32,8 @@ const getInitials = (customer) => {
     const lastName = customer?.customerId?.lastName || '';
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || 'SB';
 };
+
+const isClosedRequest = (customer) => ['completed', 'rejected'].includes(String(customer?.status || '').toLowerCase());
 
 const requestMatchesSearch = (customer, searchTerm) => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -56,10 +62,10 @@ const ViewBranchCustomerWithdrawalRequest = () => {
         requestList.filter((customer) => requestMatchesSearch(customer, searchTerm))
     ), [requestList, searchTerm]);
     const activeRequests = useMemo(() => (
-        filteredRequests.filter((customer) => String(customer?.status || '').toLowerCase() !== 'completed')
+        filteredRequests.filter((customer) => !isClosedRequest(customer))
     ), [filteredRequests]);
     const completedRequests = useMemo(() => (
-        filteredRequests.filter((customer) => String(customer?.status || '').toLowerCase() === 'completed')
+        filteredRequests.filter(isClosedRequest)
     ), [filteredRequests]);
 
     const totalAmount = useMemo(() => (
@@ -133,7 +139,13 @@ const ViewBranchCustomerWithdrawalRequest = () => {
 
         return (
             <div key={customer?._id} className={`overflow-hidden rounded-2xl border bg-white shadow-sm ${completed ? 'border-emerald-100' : 'border-slate-200'}`}>
-                <div className={`bg-gradient-to-r p-3 text-white ${completed ? 'from-emerald-700 to-slate-900' : 'from-slate-900 to-blue-800'}`}>
+                <div className={`bg-gradient-to-r p-3 text-white ${
+                    completed
+                        ? String(customer?.status || '').toLowerCase() === 'rejected'
+                            ? 'from-red-700 to-slate-900'
+                            : 'from-emerald-700 to-slate-900'
+                        : 'from-slate-900 to-blue-800'
+                }`}>
                     <div className="flex items-start justify-between gap-3">
                         <div className="flex min-w-0 items-center gap-3">
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-sm font-black">
@@ -164,6 +176,9 @@ const ViewBranchCustomerWithdrawalRequest = () => {
                     <p className="text-slate-600"><span className="font-bold text-slate-900">Package:</span> {customer?.package || 'N/A'}</p>
                     <p className="text-slate-600"><span className="font-bold text-slate-900">Method:</span> {customer?.channelOfWithdrawal || 'N/A'}</p>
                     <p className="text-slate-600"><span className="font-bold text-slate-900">Branch:</span> {customer?.branchId?.name || 'N/A'}</p>
+                    {customer?.rejectionReason && (
+                        <p className="rounded-xl bg-red-50 p-2 text-red-700"><span className="font-bold">Reason:</span> {customer.rejectionReason}</p>
+                    )}
                     {customer?.bankName && (
                         <div className="rounded-xl border border-slate-100 bg-slate-50 p-2">
                             <p className="font-bold text-slate-900">{customer?.bankName}</p>
@@ -368,8 +383,8 @@ const ViewBranchCustomerWithdrawalRequest = () => {
             </div>
 
             {showHistoryModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-3">
-                    <div className="flex max-h-full w-full max-w-md flex-col overflow-hidden rounded-3xl bg-slate-50 shadow-2xl md:max-w-3xl">
+                <div className="backoffice-modal-overlay fixed inset-0 flex justify-center bg-slate-950/70">
+                    <div className="backoffice-modal-panel flex w-full max-w-md flex-col overflow-hidden rounded-3xl bg-slate-50 shadow-2xl md:max-w-3xl">
                         <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-white px-4 py-4">
                             <div className="min-w-0">
                                 <p className="text-xs font-black uppercase text-emerald-700">Completed Requests</p>
@@ -378,9 +393,10 @@ const ViewBranchCustomerWithdrawalRequest = () => {
                             <button
                                 type="button"
                                 onClick={() => setShowHistoryModal(false)}
-                                className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700"
+                                aria-label="Close request transaction history"
+                                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-600 text-2xl font-black leading-none text-white shadow-lg shadow-red-900/20 hover:bg-red-700"
                             >
-                                Close
+                                &times;
                             </button>
                         </div>
                         <div className="flex-1 space-y-3 overflow-y-auto p-3">
@@ -391,6 +407,15 @@ const ViewBranchCustomerWithdrawalRequest = () => {
                                     No completed request history found.
                                 </div>
                             )}
+                        </div>
+                        <div className="border-t border-slate-200 bg-white p-3">
+                            <button
+                                type="button"
+                                onClick={() => setShowHistoryModal(false)}
+                                className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-black text-white shadow-lg shadow-slate-900/15 hover:bg-slate-800"
+                            >
+                                Close History
+                            </button>
                         </div>
                     </div>
                 </div>

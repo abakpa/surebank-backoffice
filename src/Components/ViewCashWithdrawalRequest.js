@@ -364,8 +364,8 @@ const ViewCashWithdrawalRequest = () => {
       </div>
 
       {showHistoryModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-3">
-          <div className="flex max-h-full w-full max-w-md flex-col overflow-hidden rounded-3xl bg-slate-50 shadow-2xl md:max-w-3xl">
+        <div className="backoffice-modal-overlay fixed inset-0 flex justify-center bg-slate-950/70">
+          <div className="backoffice-modal-panel flex w-full max-w-md flex-col overflow-hidden rounded-3xl bg-slate-50 shadow-2xl md:max-w-3xl">
             <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-white px-4 py-4">
               <div className="min-w-0">
                 <p className="text-xs font-black uppercase text-emerald-700">Completed Cash Requests</p>
@@ -374,9 +374,10 @@ const ViewCashWithdrawalRequest = () => {
               <button
                 type="button"
                 onClick={() => setShowHistoryModal(false)}
-                className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700"
+                aria-label="Close cash request history"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-600 text-2xl font-black leading-none text-white shadow-lg shadow-red-900/20 hover:bg-red-700"
               >
-                Close
+                &times;
               </button>
             </div>
             <div className="flex-1 space-y-3 overflow-y-auto p-3">
@@ -385,6 +386,15 @@ const ViewCashWithdrawalRequest = () => {
                   No completed cash request history found.
                 </div>
               )}
+            </div>
+            <div className="border-t border-slate-200 bg-white p-3">
+              <button
+                type="button"
+                onClick={() => setShowHistoryModal(false)}
+                className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-black text-white shadow-lg shadow-slate-900/15 hover:bg-slate-800"
+              >
+                Close History
+              </button>
             </div>
           </div>
         </div>

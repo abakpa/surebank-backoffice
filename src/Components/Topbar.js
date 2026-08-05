@@ -18,7 +18,7 @@ const Topbar = ({ toggleSidebar, theme, toggleTheme }) => {
     : rawRole === "Manager"
     ? "Secretary"
     : rawRole === "ProductManager" || rawRole === "Product Manager"
-    ? "Product Secretary"
+    ? "Product Manager"
     : rawRole || "Staff";
 
   const handleLogout = () => {

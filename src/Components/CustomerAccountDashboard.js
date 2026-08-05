@@ -8,6 +8,7 @@ import {fetchStaffRequest} from '../redux/slices/staffSlice'
 import {updatePhoneRequest} from '../redux/slices/depositSlice'
 import { url } from "../redux/sagas/url";
 import { resolveImageUrl } from "../utils/image";
+import { calculateCustomerSellingPrice, getProductDisplayPrice } from "../utils/pricing";
 import NotificationPopup from './Notification'
 import Loader from "./Loader";
 import Tablebody from "./Table/TransactionTableBody";
@@ -47,7 +48,7 @@ const getActiveSBProductSummary = (account) => {
 const formatRoleDisplay = (role) => {
   if (role === "Agent") return "Rep";
   if (role === "Manager") return "Secretary";
-  if (role === "ProductManager" || role === "Product Manager") return "Product Secretary";
+  if (role === "ProductManager" || role === "Product Manager") return "Product Manager";
   if (role === "OnlineRep") return "Online Rep";
   return role;
 };
@@ -68,7 +69,7 @@ const MobileVariationDropdown = ({ value, options, onChange, getLabel, formatCur
       >
         <span className={selectedVariation ? "font-semibold text-gray-900" : "text-gray-500"}>
           {selectedVariation
-            ? `${getLabel(selectedVariation)} - ${formatCurrencyValue(selectedVariation.price)}`
+            ? `${getLabel(selectedVariation)} - ${formatCurrencyValue(calculateCustomerSellingPrice(selectedVariation.price))}`
             : "Select variation"}
         </span>
         <span className={`ml-3 text-xs transition-transform ${open ? "rotate-180" : ""}`}>⌄</span>
@@ -89,7 +90,7 @@ const MobileVariationDropdown = ({ value, options, onChange, getLabel, formatCur
                   selected ? accentClasses : "bg-white text-gray-700"
                 }`}
               >
-                {getLabel(variation)} - {formatCurrencyValue(variation.price)}
+                {getLabel(variation)} - {formatCurrencyValue(calculateCustomerSellingPrice(variation.price))}
               </button>
             );
           })}
@@ -1041,8 +1042,8 @@ if(selectedAccount){
         variationId: "",
         variationName: "",
         quantity: 1,
-        price: Number(product.price || 0),
-        subtotal: Number(product.price || 0)
+        price: calculateCustomerSellingPrice(product.price),
+        subtotal: calculateCustomerSellingPrice(product.price)
       };
     };
 
@@ -1076,7 +1077,7 @@ if(selectedAccount){
       const nextItems = selectedSBProducts.map((item) => {
         if (item.productId !== productId) return item;
         const variation = (item.variations || []).find((entry) => String(entry._id || "") === String(variationId));
-        const price = Number(variation?.price || 0);
+        const price = calculateCustomerSellingPrice(variation?.price);
         const quantity = Math.max(1, Number(item.quantity || 1));
 
         return {
@@ -1212,7 +1213,9 @@ if(selectedAccount){
     const activeReplacementVariations = getActiveProductVariations(selectedReplacementProduct);
     const selectedReplacementVariation = activeReplacementVariations.find((variation) => String(variation._id || "") === String(replacementVariationId));
     const replacementQuantity = Math.max(1, Number(replaceSBContext?.item?.quantity || 1));
-    const replacementUnitPrice = Number(selectedReplacementVariation?.price ?? selectedReplacementProduct?.price ?? 0);
+    const replacementUnitPrice = calculateCustomerSellingPrice(
+      selectedReplacementVariation?.price ?? selectedReplacementProduct?.price
+    );
     const replacementSubtotal = replacementUnitPrice * replacementQuantity;
     const replacePaidAmount = Number(replaceSBContext?.item?.paidAmount || 0);
     const currentSBWalletBalance = Number(deposit?.sbWalletAccount?.availableBalance || 0);
@@ -3010,7 +3013,7 @@ if(selectedAccount){
                         )}
                       </div>
                       <p className="text-[10px] text-gray-600 mt-0.5 line-clamp-1">{product.description}</p>
-                      <p className="text-xs font-bold text-green-700 mt-1">{formatCurrency(product.price)}</p>
+                      <p className="text-xs font-bold text-green-700 mt-1">{formatCurrency(getProductDisplayPrice(product))}</p>
                     </div>
                   </button>
                 );
@@ -3046,7 +3049,7 @@ if(selectedAccount){
                         <option value="">Select variation</option>
                         {(item.variations || []).map((variation) => (
                           <option key={variation._id} value={variation._id}>
-                            {getVariationLabel(variation)} - {formatCurrency(variation.price)}
+                            {getVariationLabel(variation)} - {formatCurrency(calculateCustomerSellingPrice(variation.price))}
                           </option>
                         ))}
                       </select>
@@ -3121,7 +3124,7 @@ if(selectedAccount){
                         <option value="">Select variation</option>
                         {(selectedSBProducts[0].variations || []).map((variation) => (
                           <option key={variation._id} value={variation._id}>
-                            {getVariationLabel(variation)} - {formatCurrency(variation.price)}
+                            {getVariationLabel(variation)} - {formatCurrency(calculateCustomerSellingPrice(variation.price))}
                           </option>
                         ))}
                       </select>
@@ -3284,7 +3287,7 @@ if(selectedAccount){
                     </div>
                     <div className="p-2">
                       <p className="line-clamp-2 text-xs font-bold text-gray-900">{product.name}</p>
-                      <p className="mt-1 text-xs font-bold text-green-700">{formatCurrency(product.price)}</p>
+                      <p className="mt-1 text-xs font-bold text-green-700">{formatCurrency(getProductDisplayPrice(product))}</p>
                     </div>
                   </button>
                 );
@@ -3328,7 +3331,7 @@ if(selectedAccount){
                         <option value="">Select variation</option>
                         {activeReplacementVariations.map((variation) => (
                           <option key={variation._id} value={variation._id}>
-                            {getVariationLabel(variation)} - {formatCurrency(variation.price)}
+                            {getVariationLabel(variation)} - {formatCurrency(calculateCustomerSellingPrice(variation.price))}
                           </option>
                         ))}
                       </select>

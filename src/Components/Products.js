@@ -19,6 +19,7 @@ import { fetchCategoriesRequest } from "../redux/slices/productCategorySlice";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import Loader from "./Loader";
 import { resolveImageUrl } from "../utils/image";
+import { getProductDisplayPrice } from "../utils/pricing";
 
 const MobileTransferDropdown = ({ value, options, placeholder, onChange, getLabel }) => {
   const [open, setOpen] = useState(false);
@@ -489,7 +490,7 @@ const Products = () => {
                 <td className="px-4 py-3 text-sm">{product.name}</td>
                 <td className="px-4 py-3 text-sm">{getCategoryName(product.categoryId)}</td>
                 <td className="px-4 py-3 text-sm">{getSubCategoryName(product.categoryId, product.subCategoryId)}</td>
-                <td className="px-4 py-3 text-sm font-medium">₦{product.price?.toLocaleString()}</td>
+                <td className="px-4 py-3 text-sm font-medium">₦{getProductDisplayPrice(product).toLocaleString()}</td>
                 <td className="px-4 py-3 text-sm">
                   {isAdmin ? renderAdminStock(product) : renderManagerStockSummary(product)}
                 </td>

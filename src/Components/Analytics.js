@@ -7,7 +7,7 @@ const formatNumber = (value) => Number(value || 0).toLocaleString("en-US");
 const formatRoleDisplay = (role) => {
   if (role === "Agent") return "Rep";
   if (role === "Manager") return "Secretary";
-  if (role === "ProductManager" || role === "Product Manager") return "Product Secretary";
+  if (role === "ProductManager" || role === "Product Manager") return "Product Manager";
   if (role === "OnlineRep") return "Online Rep";
   return role;
 };

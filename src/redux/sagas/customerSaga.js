@@ -452,7 +452,7 @@ function* updatePasswordSaga(action){
     }
 }
 function*  updateCustomerWithdrawalRequestSaga(action){
-    const {withdrawalRequestId} = action.payload.details
+    const {withdrawalRequestId, reject = false, rejectionReason = ''} = action.payload.details
     try {
         const token = localStorage.getItem('authToken');
         const config = {
@@ -460,7 +460,10 @@ function*  updateCustomerWithdrawalRequestSaga(action){
             Authorization: `Bearer ${token}`,
           },
         };
-        const response = yield call(axios.put,`${url}/api/customerwithdrawalrequest/${withdrawalRequestId}`,{},config );
+        const endpoint = reject
+            ? `${url}/api/customerwithdrawalrequest/${withdrawalRequestId}/reject`
+            : `${url}/api/customerwithdrawalrequest/${withdrawalRequestId}`;
+        const response = yield call(axios.put, endpoint, reject ? { rejectionReason } : {}, config );
         yield put( updateCustomerWithdrawalRequestSuccess(response.data))
         const role = localStorage.getItem('staffRole');
         if (role === 'Manager') {
@@ -477,7 +480,7 @@ function*  updateCustomerWithdrawalRequestSaga(action){
             localStorage.removeItem('authToken');
             window.location.href = '/login';
           }
-        yield put( updateCustomerWithdrawalRequestFailure(error.response.data.message))
+        yield put( updateCustomerWithdrawalRequestFailure(error.response?.data?.message || error.message))
     }
 }
 

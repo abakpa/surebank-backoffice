@@ -16,14 +16,14 @@ const getBranchName = (branchId, branches = []) => {
 const formatRoleDisplay = (role) => {
   if (role === "Agent") return "Rep";
   if (role === "Manager") return "Secretary";
-  if (role === "ProductManager") return "Product Secretary";
+  if (role === "ProductManager") return "Product Manager";
   if (role === "OnlineRep") return "Online Rep";
   return role;
 };
 
 const roleOptions = [
   { label: "Secretary", value: "Manager" },
-  { label: "Product Secretary", value: "ProductManager" },
+  { label: "Product Manager", value: "ProductManager" },
   { label: "Rep", value: "Agent" },
   { label: "Online Rep", value: "OnlineRep" },
 ];
