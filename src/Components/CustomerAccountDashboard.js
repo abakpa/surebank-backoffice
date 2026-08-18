@@ -116,6 +116,7 @@ const CustomerAccountDashboard = () => {
   const staffId = localStorage.getItem("staffId");
   const canTransferWalletToPackage = ['Admin', 'Manager', 'Agent'].includes(loggedInStaffRole);
   const canManageCustomerFunds = ['Admin', 'Manager'].includes(loggedInStaffRole);
+  const canCreateCustomerDeposit = loggedInStaffRole !== 'Manager';
   const canDirectlyWithdrawCustomerFunds = loggedInStaffRole === 'Admin';
   const canRequestCustomerProduct = ['Agent', 'OnlineRep', 'Rep'].includes(loggedInStaffRole);
   const canChangeSBProduct = canTransferWalletToPackage;
@@ -1561,7 +1562,7 @@ if(selectedAccount){
         >
           <i className="fas fa-folder-open text-xl md:text-lg" title="View Transactions"></i>
         </button>
-  {canManageCustomerFunds && (
+  {canManageCustomerFunds && canCreateCustomerDeposit && (
 	  <button
 	    onClick={() => setShowMainDepositModal(true)}
 	    className="shrink-0 text-white/90 hover:text-white"
@@ -1609,7 +1610,7 @@ if(selectedAccount){
               <i className="fas fa-folder-open text-xl md:text-lg" title="View SB Order Wallet Transactions"></i>
             </button>
           )}
-          {sbAccountWithItemDetails && loggedInStaffRole !== 'OnlineRep' && (
+          {sbAccountWithItemDetails && loggedInStaffRole !== 'OnlineRep' && canCreateCustomerDeposit && (
             <button
               onClick={() => { setSelectedAccount(sbAccountWithItemDetails); setShowSBDepositModal(true); }}
               className="shrink-0 text-white/90 hover:text-white"
@@ -1753,6 +1754,7 @@ if(selectedAccount){
   <i className="fas fa-ban text-lg" title="Charge Reversal"></i>
 </button>
         )}
+        {canCreateCustomerDeposit && (
         <button
           onClick={() => {
             setSelectedAccount(account);
@@ -1763,6 +1765,7 @@ if(selectedAccount){
         >
           <i className="fas fa-plus-circle text-3xl md:text-lg" title="Deposit"></i>
         </button>
+        )}
         {canDirectlyWithdrawCustomerFunds && (
           <button
             onClick={() => {
@@ -1943,7 +1946,7 @@ if(selectedAccount){
           <i className="fas fa-folder-open text-3xl md:text-lg" title="View Transactions"></i>
         </button>
         {/* Deposit Icon */}
-        {loggedInStaffRole !== 'OnlineRep' && (
+        {loggedInStaffRole !== 'OnlineRep' && canCreateCustomerDeposit && (
         <button onClick={() => { setSelectedAccount(account); setShowSBDepositModal(true); }} className="rounded-full bg-emerald-50 px-3 py-2 text-emerald-700 hover:bg-emerald-100">
           <i className="fas fa-plus-circle text-3xl md:text-lg" title="Deposit"></i>
         </button>
