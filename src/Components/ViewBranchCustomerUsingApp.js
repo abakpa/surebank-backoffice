@@ -100,10 +100,10 @@ const ViewBranchCustomerUsingApp = () => {
                 </section>
 
                 <section className="grid grid-cols-2 gap-2 sm:gap-3">
-                    <div className="rounded-2xl border border-orange-100 bg-white p-3 shadow-sm sm:p-4">
-                        <p className="text-[10px] font-black uppercase text-orange-600 sm:text-xs">Most Active Login</p>
-                        <p className="mt-1 truncate text-sm font-black text-slate-950 sm:text-lg">{getCustomerName(summary.bestLoginCustomer)}</p>
-                        <p className="text-xs font-bold text-slate-500 sm:text-sm">{Number(summary.bestLoginCustomer?.count || 0).toLocaleString()} login(s)</p>
+                    <div className="rounded-2xl border border-orange-100 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-4">
+                        <p className="text-[10px] font-black uppercase text-orange-600 dark:text-orange-300 sm:text-xs">Most Active Login</p>
+                        <p className="mt-1 truncate text-sm font-black text-slate-950 dark:text-white sm:text-lg">{getCustomerName(summary.bestLoginCustomer)}</p>
+                        <p className="text-xs font-bold text-slate-500 dark:text-slate-300 sm:text-sm">{Number(summary.bestLoginCustomer?.count || 0).toLocaleString()} login(s)</p>
                     </div>
                     <button
                         type="button"

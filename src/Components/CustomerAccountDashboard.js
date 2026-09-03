@@ -188,6 +188,10 @@ const CustomerAccountDashboard = () => {
   const [showMobileSBProductActionModal, setShowMobileSBProductActionModal] = useState(false);
   const [sbItemCostInputs, setSbItemCostInputs] = useState({});
   const [approvingSBItemId, setApprovingSBItemId] = useState("");
+  const [showSBItemSellingPriceModal, setShowSBItemSellingPriceModal] = useState(false);
+  const [sbItemSellingPriceContext, setSbItemSellingPriceContext] = useState(null);
+  const [sbItemSellingPriceInput, setSbItemSellingPriceInput] = useState("");
+  const [savingSBItemSellingPrice, setSavingSBItemSellingPrice] = useState(false);
   const [accountType, setAccountType] = useState("");
     // const [accountManagerId, setAccountManagerId] = useState("");
   
@@ -781,6 +785,66 @@ if(selectedAccount){
       setErrors(error.response?.data?.message || "Failed to approve item cost price.");
     } finally {
       setApprovingSBItemId("");
+    }
+  };
+  const handleOpenSBItemSellingPriceModal = (item, index, account) => {
+    setErrors("");
+    setSbItemSellingPriceContext({ item, index, account });
+    setSbItemSellingPriceInput(Number(item?.subtotal || item?.price || 0).toString());
+    setShowSBItemSellingPriceModal(true);
+  };
+
+  const handleSBItemSellingPriceSubmit = async (event) => {
+    event.preventDefault();
+    setErrors("");
+
+    const account = sbItemSellingPriceContext?.account;
+    const item = sbItemSellingPriceContext?.item;
+    const itemId = sbItemSellingPriceContext?.index;
+    const nextSellingPrice = Number(sbItemSellingPriceInput || 0);
+
+    if (!account?.SBAccountNumber || itemId === undefined || itemId === null) {
+      setErrors("Select an SB product to edit.");
+      return;
+    }
+    if (!Number.isFinite(nextSellingPrice) || nextSellingPrice <= 0) {
+      setErrors("Enter a valid selling price.");
+      return;
+    }
+
+    if (nextSellingPrice < Number(item?.paidAmount || 0)) {
+      setErrors("Selling price cannot be less than the amount already paid for this item.");
+      return;
+    }
+    if (Number(item?.costSubtotal || 0) > 0 && nextSellingPrice < Number(item.costSubtotal || 0)) {
+      setErrors("Selling price cannot be less than approved cost price.");
+      return;
+    }
+
+    setSavingSBItemSellingPrice(true);
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await axios.put(
+        `${url}/api/sbaccount/${encodeURIComponent(account.SBAccountNumber)}/items/${encodeURIComponent(itemId)}/selling-price`,
+        { sellingPrice: nextSellingPrice },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data?.sbAccount) {
+        setSelectedAccount(response.data.sbAccount);
+      }
+      setSbItemActionMessage({
+        type: "success",
+        accountNumber: account.SBAccountNumber,
+        message: response.data?.message || "Item selling price updated successfully",
+      });
+      setShowSBItemSellingPriceModal(false);
+      setSbItemSellingPriceContext(null);
+      setSbItemSellingPriceInput("");
+      dispatch(fetchCustomerAccountRequest({ customerId }));
+    } catch (error) {
+      setErrors(error.response?.data?.message || "Failed to update item selling price.");
+    } finally {
+      setSavingSBItemSellingPrice(false);
     }
   };
   const handleMaturedFDSubmit = (e) => {
@@ -1423,6 +1487,15 @@ if(selectedAccount){
                       <span className="text-[10px] text-gray-400 md:text-xs">No action</span>
                     ) : canRequestCustomerProduct ? (
                       <div className="flex min-w-[120px] flex-col gap-1 md:min-w-[150px] md:gap-1.5">
+                        {isAdmin && (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenSBItemSellingPriceModal(item, index, account)}
+                            className="rounded bg-orange-600 px-2 py-1 text-[10px] font-semibold text-white hover:bg-orange-700 md:px-3 md:py-1.5 md:text-xs"
+                          >
+                            Edit Price
+                          </button>
+                        )}
                         {canChangeSBProduct && (
                           <button
                             type="button"
@@ -1447,6 +1520,15 @@ if(selectedAccount){
                       </div>
                     ) : (
                       <div className="flex min-w-[120px] flex-col gap-1 md:min-w-[150px] md:gap-1.5">
+                        {isAdmin && (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenSBItemSellingPriceModal(item, index, account)}
+                            className="rounded bg-orange-600 px-2 py-1 text-[10px] font-semibold text-white hover:bg-orange-700 md:px-3 md:py-1.5 md:text-xs"
+                          >
+                            Edit Price
+                          </button>
+                        )}
                         {canChangeSBProduct && (
                           <button
                             type="button"
@@ -2487,6 +2569,74 @@ if(selectedAccount){
         {errors && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{errors}</p>}
 
         {renderSBAccountItemsTable(selectedAccount)}
+      </div>
+    </div>
+  )}
+       {showSBItemSellingPriceModal && sbItemSellingPriceContext && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white p-6 rounded shadow-md w-full max-w-md">
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <h5 className="text-base font-bold">Edit Item Selling Price</h5>
+            <p className="mt-1 text-xs text-gray-500">
+              {sbItemSellingPriceContext.item?.productName}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              if (savingSBItemSellingPrice) return;
+              setShowSBItemSellingPriceModal(false);
+              setSbItemSellingPriceContext(null);
+              setSbItemSellingPriceInput("");
+              setErrors("");
+            }}
+            className="text-gray-500 hover:text-gray-800"
+          >
+            ×
+          </button>
+        </div>
+
+        {errors && <p className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{errors}</p>}
+
+        <form onSubmit={handleSBItemSellingPriceSubmit}>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">
+            Selling price amount
+          </label>
+          <input
+            type="number"
+            min="1"
+            value={sbItemSellingPriceInput}
+            onChange={(event) => setSbItemSellingPriceInput(event.target.value)}
+            className="w-full rounded border border-gray-300 p-2 text-sm"
+          />
+          <p className="mt-2 text-xs text-gray-500">
+            This is the total amount shown under this customer's SB product. It will not update the original product catalog price.
+          </p>
+
+          <div className="mt-5 flex justify-end space-x-4">
+            <button
+              onClick={() => {
+                setShowSBItemSellingPriceModal(false);
+                setSbItemSellingPriceContext(null);
+                setSbItemSellingPriceInput("");
+                setErrors("");
+              }}
+              type="button"
+              disabled={savingSBItemSellingPrice}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded disabled:opacity-60"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={savingSBItemSellingPrice}
+              className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 disabled:bg-gray-400"
+            >
+              {savingSBItemSellingPrice ? "Saving..." : "Save Price"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )}

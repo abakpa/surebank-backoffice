@@ -16,6 +16,7 @@ const getCustomerName = (customer) => (
 const getRepName = (customer) => (
   [customer?.accountManager?.firstName, customer?.accountManager?.lastName].filter(Boolean).join(" ") || "Ecommerce"
 );
+const getBranchId = (customer) => customer?.branchId?._id || customer?.branchId;
 const getPerformance = (customer) => customer?.performance || {};
 const pickTop = (items, field) => (
   [...items].sort((a, b) => Number(getPerformance(b)[field] || 0) - Number(getPerformance(a)[field] || 0))[0] || null
@@ -45,7 +46,7 @@ const ViewCustomerUsingApp = () => {
   const filteredCustomers = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
     return (customers || []).filter((customer) => {
-      const branchMatch = branchId === 'all' || customer.branchId?._id === branchId;
+      const branchMatch = branchId === 'all' || getBranchId(customer) === branchId;
       const searchText = [
         getCustomerName(customer),
         customer?.customerId?.phone,
@@ -58,8 +59,9 @@ const ViewCustomerUsingApp = () => {
   }, [branchId, customers, search]);
 
   const summary = useMemo(() => {
-    const totalCustomers = filteredCustomers.length;
-    const totalLogins = filteredCustomers.reduce((sum, customer) => sum + Number(customer?.count || 0), 0);
+    const loginCustomers = filteredCustomers.filter((customer) => Number(customer?.count || 0) > 0);
+    const totalCustomers = loginCustomers.length;
+    const totalLogins = loginCustomers.reduce((sum, customer) => sum + Number(customer?.count || 0), 0);
     const totalDS = filteredCustomers.reduce((sum, customer) => sum + Number(getPerformance(customer).dsTotal || 0), 0);
     const totalSB = filteredCustomers.reduce((sum, customer) => sum + Number(getPerformance(customer).sbPurchaseTotal || 0), 0);
 
@@ -68,7 +70,7 @@ const ViewCustomerUsingApp = () => {
       totalLogins,
       totalDS,
       totalSB,
-      bestLoginCustomer: [...filteredCustomers].sort((a, b) => Number(b?.count || 0) - Number(a?.count || 0))[0] || null,
+      bestLoginCustomer: [...loginCustomers].sort((a, b) => Number(b?.count || 0) - Number(a?.count || 0))[0] || null,
       bestDSCustomer: pickTop(filteredCustomers, "dsTotal"),
       bestSBCustomer: pickTop(filteredCustomers, "sbPurchaseTotal"),
     };
@@ -77,7 +79,7 @@ const ViewCustomerUsingApp = () => {
   const newCustomers = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
     return (Array.isArray(newCustomerRows) ? newCustomerRows : []).filter((customer) => {
-      const branchMatch = branchId === 'all' || customer.branchId?._id === branchId;
+      const branchMatch = branchId === 'all' || getBranchId(customer) === branchId;
       const searchText = [
         getCustomerName(customer),
         customer?.customerId?.phone,
@@ -133,19 +135,19 @@ const ViewCustomerUsingApp = () => {
         </section>
 
         <section className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
-          <div className="rounded-2xl border border-orange-100 bg-white p-3 shadow-sm sm:p-4">
-            <p className="text-[10px] font-black uppercase text-orange-600 sm:text-xs">Most Active Login</p>
-            <p className="mt-1 truncate text-sm font-black text-slate-950 sm:text-lg">{getCustomerName(summary.bestLoginCustomer)}</p>
-            <p className="text-xs font-bold text-slate-500 sm:text-sm">{Number(summary.bestLoginCustomer?.count || 0).toLocaleString()} login(s)</p>
+          <div className="rounded-2xl border border-orange-100 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-4">
+            <p className="text-[10px] font-black uppercase text-orange-600 dark:text-orange-300 sm:text-xs">Most Active Login</p>
+            <p className="mt-1 truncate text-sm font-black text-slate-950 dark:text-white sm:text-lg">{getCustomerName(summary.bestLoginCustomer)}</p>
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-300 sm:text-sm">{Number(summary.bestLoginCustomer?.count || 0).toLocaleString()} login(s)</p>
           </div>
-          <div className="rounded-2xl border border-emerald-100 bg-white p-3 shadow-sm sm:p-4">
-            <p className="text-[10px] font-black uppercase text-emerald-600 sm:text-xs">Best DS Customer</p>
-            <p className="mt-1 truncate text-sm font-black text-slate-950 sm:text-lg">{getCustomerName(summary.bestDSCustomer)}</p>
+          <div className="rounded-2xl border border-emerald-100 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-4">
+            <p className="text-[10px] font-black uppercase text-emerald-600 dark:text-emerald-300 sm:text-xs">Best DS Customer</p>
+            <p className="mt-1 truncate text-sm font-black text-slate-950 dark:text-white sm:text-lg">{getCustomerName(summary.bestDSCustomer)}</p>
             <p className="text-xs font-bold text-emerald-700 sm:text-sm">{formatCurrency(getPerformance(summary.bestDSCustomer).dsTotal)}</p>
           </div>
-          <div className="rounded-2xl border border-sky-100 bg-white p-3 shadow-sm sm:p-4">
-            <p className="text-[10px] font-black uppercase text-sky-600 sm:text-xs">Best Product Customer</p>
-            <p className="mt-1 truncate text-sm font-black text-slate-950 sm:text-lg">{getCustomerName(summary.bestSBCustomer)}</p>
+          <div className="rounded-2xl border border-sky-100 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-4">
+            <p className="text-[10px] font-black uppercase text-sky-600 dark:text-sky-300 sm:text-xs">Best Product Customer</p>
+            <p className="mt-1 truncate text-sm font-black text-slate-950 dark:text-white sm:text-lg">{getCustomerName(summary.bestSBCustomer)}</p>
             <p className="text-xs font-bold text-sky-700 sm:text-sm">{formatCurrency(getPerformance(summary.bestSBCustomer).sbPurchaseTotal)}</p>
           </div>
           <button
