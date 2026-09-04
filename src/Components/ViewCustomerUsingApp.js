@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from "react-redux";
+import { CircleHelp } from "lucide-react";
 import { fetchBranchRequest } from "../redux/slices/branchSlice";
 import { fetchCustomerLoginCountRequest, fetchCustomerNewCustomersRequest } from '../redux/slices/customerSlice';
 import Select2 from "./Select2";
@@ -21,6 +22,47 @@ const getPerformance = (customer) => customer?.performance || {};
 const pickTop = (items, field) => (
   [...items].sort((a, b) => Number(getPerformance(b)[field] || 0) - Number(getPerformance(a)[field] || 0))[0] || null
 );
+const metricHelp = {
+  appCustomers: "Counts only customers who have logged into the ecommerce app. Transaction-only customers do not increase this login count.",
+  totalLogins: "Adds up all recorded ecommerce app login counts for the filtered customers.",
+  dsPerformance: "Net DS transaction performance for the filtered customers: DS credit transactions minus DS debit and charge transactions.",
+  productPurchase: "Sum of fully paid product items and fully paid product orders/packages. A product item counts when its payment status is paid or its paid amount covers its item subtotal.",
+  mostActiveLogin: "The customer with the highest ecommerce app login count.",
+  bestDSCustomer: "The customer with the highest current DS balance, summed across their DS packages.",
+  bestProductCustomer: "The customer with the highest current SB/product balance, summed across their SB packages.",
+  newCustomers: "Customers whose accounts were opened within the last 30 days.",
+};
+
+const InfoButton = ({ id, activeInfo, setActiveInfo, text, tone = "light", align = "right" }) => {
+  const isOpen = activeInfo === id;
+  const iconClass = tone === "dark"
+    ? "text-white/80 hover:bg-white/15 hover:text-white"
+    : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white";
+  const popoverAlignment = align === "left"
+    ? "left-0"
+    : "right-0";
+
+  return (
+    <span className="relative inline-flex">
+      <button
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          setActiveInfo(isOpen ? null : id);
+        }}
+        className={`rounded-full p-1 transition ${iconClass}`}
+        aria-label="Show card information"
+      >
+        <CircleHelp className="h-4 w-4" />
+      </button>
+      {isOpen && (
+        <span className={`absolute ${popoverAlignment} top-full z-30 mt-2 w-[min(16rem,calc(100vw-2rem))] rounded-lg border border-slate-200 bg-white p-3 text-left text-xs font-semibold leading-5 text-slate-700 shadow-xl dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200`}>
+          {text}
+        </span>
+      )}
+    </span>
+  );
+};
 
 const ViewCustomerUsingApp = () => {
   const dispatch = useDispatch();
@@ -29,12 +71,19 @@ const ViewCustomerUsingApp = () => {
   const [branchId, setBranchId] = useState('all');
   const [search, setSearch] = useState('');
   const [showNewCustomersModal, setShowNewCustomersModal] = useState(false);
+  const [activeInfo, setActiveInfo] = useState(null);
 
   useEffect(() => {
     dispatch(fetchBranchRequest());
     dispatch(fetchCustomerLoginCountRequest());
     dispatch(fetchCustomerNewCustomersRequest());
   }, [dispatch]);
+
+  useEffect(() => {
+    const closeInfo = () => setActiveInfo(null);
+    document.addEventListener("click", closeInfo);
+    return () => document.removeEventListener("click", closeInfo);
+  }, []);
 
   const branchOptions = [
     { label: "All Branches", value: "all" },
@@ -71,8 +120,8 @@ const ViewCustomerUsingApp = () => {
       totalDS,
       totalSB,
       bestLoginCustomer: [...loginCustomers].sort((a, b) => Number(b?.count || 0) - Number(a?.count || 0))[0] || null,
-      bestDSCustomer: pickTop(filteredCustomers, "dsTotal"),
-      bestSBCustomer: pickTop(filteredCustomers, "sbPurchaseTotal"),
+      bestDSCustomer: pickTop(filteredCustomers, "dsBalanceTotal"),
+      bestSBCustomer: pickTop(filteredCustomers, "sbBalanceTotal"),
     };
   }, [filteredCustomers]);
 
@@ -117,48 +166,79 @@ const ViewCustomerUsingApp = () => {
 
         <section className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-4">
           <div className="rounded-2xl bg-orange-500 p-3 text-white shadow-sm sm:p-4">
-            <p className="text-[10px] font-black uppercase text-orange-50 sm:text-xs">Customers Using App</p>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-[10px] font-black uppercase text-orange-50 sm:text-xs">Customers Using App</p>
+              <InfoButton id="appCustomers" activeInfo={activeInfo} setActiveInfo={setActiveInfo} text={metricHelp.appCustomers} tone="dark" align="left" />
+            </div>
             <p className="mt-1 text-xl font-black sm:text-2xl">{summary.totalCustomers.toLocaleString()}</p>
           </div>
           <div className="rounded-2xl bg-purple-700 p-3 text-white shadow-sm sm:p-4">
-            <p className="text-[10px] font-black uppercase text-purple-100 sm:text-xs">Total Logins</p>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-[10px] font-black uppercase text-purple-100 sm:text-xs">Total Logins</p>
+              <InfoButton id="totalLogins" activeInfo={activeInfo} setActiveInfo={setActiveInfo} text={metricHelp.totalLogins} tone="dark" />
+            </div>
             <p className="mt-1 text-xl font-black sm:text-2xl">{summary.totalLogins.toLocaleString()}</p>
           </div>
           <div className="rounded-2xl bg-emerald-600 p-3 text-white shadow-sm sm:p-4">
-            <p className="text-[10px] font-black uppercase text-emerald-50 sm:text-xs">DS Performance</p>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-[10px] font-black uppercase text-emerald-50 sm:text-xs">DS Performance</p>
+              <InfoButton id="dsPerformance" activeInfo={activeInfo} setActiveInfo={setActiveInfo} text={metricHelp.dsPerformance} tone="dark" align="left" />
+            </div>
             <p className="mt-1 text-lg font-black sm:text-2xl">{formatCurrency(summary.totalDS)}</p>
           </div>
           <div className="rounded-2xl bg-sky-600 p-3 text-white shadow-sm sm:p-4">
-            <p className="text-[10px] font-black uppercase text-sky-50 sm:text-xs">Product Purchase</p>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-[10px] font-black uppercase text-sky-50 sm:text-xs">Product Purchase</p>
+              <InfoButton id="productPurchase" activeInfo={activeInfo} setActiveInfo={setActiveInfo} text={metricHelp.productPurchase} tone="dark" />
+            </div>
             <p className="mt-1 text-lg font-black sm:text-2xl">{formatCurrency(summary.totalSB)}</p>
           </div>
         </section>
 
         <section className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
           <div className="rounded-2xl border border-orange-100 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-4">
-            <p className="text-[10px] font-black uppercase text-orange-600 dark:text-orange-300 sm:text-xs">Most Active Login</p>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-[10px] font-black uppercase text-orange-600 dark:text-orange-300 sm:text-xs">Most Active Login</p>
+              <InfoButton id="mostActiveLogin" activeInfo={activeInfo} setActiveInfo={setActiveInfo} text={metricHelp.mostActiveLogin} align="left" />
+            </div>
             <p className="mt-1 truncate text-sm font-black text-slate-950 dark:text-white sm:text-lg">{getCustomerName(summary.bestLoginCustomer)}</p>
             <p className="text-xs font-bold text-slate-500 dark:text-slate-300 sm:text-sm">{Number(summary.bestLoginCustomer?.count || 0).toLocaleString()} login(s)</p>
           </div>
           <div className="rounded-2xl border border-emerald-100 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-4">
-            <p className="text-[10px] font-black uppercase text-emerald-600 dark:text-emerald-300 sm:text-xs">Best DS Customer</p>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-[10px] font-black uppercase text-emerald-600 dark:text-emerald-300 sm:text-xs">Best DS Customer</p>
+              <InfoButton id="bestDSCustomer" activeInfo={activeInfo} setActiveInfo={setActiveInfo} text={metricHelp.bestDSCustomer} />
+            </div>
             <p className="mt-1 truncate text-sm font-black text-slate-950 dark:text-white sm:text-lg">{getCustomerName(summary.bestDSCustomer)}</p>
-            <p className="text-xs font-bold text-emerald-700 sm:text-sm">{formatCurrency(getPerformance(summary.bestDSCustomer).dsTotal)}</p>
+            <p className="text-xs font-bold text-emerald-700 sm:text-sm">{formatCurrency(getPerformance(summary.bestDSCustomer).dsBalanceTotal)}</p>
           </div>
           <div className="rounded-2xl border border-sky-100 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:p-4">
-            <p className="text-[10px] font-black uppercase text-sky-600 dark:text-sky-300 sm:text-xs">Best Product Customer</p>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-[10px] font-black uppercase text-sky-600 dark:text-sky-300 sm:text-xs">Best Product Customer</p>
+              <InfoButton id="bestProductCustomer" activeInfo={activeInfo} setActiveInfo={setActiveInfo} text={metricHelp.bestProductCustomer} align="left" />
+            </div>
             <p className="mt-1 truncate text-sm font-black text-slate-950 dark:text-white sm:text-lg">{getCustomerName(summary.bestSBCustomer)}</p>
-            <p className="text-xs font-bold text-sky-700 sm:text-sm">{formatCurrency(getPerformance(summary.bestSBCustomer).sbPurchaseTotal)}</p>
+            <p className="text-xs font-bold text-sky-700 sm:text-sm">{formatCurrency(getPerformance(summary.bestSBCustomer).sbBalanceTotal)}</p>
           </div>
-          <button
-            type="button"
+          <div
+            role="button"
+            tabIndex={0}
             onClick={() => setShowNewCustomersModal(true)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                setShowNewCustomersModal(true);
+              }
+            }}
             className="rounded-2xl border border-pink-100 bg-gradient-to-br from-pink-600 to-orange-500 p-3 text-left text-white shadow-sm transition hover:shadow-md sm:p-4"
           >
-            <p className="text-[10px] font-black uppercase text-pink-50 sm:text-xs">New Customers</p>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-[10px] font-black uppercase text-pink-50 sm:text-xs">New Customers</p>
+              <InfoButton id="newCustomers" activeInfo={activeInfo} setActiveInfo={setActiveInfo} text={metricHelp.newCustomers} tone="dark" />
+            </div>
             <p className="mt-1 text-2xl font-black leading-none sm:text-3xl">{newCustomers.length.toLocaleString()}</p>
             <p className="mt-1 text-xs font-bold text-pink-50 sm:text-sm">Opened in 30 days</p>
-          </button>
+          </div>
         </section>
 
         <section className="rounded-3xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
