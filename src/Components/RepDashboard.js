@@ -38,6 +38,14 @@ import BackofficeProductDeliveryCards from "./BackofficeProductDeliveryCards";
 const getDateRangeValue = (dateRanges, key) =>
   dateRanges[key] || { startDate: "", endDate: "" };
 
+const getSBPackageCount = (value) => (
+  value && typeof value === "object" ? Number(value.count || 0) : Number(value || 0)
+);
+
+const getSBPackageInsufficientCount = (value) => (
+  value && typeof value === "object" ? Number(value.insufficientBalanceCount || 0) : 0
+);
+
 
 
 const RepDashboard = () => {
@@ -81,7 +89,8 @@ const RepDashboard = () => {
       const newtotaldailysbandds = reptotaldailysbandds || 0
       const newdswithdrawal = repdswithdrawal || 0
       const newdspackage = repdspackage || 0
-      const newsbpackage = repsbpackage || 0
+      const newsbpackage = getSBPackageCount(repsbpackage)
+      const newsbpackageinsufficient = getSBPackageInsufficientCount(repsbpackage)
       const newpackages = reppackages || 0
       const newfdpackage = Number(fdpackage) || 0
       const newrepexpenditure = reptotalexpenditure || 0
@@ -320,6 +329,10 @@ const RepDashboard = () => {
       <DashboardDateRangeFields rangeKey="date8" dateRanges={dateRanges} setDateRanges={setDateRanges} />
   
     </form>
+  </div>
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-amber-100">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-amber-800">SB Uncounted Items</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-amber-800">{newsbpackageinsufficient?.toLocaleString('en-US') || 0}</p>
   </div>
   <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-emerald-200">
     <button

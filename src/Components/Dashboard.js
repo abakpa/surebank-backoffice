@@ -48,6 +48,14 @@ import { url } from "../redux/sagas/url";
 const getDateRangeValue = (dateRanges, key) =>
   dateRanges[key] || { startDate: "", endDate: "" };
 
+const getSBPackageCount = (value) => (
+  value && typeof value === "object" ? Number(value.count || 0) : Number(value || 0)
+);
+
+const getSBPackageInsufficientCount = (value) => (
+  value && typeof value === "object" ? Number(value.insufficientBalanceCount || 0) : 0
+);
+
 
 
 const Dashboard = () => {
@@ -132,7 +140,8 @@ const Dashboard = () => {
       const newtotaldailysbandds = totaldailysbandds || 0
       const newdswithdrawal = dswithdrawal || 0
       const newdspackage = dspackage || 0
-      const newsbpackage = sbpackage || 0
+      const newsbpackage = getSBPackageCount(sbpackage)
+      const newsbpackageinsufficient = getSBPackageInsufficientCount(sbpackage)
       const newfdpackage = fdpackage || 0
       const newpackages = packages || 0
       const newdsincome = dsincome || 0
@@ -468,6 +477,10 @@ const Dashboard = () => {
       <DashboardDateRangeFields rangeKey="date8" dateRanges={dateRanges} setDateRanges={setDateRanges} />
   
     </form>
+  </div>
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-amber-100">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-amber-800">SB Uncounted Items</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-amber-800">{newsbpackageinsufficient?.toLocaleString('en-US') || 0}</p>
   </div>
     {/* Card 16 - Fuchsia */}
     <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-fuchsia-200">

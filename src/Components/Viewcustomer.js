@@ -89,10 +89,15 @@ const Viewcustomer = () => {
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-9 pr-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-orange-500 focus:bg-white focus:ring-2 focus:ring-orange-100"
               />
             </div>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 lg:flex">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4 lg:flex">
               <Link to="/viewcustomerusingapp" className="text-xs">
                 <button className="w-full rounded-xl bg-sky-600 px-4 py-3 font-black text-white shadow-sm hover:bg-sky-700 lg:w-auto">
                   Customers Analytics
+                </button>
+              </Link>
+              <Link to="/product-action-requests" className="text-xs">
+                <button className="w-full rounded-xl bg-indigo-600 px-4 py-3 font-black text-white shadow-sm hover:bg-indigo-700 lg:w-auto">
+                  Product Request
                 </button>
               </Link>
               <Link to="/viewcustomerwithdrawalrequest" className="text-xs">

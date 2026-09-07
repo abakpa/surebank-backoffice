@@ -38,6 +38,14 @@ import { url } from "../redux/sagas/url";
 const getDateRangeValue = (dateRanges, key) =>
   dateRanges[key] || { startDate: "", endDate: "" };
 
+const getSBPackageCount = (value) => (
+  value && typeof value === "object" ? Number(value.count || 0) : Number(value || 0)
+);
+
+const getSBPackageInsufficientCount = (value) => (
+  value && typeof value === "object" ? Number(value.insufficientBalanceCount || 0) : 0
+);
+
 
 
 const ManagerDashboard = () => {
@@ -96,7 +104,8 @@ const ManagerDashboard = () => {
       const newtotaldailysbandds =  branchtotaldailysbandds || 0
       const newdswithdrawal =  branchdswithdrawal || 0
       const newdspackage =  branchdspackage || 0
-      const newsbpackage =  branchsbpackage || 0
+      const newsbpackage =  getSBPackageCount(branchsbpackage)
+      const newsbpackageinsufficient = getSBPackageInsufficientCount(branchsbpackage)
       const newpackages =  branchpackages || 0
       const newtotalexpenditure =  branchtotalexpenditure || 0
       const newfdpackage = fdpackage || 0
@@ -333,6 +342,10 @@ const ManagerDashboard = () => {
       <DashboardDateRangeFields rangeKey="date8" dateRanges={dateRanges} setDateRanges={setDateRanges} />
   
     </form>
+  </div>
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-amber-100">
+    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-amber-800">SB Uncounted Items</h3>
+    <p className="text-[11px] sm:text-sm font-bold text-amber-800">{newsbpackageinsufficient?.toLocaleString('en-US') || 0}</p>
   </div>
   {/* Card 16 - Fuchsia */}
   <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-fuchsia-200">
