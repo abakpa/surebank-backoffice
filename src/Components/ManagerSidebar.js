@@ -127,6 +127,11 @@ const ManagerSidebar = ({ isOpen, toggleSidebar, role }) => {
             Product Actions
           </li>
         </Link>
+        <Link to="/referral-incentives" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            Referral Incentives
+          </li>
+        </Link>
           </>
         )}
 

@@ -27,6 +27,8 @@ import {
   fetchSBincomeRequest,
   fetchTotalincomeRequest,
   fetchTotalExpenditureRequest,
+  fetchFirstLoginBonusExpenseRequest,
+  fetchTransactionBonusExpenseRequest,
   fetchTotalProfitRequest,
   fetchAvailablaBalanceRequest,
   fetchEcommerceIncomeRequest,
@@ -92,6 +94,8 @@ const Dashboard = () => {
     const [branchId23, setBranchId23] = useState("");
     const [branchId24, setBranchId24] = useState("");
     const [branchId25, setBranchId25] = useState("");
+    const [branchId26, setBranchId26] = useState("");
+    const [branchId27, setBranchId27] = useState("");
     const [isEcommerceDepositModalOpen, setIsEcommerceDepositModalOpen] = useState(false);
     const [isEcommerceDSDepositModalOpen, setIsEcommerceDSDepositModalOpen] = useState(false);
     const [isFWWithdrawalModalOpen, setIsFWWithdrawalModalOpen] = useState(false);
@@ -117,9 +121,11 @@ const Dashboard = () => {
       dsincome,
       sbincome,
       fdincome,
-      totalincome,
-      totalexpenditure,
-      profit,
+	      totalincome,
+	      totalexpenditure,
+	      firstLoginBonusExpense,
+	      transactionBonusExpense,
+	      profit,
       availablebalance,
       ecommerceIncome,
       ecommerceDeposit,
@@ -149,6 +155,8 @@ const Dashboard = () => {
       const newfdincome = fdincome || 0
       const newtotalincome = totalincome || 0
       const newtotalexpenditure = totalexpenditure || 0
+      const newFirstLoginBonusExpense = firstLoginBonusExpense || 0
+      const newTransactionBonusExpense = transactionBonusExpense || 0
       const newprofit = profit || 0
       const newinterestincome = fdinterestincome || 0
       const newinterestexpense = fdinterestexpense || 0
@@ -231,8 +239,10 @@ const Dashboard = () => {
         const details23 = { branchId: branchId23, date: getDateRangeValue(dateRanges, "date23") };
         const details24 = { branchId: branchId23, date: getDateRangeValue(dateRanges, "date23") };
         const details25 = { branchId: branchId24, date: getDateRangeValue(dateRanges, "date24") };
-        const details28 = { branchId: branchId25, date: getDateRangeValue(dateRanges, "date25") };
-        const details29 = { branchId: branchId25, date: getDateRangeValue(dateRanges, "date25") };
+	        const details28 = { branchId: branchId25, date: getDateRangeValue(dateRanges, "date25") };
+	        const details29 = { branchId: branchId25, date: getDateRangeValue(dateRanges, "date25") };
+	        const details30 = { branchId: branchId26, date: getDateRangeValue(dateRanges, "date26") };
+	        const details31 = { branchId: branchId27, date: getDateRangeValue(dateRanges, "date27") };
         const data = {details}
         const data1 = {details1}
         const data2 = {details2}
@@ -259,8 +269,10 @@ const Dashboard = () => {
         const data23 = {details23}
         const data24 = {details24}
         const data25 = {details25}
-        const data28 = {details28}
-        const data29 = {details29}
+	        const data28 = {details28}
+	        const data29 = {details29}
+	        const data30 = {details30}
+	        const data31 = {details31}
 
         dispatch(fetchDSContributionRequest(data));
         dispatch(fetchSBContributionRequest(data1));
@@ -288,8 +300,10 @@ const Dashboard = () => {
         dispatch(fetchEcommerceDepositRequest(data23));
         dispatch(fetchEcommerceDepositReportRequest(data24));
         dispatch(fetchFWWithdrawalRequest(data25));
-        dispatch(fetchEcommerceDSDepositRequest(data28));
-        dispatch(fetchEcommerceDSDepositReportRequest(data29));
+	        dispatch(fetchEcommerceDSDepositRequest(data28));
+	        dispatch(fetchEcommerceDSDepositReportRequest(data29));
+	        dispatch(fetchFirstLoginBonusExpenseRequest(data30));
+	        dispatch(fetchTransactionBonusExpenseRequest(data31));
 
     }, [
       dispatch,
@@ -318,9 +332,11 @@ const Dashboard = () => {
       branchId21,
       branchId22,
       branchId23,
-      branchId24,
-      branchId25,
-    ]);
+	      branchId24,
+	      branchId25,
+	      branchId26,
+	      branchId27,
+	    ]);
     
   return (
 <div className="p-3 sm:p-6">
@@ -747,27 +763,55 @@ const Dashboard = () => {
     </form>
   </div>
 
-  {/* Card 14 - Violet */}
-  <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-violet-200">
-         {/* Transaction Statement Icon (Top-right Corner) */}
-  <Link to="/expenditurereport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
-  <p className="text-sm md:text-sm">View Expenditure</p>
-  </Link>
-    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-violet-800">Total Expenses</h3>
-    <p className="text-[11px] sm:text-sm font-bold text-violet-800">{ newtotalexpenditure?.toLocaleString('en-US') || 0}</p>
-    <form className="flex flex-col gap-1 mt-1">
-      <Select2
-        label="Branch"
-        options={branchOptions}
-        value={branchId13}
-        onChange={(selectedId) => setBranchId13(selectedId)}
-      />
-      <DashboardDateRangeFields rangeKey="date13" dateRanges={dateRanges} setDateRanges={setDateRanges} />
-  
-    </form>
-  </div>
+		  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-rose-200">
+		    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-rose-800">First Login Bonus Expense</h3>
+	    <p className="text-[11px] sm:text-sm font-bold text-rose-800">{newFirstLoginBonusExpense?.toLocaleString('en-US') || 0}</p>
+	    <form className="flex flex-col gap-1 mt-1">
+	      <Select2
+	        label="Branch"
+	        options={branchOptions}
+	        value={branchId26}
+	        onChange={(selectedId) => setBranchId26(selectedId)}
+	      />
+	      <DashboardDateRangeFields rangeKey="date26" dateRanges={dateRanges} setDateRanges={setDateRanges} />
+	    </form>
+	  </div>
 
-  {/* Card 15 - Fuchsia */}
+	  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-orange-200">
+	    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-orange-800">Transaction Bonus Expense</h3>
+	    <p className="text-[11px] sm:text-sm font-bold text-orange-800">{newTransactionBonusExpense?.toLocaleString('en-US') || 0}</p>
+	    <form className="flex flex-col gap-1 mt-1">
+	      <Select2
+	        label="Branch"
+	        options={branchOptions}
+	        value={branchId27}
+	        onChange={(selectedId) => setBranchId27(selectedId)}
+	      />
+	      <DashboardDateRangeFields rangeKey="date27" dateRanges={dateRanges} setDateRanges={setDateRanges} />
+		    </form>
+		  </div>
+
+	  {/* Card 14 - Violet */}
+	  <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-violet-200">
+	         {/* Transaction Statement Icon (Top-right Corner) */}
+	  <Link to="/expenditurereport" className="absolute top-2 right-2 text-lime-800 hover:text-lime-900">
+	  <p className="text-sm md:text-sm">View Expenditure</p>
+	  </Link>
+	    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-violet-800">Total Expenses</h3>
+	    <p className="text-[11px] sm:text-sm font-bold text-violet-800">{ newtotalexpenditure?.toLocaleString('en-US') || 0}</p>
+	    <form className="flex flex-col gap-1 mt-1">
+	      <Select2
+	        label="Branch"
+	        options={branchOptions}
+	        value={branchId13}
+	        onChange={(selectedId) => setBranchId13(selectedId)}
+	      />
+	      <DashboardDateRangeFields rangeKey="date13" dateRanges={dateRanges} setDateRanges={setDateRanges} />
+	  
+	    </form>
+		  </div>
+
+		  {/* Card 15 - Fuchsia */}
   <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-fuchsia-200">
     <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-fuchsia-800">Profit</h3>
     <p className="text-[11px] sm:text-sm font-bold text-fuchsia-800">{ newprofit?.toLocaleString('en-US') || 0}</p>

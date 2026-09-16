@@ -23,6 +23,8 @@ const initialState = {
     fdincome: null,
     totalincome: null,
     totalexpenditure: null,
+    firstLoginBonusExpense: null,
+    transactionBonusExpense: null,
     profit: null,
     ecommerceIncome: null,
     ecommerceDeposit: null,
@@ -279,6 +281,26 @@ const dashboardSlice = createSlice({
         fetchTotalExpenditureFailure:(state,action)=>{
             state.error = action.payload
         },
+        fetchFirstLoginBonusExpenseRequest:(state)=>{
+            state.loading = true
+        },
+        fetchFirstLoginBonusExpenseSuccess:(state,action)=>{
+            state.firstLoginBonusExpense= action.payload;
+            state.loading=false
+        },
+        fetchFirstLoginBonusExpenseFailure:(state,action)=>{
+            state.error = action.payload
+        },
+        fetchTransactionBonusExpenseRequest:(state)=>{
+            state.loading = true
+        },
+        fetchTransactionBonusExpenseSuccess:(state,action)=>{
+            state.transactionBonusExpense= action.payload;
+            state.loading=false
+        },
+        fetchTransactionBonusExpenseFailure:(state,action)=>{
+            state.error = action.payload
+        },
         fetchTotalProfitRequest:(state)=>{
             state.loading = true
         },
@@ -418,6 +440,12 @@ export const {
     fetchTotalExpenditureRequest,
     fetchTotalExpenditureSuccess,
     fetchTotalExpenditureFailure,
+    fetchFirstLoginBonusExpenseRequest,
+    fetchFirstLoginBonusExpenseSuccess,
+    fetchFirstLoginBonusExpenseFailure,
+    fetchTransactionBonusExpenseRequest,
+    fetchTransactionBonusExpenseSuccess,
+    fetchTransactionBonusExpenseFailure,
     fetchTotalProfitRequest,
     fetchTotalProfitSuccess,
     fetchTotalProfitFailure,

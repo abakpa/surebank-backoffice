@@ -64,6 +64,8 @@ import ProductReviews from "./Components/ProductReviews";
 import Analytics from "./Components/Analytics";
 import ProductActionRequests from "./Components/ProductActionRequests";
 import ClosedLegacySBAccounts from "./Components/ClosedLegacySBAccounts";
+import ReferralSettings from "./Components/ReferralSettings";
+import PaystackReconciliation from "./Components/PaystackReconciliation";
 
 const THEME_STORAGE_KEY = "backofficeTheme";
 
@@ -225,6 +227,8 @@ function App() {
                   <Route path="/ecommerce-customers" element={<EcommerceCustomers />} />
                   <Route path="/product-reviews" element={<ProductReviews />} />
                   <Route path="/ecommerce-income" element={<EcommerceIncomeReport />} />
+                  <Route path="/referral-incentives" element={<ReferralSettings />} />
+                  <Route path="/paystack-reconciliation" element={<PaystackReconciliation />} />
                 </>
                 )
               ) : (

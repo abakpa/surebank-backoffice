@@ -131,6 +131,16 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             Ecommerce Customers
           </li>
         </Link>
+        <Link to="/referral-incentives" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            Referral Incentives
+          </li>
+        </Link>
+        <Link to="/paystack-reconciliation" className="text-xs">
+          <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
+            Paystack Reconciliation
+          </li>
+        </Link>
         <Link to="/product-reviews" className="text-xs">
           <li className="hover:bg-gray-700 p-2 rounded cursor-pointer" onClick={toggleSidebar}>
             Platform Reviews

@@ -73,6 +73,12 @@ import {
     fetchTotalExpenditureRequest,
     fetchTotalExpenditureSuccess,
     fetchTotalExpenditureFailure,
+    fetchFirstLoginBonusExpenseRequest,
+    fetchFirstLoginBonusExpenseSuccess,
+    fetchFirstLoginBonusExpenseFailure,
+    fetchTransactionBonusExpenseRequest,
+    fetchTransactionBonusExpenseSuccess,
+    fetchTransactionBonusExpenseFailure,
     fetchTotalProfitRequest,
     fetchTotalProfitSuccess,
     fetchTotalProfitFailure,
@@ -595,6 +601,48 @@ function* fetchTotalExpenditureSaga(action) {
         yield put(fetchTotalExpenditureFailure(error.response?.data?.message || "An error occurred"));
     }
 }
+function* fetchFirstLoginBonusExpenseSaga(action) {
+    const { details30 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const requestData = details30 ? details30 : {};
+        const response = yield call(axios.post, `${url}/api/admindashboard/firstloginbonusexpense`, requestData,config);
+        yield put(fetchFirstLoginBonusExpenseSuccess(response.data));
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchFirstLoginBonusExpenseFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
+function* fetchTransactionBonusExpenseSaga(action) {
+    const { details31 = null } = action.payload;
+
+    try {
+        const token = localStorage.getItem('authToken');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const requestData = details31 ? details31 : {};
+        const response = yield call(axios.post, `${url}/api/admindashboard/transactionbonusexpense`, requestData,config);
+        yield put(fetchTransactionBonusExpenseSuccess(response.data));
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+          }
+        yield put(fetchTransactionBonusExpenseFailure(error.response?.data?.message || "An error occurred"));
+    }
+}
 function* fetchTotalProfitSaga(action) {
     const { details14 = null } = action.payload;
 
@@ -754,6 +802,8 @@ function* depositSaga(){
     yield takeLatest(fetchFDincomeRequest.type, fetchFDincomeSaga)
     yield takeLatest(fetchTotalincomeRequest.type, fetchTotalincomeSaga)
     yield takeLatest(fetchTotalExpenditureRequest.type, fetchTotalExpenditureSaga)
+    yield takeLatest(fetchFirstLoginBonusExpenseRequest.type, fetchFirstLoginBonusExpenseSaga)
+    yield takeLatest(fetchTransactionBonusExpenseRequest.type, fetchTransactionBonusExpenseSaga)
     yield takeLatest(fetchTotalProfitRequest.type, fetchTotalProfitSaga)
     yield takeLatest(fetchEcommerceIncomeRequest.type, fetchEcommerceIncomeSaga)
     yield takeLatest(fetchEcommerceDepositRequest.type, fetchEcommerceDepositSaga)
