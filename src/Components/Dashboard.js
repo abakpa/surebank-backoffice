@@ -43,6 +43,7 @@ import {
 import Loader from "./Loader";
 import Select2 from "./Select2";
 import EcommerceDepositDetailsModal from "./EcommerceDepositDetailsModal";
+import BonusExpenseDetailsModal from "./BonusExpenseDetailsModal";
 import DashboardDateRangeFields from "./DashboardDateRangeFields";
 import BackofficeProductDeliveryCards from "./BackofficeProductDeliveryCards";
 import { url } from "../redux/sagas/url";
@@ -100,6 +101,11 @@ const Dashboard = () => {
     const [isEcommerceDSDepositModalOpen, setIsEcommerceDSDepositModalOpen] = useState(false);
     const [isFWWithdrawalModalOpen, setIsFWWithdrawalModalOpen] = useState(false);
     const [isDSWithdrawalModalOpen, setIsDSWithdrawalModalOpen] = useState(false);
+    const [isFirstLoginBonusModalOpen, setIsFirstLoginBonusModalOpen] = useState(false);
+    const [isTransactionBonusModalOpen, setIsTransactionBonusModalOpen] = useState(false);
+    const [bonusDetailsLoading, setBonusDetailsLoading] = useState(false);
+    const [firstLoginBonusReport, setFirstLoginBonusReport] = useState([]);
+    const [transactionBonusReport, setTransactionBonusReport] = useState([]);
     const [productActionCount, setProductActionCount] = useState(0);
     const {
       loading,
@@ -188,6 +194,40 @@ const Dashboard = () => {
         const details27 = { branchId: branchId6, date: getDateRangeValue(dateRanges, "date6") };
         dispatch(fetchDSWithdrawalReportRequest({ details27 }));
         setIsDSWithdrawalModalOpen(true);
+      };
+
+      const fetchBonusReport = async (endpoint, payload, setRows, openModal) => {
+        setBonusDetailsLoading(true);
+        openModal(true);
+        try {
+          const token = localStorage.getItem("authToken");
+          const response = await axios.post(`${url}/api/admindashboard/${endpoint}`, payload, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setRows(response.data || []);
+        } catch (error) {
+          setRows([]);
+        } finally {
+          setBonusDetailsLoading(false);
+        }
+      };
+
+      const openFirstLoginBonusModal = () => {
+        fetchBonusReport(
+          "firstloginbonusexpensereport",
+          { branchId: branchId26, date: getDateRangeValue(dateRanges, "date26") },
+          setFirstLoginBonusReport,
+          setIsFirstLoginBonusModalOpen
+        );
+      };
+
+      const openTransactionBonusModal = () => {
+        fetchBonusReport(
+          "transactionbonusexpensereport",
+          { branchId: branchId27, date: getDateRangeValue(dateRanges, "date27") },
+          setTransactionBonusReport,
+          setIsTransactionBonusModalOpen
+        );
       };
 
 
@@ -764,8 +804,18 @@ const Dashboard = () => {
   </div>
 
 		  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-rose-200">
-		    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-rose-800">First Login Bonus Expense</h3>
-	    <p className="text-[11px] sm:text-sm font-bold text-rose-800">{newFirstLoginBonusExpense?.toLocaleString('en-US') || 0}</p>
+		    <div className="mb-1 flex items-start justify-between gap-2 sm:mb-2">
+		      <h3 className="text-[10px] sm:text-xs font-semibold leading-tight text-rose-800">First Login Bonus Expense</h3>
+		      <button
+		        type="button"
+		        onClick={openFirstLoginBonusModal}
+		        className="rounded-full bg-white/70 p-1 text-rose-800 hover:bg-white"
+		        title="View first login bonus details"
+		      >
+		        <FaEye className="text-xs sm:text-sm" />
+		      </button>
+		    </div>
+		    <p className="text-[11px] sm:text-sm font-bold text-rose-800">{newFirstLoginBonusExpense?.toLocaleString('en-US') || 0}</p>
 	    <form className="flex flex-col gap-1 mt-1">
 	      <Select2
 	        label="Branch"
@@ -777,9 +827,19 @@ const Dashboard = () => {
 	    </form>
 	  </div>
 
-	  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-orange-200">
-	    <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-orange-800">Transaction Bonus Expense</h3>
-	    <p className="text-[11px] sm:text-sm font-bold text-orange-800">{newTransactionBonusExpense?.toLocaleString('en-US') || 0}</p>
+		  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-orange-200">
+		    <div className="mb-1 flex items-start justify-between gap-2 sm:mb-2">
+		      <h3 className="text-[10px] sm:text-xs font-semibold leading-tight text-orange-800">Transaction Bonus Expense</h3>
+		      <button
+		        type="button"
+		        onClick={openTransactionBonusModal}
+		        className="rounded-full bg-white/70 p-1 text-orange-800 hover:bg-white"
+		        title="View transaction bonus details"
+		      >
+		        <FaEye className="text-xs sm:text-sm" />
+		      </button>
+		    </div>
+		    <p className="text-[11px] sm:text-sm font-bold text-orange-800">{newTransactionBonusExpense?.toLocaleString('en-US') || 0}</p>
 	    <form className="flex flex-col gap-1 mt-1">
 	      <Select2
 	        label="Branch"
@@ -879,6 +939,20 @@ const Dashboard = () => {
   showBalance
   showBranch
   showStaff
+/>
+<BonusExpenseDetailsModal
+  isOpen={isFirstLoginBonusModalOpen}
+  onClose={() => setIsFirstLoginBonusModalOpen(false)}
+  title="First Login Bonus Customers"
+  rows={firstLoginBonusReport}
+  loading={bonusDetailsLoading}
+/>
+<BonusExpenseDetailsModal
+  isOpen={isTransactionBonusModalOpen}
+  onClose={() => setIsTransactionBonusModalOpen(false)}
+  title="Transaction Bonus Customers"
+  rows={transactionBonusReport}
+  loading={bonusDetailsLoading}
 />
 </div>
 
