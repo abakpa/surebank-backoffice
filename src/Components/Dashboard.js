@@ -44,6 +44,7 @@ import Loader from "./Loader";
 import Select2 from "./Select2";
 import EcommerceDepositDetailsModal from "./EcommerceDepositDetailsModal";
 import BonusExpenseDetailsModal from "./BonusExpenseDetailsModal";
+import NonPayingCustomersModal from "./NonPayingCustomersModal";
 import DashboardDateRangeFields from "./DashboardDateRangeFields";
 import BackofficeProductDeliveryCards from "./BackofficeProductDeliveryCards";
 import { url } from "../redux/sagas/url";
@@ -97,15 +98,27 @@ const Dashboard = () => {
     const [branchId25, setBranchId25] = useState("");
     const [branchId26, setBranchId26] = useState("");
     const [branchId27, setBranchId27] = useState("");
+    const [branchId28, setBranchId28] = useState("");
+    const [branchId29, setBranchId29] = useState("");
+    const [branchId30, setBranchId30] = useState("");
     const [isEcommerceDepositModalOpen, setIsEcommerceDepositModalOpen] = useState(false);
     const [isEcommerceDSDepositModalOpen, setIsEcommerceDSDepositModalOpen] = useState(false);
     const [isFWWithdrawalModalOpen, setIsFWWithdrawalModalOpen] = useState(false);
     const [isDSWithdrawalModalOpen, setIsDSWithdrawalModalOpen] = useState(false);
     const [isFirstLoginBonusModalOpen, setIsFirstLoginBonusModalOpen] = useState(false);
     const [isTransactionBonusModalOpen, setIsTransactionBonusModalOpen] = useState(false);
+    const [isReferralIncentiveModalOpen, setIsReferralIncentiveModalOpen] = useState(false);
     const [bonusDetailsLoading, setBonusDetailsLoading] = useState(false);
     const [firstLoginBonusReport, setFirstLoginBonusReport] = useState([]);
     const [transactionBonusReport, setTransactionBonusReport] = useState([]);
+    const [referralIncentiveExpense, setReferralIncentiveExpense] = useState(0);
+    const [referralIncentiveReport, setReferralIncentiveReport] = useState([]);
+    const [nonPayingPeriod, setNonPayingPeriod] = useState("14");
+    const [nonPayingDSReport, setNonPayingDSReport] = useState({ count: 0, customers: [] });
+    const [nonPayingSBReport, setNonPayingSBReport] = useState({ count: 0, customers: [] });
+    const [nonPayingLoading, setNonPayingLoading] = useState(false);
+    const [isNonPayingDSModalOpen, setIsNonPayingDSModalOpen] = useState(false);
+    const [isNonPayingSBModalOpen, setIsNonPayingSBModalOpen] = useState(false);
     const [productActionCount, setProductActionCount] = useState(0);
     const {
       loading,
@@ -230,6 +243,52 @@ const Dashboard = () => {
         );
       };
 
+      const fetchReferralIncentiveExpense = async () => {
+        try {
+          const token = localStorage.getItem("authToken");
+          const response = await axios.post(`${url}/api/admindashboard/referralincentiveexpense`, {
+            branchId: branchId30,
+            date: getDateRangeValue(dateRanges, "date30"),
+          }, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setReferralIncentiveExpense(Number(response.data || 0));
+        } catch (error) {
+          setReferralIncentiveExpense(0);
+        }
+      };
+
+      const openReferralIncentiveModal = () => {
+        fetchBonusReport(
+          "referralincentiveexpensereport",
+          { branchId: branchId30, date: getDateRangeValue(dateRanges, "date30") },
+          setReferralIncentiveReport,
+          setIsReferralIncentiveModalOpen
+        );
+      };
+
+      const fetchNonPayingCustomers = async () => {
+        setNonPayingLoading(true);
+        try {
+          const token = localStorage.getItem("authToken");
+          const [dsResponse, sbResponse] = await Promise.all([
+            axios.post(`${url}/api/admindashboard/nonpayingds`, { period: nonPayingPeriod, branchId: branchId28 }, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            axios.post(`${url}/api/admindashboard/nonpayingsb`, { period: nonPayingPeriod, branchId: branchId29 }, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+          ]);
+          setNonPayingDSReport(dsResponse.data || { count: 0, customers: [] });
+          setNonPayingSBReport(sbResponse.data || { count: 0, customers: [] });
+        } catch (error) {
+          setNonPayingDSReport({ count: 0, customers: [] });
+          setNonPayingSBReport({ count: 0, customers: [] });
+        } finally {
+          setNonPayingLoading(false);
+        }
+      };
+
 
 
       useEffect(() => {
@@ -251,6 +310,14 @@ const Dashboard = () => {
 
         fetchProductActionCount();
       }, []);
+
+      useEffect(() => {
+        fetchNonPayingCustomers();
+      }, [nonPayingPeriod, branchId28, branchId29]);
+
+      useEffect(() => {
+        fetchReferralIncentiveExpense();
+      }, [branchId30, dateRanges]);
 
       useEffect(() => {
         const details = { branchId: branchId, date: getDateRangeValue(dateRanges, "date") };
@@ -851,6 +918,30 @@ const Dashboard = () => {
 		    </form>
 		  </div>
 
+		  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-emerald-200">
+		    <div className="mb-1 flex items-start justify-between gap-2 sm:mb-2">
+		      <h3 className="text-[10px] sm:text-xs font-semibold leading-tight text-emerald-800">SB Referral Incentive Expense</h3>
+		      <button
+		        type="button"
+		        onClick={openReferralIncentiveModal}
+		        className="rounded-full bg-white/70 p-1 text-emerald-800 hover:bg-white"
+		        title="View SB referral incentive details"
+		      >
+		        <FaEye className="text-xs sm:text-sm" />
+		      </button>
+		    </div>
+		    <p className="text-[11px] sm:text-sm font-bold text-emerald-800">{referralIncentiveExpense?.toLocaleString('en-US') || 0}</p>
+	    <form className="flex flex-col gap-1 mt-1">
+	      <Select2
+	        label="Branch"
+	        options={branchOptions}
+	        value={branchId30}
+	        onChange={(selectedId) => setBranchId30(selectedId)}
+	      />
+	      <DashboardDateRangeFields rangeKey="date30" dateRanges={dateRanges} setDateRanges={setDateRanges} />
+		    </form>
+		  </div>
+
 	  {/* Card 14 - Violet */}
 	  <div className="relative p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-violet-200">
 	         {/* Transaction Statement Icon (Top-right Corner) */}
@@ -884,6 +975,68 @@ const Dashboard = () => {
       />
       <DashboardDateRangeFields rangeKey="date14" dateRanges={dateRanges} setDateRanges={setDateRanges} />
   
+    </form>
+  </div>
+
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-red-200">
+    <div className="mb-1 flex items-start justify-between gap-2 sm:mb-2">
+      <h3 className="text-[10px] sm:text-xs font-semibold leading-tight text-red-800">DS Non-paying Customers</h3>
+      <button
+        type="button"
+        onClick={() => setIsNonPayingDSModalOpen(true)}
+        className="rounded-full bg-white/70 p-1 text-red-800 hover:bg-white"
+        title="View DS non-paying customers"
+      >
+        <FaEye className="text-xs sm:text-sm" />
+      </button>
+    </div>
+    <p className="text-[11px] sm:text-sm font-bold text-red-800">{nonPayingDSReport?.count?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
+      <Select2
+        label="Branch"
+        options={branchOptions}
+        value={branchId28}
+        onChange={(selectedId) => setBranchId28(selectedId)}
+      />
+      <select
+        value={nonPayingPeriod}
+        onChange={(event) => setNonPayingPeriod(event.target.value)}
+        className="rounded-md border border-red-200 bg-white/80 px-2 py-1 text-[10px] text-red-900"
+      >
+        <option value="14">2 weeks</option>
+        <option value="30">30 days</option>
+      </select>
+    </form>
+  </div>
+
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-sky-200">
+    <div className="mb-1 flex items-start justify-between gap-2 sm:mb-2">
+      <h3 className="text-[10px] sm:text-xs font-semibold leading-tight text-sky-800">SB Non-paying Customers</h3>
+      <button
+        type="button"
+        onClick={() => setIsNonPayingSBModalOpen(true)}
+        className="rounded-full bg-white/70 p-1 text-sky-800 hover:bg-white"
+        title="View SB non-paying customers"
+      >
+        <FaEye className="text-xs sm:text-sm" />
+      </button>
+    </div>
+    <p className="text-[11px] sm:text-sm font-bold text-sky-800">{nonPayingSBReport?.count?.toLocaleString('en-US') || 0}</p>
+    <form className="flex flex-col gap-1 mt-1">
+      <Select2
+        label="Branch"
+        options={branchOptions}
+        value={branchId29}
+        onChange={(selectedId) => setBranchId29(selectedId)}
+      />
+      <select
+        value={nonPayingPeriod}
+        onChange={(event) => setNonPayingPeriod(event.target.value)}
+        className="rounded-md border border-sky-200 bg-white/80 px-2 py-1 text-[10px] text-sky-900"
+      >
+        <option value="14">2 weeks</option>
+        <option value="30">30 days</option>
+      </select>
     </form>
   </div>
 
@@ -953,6 +1106,28 @@ const Dashboard = () => {
   title="Transaction Bonus Customers"
   rows={transactionBonusReport}
   loading={bonusDetailsLoading}
+/>
+<BonusExpenseDetailsModal
+  isOpen={isReferralIncentiveModalOpen}
+  onClose={() => setIsReferralIncentiveModalOpen(false)}
+  title="SB Referral Incentive Customers"
+  rows={referralIncentiveReport}
+  loading={bonusDetailsLoading}
+  showReferralColumns
+/>
+<NonPayingCustomersModal
+  isOpen={isNonPayingDSModalOpen}
+  onClose={() => setIsNonPayingDSModalOpen(false)}
+  title={`DS Non-paying Customers (${nonPayingPeriod === "30" ? "30 days" : "2 weeks"})`}
+  customers={nonPayingDSReport.customers || []}
+  loading={nonPayingLoading}
+/>
+<NonPayingCustomersModal
+  isOpen={isNonPayingSBModalOpen}
+  onClose={() => setIsNonPayingSBModalOpen(false)}
+  title={`SB Non-paying Customers (${nonPayingPeriod === "30" ? "30 days" : "2 weeks"})`}
+  customers={nonPayingSBReport.customers || []}
+  loading={nonPayingLoading}
 />
 </div>
 

@@ -16,6 +16,7 @@ const BonusExpenseDetailsModal = ({
   rows = [],
   loading = false,
   showDepositColumns = false,
+  showReferralColumns = false,
 }) => {
   if (!isOpen) return null;
 
@@ -47,6 +48,12 @@ const BonusExpenseDetailsModal = ({
                     <th className="px-3 py-2 text-left font-semibold text-gray-700">Rate</th>
                   </>
                 )}
+                {showReferralColumns && (
+                  <>
+                    <th className="px-3 py-2 text-left font-semibold text-gray-700">Referred Customer</th>
+                    <th className="px-3 py-2 text-left font-semibold text-gray-700">SB Amount</th>
+                  </>
+                )}
                 <th className="px-3 py-2 text-left font-semibold text-gray-700">Credited</th>
                 <th className="px-3 py-2 text-left font-semibold text-gray-700">Branch</th>
                 <th className="px-3 py-2 text-left font-semibold text-gray-700">Staff</th>
@@ -55,7 +62,7 @@ const BonusExpenseDetailsModal = ({
             <tbody className="divide-y divide-gray-100 bg-white">
               {loading ? (
                 <tr>
-                  <td colSpan={showDepositColumns ? 9 : 7} className="px-3 py-8 text-center text-gray-500">
+                  <td colSpan={showDepositColumns ? 9 : showReferralColumns ? 9 : 7} className="px-3 py-8 text-center text-gray-500">
                     Loading bonus details...
                   </td>
                 </tr>
@@ -72,6 +79,15 @@ const BonusExpenseDetailsModal = ({
                         <td className="px-3 py-2 text-gray-700">{row.percentage !== undefined && row.percentage !== null ? `${Number(row.percentage).toLocaleString("en-US")}%` : "N/A"}</td>
                       </>
                     )}
+                    {showReferralColumns && (
+                      <>
+                        <td className="px-3 py-2 text-gray-700">
+                          <div>{row.referredCustomerName || "N/A"}</div>
+                          <div className="text-xs text-gray-500">{row.referredCustomerPhone || ""}</div>
+                        </td>
+                        <td className="px-3 py-2 text-gray-700">{row.qualifyingAmount !== undefined && row.qualifyingAmount !== null ? formatAmount(row.qualifyingAmount) : "N/A"}</td>
+                      </>
+                    )}
                     <td className="px-3 py-2 text-gray-700">{formatDate(row.date)}</td>
                     <td className="px-3 py-2 text-gray-700">{row.branchName || "N/A"}</td>
                     <td className="px-3 py-2 text-gray-700">{row.staffName || "Ecommerce"}</td>
@@ -79,7 +95,7 @@ const BonusExpenseDetailsModal = ({
                 ))
               ) : (
                 <tr>
-                  <td colSpan={showDepositColumns ? 9 : 7} className="px-3 py-8 text-center text-gray-500">
+                  <td colSpan={showDepositColumns ? 9 : showReferralColumns ? 9 : 7} className="px-3 py-8 text-center text-gray-500">
                     No bonus records found.
                   </td>
                 </tr>

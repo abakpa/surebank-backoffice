@@ -31,6 +31,7 @@ import {
 import Loader from "./Loader";
 // import Select2 from "./Select2";
 import EcommerceDepositDetailsModal from "./EcommerceDepositDetailsModal";
+import NonPayingCustomersModal from "./NonPayingCustomersModal";
 import DashboardDateRangeFields from "./DashboardDateRangeFields";
 import BackofficeProductDeliveryCards from "./BackofficeProductDeliveryCards";
 import { url } from "../redux/sagas/url";
@@ -56,6 +57,12 @@ const ManagerDashboard = () => {
     const [isEcommerceDSDepositModalOpen, setIsEcommerceDSDepositModalOpen] = useState(false);
     const [isFWWithdrawalModalOpen, setIsFWWithdrawalModalOpen] = useState(false);
     const [productActionCount, setProductActionCount] = useState(0);
+    const [nonPayingPeriod, setNonPayingPeriod] = useState("14");
+    const [nonPayingDSReport, setNonPayingDSReport] = useState({ count: 0, customers: [] });
+    const [nonPayingSBReport, setNonPayingSBReport] = useState({ count: 0, customers: [] });
+    const [nonPayingLoading, setNonPayingLoading] = useState(false);
+    const [isNonPayingDSModalOpen, setIsNonPayingDSModalOpen] = useState(false);
+    const [isNonPayingSBModalOpen, setIsNonPayingSBModalOpen] = useState(false);
 
     // const [branchId, setBranchId] = useState("");
     // const [branchId1, setBranchId1] = useState("");
@@ -128,6 +135,32 @@ const ManagerDashboard = () => {
 
         fetchProductActionCount();
       }, []);
+
+      useEffect(() => {
+        const fetchNonPayingCustomers = async () => {
+          setNonPayingLoading(true);
+          try {
+            const token = localStorage.getItem("authToken");
+            const [dsResponse, sbResponse] = await Promise.all([
+              axios.post(`${url}/api/managerdashboard/branchnonpayingds`, { period: nonPayingPeriod }, {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+              axios.post(`${url}/api/managerdashboard/branchnonpayingsb`, { period: nonPayingPeriod }, {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+            ]);
+            setNonPayingDSReport(dsResponse.data || { count: 0, customers: [] });
+            setNonPayingSBReport(sbResponse.data || { count: 0, customers: [] });
+          } catch (error) {
+            setNonPayingDSReport({ count: 0, customers: [] });
+            setNonPayingSBReport({ count: 0, customers: [] });
+          } finally {
+            setNonPayingLoading(false);
+          }
+        };
+
+        fetchNonPayingCustomers();
+      }, [nonPayingPeriod]);
 
       const openEcommerceDepositModal = () => {
         const details18 = { date: getDateRangeValue(dateRanges, "date17") };
@@ -428,6 +461,52 @@ const ManagerDashboard = () => {
   </div>
 
 
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-red-200">
+    <div className="mb-1 flex items-start justify-between gap-2 sm:mb-2">
+      <h3 className="text-[10px] sm:text-xs font-semibold leading-tight text-red-800">DS Non-paying Customers</h3>
+      <button
+        type="button"
+        onClick={() => setIsNonPayingDSModalOpen(true)}
+        className="rounded-full bg-white/70 p-1 text-red-800 hover:bg-white"
+        title="View DS non-paying customers"
+      >
+        <FaEye className="text-xs sm:text-sm" />
+      </button>
+    </div>
+    <p className="text-[11px] sm:text-sm font-bold text-red-800">{nonPayingDSReport?.count?.toLocaleString('en-US') || 0}</p>
+    <select
+      value={nonPayingPeriod}
+      onChange={(event) => setNonPayingPeriod(event.target.value)}
+      className="mt-1 w-full rounded-md border border-red-200 bg-white/80 px-2 py-1 text-[10px] text-red-900"
+    >
+      <option value="14">2 weeks</option>
+      <option value="30">30 days</option>
+    </select>
+  </div>
+
+  <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-sky-200">
+    <div className="mb-1 flex items-start justify-between gap-2 sm:mb-2">
+      <h3 className="text-[10px] sm:text-xs font-semibold leading-tight text-sky-800">SB Non-paying Customers</h3>
+      <button
+        type="button"
+        onClick={() => setIsNonPayingSBModalOpen(true)}
+        className="rounded-full bg-white/70 p-1 text-sky-800 hover:bg-white"
+        title="View SB non-paying customers"
+      >
+        <FaEye className="text-xs sm:text-sm" />
+      </button>
+    </div>
+    <p className="text-[11px] sm:text-sm font-bold text-sky-800">{nonPayingSBReport?.count?.toLocaleString('en-US') || 0}</p>
+    <select
+      value={nonPayingPeriod}
+      onChange={(event) => setNonPayingPeriod(event.target.value)}
+      className="mt-1 w-full rounded-md border border-sky-200 bg-white/80 px-2 py-1 text-[10px] text-sky-900"
+    >
+      <option value="14">2 weeks</option>
+      <option value="30">30 days</option>
+    </select>
+  </div>
+
   <Link to="/product-action-requests" className="block">
     <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-emerald-200 hover:bg-emerald-300 transition">
       <h3 className="text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 leading-tight text-emerald-800">Product Action Requests</h3>
@@ -465,6 +544,20 @@ const ManagerDashboard = () => {
   showAccountType
   showBalance
   showStaff
+/>
+<NonPayingCustomersModal
+  isOpen={isNonPayingDSModalOpen}
+  onClose={() => setIsNonPayingDSModalOpen(false)}
+  title={`Branch DS Non-paying Customers (${nonPayingPeriod === "30" ? "30 days" : "2 weeks"})`}
+  customers={nonPayingDSReport.customers || []}
+  loading={nonPayingLoading}
+/>
+<NonPayingCustomersModal
+  isOpen={isNonPayingSBModalOpen}
+  onClose={() => setIsNonPayingSBModalOpen(false)}
+  title={`Branch SB Non-paying Customers (${nonPayingPeriod === "30" ? "30 days" : "2 weeks"})`}
+  customers={nonPayingSBReport.customers || []}
+  loading={nonPayingLoading}
 />
 </div>
 

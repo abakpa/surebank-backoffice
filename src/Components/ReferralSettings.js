@@ -17,8 +17,12 @@ const ReferralSettings = () => {
   const role = localStorage.getItem("staffRole");
   const isAdmin = role === "Admin";
   const [summary, setSummary] = useState(null);
-  const [percentage, setPercentage] = useState("");
+  const [incentivePercentage, setIncentivePercentage] = useState("");
+  const [productReferralEnabled, setProductReferralEnabled] = useState(false);
+  const [incentiveAmount, setIncentiveAmount] = useState("");
+  const [referralQualifyingAmount, setReferralQualifyingAmount] = useState("");
   const [enabled, setEnabled] = useState(true);
+  const [sbReferralEnabled, setSbReferralEnabled] = useState(false);
   const [loginBonusEnabled, setLoginBonusEnabled] = useState(false);
   const [loginBonusAmount, setLoginBonusAmount] = useState("");
   const [transactionBonusEnabled, setTransactionBonusEnabled] = useState(false);
@@ -48,8 +52,12 @@ const ReferralSettings = () => {
         params: { page, limit },
       });
       setSummary(response.data);
-      setPercentage(String(response.data?.settings?.incentivePercentage || 0));
+      setIncentivePercentage(String(response.data?.settings?.incentivePercentage || 0));
+      setProductReferralEnabled(Boolean(response.data?.settings?.productReferralEnabled));
+      setIncentiveAmount(String(response.data?.settings?.incentiveAmount || 0));
+      setReferralQualifyingAmount(String(response.data?.settings?.referralQualifyingAmount || 0));
       setEnabled(Boolean(response.data?.settings?.enabled));
+      setSbReferralEnabled(Boolean(response.data?.settings?.sbReferralEnabled));
       setLoginBonusEnabled(Boolean(response.data?.settings?.loginBonusEnabled));
       setLoginBonusAmount(String(response.data?.settings?.loginBonusAmount || 0));
       setTransactionBonusEnabled(Boolean(response.data?.settings?.transactionBonusEnabled));
@@ -111,7 +119,11 @@ const ReferralSettings = () => {
         `${url}/api/referrals/admin/settings`,
         {
           enabled,
-          incentivePercentage: Number(percentage || 0),
+          incentivePercentage: Number(incentivePercentage || 0),
+          productReferralEnabled,
+          incentiveAmount: Number(incentiveAmount || 0),
+          referralQualifyingAmount: Number(referralQualifyingAmount || 0),
+          sbReferralEnabled,
           loginBonusEnabled,
           loginBonusAmount: Number(loginBonusAmount || 0),
           transactionBonusEnabled,
@@ -184,7 +196,7 @@ const ReferralSettings = () => {
             <div>
               <h2 className="text-lg font-black text-slate-950 dark:text-white">Settings</h2>
               <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
-                Incentives are shared equally across the ordered root chain and customer referral chain.
+                Product referral uses a percentage after product payment, while SB referral uses a fixed amount after the qualifying SB amount is reached.
               </p>
             </div>
             {!isAdmin && (
@@ -196,18 +208,71 @@ const ReferralSettings = () => {
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <label className="block">
-              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Incentive Percentage</span>
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Product Referral Percentage</span>
               <input
                 type="number"
                 min="0"
                 max="100"
                 step="0.01"
-                value={percentage}
+                value={incentivePercentage}
                 disabled={!isAdmin}
-                onChange={(event) => setPercentage(event.target.value)}
+                onChange={(event) => setIncentivePercentage(event.target.value)}
                 className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-orange-500 disabled:bg-slate-100"
               />
             </label>
+            <label className="flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3">
+              <input
+                type="checkbox"
+                checked={productReferralEnabled}
+                disabled={!isAdmin}
+                onChange={(event) => setProductReferralEnabled(event.target.checked)}
+                className="h-5 w-5"
+              />
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Product referral incentive enabled</span>
+            </label>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <label className="block">
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">SB Referral Incentive Amount</span>
+              <input
+                type="number"
+                min="0"
+                step="100"
+                value={incentiveAmount}
+                disabled={!isAdmin}
+                onChange={(event) => setIncentiveAmount(event.target.value)}
+                className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-orange-500 disabled:bg-slate-100"
+              />
+            </label>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <label className="block">
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">SB Qualifying Amount</span>
+              <input
+                type="number"
+                min="0"
+                step="100"
+                value={referralQualifyingAmount}
+                disabled={!isAdmin}
+                onChange={(event) => setReferralQualifyingAmount(event.target.value)}
+                className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-orange-500 disabled:bg-slate-100"
+              />
+            </label>
+            <label className="flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3">
+              <input
+                type="checkbox"
+                checked={sbReferralEnabled}
+                disabled={!isAdmin}
+                onChange={(event) => setSbReferralEnabled(event.target.checked)}
+                className="h-5 w-5"
+              />
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-200">SB referral incentive enabled</span>
+            </label>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <label className="flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3">
               <input
                 type="checkbox"
@@ -297,14 +362,14 @@ const ReferralSettings = () => {
           </div>
 
           {isAdmin && (
-            <div className="mt-5 rounded-xl bg-slate-50 p-4">
+            <div className="mt-5 rounded-xl bg-slate-50 p-4 dark:bg-slate-800">
               <div className="flex flex-col gap-2 sm:flex-row">
                 <input
                   type="text"
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="Search customer by name, phone, or email"
-                  className="min-w-0 flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-orange-500"
+                  className="min-w-0 flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none focus:border-orange-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                 />
                 <button type="button" onClick={searchCustomers} className="rounded-xl bg-slate-950 px-5 py-3 text-sm font-bold text-white">
                   Search
@@ -318,10 +383,10 @@ const ReferralSettings = () => {
                       type="button"
                       onClick={() => addRootCustomer(customer)}
                       disabled={selectedRootIds.has(String(customer._id))}
-                      className="rounded-xl bg-white p-3 text-left text-sm shadow-sm disabled:opacity-50"
+                      className="rounded-xl bg-white p-3 text-left text-sm shadow-sm disabled:opacity-50 dark:bg-slate-900"
                     >
-                      <span className="font-bold text-slate-950">{getCustomerName(customer)}</span>
-                      <span className="ml-2 text-slate-500">{customer.phone}</span>
+                      <span className="font-bold text-slate-950 dark:text-white">{getCustomerName(customer)}</span>
+                      <span className="ml-2 text-slate-500 dark:text-slate-300">{customer.phone}</span>
                     </button>
                   ))}
                 </div>

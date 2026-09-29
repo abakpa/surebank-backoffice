@@ -1,4 +1,5 @@
 import React, { useState,useEffect } from "react";
+import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
@@ -32,8 +33,10 @@ import {
 import Loader from "./Loader";
 // import Select2 from "./Select2";
 import EcommerceDepositDetailsModal from "./EcommerceDepositDetailsModal";
+import NonPayingCustomersModal from "./NonPayingCustomersModal";
 import DashboardDateRangeFields from "./DashboardDateRangeFields";
 import BackofficeProductDeliveryCards from "./BackofficeProductDeliveryCards";
+import { url } from "../redux/sagas/url";
 
 const getDateRangeValue = (dateRanges, key) =>
   dateRanges[key] || { startDate: "", endDate: "" };
@@ -61,6 +64,12 @@ const RepDashboard = () => {
     const [isEcommerceDepositModalOpen, setIsEcommerceDepositModalOpen] = useState(false);
     const [isEcommerceDSDepositModalOpen, setIsEcommerceDSDepositModalOpen] = useState(false);
     const [isFWWithdrawalModalOpen, setIsFWWithdrawalModalOpen] = useState(false);
+    const [nonPayingPeriod, setNonPayingPeriod] = useState("14");
+    const [nonPayingDSReport, setNonPayingDSReport] = useState({ count: 0, customers: [] });
+    const [nonPayingSBReport, setNonPayingSBReport] = useState({ count: 0, customers: [] });
+    const [nonPayingLoading, setNonPayingLoading] = useState(false);
+    const [isNonPayingDSModalOpen, setIsNonPayingDSModalOpen] = useState(false);
+    const [isNonPayingSBModalOpen, setIsNonPayingSBModalOpen] = useState(false);
     const {
       loading,
      repdailyds,
@@ -114,6 +123,32 @@ const RepDashboard = () => {
         dispatch(fetchRepEcommerceDSDepositReportRequest({ details23 }));
         setIsEcommerceDSDepositModalOpen(true);
       };
+
+      useEffect(() => {
+        const fetchNonPayingCustomers = async () => {
+          setNonPayingLoading(true);
+          try {
+            const token = localStorage.getItem("authToken");
+            const [dsResponse, sbResponse] = await Promise.all([
+              axios.post(`${url}/api/repdashboard/repnonpayingds`, { period: nonPayingPeriod }, {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+              axios.post(`${url}/api/repdashboard/repnonpayingsb`, { period: nonPayingPeriod }, {
+                headers: { Authorization: `Bearer ${token}` },
+              }),
+            ]);
+            setNonPayingDSReport(dsResponse.data || { count: 0, customers: [] });
+            setNonPayingSBReport(sbResponse.data || { count: 0, customers: [] });
+          } catch (error) {
+            setNonPayingDSReport({ count: 0, customers: [] });
+            setNonPayingSBReport({ count: 0, customers: [] });
+          } finally {
+            setNonPayingLoading(false);
+          }
+        };
+
+        fetchNonPayingCustomers();
+      }, [nonPayingPeriod]);
       
 
 
@@ -450,6 +485,52 @@ const RepDashboard = () => {
     
       </form>
     </div>
+
+    <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-red-200">
+      <div className="mb-1 flex items-start justify-between gap-2 sm:mb-2">
+        <h3 className="text-[10px] sm:text-xs font-semibold leading-tight text-red-800">DS Non-paying Customers</h3>
+        <button
+          type="button"
+          onClick={() => setIsNonPayingDSModalOpen(true)}
+          className="rounded-full bg-white/70 p-1 text-red-800 hover:bg-white"
+          title="View DS non-paying customers"
+        >
+          <FaEye className="text-xs sm:text-sm" />
+        </button>
+      </div>
+      <p className="text-[11px] sm:text-sm font-bold text-red-800">{nonPayingDSReport?.count?.toLocaleString('en-US') || 0}</p>
+      <select
+        value={nonPayingPeriod}
+        onChange={(event) => setNonPayingPeriod(event.target.value)}
+        className="mt-1 w-full rounded-md border border-red-200 bg-white/80 px-2 py-1 text-[10px] text-red-900"
+      >
+        <option value="14">2 weeks</option>
+        <option value="30">30 days</option>
+      </select>
+    </div>
+
+    <div className="p-1.5 sm:p-3 rounded-lg shadow-md ring-1 ring-white/70 bg-sky-200">
+      <div className="mb-1 flex items-start justify-between gap-2 sm:mb-2">
+        <h3 className="text-[10px] sm:text-xs font-semibold leading-tight text-sky-800">SB Non-paying Customers</h3>
+        <button
+          type="button"
+          onClick={() => setIsNonPayingSBModalOpen(true)}
+          className="rounded-full bg-white/70 p-1 text-sky-800 hover:bg-white"
+          title="View SB non-paying customers"
+        >
+          <FaEye className="text-xs sm:text-sm" />
+        </button>
+      </div>
+      <p className="text-[11px] sm:text-sm font-bold text-sky-800">{nonPayingSBReport?.count?.toLocaleString('en-US') || 0}</p>
+      <select
+        value={nonPayingPeriod}
+        onChange={(event) => setNonPayingPeriod(event.target.value)}
+        className="mt-1 w-full rounded-md border border-sky-200 bg-white/80 px-2 py-1 text-[10px] text-sky-900"
+      >
+        <option value="14">2 weeks</option>
+        <option value="30">30 days</option>
+      </select>
+    </div>
     <BackofficeProductDeliveryCards />
 </div>
 
@@ -476,6 +557,20 @@ const RepDashboard = () => {
   showDSAccountNumber
   showAccountType
   showBalance
+/>
+<NonPayingCustomersModal
+  isOpen={isNonPayingDSModalOpen}
+  onClose={() => setIsNonPayingDSModalOpen(false)}
+  title={`Rep DS Non-paying Customers (${nonPayingPeriod === "30" ? "30 days" : "2 weeks"})`}
+  customers={nonPayingDSReport.customers || []}
+  loading={nonPayingLoading}
+/>
+<NonPayingCustomersModal
+  isOpen={isNonPayingSBModalOpen}
+  onClose={() => setIsNonPayingSBModalOpen(false)}
+  title={`Rep SB Non-paying Customers (${nonPayingPeriod === "30" ? "30 days" : "2 weeks"})`}
+  customers={nonPayingSBReport.customers || []}
+  loading={nonPayingLoading}
 />
 </div>
 
